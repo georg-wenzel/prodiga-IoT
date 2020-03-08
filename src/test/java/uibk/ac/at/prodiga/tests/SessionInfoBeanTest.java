@@ -12,13 +12,6 @@ import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-/**
- * Some very basic tests for {@link UserService}.
- *
- * This class is part of the skeleton project provided for students of the
- * courses "Software Architecture" and "Software Engineering" offered by the
- * University of Innsbruck.
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @WebAppConfiguration

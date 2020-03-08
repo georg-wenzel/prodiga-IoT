@@ -6,13 +6,6 @@ import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.UserService;
 
-/**
- * Controller for the user list view.
- *
- * This class is part of the skeleton project provided for students of the
- * courses "Software Architecture" and "Software Engineering" offered by the
- * University of Innsbruck.
- */
 @Component
 @Scope("view")
 public class UserListController {

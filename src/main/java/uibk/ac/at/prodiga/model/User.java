@@ -17,13 +17,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.springframework.data.domain.Persistable;
 
-/**
- * Entity representing users.
- *
- * This class is part of the skeleton project provided for students of the
- * courses "Software Architecture" and "Software Engineering" offered by the
- * University of Innsbruck.
- */
 @Entity
 public class User implements Persistable<String>, Serializable {
 
@@ -177,7 +170,7 @@ public class User implements Persistable<String>, Serializable {
 
     @Override
     public String toString() {
-        return "at.qe.sepm.skeleton.model.User[ id=" + username + " ]";
+        return "uibk.ac.at.prodiga.model.User[ id=" + username + " ]";
     }
 
     @Override

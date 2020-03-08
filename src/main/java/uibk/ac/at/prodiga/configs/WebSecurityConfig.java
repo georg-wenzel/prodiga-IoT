@@ -12,13 +12,6 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-/**
- * Spring configuration for web security.
- *
- * This class is part of the skeleton project provided for students of the
- * courses "Software Architecture" and "Software Engineering" offered by the
- * University of Innsbruck.
- */
 @Configuration
 @EnableWebSecurity()
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {

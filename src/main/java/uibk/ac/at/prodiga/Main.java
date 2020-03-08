@@ -14,14 +14,6 @@ import uibk.ac.at.prodiga.configs.CustomServletContextInitializer;
 import uibk.ac.at.prodiga.configs.WebSecurityConfig;
 import uibk.ac.at.prodiga.utils.ViewScope;
 
-/**
- * Spring boot application. Execute maven with <code>mvn spring-boot:run</code>
- * to start this web application.
- *
- * This class is part of the skeleton project provided for students of the
- * courses "Software Architecture" and "Software Engineering" offered by the
- * University of Innsbruck.
- */
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class Main extends SpringBootServletInitializer {

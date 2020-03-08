@@ -5,13 +5,6 @@ import javax.faces.context.FacesContext;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
 
-/**
- * Custom scope implementation for spring to enable JSF2-like view-scoped beans.
- *
- * This class is part of the skeleton project provided for students of the
- * courses "Software Architecture" and "Software Engineering" offered by the
- * University of Innsbruck.
- */
 public class ViewScope implements Scope {
 
     @Override
