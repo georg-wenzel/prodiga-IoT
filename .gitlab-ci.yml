@@ -1,5 +1,9 @@
 image: maven:latest
 
+stages:
+  - build
+  - test
+
 cache:
   paths:
     - target/
