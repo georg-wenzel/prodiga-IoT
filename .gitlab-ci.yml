@@ -1,0 +1,19 @@
+image: maven:latest
+
+cache:
+  paths:
+    - target/
+
+build:
+  stage: build
+  script:
+    - mvn compile
+  only:
+    - mater
+
+test:
+  stage: test
+  script:
+    - mvn test
+  only:
+    - master
