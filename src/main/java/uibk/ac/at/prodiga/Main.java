@@ -10,12 +10,21 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import springfox.documentation.RequestHandler;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uibk.ac.at.prodiga.configs.CustomServletContextInitializer;
 import uibk.ac.at.prodiga.configs.WebSecurityConfig;
 import uibk.ac.at.prodiga.utils.ViewScope;
 
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableSwagger2
 public class Main extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
@@ -40,6 +49,21 @@ public class Main extends SpringBootServletInitializer {
         customScopes.put("view", new ViewScope());
         customScopeConfigurer.setScopes(customScopes);
         return customScopeConfigurer;
+    }
+
+    @Bean
+    public Docket prodigaApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                    .apis(RequestHandlerSelectors
+                        .basePackage("uibk.ac.at.prodiga.rest.controller"))
+                    .paths(PathSelectors.regex("/.*"))
+                .build().apiInfo(new ApiInfoBuilder()
+                        .title("Prodiga REST API")
+                        .description("Productivity Information Gateway REST API")
+                        .license("")
+                        .version("1.0.0").build());
+
     }
 
 }
