@@ -1,0 +1,27 @@
+version: '3'
+
+networks: 
+    main:
+
+services:
+    db:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_USER: prodiga
+            MYSQL_PASSWORD: SuperGeheimesPassword123NacktNiemand!!
+            MYSQL_DATABASE: prodiga
+            MYSQL_ROOT_PASSWORD: root
+        networks: 
+            - main
+    backend:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        depends_on: 
+            - "db"
+        networks: 
+            - main
