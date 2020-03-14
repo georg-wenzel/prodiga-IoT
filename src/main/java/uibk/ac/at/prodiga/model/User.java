@@ -4,17 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import org.springframework.data.domain.Persistable;
 
 @Entity
@@ -49,6 +39,50 @@ public class User implements Persistable<String>, Serializable {
     @CollectionTable(name = "User_UserRole")
     @Enumerated(EnumType.STRING)
     private Set<UserRole> roles;
+
+    @ManyToOne(targetEntity = Team.class, fetch = FetchType.EAGER, optional = true)
+    private Team assignedTeam;
+
+    @Column(nullable = true)
+    private FrequencyType frequencyType;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean notificationsEnabled;
+
+    @OneToOne(optional = true, fetch = FetchType.EAGER, targetEntity = Dice.class)
+    private Dice dice;
+
+    public FrequencyType getFrequencyType() {
+        return frequencyType;
+    }
+
+    public void setFrequencyType(FrequencyType frequencyType) {
+        this.frequencyType = frequencyType;
+    }
+
+    public Boolean getNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
+    public void setNotificationsEnabled(Boolean notificationsEnabled) {
+        this.notificationsEnabled = notificationsEnabled;
+    }
+
+    public Dice getDice() {
+        return dice;
+    }
+
+    public void setDice(Dice dice) {
+        this.dice = dice;
+    }
+
+    public Team getAssignedTeam() {
+        return assignedTeam;
+    }
+
+    public void setAssignedTeam(Team assignedTeam) {
+        this.assignedTeam = assignedTeam;
+    }
 
     public String getUsername() {
         return username;
