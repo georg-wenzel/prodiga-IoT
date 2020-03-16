@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-public class Department implements Persistable<Long>, Serializable {
-
+public class Department implements Persistable<Long>, Serializable
+{
     private static final long serialVersionUID = 1543543567124567565L;
 
     @Id
@@ -27,10 +27,10 @@ public class Department implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 
