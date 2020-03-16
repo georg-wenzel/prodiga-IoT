@@ -136,6 +136,8 @@
             <groupId>org.primefaces.themes</groupId>
             <artifactId>ecuador</artifactId>
             <version>3.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/ecuador-theme-3.0.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
