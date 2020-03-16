@@ -1,8 +1,11 @@
 package uibk.ac.at.prodiga.rest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import uibk.ac.at.prodiga.rest.dtos.GenericStringDTO;
+import uibk.ac.at.prodiga.rest.dtos.InstrincsDTO;
 
 @RestController
 public class IntrinsicsController {
@@ -14,4 +17,8 @@ public class IntrinsicsController {
         return dto;
     }
 
+    @PostMapping("/api/instrincs")
+    public void push(@RequestBody InstrincsDTO instrincs) {
+
+    }
 }
