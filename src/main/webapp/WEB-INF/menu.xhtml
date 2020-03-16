@@ -1,0 +1,37 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
+                xmlns:h="http://java.sun.com/jsf/html" 
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ecuador">
+
+<div class="layout-sidebar">
+        <div class="nano">
+            <div class="nano-content menu-scroll-content">
+                <h:form id="menuform">
+                    <div class="layout-menu-title">MAIN MENU</div>
+                    <pe:menu widgetVar="me">
+                        <p:menuitem id="om_dashboard" value="Startseite" icon="fa fa-fw fa-home" outcome="/welcome" />
+                        <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" outcome="/holiday"/>
+                        <p:submenu id="om_customization" label="Benachrichtigung" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
+                        <p:submenu id="om_calendar" label="Kalender" icon="fa fa-fw fa-calendar" outcome="calendar"/>
+                        <p:submenu id="om_overview" label="Zeitübersicht" icon="fa fa-fw fa-dashboard" outcome="overview"/>
+                        <p:submenu id="om_themes" label="Badges" icon="fa fa-fw fa-trophy" outcome="calendar"/>
+                        <p:submenu id="om_components" label="Logout" icon="fa fa-fw fa-sign-out" outcome="overview"/>
+
+                        <!--
+                        <p:submenu id="om_default" label="Pages" icon="fa fa-fw fa-cube">
+                            <p:menuitem id="om_empty" value="Empty" icon="fa fa-fw fa-square-o" outcome="/empty" />
+                            <p:menuitem id="om_login" value="Login" icon="fa fa-fw fa-sign-in" outcome="/login" />
+                            <p:menuitem id="om_db_landing" value="Landing" icon="fa fa-fw fa-certificate" outcome="/landing" />
+                            <p:menuitem id="om_error" value="Error" icon="fa fa-fw fa-exclamation-circle" outcome="/error" />
+                            <p:menuitem id="om_404" value="404" icon="fa fa-fw fa-times" outcome="/404" />
+                            <p:menuitem id="om_access" value="Access Denied" icon="fa fa-fw fa-exclamation-triangle" outcome="/access" />
+                        </p:submenu>-->
+
+                    </pe:menu>
+                </h:form>
+            </div>
+        </div>
+    </div>
+</ui:composition>
