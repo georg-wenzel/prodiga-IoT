@@ -2,3 +2,4 @@
 /src/main/webapp/WEB-INF/classes/
 *.iml
 .idea
+.DS_Store
