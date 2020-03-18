@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:300, 400');
+
+.mainContainer{
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -165px;
+    width: 330px;
+    overflow-y: scroll;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 20px;
+}
+
+
+.logoImg{
+    object-fit: cover;
+    width: 300px;
+    align: center;
+    margin-bottom: 30px;
+}
+
+.button{
+    background-color: #014777;
+    color: white;
+    font-size: 12px;
+    padding: 10px 0;
+    text-decoration: none;
+    border-radius: 5px;
+    display: block;
+    width: 100px;
+    height: 40px;
+    margin-top: 30px;
+    text-transform: uppercase;
+    transition: 0.6s;
+    border:none;
+    text-align: center;
+}
+
+.loginBtn:hover {
+    background-color: lightgrey;
+    color: #333333;
+}
+
+.textfield {
+    margin-top: 10px;
+    box-shadow: 0 0 0px rgba(0,0,0,0);
+    clip-path: inset(-5px 0px -5px -5px);
+    text-align: center;
+    background-color: #ECF0F1;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 200;
+    padding: 0px !important;
+    width: 300px;
+    height: 30px !important;
+    transition: border .5s;
+    color: darkgray;
+}
+
+.textfield:focus {
+    border: 2px solid var(--main-color);
+    background: lightgrey;
+    box-shadow: none;
+}
+
+.textFieldLabel{
+    margin-top: 10px;
+    margin-left: 35px !important;
+    box-shadow: 0 0 0px rgba(0,0,0,0);
+    clip-path: inset(-5px 0px -5px -5px);
+    text-align: center;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    font-size: 18px;
+    font-family: Roboto;
+    font-weight: 400;
+    padding: 10px 0;
+    width: 250px;
+    height: 30px !important;
+    transition: border .5s;
+    color: var(--info-color);
+    display: inline-block;
+}
+
+
+hr.line {
+    border: 2px solid #014777;
+}
+
+
+ui-outputlabel ui-widget input-form {
+    color: black !important;
+}
+
+body .ui-tabs.ui-tabs-top .ui-tabs-nav .ui-tabs-header .ui-state-active{
+    background-color: #014777;
+}
+
+body .ui-tabs .ui-tabs-nav .ui-tabs-header a{
+    color: #BABABA;
+}
+
+body .ui-button.ui-button-text-icon-left .ui-button-text {
+    background-color: #00538c;
+    border: none;
+}
+
+body .ui-button.ui-button-text-icon-left .ui-button-text:hover {
+    background-color: #232323;
+    border: none;
+}
+body .ui-button.ui-button-icon-only .ui-button-text{
+    background-color: #014777;
+    border:none;
+}
+
+body .ui-button.ui-button-icon-only .ui-button-text:hover{
+    background-color: #00538c;
+    border:none;
+}
+
+
+.welcome{
+    font-size: 50px;
+    text-align: center;
+    padding: 20px;
+}
+
+.welcomeSubHeadlines{
+    font-size: 25px;
+    padding: 20px;
+
+}
+
+span#j_idt32.ui-clock.ui-widget.ui-widget-header.ui-corner-all{
+    border: none;
+    font-size: 30px;
+    color: #333333;
+}
+
+.dataTables_scrollHeadInner, .table{
+    width:100%!important
+}
