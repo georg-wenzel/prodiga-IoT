@@ -10,7 +10,10 @@ Contains usefull SQL scripts.
  the sa account for this project.
  
 ### docs
-Contains all project documentation and the students time sheets.
+Contains all project documentation.
+- `Konzeptbeschreibung - Final.pdf`: Final version of the projects concept
+ document.
+- Timesheets: Contains the students timesheets.
  
  ### src
 Actual source code.
