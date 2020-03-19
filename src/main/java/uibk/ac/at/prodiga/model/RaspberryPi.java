@@ -15,7 +15,7 @@ public class RaspberryPi implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false, length = 1337, unique = true)
+    @Column(nullable = false, length = 1337)
     private String internalId;
 
     @Column(nullable = false, length = 1337)

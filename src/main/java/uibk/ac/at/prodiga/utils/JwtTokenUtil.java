@@ -17,7 +17,7 @@ public class JwtTokenUtil implements Serializable {
     private static final long serialVersionUID = 3482234902843298432L;
     private static final long JWT_TOKEN_VALIDITY = 3 * 60 * 60; // 3 hours
 
-    @Value("${jwt.token}")
+    @Value("${jwt.secret}")
     private String secret;
 
     public String generateToken(RaspberryPi raspberry) throws Exception {

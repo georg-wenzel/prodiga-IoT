@@ -6,17 +6,17 @@ public class JwtRequestDTO {
 
 
     @NotBlank(message = "Internal Id is mandatory")
-    private String internalID;
+    private String internalId;
 
     @NotBlank(message = "Password is mandatory")
     private String password;
 
-    public String getInternalID() {
-        return internalID;
+    public String getInternalId() {
+        return internalId;
     }
 
-    public void setInternalID(String internalID) {
-        this.internalID = internalID;
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 
     public String getPassword() {

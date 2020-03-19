@@ -7,6 +7,7 @@ import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.rest.dtos.JwtRequestDTO;
 import uibk.ac.at.prodiga.rest.dtos.JwtResponseDTO;
 import uibk.ac.at.prodiga.services.RaspberryPiService;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.JwtTokenUtil;
 
 import javax.validation.Valid;
@@ -29,16 +30,15 @@ public class AuthController {
         RaspberryPi raspi;
 
         try {
-            raspi =
-                    raspberryPiService.findByInternalIdAndThrow(request.getInternalID());
+            raspi = raspberryPiService.findByInternalIdAndThrow(request.getInternalId());
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Raspi " +
                     "not found", ex);
         }
 
-        // TODO Max: Hash Password
-        if(!request.getPassword().equals(raspi.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "PAssword" +
+        if(!Constants.PASSWORD_ENCODER.encode(request.getPassword())
+                .equals(raspi.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password" +
                     " does not match");
         }
 

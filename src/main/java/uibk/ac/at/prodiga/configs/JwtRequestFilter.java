@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.configs;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -19,13 +20,11 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    private final JwtTokenUtil jwtTokenUtil;
-    private final RaspberryPiService raspberryPiService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
 
-    public JwtRequestFilter(JwtTokenUtil jwtTokenUtil, RaspberryPiService raspberryPiService) {
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.raspberryPiService = raspberryPiService;
-    }
+    @Autowired
+    private RaspberryPiService raspberryPiService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
