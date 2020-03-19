@@ -18,7 +18,7 @@ public class Department implements Persistable<Long>, Serializable
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     private User departmentLeader;
 
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, unique=true, length = 300)
     private String name;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)

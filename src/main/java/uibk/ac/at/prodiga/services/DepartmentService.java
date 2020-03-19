@@ -3,8 +3,11 @@ package uibk.ac.at.prodiga.services;
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -22,27 +25,18 @@ import java.util.Date;
 public class DepartmentService
 {
     private final DepartmentRepository departmentRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
-    private final ProdigaUserLoginManager userLoginManager;
-
-    public DepartmentService(DepartmentRepository departmentRepository, ProdigaUserLoginManager userLoginManager, UserService userService)
+    public DepartmentService(DepartmentRepository departmentRepository, UserRepository userRepository)
     {
         this.departmentRepository = departmentRepository;
-        this.userLoginManager = userLoginManager;
-        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<Department> getAllDepartments()
     {
         return Lists.newArrayList(departmentRepository.findAll());
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Department getFirstById(Long id)
-    {
-        return departmentRepository.findFirstById(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -61,7 +55,7 @@ public class DepartmentService
         }
 
         //check that user is a a valid, unchanged database user
-        if(!userService.loadUser(department.getDepartmentLeader().getUsername()).equals(department.getDepartmentLeader()))
+        if(!userRepository.findFirstByUsername(department.getDepartmentLeader().getUsername()).equals(department.getDepartmentLeader()))
         {
             throw new ProdigaGeneralExpectedException("Department leader is not a valid database user.", MessageType.ERROR);
         }
@@ -69,15 +63,20 @@ public class DepartmentService
         //set appropriate fields
         if(department.isNew())
         {
-            department.setObjectCreatedDateTime(Date.from(Instant.now()));
-            department.setObjectCreatedUser(userLoginManager.getCurrentUser());
+            department.setObjectCreatedDateTime(new Date());
+            department.setObjectCreatedUser(getAuthenticatedUser());
         }
         else
         {
-            department.setObjectChangedDateTime(Date.from(Instant.now()));
-            department.setObjectChangedUser(userLoginManager.getCurrentUser());
+            department.setObjectChangedDateTime(new Date());
+            department.setObjectChangedUser(getAuthenticatedUser());
         }
 
         return departmentRepository.save(department);
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findFirstByUsername(auth.getName());
     }
 }
