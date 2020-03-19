@@ -9,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -61,6 +62,7 @@ public class DepartmentServiceTest implements InitializingBean
         departmentRepository.save(dept);
     }
 
+    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_department()
@@ -68,5 +70,4 @@ public class DepartmentServiceTest implements InitializingBean
         Department dept = departmentService.getFirstByName("DEPT_TEST_01");
         Assert.assertNotNull("Could not load department.", dept);
     }
-
 }
