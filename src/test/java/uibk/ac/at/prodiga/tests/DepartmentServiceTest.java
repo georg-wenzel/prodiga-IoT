@@ -1,13 +1,14 @@
 package uibk.ac.at.prodiga.tests;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.util.collections.Sets;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,12 +26,9 @@ import uibk.ac.at.prodiga.tests.helper.TestHelper;
 import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners(listeners = {
-        DependencyInjectionTestExecutionListener.class,
-        DepartmentServiceTest.class})
 @SpringBootTest
 @WebAppConfiguration
-public class DepartmentServiceTest extends AbstractTestExecutionListener
+public class DepartmentServiceTest implements InitializingBean
 {
     @Autowired
     DepartmentService departmentService;
@@ -42,10 +40,8 @@ public class DepartmentServiceTest extends AbstractTestExecutionListener
     UserRepository userRepository;
 
     @Override
-    public void beforeTestClass(TestContext testContext) throws Exception
+    public void afterPropertiesSet() throws Exception
     {
-        TestHelper.autoWireTestClass(testContext, this);
-
         //Grab admin user to set as creation user for test departments and users
         User admin = userRepository.findFirstByUsername("admin");
 
