@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.rest.controller;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -11,6 +12,7 @@ import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.JwtTokenUtil;
 
 import javax.validation.Valid;
+import java.util.logging.Logger;
 
 @RestController
 @CrossOrigin
@@ -36,8 +38,7 @@ public class AuthController {
                     "not found", ex);
         }
 
-        if(!Constants.PASSWORD_ENCODER.encode(request.getPassword())
-                .equals(raspi.getPassword())) {
+        if(!Constants.PASSWORD_ENCODER.matches(request.getPassword(), raspi.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Password" +
                     " does not match");
         }

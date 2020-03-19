@@ -31,7 +31,7 @@ public class JwtTokenUtil implements Serializable {
                 .setSubject(raspberry.getInternalId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(SignatureAlgorithm.ES256, secret).compact();
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
     public boolean validateToken(String token, RaspberryPi raspberry) {

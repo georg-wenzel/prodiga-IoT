@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.User;
@@ -23,6 +24,7 @@ import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.rest.controller.AuthController;
 import uibk.ac.at.prodiga.rest.dtos.JwtRequestDTO;
+import uibk.ac.at.prodiga.rest.dtos.JwtResponseDTO;
 import uibk.ac.at.prodiga.tests.helper.TestHelper;
 import uibk.ac.at.prodiga.utils.Constants;
 
@@ -35,6 +37,8 @@ import java.util.Date;
 @SpringBootTest
 @WebAppConfiguration
 public class AuthControllerTest extends AbstractTestExecutionListener {
+
+    private final String PASSWORD = "test";
 
     @Autowired
     private AuthController authController;
@@ -93,4 +97,16 @@ public class AuthControllerTest extends AbstractTestExecutionListener {
         }
     }
 
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void authenticate_ValidRequest_ReturnsToken() {
+        JwtRequestDTO request = new JwtRequestDTO();
+        request.setInternalId("Test123");
+        request.setPassword("test");
+
+        JwtResponseDTO response = authController.createToken(request);
+
+        Assert.assertNotNull(response);
+        Assert.assertFalse(StringUtils.isEmpty(response.getToken()));
+    }
 }
