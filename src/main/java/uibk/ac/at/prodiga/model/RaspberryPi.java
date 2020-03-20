@@ -18,6 +18,9 @@ public class RaspberryPi implements Persistable<Long>, Serializable {
     @Column(nullable = false, length = 1337)
     private String internalId;
 
+    @Column(nullable = false, length = 1337)
+    private String password;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectCreatedUser;
 
@@ -30,6 +33,14 @@ public class RaspberryPi implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public void setId(Long id) {
         this.id = id;
