@@ -4,11 +4,19 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
+import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
+import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
+import uibk.ac.at.prodiga.utils.MessageType;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
 
 /**
  * Service for accessing and manipulating teams.
@@ -59,5 +67,114 @@ public class TeamService
     public Team getFirstById(long id)
     {
         return teamRepository.findFirstById(id);
+    }
+
+    /**
+     * Saves the current team in the database. If team with this ID already exists, overwrites data of existing team in the database.
+     * @param team The team to save
+     * @return The new state of the team after saving in the DB
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public Team saveTeam(Team team) throws ProdigaGeneralExpectedException
+    {
+        //check fields
+        if(team.getName().length() > 20 || team.getName().length() < 2)
+        {
+            throw new ProdigaGeneralExpectedException("Team name must be between 2 and 20 characters.", MessageType.ERROR);
+        }
+
+        //check that team leader is a valid, unchanged database user
+        User u = team.getTeamLeader();
+        if(!userService.isUserUnchanged(u))
+        {
+            throw new ProdigaGeneralExpectedException("Team leader is not a valid unchanged database user.", MessageType.ERROR);
+        }
+
+        //set appropriate fields
+        if(team.isNew())
+        {
+            team.setObjectCreatedDateTime(new Date());
+            team.setObjectCreatedUser(userLoginManager.getCurrentUser());
+
+            //User may not be an existing department or teamleader
+            if(!EmployeeManagementUtil.isSimpleEmployee(team.getTeamLeader()))
+            {
+                throw new ProdigaGeneralExpectedException("The user that is set to become teamleader may not be a teamleader or department leader already.", MessageType.ERROR);
+            }
+
+            //set user to team- or departmentleader
+            Set<UserRole> roles = u.getRoles();
+            roles.remove(UserRole.EMPLOYEE);
+            roles.add(UserRole.TEAMLEADER);
+            u.setRoles(roles);
+
+            team.setTeamLeader(userService.saveUser(u));
+        }
+        else
+        {
+            team.setObjectChangedDateTime(new Date());
+            team.setObjectChangedUser(userLoginManager.getCurrentUser());
+
+            Team oldTeam = teamRepository.findFirstById(team.getId());
+            User oldLeader = oldTeam.getTeamLeader();
+
+            if (!oldLeader.getUsername().equals(team.getTeamLeader().getUsername()))
+            {
+                User newLeader = team.getTeamLeader();
+                //new leader may not be an existing department or teamleader
+                if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
+                {
+                    throw new ProdigaGeneralExpectedException("The user that is set to become teamleader may not be a teamleader or department leader already.", MessageType.ERROR);
+                }
+
+                //change permissions
+                Set<UserRole> oldUserRoles = oldLeader.getRoles();
+                oldUserRoles.remove(UserRole.TEAMLEADER);
+                oldUserRoles.add(UserRole.EMPLOYEE);
+                oldLeader.setRoles(oldUserRoles);
+
+                Set<UserRole> newUserRoles = newLeader.getRoles();
+                newUserRoles.remove(UserRole.EMPLOYEE);
+                newUserRoles.add(UserRole.TEAMLEADER);
+                newLeader.setRoles(newUserRoles);
+
+                userService.saveUser(oldLeader);
+                newLeader = userService.saveUser(newLeader);
+                team.setTeamLeader(newLeader);
+            }
+        }
+        return teamRepository.save(team);
+    }
+
+    /**
+     * Deletes the team with this ID from the database.
+     * @param team The team to delete
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public void deleteTeam(Team team) throws ProdigaGeneralExpectedException
+    {
+        //check if this team has no users
+        if(!userService.getUsersByTeam(team).isEmpty())
+        {
+            throw new ProdigaGeneralExpectedException("Team cannot be deleted because it has remaining users.", MessageType.ERROR);
+        }
+
+        //check if team can be found
+        Team dbTeam = teamRepository.findFirstById(team.getId());
+        if(dbTeam == null)
+        {
+            throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.ERROR);
+        }
+
+        //make teamleader an employee
+        User leader = dbTeam.getTeamLeader();
+        Set<UserRole> leaderRoles = leader.getRoles();
+        leaderRoles.remove(UserRole.TEAMLEADER);
+        leaderRoles.add(UserRole.EMPLOYEE);
+        leader.setRoles(leaderRoles);
+        userService.saveUser(leader);
+
+        //delete team
+        teamRepository.delete(team);
     }
 }

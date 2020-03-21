@@ -3,18 +3,16 @@ package uibk.ac.at.prodiga.services;
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
+import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -27,12 +25,14 @@ import java.util.Set;
 public class DepartmentService
 {
     private final DepartmentRepository departmentRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final ProdigaUserLoginManager userLoginManager;
 
-    public DepartmentService(DepartmentRepository departmentRepository, UserRepository userRepository)
+    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, ProdigaUserLoginManager userLoginManager)
     {
         this.departmentRepository = departmentRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
+        this.userLoginManager = userLoginManager;
     }
 
     /**
@@ -71,33 +71,36 @@ public class DepartmentService
             throw new ProdigaGeneralExpectedException("Department name must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
+        User u = department.getDepartmentLeader();
         //check that user is a a valid, unchanged database user
-        User u = userRepository.findFirstByUsername(department.getDepartmentLeader().getUsername());
-        if(!u.equals(department.getDepartmentLeader()))
+        if(!userService.isUserUnchanged(u))
         {
-            throw new ProdigaGeneralExpectedException("Department leader is not a valid database user.", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Department leader is not a valid unchanged database user.", MessageType.ERROR);
         }
 
         //set appropriate fields
         if(department.isNew())
         {
             department.setObjectCreatedDateTime(new Date());
-            department.setObjectCreatedUser(getAuthenticatedUser());
+            department.setObjectCreatedUser(userLoginManager.getCurrentUser());
 
             //User may not be an existing department or teamleader
-            checkRoles(u);
+            if(!EmployeeManagementUtil.isSimpleEmployee(u))
+            {
+                throw new ProdigaGeneralExpectedException("The user that is set to become department leader may not be a teamleader or department leader already.", MessageType.ERROR);
+            }
 
             //set user to department leader
             Set<UserRole> roles = u.getRoles();
             roles.remove(UserRole.EMPLOYEE);
             roles.add(UserRole.DEPARTMENTLEADER);
             u.setRoles(roles);
-            department.setDepartmentLeader(userRepository.save(u));
+            department.setDepartmentLeader(userService.saveUser(u));
         }
         else
         {
             department.setObjectChangedDateTime(new Date());
-            department.setObjectChangedUser(getAuthenticatedUser());
+            department.setObjectChangedUser(userLoginManager.getCurrentUser());
 
             Department oldDept = departmentRepository.findFirstById(department.getId());
             User oldLeader = oldDept.getDepartmentLeader();
@@ -106,7 +109,10 @@ public class DepartmentService
             {
                 User newLeader = department.getDepartmentLeader();
                 //new leader may not be an existing department or teamleader
-                checkRoles(newLeader);
+                if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
+                {
+                    throw new ProdigaGeneralExpectedException("The user that is set to become department leader may not be a teamleader or department leader already.", MessageType.ERROR);
+                }
 
                 //change permissions
                 Set<UserRole> oldUserRoles = oldLeader.getRoles();
@@ -119,30 +125,12 @@ public class DepartmentService
                 newUserRoles.add(UserRole.DEPARTMENTLEADER);
                 newLeader.setRoles(newUserRoles);
 
-                userRepository.save(oldLeader);
-                newLeader = userRepository.save(newLeader);
+                userService.saveUser(oldLeader);
+                newLeader = userService.saveUser(newLeader);
                 department.setDepartmentLeader(newLeader);
             }
         }
 
         return departmentRepository.save(department);
-    }
-
-    private void checkRoles(User u) throws ProdigaGeneralExpectedException
-    {
-        if(u.getRoles().contains(UserRole.TEAMLEADER))
-        {
-            throw new ProdigaGeneralExpectedException("The user that is set to become department leader may not be a teamleader already.", MessageType.ERROR);
-        }
-
-        if(u.getRoles().contains(UserRole.DEPARTMENTLEADER))
-        {
-            throw new ProdigaGeneralExpectedException("The user that is set to become department leader may not be a department leader already.", MessageType.ERROR);
-        }
-    }
-
-    private User getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findFirstByUsername(auth.getName());
     }
 }

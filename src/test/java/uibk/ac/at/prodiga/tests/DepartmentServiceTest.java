@@ -275,6 +275,22 @@ public class DepartmentServiceTest implements InitializingBean
     }
 
     /**
+     * Tests changing a department where the department user is changed to someone else
+     */
+    @DirtiesContext
+    @Test(expected = ProdigaGeneralExpectedException.class)
+    @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
+    public void update_department_with_faulty_user() throws ProdigaGeneralExpectedException
+    {
+        Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
+        dept.setName("DEPT_TEST_02");
+        dept.getDepartmentLeader().setId("wrongId");
+        departmentService.saveDepartment(dept);
+
+        Assert.fail("Department Leader ID was changed, but department was still saved successfully.");
+    }
+
+    /**
      * Tests changing a department with lacking authentication
      */
     @DirtiesContext
