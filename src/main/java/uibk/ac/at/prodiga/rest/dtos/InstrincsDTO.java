@@ -4,15 +4,15 @@ import java.util.List;
 
 public class InstrincsDTO {
 
-    private String ipAddress;
+    private String internalId;
     private List<CubeInstrincs> cubeInstrincs;
 
-    public String getIpAddress() {
-        return ipAddress;
+    public String getInternalId() {
+        return internalId;
     }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
+    public void setInternalId(String internalId) {
+        this.internalId = internalId;
     }
 
     public List<CubeInstrincs> getCubeInstrincs() {

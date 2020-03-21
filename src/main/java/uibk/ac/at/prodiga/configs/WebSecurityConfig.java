@@ -9,8 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import uibk.ac.at.prodiga.utils.Constants;
 
@@ -23,6 +23,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     JwtAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Autowired
+    JwtRequestFilter jwtRequestFilter;
+
+    @Autowired
+    CustomAuthenticationProvider customAuthenticationProvider;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -57,14 +63,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml");
 
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         //Configure roles and passwords via datasource
-        auth.jdbcAuthentication().dataSource(dataSource)
-                .usersByUsernameQuery("select username, password, enabled from user where username=?")
-                .authoritiesByUsernameQuery("select user_username, roles from user_user_role where user_username=?");
+        auth.authenticationProvider(customAuthenticationProvider);
     }
 
     @Bean
