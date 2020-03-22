@@ -102,6 +102,10 @@ public class Room implements Persistable<Long>, Serializable {
     @OneToMany
     private Set<RaspberryPi> raspberryPiSet = new HashSet<>();
 
+    public Set<RaspberryPi> getRaspberryPis() {
+        return raspberryPiSet;
+    }
+
     @Transactional
     public void addRaspberryPi(RaspberryPi raspberryPi){
         this.raspberryPiSet.add(raspberryPi);
