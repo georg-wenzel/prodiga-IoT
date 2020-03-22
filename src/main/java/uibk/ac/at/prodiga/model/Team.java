@@ -30,10 +30,9 @@ public class Team implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 
@@ -88,6 +87,15 @@ public class Team implements Persistable<Long>, Serializable {
     public void setObjectChangedDateTime(Date objectChangedDateTime) {
         this.objectChangedDateTime = objectChangedDateTime;
     }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
 
     @Override
     public Long getId() {

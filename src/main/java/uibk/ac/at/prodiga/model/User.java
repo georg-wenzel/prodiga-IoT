@@ -28,6 +28,7 @@ public class User implements Persistable<String>, Serializable {
 
     private String password;
 
+
     private String firstName;
     private String lastName;
     private String email;

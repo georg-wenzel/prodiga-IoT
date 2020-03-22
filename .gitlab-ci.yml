@@ -3,6 +3,7 @@ image: maven:latest
 stages:
   - build
   - test
+  - notification
 
 cache:
   paths:
@@ -14,6 +15,7 @@ build:
     - mvn compile
   only:
     - master
+    - development
 
 test:
   stage: test
@@ -21,3 +23,28 @@ test:
     - mvn test
   only:
     - master
+    - development
+
+success_notification:
+  stage: notification
+  image: docker:stable
+  script:
+    - apk add --update wget && rm -rf /var/cache/apk/*
+    - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
+    - sh send.sh success $WEBHOOK_URL
+  when: on_success
+  only:
+    - master
+    - development
+
+failure_notification:
+  stage: notification
+  image: docker:stable
+  script:
+    - apk add --update wget && rm -rf /var/cache/apk/*
+    - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
+    - sh send.sh failure $WEBHOOK_URL
+  when: on_failure
+  only:
+    - master
+    - development
