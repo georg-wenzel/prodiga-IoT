@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity()
@@ -51,13 +52,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         //Configure roles and passwords via datasource
         auth.jdbcAuthentication().dataSource(dataSource)
+                .passwordEncoder(passwordEncoder())
                 .usersByUsernameQuery("select username, password, enabled from user where username=?")
                 .authoritiesByUsernameQuery("select user_username, roles from user_user_role where user_username=?");
     }
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
-        // :TODO: use proper passwordEncoder and do not store passwords in plain text
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder;
     }
 }
