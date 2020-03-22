@@ -5,10 +5,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.repositories.RoomRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -27,20 +28,32 @@ Checken was passiert, wenn noch ein Raspi/Würfel in dem Raum is usw...
 public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
+    private final RaspberryPiRepository raspberryPiRepository;
 
     private User getAuthenicatedUser(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findFirstByUsername(auth.getName());
     }
 
-    public RoomService(RoomRepository roomRepository, UserRepository userRepository){
+    public RoomService(RoomRepository roomRepository, UserRepository userRepository, RaspberryPiRepository raspberryPiRepository){
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
+        this.raspberryPiRepository = raspberryPiRepository;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<Room> getAllRooms(){
         return Lists.newArrayList(roomRepository.findAll());
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Room getFirstById(long id){
+        return roomRepository.findFirstById(id);
+    }
+
+    @Transactional
+    public Room getManagedInstance(Room room){
+        return this.roomRepository.findFirstById(room.getId());
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -63,11 +76,23 @@ public class RoomService {
     @Transactional
     public void deleteRoom(Room roomToDelete) /* throws DeletionNotAllowedException */
     {
+        Room managedRoom = this.getManagedInstance(roomToDelete);
+
       /*  if(!roomToDelete.getRaspi().isEmpty) {
            throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
           }
        */
       roomRepository.delete(roomToDelete);
+    }
+
+    @Transactional
+    public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
+        this.getManagedInstance(room).addRaspberryPi(raspberryPi);
+    }
+
+    @Transactional
+    public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
+       this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
 
 

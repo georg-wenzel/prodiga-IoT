@@ -3,8 +3,11 @@ package uibk.ac.at.prodiga.model;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Room implements Persistable<Long>, Serializable {
@@ -94,5 +97,20 @@ public class Room implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return this.objectCreatedDateTime == null;
+    }
+
+    @OneToMany
+    private Set<RaspberryPi> raspberryPiSet = new HashSet<>();
+
+    @Transactional
+    public void addRaspberryPi(RaspberryPi raspberryPi){
+        this.raspberryPiSet.add(raspberryPi);
+        //raspberryPi.setRoom(this);
+    }
+
+    @Transactional
+    public void removeRaspberryPi(RaspberryPi raspberryPi){
+        this.raspberryPiSet.remove(raspberryPi);
+        //raspberryPi.setRoom(null);
     }
 }
