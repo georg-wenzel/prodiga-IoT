@@ -14,6 +14,7 @@ public class CustomServletContextInitializer implements ServletContextInitialize
         sc.setInitParameter("javax.faces.PROJECT_STAGE", "Development");
         sc.setInitParameter("javax.faces.STATE_SAVING_METHOD", "server");
         sc.setInitParameter("javax.faces.FACELETS_SKIP_COMMENTS", "true");
+        sc.setInitParameter("primefaces.THEME", "ecuador-blue");
     }
 
 }

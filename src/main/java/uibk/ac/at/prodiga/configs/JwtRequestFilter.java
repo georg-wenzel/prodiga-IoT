@@ -30,7 +30,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
         // Only apply for REST API methods - otherwise ignore
-        if(!httpServletRequest.getContextPath().startsWith("/api")) {
+        if(!httpServletRequest.getRequestURI().startsWith("/api")) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
@@ -71,6 +71,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 // that the current user is authenticated. So it passes the
                 // Spring Security Configurations successfully.
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+                httpServletRequest.authenticate(httpServletResponse);
             }
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
