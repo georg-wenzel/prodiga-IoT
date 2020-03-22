@@ -11,9 +11,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.AsyncHelper;
+import uibk.ac.at.prodiga.utils.MessageType;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 @Component
 @Scope("application")
@@ -87,4 +90,20 @@ public class UserService {
         return userRepository.findFirstByUsername(auth.getName());
     }
 
+    /**
+     * Compares a user object with the database, and checks whether it is unchanged from the DB state.
+     * @param user The user object to compare
+     * @return A boolean signifying whether the user object is unchanged from the database.
+     */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER') || hasAuthority('EMPLOYEE')")
+    public boolean isUserUnchanged(User user)
+    {
+        return user.equals(userRepository.findFirstByUsername(user.getUsername()));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')")
+    public Collection<User> getUsersByTeam(Team team)
+    {
+        return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
+    }
 }
