@@ -12,12 +12,13 @@
                     <div class="layout-menu-title">MAIN MENU</div>
                     <pe:menu widgetVar="me">
                         <p:menuitem id="om_dashboard" value="Startseite" icon="fa fa-fw fa-home" outcome="/welcome" />
-                        <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" outcome="/holiday"/>
+                        <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" outcome="/empty"/>
                         <p:submenu id="om_customization" label="Benachrichtigung" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
                         <p:submenu id="om_calendar" label="Kalender" icon="fa fa-fw fa-calendar" outcome="calendar"/>
                         <p:submenu id="om_overview" label="Zeitübersicht" icon="fa fa-fw fa-dashboard" outcome="overview"/>
                         <p:submenu id="om_themes" label="Badges" icon="fa fa-fw fa-trophy" outcome="calendar"/>
-                        <p:submenu id="om_components" label="Logout" icon="fa fa-fw fa-sign-out" outcome="overview"/>
+                        <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
+
 
                         <!--
                         <p:submenu id="om_default" label="Pages" icon="fa fa-fw fa-cube">

@@ -5,6 +5,8 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
+    <h:outputStylesheet name = "css/layout-blue.css" library="ecuador-layout" />
+    <h:outputStylesheet name = "css/fonts.css" library="ecuador-layout" />
     <ui:define name="title">Empty Page</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
@@ -13,15 +15,18 @@
     </ui:define>
 
     <ui:define name="content">
+        <div class="layout-dashboard">
         <div class="ui-g">
         <div class="ui-g-12">
         <h:form>
-            <p:panel header="What do you see here?" >
+            <p:panel header="What do you see here?" id="basic" toggleable="true">
                 <div style="height:50px">
-                    Bullshit
+                    Ecuador works yeeees
                 </div>
             </p:panel>
         </h:form>
         </div></div>
+
+        </div>
     </ui:define>
 </ui:composition>
