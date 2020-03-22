@@ -27,8 +27,9 @@ test:
 
 success_notification:
   stage: notification
+  image: docker:stable
   script:
-    - apt-get install -y wget
+    - apk add --update wget && rm -rf /var/cache/apk/*
     - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
     - chmod +x send.sh
     - ./send.sh success $WEBHOOK_URL
@@ -39,8 +40,9 @@ success_notification:
 
 failure_notification:
   stage: notification
+  image: docker:stable
   script:
-    - apt-get install -y wget
+    - apk add --update wget && rm -rf /var/cache/apk/*
     - wget https://raw.githubusercontent.com/DiscordHooks/gitlab-ci-discord-webhook/master/send.sh
     - chmod +x send.sh
     - ./send.sh failure $WEBHOOK_URL
