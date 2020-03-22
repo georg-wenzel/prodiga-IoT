@@ -2,6 +2,8 @@ package uibk.ac.at.prodiga;
 
 import java.util.HashMap;
 import javax.faces.webapp.FacesServlet;
+
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,12 +17,20 @@ import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uibk.ac.at.prodiga.configs.CustomServletContextInitializer;
 import uibk.ac.at.prodiga.configs.WebSecurityConfig;
 import uibk.ac.at.prodiga.utils.ViewScope;
+
+import static io.swagger.models.auth.In.HEADER;
+import static java.util.Collections.singletonList;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -54,6 +64,18 @@ public class Main extends SpringBootServletInitializer {
     @Bean
     public Docket prodigaApi() {
         return new Docket(DocumentationType.SWAGGER_2)
+                .securitySchemes(singletonList(new ApiKey("JWT", AUTHORIZATION, HEADER.name())))
+                .securityContexts(singletonList(
+                        SecurityContext.builder()
+                                .securityReferences(
+                                        singletonList(SecurityReference.builder()
+                                                .reference("JWT")
+                                                .scopes(new AuthorizationScope[0])
+                                                .build()
+                                        )
+                                )
+                                .build())
+                )
                 .select()
                     .apis(RequestHandlerSelectors
                         .basePackage("uibk.ac.at.prodiga.rest.controller"))
