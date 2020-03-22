@@ -1547,16 +1547,20 @@ body .layout-wrapper .layout-main .layout-content {
   width: auto;
   vertical-align: middle;
   border: 0 none; }
+.login-body .ui-staticmessage.ui-message{
+  border-radius: 10px;
+  border: none;
+}
 .login-body .login-panel {
   padding: 70px 70px 70px 70px;
   position: relative;
   margin: 0 auto;
   width: 550px;
   height: 550px;
-  border-radius: 50%;
+  border-radius: 100%;
   text-align: center;
   background-color: rgba(255,255,255,0.8);
-  top: 21%; }
+  top: 22%; }
 .login-body .login-panel img {
   height: 28px;
   width: auto;
