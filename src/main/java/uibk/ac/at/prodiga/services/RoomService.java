@@ -52,6 +52,11 @@ public class RoomService {
         return roomRepository.findFirstById(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Room getFirstByName(String name){
+        return roomRepository.findFirstByName(name);
+    }
+
     @Transactional
     public Room getManagedInstance(Room room){
         return this.roomRepository.findFirstById(room.getId());

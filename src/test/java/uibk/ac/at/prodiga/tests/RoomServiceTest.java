@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.tests;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -19,14 +20,12 @@ import uibk.ac.at.prodiga.services.RoomService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /*
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @WebAppConfiguration
-public class RoomServiceTest implements InitializingBean {
+public class RoomServiceTest implements InitializingBean
+{
 
     @Autowired
     RoomService roomService;
@@ -36,6 +35,7 @@ public class RoomServiceTest implements InitializingBean {
 
     @Autowired
     UserRepository userRepository;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -47,40 +47,24 @@ public class RoomServiceTest implements InitializingBean {
         test_room1.setObjectCreatedUser(admin);
         test_room1.setObjectCreatedDateTime(new Date());
         test_room1.setName("test_room_1");
-        test_room1 = roomRepository.save(test_room1);
+        roomRepository.save(test_room1);
 
         Room test_room2 = new Room();
         test_room2.setObjectCreatedUser(admin);
         test_room2.setObjectCreatedDateTime(new Date());
         test_room2.setName("test_room_2");
-        test_room2 = roomRepository.save(test_room2);
-
+        roomRepository.save(test_room2);
 
     }
+
 
     @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void getAllRooms() {
-
-
-        List rooms = new ArrayList();
-        rooms.add(test_room1);
-        rooms.add(test_rooms2);
-        Assertions.assertEquals(roomService.getAllRooms(),rooms);
-
-    }
-
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    void saveRoom() {
-    }
-
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    void deleteRoom() {
+    public void loadRoomData() {
+        Assert.assertTrue(true);
+        Room test_room1 = roomService.getFirstByName("test_room_1");
+        Assert.assertNotNull("Could not load test_room_1.",test_room1);
     }
 
 
