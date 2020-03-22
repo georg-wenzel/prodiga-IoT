@@ -24,3 +24,4 @@ build
 .swagger-codegen
 *.iml
 /src/main/webapp/WEB-INF/classes/
+.DS_Store
