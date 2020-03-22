@@ -4,11 +4,11 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
+import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
@@ -21,18 +21,21 @@ import java.util.Set;
 /**
  * Service for accessing and manipulating teams.
  */
+//TODO: Nur der eigene Departmentleader darf Teams im Department verändern, Teams dürfen nicht in andere Departments zugewiesen werden, abgleichen User die Teamleader werden, müssen das gleiche Department haben wie das Team. (& entsprechende Tests)
 @Component
 @Scope("application")
 public class TeamService
 {
     private final TeamRepository teamRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService)
+    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository)
     {
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
+        this.userRepository = userRepository;
         this.userService = userService;
     }
 
@@ -108,7 +111,7 @@ public class TeamService
             roles.add(UserRole.TEAMLEADER);
             u.setRoles(roles);
 
-            team.setTeamLeader(userService.saveUser(u));
+            team.setTeamLeader(userRepository.save(u));
         }
         else
         {
@@ -138,8 +141,8 @@ public class TeamService
                 newUserRoles.add(UserRole.TEAMLEADER);
                 newLeader.setRoles(newUserRoles);
 
-                userService.saveUser(oldLeader);
-                newLeader = userService.saveUser(newLeader);
+                userRepository.save(oldLeader);
+                newLeader = userRepository.save(newLeader);
                 team.setTeamLeader(newLeader);
             }
         }
@@ -154,7 +157,7 @@ public class TeamService
     public void deleteTeam(Team team) throws ProdigaGeneralExpectedException
     {
         //check if this team has no users
-        if(!userService.getUsersByTeam(team).isEmpty())
+        if(!userRepository.findAllByAssignedTeam(team).isEmpty())
         {
             throw new ProdigaGeneralExpectedException("Team cannot be deleted because it has remaining users.", MessageType.ERROR);
         }
@@ -172,7 +175,7 @@ public class TeamService
         leaderRoles.remove(UserRole.TEAMLEADER);
         leaderRoles.add(UserRole.EMPLOYEE);
         leader.setRoles(leaderRoles);
-        userService.saveUser(leader);
+        userRepository.save(leader);
 
         //delete team
         teamRepository.delete(team);

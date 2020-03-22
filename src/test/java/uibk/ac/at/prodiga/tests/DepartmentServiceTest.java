@@ -18,7 +18,6 @@ import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.DepartmentService;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.util.Collection;
 import java.util.Date;
@@ -144,28 +143,21 @@ public class DepartmentServiceTest implements InitializingBean
     @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
-    public void save_department()
+    public void save_department() throws ProdigaGeneralExpectedException
     {
         User u = userRepository.findFirstByUsername("USER_TEST_02");
 
-        try
-        {
-            Department dept = new Department();
-            dept.setName("DEPT_TEST_02");
-            dept.setDepartmentLeader(u);
-            dept = departmentService.saveDepartment(dept);
+        Department dept = new Department();
+        dept.setName("DEPT_TEST_02");
+        dept.setDepartmentLeader(u);
+        dept = departmentService.saveDepartment(dept);
 
-            u = userRepository.findFirstByUsername("USER_TEST_02");
+        u = userRepository.findFirstByUsername("USER_TEST_02");
 
-            Assert.assertEquals("Created department is not equal to department loaded from database.", departmentRepository.findFirstByName("DEPT_TEST_02").getDepartmentLeader(), dept.getDepartmentLeader());
-            Assert.assertEquals("Created department is not equal to department loaded from database.", departmentRepository.findFirstByName("DEPT_TEST_02").getName(), dept.getName());
-            Assert.assertEquals("Department creator ADMIN_TEST_01 did not become creator user of the DB object.", departmentRepository.findFirstByName("DEPT_TEST_02").getObjectCreatedUser().getUsername(), "ADMIN_TEST_01");
-            Assert.assertTrue("Test user USER_TEST_02 was not made department leader when department was created.", u.getRoles().contains(UserRole.DEPARTMENTLEADER));
-        }
-        catch(ProdigaGeneralExpectedException ex)
-        {
-           Assert.fail("Exception thrown while trying to create department.");
-        }
+        Assert.assertEquals("Created department is not equal to department loaded from database.", departmentRepository.findFirstByName("DEPT_TEST_02").getDepartmentLeader(), dept.getDepartmentLeader());
+        Assert.assertEquals("Created department is not equal to department loaded from database.", departmentRepository.findFirstByName("DEPT_TEST_02").getName(), dept.getName());
+        Assert.assertEquals("Department creator ADMIN_TEST_01 did not become creator user of the DB object.", departmentRepository.findFirstByName("DEPT_TEST_02").getObjectCreatedUser().getUsername(), "ADMIN_TEST_01");
+        Assert.assertTrue("Test user USER_TEST_02 was not made department leader when department was created.", u.getRoles().contains(UserRole.DEPARTMENTLEADER));
     }
 
     /**
