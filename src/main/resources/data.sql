@@ -8,4 +8,4 @@ INSERT INTO user (enabled, first_name, last_name, password, username, create_use
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user2', 'EMPLOYEE');
 
 -- Breaks Unit Tests -> Needed for UI testing
--- INSERT INTO raspberry_pi (id, internal_id, object_changed_date_time, object_created_date_time, password, object_changed_user_username, object_created_user_username) VALUES (1, 'test', NOW(), NOW(), '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', 'admin');
+INSERT IGNORE INTO raspberry_pi (id, internal_id, object_changed_date_time, object_created_date_time, password, object_changed_user_username, object_created_user_username) VALUES (1, 'test', NOW(), NOW(), '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', 'admin');
