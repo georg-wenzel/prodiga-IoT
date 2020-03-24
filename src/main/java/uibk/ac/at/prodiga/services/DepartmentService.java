@@ -84,6 +84,13 @@ public class DepartmentService
         return departmentRepository.save(department);
     }
 
+    /**
+     * Sets the department leader to a certain user
+     * @param department The department to set the leader for
+     * @param newLeader The user to make leader
+     * @throws ProdigaGeneralExpectedException If department/user are not valid, or the user cannot be made leader of this department, an exception is thrown.
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void setDepartmentLeader(Department department, User newLeader) throws ProdigaGeneralExpectedException
     {
         //check that user is a valid, unchanged database user
@@ -91,14 +98,14 @@ public class DepartmentService
             throw new RuntimeException("Department leader is not a valid unchanged database user.");
 
         //check that Department is a valid, unchanged database entry
-        if(!this.isDepartmentUnchanged(department))
+        if(!isDepartmentUnchanged(department))
             throw new RuntimeException("Department is not a valid unchanged database entry.");
 
         //User has to be a simple employee within this department.
         if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to department leader because he already has a department- or teamleader role.", MessageType.ERROR);
 
-        if(!newLeader.getAssignedDepartment().equals(department))
+        if(newLeader.getAssignedDepartment() == null || !newLeader.getAssignedDepartment().equals(department))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to department leader for this department, because he is not assigned to this department..", MessageType.ERROR);
 
         //Check if this department already has a department leader

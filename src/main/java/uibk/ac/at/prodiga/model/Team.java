@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class Team implements Persistable<Long>, Serializable {
@@ -94,5 +95,18 @@ public class Team implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Team team = (Team) o;
+        return id.equals(team.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

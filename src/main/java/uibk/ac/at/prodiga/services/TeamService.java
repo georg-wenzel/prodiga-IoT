@@ -121,18 +121,17 @@ public class TeamService
             throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.ERROR);
         }
 
-        //make teamleader an employee
-        User leader = userRepository.findTeamLeaderOf(team);
-        Set<UserRole> leaderRoles = leader.getRoles();
-        leaderRoles.remove(UserRole.TEAMLEADER);
-        leaderRoles.add(UserRole.EMPLOYEE);
-        leader.setRoles(leaderRoles);
-        userRepository.save(leader);
-
         //delete team
         teamRepository.delete(team);
     }
 
+    /**
+     * Sets the team leader to a certain user
+     * @param team The team to set the leader for
+     * @param newLeader The user to make leader
+     * @throws ProdigaGeneralExpectedException If team/user are not valid, or the user cannot be made leader of this team, an exception is thrown.
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
     public void setTeamLeader(Team team, User newLeader) throws ProdigaGeneralExpectedException
     {
         //check that user is a valid, unchanged database user
@@ -147,11 +146,11 @@ public class TeamService
         if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to team leader because he already has a department- or teamleader role.", MessageType.ERROR);
 
-        if(!newLeader.getAssignedTeam().equals(team))
+        if(newLeader.getAssignedTeam() == null || !newLeader.getAssignedTeam().equals(team))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to team leader for this team, because he is not assigned to this team..", MessageType.ERROR);
 
         //Check if this team already has a team leader
-        User oldLeader = userService.getTeamLeaderOf(team);
+        User oldLeader = userRepository.findTeamLeaderOf(team);
         if(oldLeader != null)
         {
             //set old user to employee
@@ -159,14 +158,14 @@ public class TeamService
             roles.remove(UserRole.TEAMLEADER);
             roles.add(UserRole.EMPLOYEE);
             oldLeader.setRoles(roles);
-            userService.saveUser(oldLeader);
+            userRepository.save(oldLeader);
         }
         //Set new leader role to teamleader
         Set<UserRole> roles = newLeader.getRoles();
         roles.remove(UserRole.EMPLOYEE);
         roles.add(UserRole.TEAMLEADER);
         newLeader.setRoles(roles);
-        userService.saveUser(newLeader);
+        userRepository.save(newLeader);
     }
 
 

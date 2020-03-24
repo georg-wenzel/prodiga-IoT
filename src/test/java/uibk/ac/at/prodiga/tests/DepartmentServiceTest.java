@@ -54,13 +54,13 @@ public class DepartmentServiceTest implements InitializingBean
         dept.setObjectCreatedDateTime(new Date());
         dept.setObjectCreatedUser(admin);
         dept.setName("DEPT_TEST_01");
-        departmentRepository.save(dept);
+        dept = departmentRepository.save(dept);
 
         Department dept2 = new Department();
         dept2.setObjectCreatedDateTime(new Date());
         dept2.setObjectCreatedUser(admin);
         dept2.setName("DEPT_TEST_02");
-        departmentRepository.save(dept2);
+        dept2 = departmentRepository.save(dept2);
 
         User test_leader = new User();
         test_leader.setUsername("USER_TEST_01");
@@ -108,7 +108,7 @@ public class DepartmentServiceTest implements InitializingBean
         User u = userRepository.findFirstByUsername("USER_TEST_01");
         User admin = userRepository.findFirstByUsername("admin");
 
-        Assert.assertEquals("Creation user of DEPT_TEST_01 does not match admin.", dept.getObjectCreatedUser(), admin);
+        Assert.assertEquals("Creation user of DEPT_TEST_01 does not match admin.", admin, dept.getObjectCreatedUser());
         Assert.assertTrue("Creation date not loaded properly from DEPT_TEST_01.",  (new Date()).getTime() -  dept.getObjectCreatedDateTime().getTime() < 1000 * 60);
         Assert.assertNull("DEPT_TEST_01 changed date time should be null, but is not", dept.getObjectChangedDateTime());
         Assert.assertNull("DEPT_TEST_01 changed user should be null, but is not", dept.getObjectChangedUser());
@@ -165,8 +165,8 @@ public class DepartmentServiceTest implements InitializingBean
         dept.setName("DEPT_TEST_03");
         dept = departmentService.saveDepartment(dept);
 
-        Assert.assertEquals("Created department is not equal to department loaded from database.", departmentRepository.findFirstByName("DEPT_TEST_02").getName(), dept.getName());
-        Assert.assertEquals("Department creator ADMIN_TEST_01 did not become creator user of the DB object.", departmentRepository.findFirstByName("DEPT_TEST_02").getObjectCreatedUser().getUsername(), "ADMIN_TEST_01");
+        Assert.assertEquals("Created department is not equal to department loaded from database.", dept, departmentRepository.findFirstById(dept.getId()));
+        Assert.assertEquals("Department creator ADMIN_TEST_01 did not become creator user of the DB object.", "ADMIN_TEST_01", dept.getObjectCreatedUser().getUsername());
     }
 
     /**
@@ -209,7 +209,7 @@ public class DepartmentServiceTest implements InitializingBean
     public void update_department() throws ProdigaGeneralExpectedException
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
-        dept.setName("DEPT_TEST_02");
+        dept.setName("DEPT_TEST_03");
         dept = departmentService.saveDepartment(dept);
 
         //check if update user and time has been set
@@ -217,7 +217,7 @@ public class DepartmentServiceTest implements InitializingBean
         Assert.assertTrue("Creation date not set properly for DEPT_TEST_01.",  (new Date()).getTime() -  dept.getObjectChangedDateTime().getTime() < 1000 * 60);
 
         //Check if name is updated
-        Assert.assertEquals("Name of DEPT_TEST_01 was not updated accordingly", dept.getName(), "DEPT_TEST_02");
+        Assert.assertEquals("Name of DEPT_TEST_01 was not updated accordingly", "DEPT_TEST_03", dept.getName());
     }
 
     /**
@@ -244,9 +244,11 @@ public class DepartmentServiceTest implements InitializingBean
     public void set_department_leader() throws ProdigaGeneralExpectedException
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
-        User u1 = userRepository.findFirstByUsername("USER_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_02");
         departmentService.setDepartmentLeader(dept, u2);
+        //reload users
+        User u1 = userRepository.findFirstByUsername("USER_TEST_01");
+        u2 = userRepository.findFirstByUsername("USER_TEST_02");
 
         Assert.assertTrue("USER_TEST_01 was not made employee.", u1.getRoles().contains(UserRole.EMPLOYEE) && !u1.getRoles().contains(UserRole.DEPARTMENTLEADER));
         Assert.assertTrue("USER_TEST_02 was not made departmentleader.", !u2.getRoles().contains(UserRole.EMPLOYEE) && u2.getRoles().contains(UserRole.DEPARTMENTLEADER));

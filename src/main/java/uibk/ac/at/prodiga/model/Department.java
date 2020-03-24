@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class Department implements Persistable<Long>, Serializable
@@ -83,5 +84,18 @@ public class Department implements Persistable<Long>, Serializable
     @Override
     public boolean isNew() {
         return objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Department that = (Department) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
