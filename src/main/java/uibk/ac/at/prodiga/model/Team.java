@@ -18,9 +18,6 @@ public class Team implements Persistable<Long>, Serializable {
     @Column(nullable = false, length = 300)
     private String name;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
-    private User teamLeader;
-
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Department.class)
     private Department department;
 
@@ -46,14 +43,6 @@ public class Team implements Persistable<Long>, Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public User getTeamLeader() {
-        return teamLeader;
-    }
-
-    public void setTeamLeader(User teamLeader) {
-        this.teamLeader = teamLeader;
     }
 
     public User getObjectCreatedUser() {

@@ -15,9 +15,6 @@ public class Department implements Persistable<Long>, Serializable
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
-    private User departmentLeader;
-
     @Column(nullable = false, unique=true, length = 300)
     private String name;
 
@@ -36,14 +33,6 @@ public class Department implements Persistable<Long>, Serializable
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getDepartmentLeader() {
-        return departmentLeader;
-    }
-
-    public void setDepartmentLeader(User departmentLeader) {
-        this.departmentLeader = departmentLeader;
     }
 
     public String getName() {

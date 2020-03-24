@@ -10,9 +10,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.repositories.DepartmentRepository;
+import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.UserService;
+
+import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -21,6 +26,12 @@ public class UserServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    DepartmentRepository departmentRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
@@ -177,6 +188,33 @@ public class UserServiceTest {
         User user = userService.loadUser("user1");
         Assert.assertEquals("Call to userService.loadUser returned wrong user", "user1", user.getUsername());
         userService.deleteUser(user);
+    }
+
+    /**
+     * Tests if department leader can properly be loaded from the database
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testLoadDepartmentLeader()
+    {
+        User admin = userRepository.findFirstByUsername("admin");
+
+        Department dept = new Department();
+        dept.setName("DEPT_TEST_01");
+        dept.setObjectCreatedDateTime(new Date());
+        dept.setObjectCreatedUser(admin);
+        dept = departmentRepository.save(dept);
+
+        User test_leader = new User();
+        test_leader.setUsername("USER_TEST_01");
+        test_leader.setRoles(Sets.newSet(UserRole.DEPARTMENTLEADER));
+        test_leader.setAssignedDepartment(dept);
+        test_leader.setCreateDate(new Date());
+        test_leader.setCreateUser(admin);
+        test_leader = userRepository.save(test_leader);
+
+        Assert.assertEquals("DEPT_TEST_01 department leader does not match USER_TEST_01.", userService.getDepartmentLeaderOf(dept), test_leader);
     }
 
 }

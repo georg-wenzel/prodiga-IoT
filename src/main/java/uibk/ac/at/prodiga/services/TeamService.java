@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
@@ -86,65 +87,16 @@ public class TeamService
             throw new ProdigaGeneralExpectedException("Team name must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
-        //check that team leader is a valid, unchanged database user
-        User u = team.getTeamLeader();
-        if(!userService.isUserUnchanged(u))
-        {
-            throw new ProdigaGeneralExpectedException("Team leader is not a valid unchanged database user.", MessageType.ERROR);
-        }
-
         //set appropriate fields
         if(team.isNew())
         {
             team.setObjectCreatedDateTime(new Date());
             team.setObjectCreatedUser(userLoginManager.getCurrentUser());
-
-            //User may not be an existing department or teamleader
-            if(!EmployeeManagementUtil.isSimpleEmployee(team.getTeamLeader()))
-            {
-                throw new ProdigaGeneralExpectedException("The user that is set to become teamleader may not be a teamleader or department leader already.", MessageType.ERROR);
-            }
-
-            //set user to team- or departmentleader
-            Set<UserRole> roles = u.getRoles();
-            roles.remove(UserRole.EMPLOYEE);
-            roles.add(UserRole.TEAMLEADER);
-            u.setRoles(roles);
-
-            team.setTeamLeader(userRepository.save(u));
         }
         else
         {
             team.setObjectChangedDateTime(new Date());
             team.setObjectChangedUser(userLoginManager.getCurrentUser());
-
-            Team oldTeam = teamRepository.findFirstById(team.getId());
-            User oldLeader = oldTeam.getTeamLeader();
-
-            if (!oldLeader.getUsername().equals(team.getTeamLeader().getUsername()))
-            {
-                User newLeader = team.getTeamLeader();
-                //new leader may not be an existing department or teamleader
-                if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
-                {
-                    throw new ProdigaGeneralExpectedException("The user that is set to become teamleader may not be a teamleader or department leader already.", MessageType.ERROR);
-                }
-
-                //change permissions
-                Set<UserRole> oldUserRoles = oldLeader.getRoles();
-                oldUserRoles.remove(UserRole.TEAMLEADER);
-                oldUserRoles.add(UserRole.EMPLOYEE);
-                oldLeader.setRoles(oldUserRoles);
-
-                Set<UserRole> newUserRoles = newLeader.getRoles();
-                newUserRoles.remove(UserRole.EMPLOYEE);
-                newUserRoles.add(UserRole.TEAMLEADER);
-                newLeader.setRoles(newUserRoles);
-
-                userRepository.save(oldLeader);
-                newLeader = userRepository.save(newLeader);
-                team.setTeamLeader(newLeader);
-            }
         }
         return teamRepository.save(team);
     }
@@ -170,7 +122,7 @@ public class TeamService
         }
 
         //make teamleader an employee
-        User leader = dbTeam.getTeamLeader();
+        User leader = userRepository.findTeamLeaderOf(team);
         Set<UserRole> leaderRoles = leader.getRoles();
         leaderRoles.remove(UserRole.TEAMLEADER);
         leaderRoles.add(UserRole.EMPLOYEE);
@@ -179,5 +131,52 @@ public class TeamService
 
         //delete team
         teamRepository.delete(team);
+    }
+
+    public void setTeamLeader(Team team, User newLeader) throws ProdigaGeneralExpectedException
+    {
+        //check that user is a valid, unchanged database user
+        if(!userService.isUserUnchanged(newLeader))
+            throw new RuntimeException("Team leader is not a valid unchanged database user.");
+
+        //check that Department is a valid, unchanged database entry
+        if(!this.isTeamUnchanged(team))
+            throw new RuntimeException("Team is not a valid unchanged database entry.");
+
+        //User has to be a simple employee within this team.
+        if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
+            throw new ProdigaGeneralExpectedException("This user cannot be promoted to team leader because he already has a department- or teamleader role.", MessageType.ERROR);
+
+        if(!newLeader.getAssignedTeam().equals(team))
+            throw new ProdigaGeneralExpectedException("This user cannot be promoted to team leader for this team, because he is not assigned to this team..", MessageType.ERROR);
+
+        //Check if this team already has a team leader
+        User oldLeader = userService.getTeamLeaderOf(team);
+        if(oldLeader != null)
+        {
+            //set old user to employee
+            Set<UserRole> roles = oldLeader.getRoles();
+            roles.remove(UserRole.TEAMLEADER);
+            roles.add(UserRole.EMPLOYEE);
+            oldLeader.setRoles(roles);
+            userService.saveUser(oldLeader);
+        }
+        //Set new leader role to teamleader
+        Set<UserRole> roles = newLeader.getRoles();
+        roles.remove(UserRole.EMPLOYEE);
+        roles.add(UserRole.TEAMLEADER);
+        newLeader.setRoles(roles);
+        userService.saveUser(newLeader);
+    }
+
+
+    /**
+     * Returns true if the team is the same as the database state
+     * @param team The team to check
+     * @return True if the team is the same as in the database, false otherwise.
+     */
+    public boolean isTeamUnchanged(Team team)
+    {
+        return team.equals(teamRepository.findFirstById(team.getId()));
     }
 }
