@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Persistable;
 
 @Entity

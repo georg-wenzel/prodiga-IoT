@@ -1,15 +1,15 @@
 package uibk.ac.at.prodiga.tests;
 
 import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.internal.util.collections.Sets;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
@@ -17,18 +17,18 @@ import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.DepartmentService;
+import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-
 import java.util.Collection;
 import java.util.Date;
 
 /**
  * Test class for the Department Service
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @WebAppConfiguration
-public class DepartmentServiceTest implements InitializingBean
+public class DepartmentServiceTest
 {
     @Autowired
     DepartmentService departmentService;
@@ -40,13 +40,15 @@ public class DepartmentServiceTest implements InitializingBean
     UserRepository userRepository;
 
     /**
-     * Sets up the test environment - executed before each test and cleaned up after each test (@DirtiesContext)
+     * Sets up the test environment
      */
-    @Override
-    public void afterPropertiesSet()
+    @BeforeAll
+    public static void init(@Autowired DepartmentService departmentService,
+                     @Autowired DepartmentRepository departmentRepository,
+                     @Autowired UserRepository userRepository)
     {
         //Grab admin user to set as creation user for test departments and users
-        User admin = userRepository.findFirstByUsername("admin");
+        User admin = DataHelper.createAdminUser("admin", userRepository);
 
         //Before tests, initialize test department and user
         User test_leader = new User();
@@ -82,7 +84,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests loading of department data
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_department_data()
@@ -103,19 +104,18 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests unauthorized loading of department data
      */
-    @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void load_department_unauthorized()
     {
-        departmentService.getFirstByName("DEPT_TEST_01");
-        Assert.fail("Department loaded despite lacking authorization of ADMIN");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            departmentService.getFirstByName("DEPT_TEST_01");
+        }, "Department loaded despite lacking authorization of ADMIN");
     }
 
     /**
      * Tests loading of department collection
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_departments()
@@ -128,19 +128,18 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests unauthorized loading of department collection
      */
-    @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void load_departments_unauthorized()
     {
-        Collection<Department> dept = departmentService.getAllDepartments();
-        Assert.fail("Department collection loaded despite lacking authorization of ADMIN");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            Collection<Department> dept = departmentService.getAllDepartments();
+        }, "Department collection loaded despite lacking authorization of ADMIN");
     }
 
     /**
      * Tests saving a department with sufficient authorization
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
     public void save_department() throws ProdigaGeneralExpectedException
@@ -163,45 +162,44 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests adding a department where the user that should lead the department is already a department leader
      */
-    @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
-    public void save_department_with_dept_leader() throws ProdigaGeneralExpectedException
+    public void save_department_with_dept_leader()
     {
         User u = userRepository.findFirstByUsername("USER_TEST_01");
 
         Department dept = new Department();
         dept.setName("DEPT_TEST_02");
         dept.setDepartmentLeader(u);
-        departmentService.saveDepartment(dept);
 
-        Assert.fail("Department was able to be created despite the fact the department leader was already an existing department leader.");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.saveDepartment(dept);
+        }, "Department was able to be created despite the fact the department leader was already an existing department leader.");
     }
 
     /**
      * Tests adding a department where the name is too short
      */
-    @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
-    public void save_department_with_invalid_name() throws ProdigaGeneralExpectedException
+    public void save_department_with_invalid_name()
     {
         User u = userRepository.findFirstByUsername("USER_TEST_02");
 
         Department dept = new Department();
         dept.setName("");
         dept.setDepartmentLeader(u);
-        departmentService.saveDepartment(dept);
 
-        Assert.fail("Department was able to be created despite the fact the department name was too short.");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.saveDepartment(dept);
+        }, "Department was able to be created despite the fact the department name was too short.");
     }
 
 
     /**
      * Tests adding a department with lacking authorizations
      */
-    @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "DEPARTMENTLEADER"})
     public void save_department_unauthorized() throws ProdigaGeneralExpectedException
     {
@@ -210,15 +208,15 @@ public class DepartmentServiceTest implements InitializingBean
         Department dept = new Department();
         dept.setName("DEPT_TEST_02");
         dept.setDepartmentLeader(u);
-        departmentService.saveDepartment(dept);
 
-        Assert.fail("Department was able to be created despite lacking authorizations.");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            departmentService.saveDepartment(dept);
+        }, "Department was able to be created despite lacking authorizations.");
     }
 
     /**
      * Tests changing a department and changing the leader of the department
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
     public void update_department_change_lead() throws ProdigaGeneralExpectedException
@@ -245,7 +243,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests changing a department without changing the leader of the department
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
     public void update_department() throws ProdigaGeneralExpectedException
@@ -269,31 +266,29 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests changing a department where the department user is changed to someone else
      */
-    @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
-    public void update_department_with_faulty_user() throws ProdigaGeneralExpectedException
-    {
+    public void update_department_with_faulty_user() {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         dept.setName("DEPT_TEST_02");
         dept.getDepartmentLeader().setId("wrongId");
-        departmentService.saveDepartment(dept);
 
-        Assert.fail("Department Leader ID was changed, but department was still saved successfully.");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.saveDepartment(dept);
+        }, "Department Leader ID was changed, but department was still saved successfully.");
     }
 
     /**
      * Tests changing a department with lacking authentication
      */
-    @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
-    public void update_department_unauthorized() throws ProdigaGeneralExpectedException
-    {
+    public void update_department_unauthorized() {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         dept.setName("DEPT_TEST_02");
-        departmentService.saveDepartment(dept);
 
-        Assert.fail("Department was updated despite lacking authorization");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            departmentService.saveDepartment(dept);
+        }, "Department was updated despite lacking authorization");
     }
 }
