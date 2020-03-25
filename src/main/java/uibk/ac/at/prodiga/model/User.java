@@ -44,6 +44,9 @@ public class User implements Persistable<String>, Serializable {
     @ManyToOne(targetEntity = Team.class, fetch = FetchType.EAGER, optional = true)
     private Team assignedTeam;
 
+    @ManyToOne(targetEntity = Department.class, fetch = FetchType.EAGER, optional = true)
+    private Department assignedDepartment;
+
     @Column(nullable = true)
     private FrequencyType frequencyType;
 
@@ -83,6 +86,14 @@ public class User implements Persistable<String>, Serializable {
 
     public void setAssignedTeam(Team assignedTeam) {
         this.assignedTeam = assignedTeam;
+    }
+
+    public Department getAssignedDepartment() {
+        return assignedDepartment;
+    }
+
+    public void setAssignedDepartment(Department assignedDepartment) {
+        this.assignedDepartment = assignedDepartment;
     }
 
     public String getUsername() {

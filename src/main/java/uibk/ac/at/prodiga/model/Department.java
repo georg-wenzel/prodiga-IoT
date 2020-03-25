@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class Department implements Persistable<Long>, Serializable
@@ -14,9 +15,6 @@ public class Department implements Persistable<Long>, Serializable
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
-    private User departmentLeader;
 
     @Column(nullable = false, unique=true, length = 300)
     private String name;
@@ -36,14 +34,6 @@ public class Department implements Persistable<Long>, Serializable
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getDepartmentLeader() {
-        return departmentLeader;
-    }
-
-    public void setDepartmentLeader(User departmentLeader) {
-        this.departmentLeader = departmentLeader;
     }
 
     public String getName() {
@@ -94,5 +84,18 @@ public class Department implements Persistable<Long>, Serializable
     @Override
     public boolean isNew() {
         return objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Department that = (Department) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

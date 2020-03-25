@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.UserRepository;
@@ -105,5 +106,17 @@ public class UserService {
     public Collection<User> getUsersByTeam(Team team)
     {
         return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public User getDepartmentLeaderOf(Department department)
+    {
+        return userRepository.findDepartmentLeaderOf(department);
+    }
+
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public User getTeamLeaderOf(Team team)
+    {
+        return userRepository.findTeamLeaderOf(team);
     }
 }

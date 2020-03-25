@@ -8,7 +8,6 @@ import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
-import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
@@ -71,66 +70,71 @@ public class DepartmentService
             throw new ProdigaGeneralExpectedException("Department name must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
-        User u = department.getDepartmentLeader();
-        //check that user is a a valid, unchanged database user
-        if(!userService.isUserUnchanged(u))
-        {
-            throw new ProdigaGeneralExpectedException("Department leader is not a valid unchanged database user.", MessageType.ERROR);
-        }
-
         //set appropriate fields
         if(department.isNew())
         {
             department.setObjectCreatedDateTime(new Date());
             department.setObjectCreatedUser(userLoginManager.getCurrentUser());
-
-            //User may not be an existing department or teamleader
-            if(!EmployeeManagementUtil.isSimpleEmployee(u))
-            {
-                throw new ProdigaGeneralExpectedException("The user that is set to become department leader may not be a teamleader or department leader already.", MessageType.ERROR);
-            }
-
-            //set user to department leader
-            Set<UserRole> roles = u.getRoles();
-            roles.remove(UserRole.EMPLOYEE);
-            roles.add(UserRole.DEPARTMENTLEADER);
-            u.setRoles(roles);
-            department.setDepartmentLeader(userService.saveUser(u));
         }
         else
         {
             department.setObjectChangedDateTime(new Date());
             department.setObjectChangedUser(userLoginManager.getCurrentUser());
-
-            Department oldDept = departmentRepository.findFirstById(department.getId());
-            User oldLeader = oldDept.getDepartmentLeader();
-
-            if(!oldLeader.getUsername().equals(department.getDepartmentLeader().getUsername()))
-            {
-                User newLeader = department.getDepartmentLeader();
-                //new leader may not be an existing department or teamleader
-                if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
-                {
-                    throw new ProdigaGeneralExpectedException("The user that is set to become department leader may not be a teamleader or department leader already.", MessageType.ERROR);
-                }
-
-                //change permissions
-                Set<UserRole> oldUserRoles = oldLeader.getRoles();
-                oldUserRoles.remove(UserRole.DEPARTMENTLEADER);
-                oldUserRoles.add(UserRole.EMPLOYEE);
-                oldLeader.setRoles(oldUserRoles);
-
-                Set<UserRole> newUserRoles = newLeader.getRoles();
-                newUserRoles.remove(UserRole.EMPLOYEE);
-                newUserRoles.add(UserRole.DEPARTMENTLEADER);
-                newLeader.setRoles(newUserRoles);
-
-                userService.saveUser(oldLeader);
-                newLeader = userService.saveUser(newLeader);
-                department.setDepartmentLeader(newLeader);
-            }
         }
-
         return departmentRepository.save(department);
+    }
+
+    /**
+     * Sets the department leader to a certain user
+     * @param department The department to set the leader for
+     * @param newLeader The user to make leader
+     * @throws ProdigaGeneralExpectedException If department/user are not valid, or the user cannot be made leader of this department, an exception is thrown.
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void setDepartmentLeader(Department department, User newLeader) throws ProdigaGeneralExpectedException
+    {
+        //check that user is a valid, unchanged database user
+        if(!userService.isUserUnchanged(newLeader))
+            throw new RuntimeException("Department leader is not a valid unchanged database user.");
+
+        //check that Department is a valid, unchanged database entry
+        if(!isDepartmentUnchanged(department))
+            throw new RuntimeException("Department is not a valid unchanged database entry.");
+
+        //User has to be a simple employee within this department.
+        if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
+            throw new ProdigaGeneralExpectedException("This user cannot be promoted to department leader because he already has a department- or teamleader role.", MessageType.ERROR);
+
+        if(newLeader.getAssignedDepartment() == null || !newLeader.getAssignedDepartment().equals(department))
+            throw new ProdigaGeneralExpectedException("This user cannot be promoted to department leader for this department, because he is not assigned to this department..", MessageType.ERROR);
+
+        //Check if this department already has a department leader
+        User oldLeader = userService.getDepartmentLeaderOf(department);
+        if(oldLeader != null)
+        {
+            //set old user to employee
+            Set<UserRole> roles = oldLeader.getRoles();
+            roles.remove(UserRole.DEPARTMENTLEADER);
+            roles.add(UserRole.EMPLOYEE);
+            oldLeader.setRoles(roles);
+            userService.saveUser(oldLeader);
+        }
+        //Set new leader role to departmentleader
+        Set<UserRole> roles = newLeader.getRoles();
+        roles.remove(UserRole.EMPLOYEE);
+        roles.add(UserRole.DEPARTMENTLEADER);
+        newLeader.setRoles(roles);
+        userService.saveUser(newLeader);
+    }
+
+
+    /**
+     * Returns true if the department is the same as the database state
+     * @param department The department to check
+     * @return True if the department is the same as in the database, false otherwise.
+     */
+    public boolean isDepartmentUnchanged(Department department)
+    {
+        return department.equals(departmentRepository.findFirstById(department.getId()));
     }
 }
