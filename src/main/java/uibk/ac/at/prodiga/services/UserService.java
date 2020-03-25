@@ -81,9 +81,7 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(User user) throws Exception {
         userRepository.delete(user);
-        Future<Void> result = logInformationService.logAsync("User " + user.getUsername() + " was deleted!");
-        // Do it synchron here
-        AsyncHelper.getAsyncResultOrThrow(result);
+        logInformationService.log("User " + user.getUsername() + " was deleted!");
     }
 
     private User getAuthenticatedUser() {
