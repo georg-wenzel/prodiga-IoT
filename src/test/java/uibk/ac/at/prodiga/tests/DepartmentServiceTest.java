@@ -1,14 +1,14 @@
 package uibk.ac.at.prodiga.tests;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.internal.util.collections.Sets;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.Department;
@@ -19,6 +19,7 @@ import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.DepartmentService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -29,7 +30,7 @@ import java.util.Set;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @WebAppConfiguration
-public class DepartmentServiceTest
+public class DepartmentServiceTest implements InitializingBean
 {
     @Autowired
     DepartmentService departmentService;
@@ -41,12 +42,10 @@ public class DepartmentServiceTest
     UserRepository userRepository;
 
     /**
-     * Sets up the test environment
+     * Sets up the test environment - executed before each test and cleaned up after each test (@DirtiesContext)
      */
-    @BeforeAll
-    public static void init(@Autowired DepartmentService departmentService,
-                     @Autowired DepartmentRepository departmentRepository,
-                     @Autowired UserRepository userRepository)
+    @Override
+    public void afterPropertiesSet()
     {
         //Grab admin user to set as creation user for test departments and users
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -99,25 +98,27 @@ public class DepartmentServiceTest
     /**
      * Tests loading of department data
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_department_data()
     {
         Department dept = departmentService.getFirstByName("DEPT_TEST_01");
-        Assert.assertNotNull("Could not load test department DEPT_TEST_01.", dept);
+        Assertions.assertNotNull(dept, "Could not load test department DEPT_TEST_01.");
 
         User u = userRepository.findFirstByUsername("USER_TEST_01");
         User admin = userRepository.findFirstByUsername("admin");
 
-        Assert.assertEquals("Creation user of DEPT_TEST_01 does not match admin.", admin, dept.getObjectCreatedUser());
-        Assert.assertTrue("Creation date not loaded properly from DEPT_TEST_01.",  (new Date()).getTime() -  dept.getObjectCreatedDateTime().getTime() < 1000 * 60);
-        Assert.assertNull("DEPT_TEST_01 changed date time should be null, but is not", dept.getObjectChangedDateTime());
-        Assert.assertNull("DEPT_TEST_01 changed user should be null, but is not", dept.getObjectChangedUser());
+        Assertions.assertEquals(admin, dept.getObjectCreatedUser(), "Creation user of DEPT_TEST_01 does not match admin.");
+        Assertions.assertTrue((new Date()).getTime() -  dept.getObjectCreatedDateTime().getTime() < 1000 * 60, "Creation date not loaded properly from DEPT_TEST_01.");
+        Assertions.assertNull(dept.getObjectChangedDateTime(), "DEPT_TEST_01 changed date time should be null, but is not");
+        Assertions.assertNull(dept.getObjectChangedUser(), "DEPT_TEST_01 changed user should be null, but is not");
     }
 
     /**
      * Tests unauthorized loading of department data
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void load_department_unauthorized()
@@ -130,18 +131,20 @@ public class DepartmentServiceTest
     /**
      * Tests loading of department collection
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_departments()
     {
         Collection<Department> depts = departmentService.getAllDepartments();
-        Assert.assertNotNull("Could not load list of departments", depts);
-        Assert.assertTrue("Could not find DEPT_TEST_01 within list of departments", depts.stream().anyMatch(x -> x.getName().equals("DEPT_TEST_01")));
+        Assertions.assertNotNull(depts, "Could not load list of departments");
+        Assertions.assertTrue(depts.stream().anyMatch(x -> x.getName().equals("DEPT_TEST_01")), "Could not find DEPT_TEST_01 within list of departments");
     }
 
     /**
      * Tests unauthorized loading of department collection
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void load_departments_unauthorized()
@@ -154,6 +157,7 @@ public class DepartmentServiceTest
     /**
      * Tests saving a department with sufficient authorization
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
     public void save_department() throws ProdigaGeneralExpectedException
@@ -164,20 +168,20 @@ public class DepartmentServiceTest
         dept.setName("DEPT_TEST_03");
         dept = departmentService.saveDepartment(dept);
 
-        Assert.assertEquals("Created department is not equal to department loaded from database.", dept, departmentRepository.findFirstById(dept.getId()));
-        Assert.assertEquals("Department creator ADMIN_TEST_01 did not become creator user of the DB object.", "ADMIN_TEST_01", dept.getObjectCreatedUser().getUsername());
+        Assertions.assertEquals(dept, departmentRepository.findFirstById(dept.getId()), "Created department is not equal to department loaded from database.");
+        Assertions.assertEquals("ADMIN_TEST_01", dept.getObjectCreatedUser().getUsername(), "Department creator ADMIN_TEST_01 did not become creator user of the DB object.");
     }
 
     /**
      * Tests adding a department where the name is too short
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
-    public void save_department_with_invalid_name()
+    public void save_department_with_invalid_name() throws ProdigaGeneralExpectedException
     {
         Department dept = new Department();
         dept.setName("");
-        departmentService.saveDepartment(dept);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             departmentService.saveDepartment(dept);
@@ -188,13 +192,13 @@ public class DepartmentServiceTest
     /**
      * Tests adding a department with lacking authorizations
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "DEPARTMENTLEADER"})
     public void save_department_unauthorized() throws ProdigaGeneralExpectedException
     {
         Department dept = new Department();
         dept.setName("DEPT_TEST_02");
-        departmentService.saveDepartment(dept);
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             departmentService.saveDepartment(dept);
@@ -204,6 +208,7 @@ public class DepartmentServiceTest
     /**
      * Tests changing a department
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
     public void update_department() throws ProdigaGeneralExpectedException
@@ -213,31 +218,33 @@ public class DepartmentServiceTest
         dept = departmentService.saveDepartment(dept);
 
         //check if update user and time has been set
-        Assert.assertEquals("Update User has not been properly set to ADMIN_TEST_01", dept.getObjectChangedUser().getUsername(), "ADMIN_TEST_01");
-        Assert.assertTrue("Creation date not set properly for DEPT_TEST_01.",  (new Date()).getTime() -  dept.getObjectChangedDateTime().getTime() < 1000 * 60);
+        Assertions.assertEquals(dept.getObjectChangedUser().getUsername(), "ADMIN_TEST_01", "Update User has not been properly set to ADMIN_TEST_01");
+        Assertions.assertTrue((new Date()).getTime() -  dept.getObjectChangedDateTime().getTime() < 1000 * 60, "Creation date not set properly for DEPT_TEST_01.");
 
         //Check if name is updated
-        Assert.assertEquals("Name of DEPT_TEST_01 was not updated accordingly", "DEPT_TEST_03", dept.getName());
+        Assertions.assertEquals("DEPT_TEST_03", dept.getName(), "Name of DEPT_TEST_01 was not updated accordingly");
     }
 
     /**
      * Tests changing a department with lacking authentication
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
-    public void update_department_unauthorized() throws ProdigaGeneralExpectedException
+    public void update_department_unauthorized()
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         dept.setName("DEPT_TEST_02");
-        departmentService.saveDepartment(dept);
 
-        Assert.fail("Department was updated despite lacking authorization");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            departmentService.saveDepartment(dept);
+        }, "Department was updated despite lacking authorization");
     }
 
     /**
      * Tests setting the department leader
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void set_department_leader() throws ProdigaGeneralExpectedException
@@ -249,73 +256,75 @@ public class DepartmentServiceTest
         User u1 = userRepository.findFirstByUsername("USER_TEST_01");
         u2 = userRepository.findFirstByUsername("USER_TEST_02");
 
-        Assert.assertTrue("USER_TEST_01 was not made employee.", u1.getRoles().contains(UserRole.EMPLOYEE) && !u1.getRoles().contains(UserRole.DEPARTMENTLEADER));
-        Assert.assertTrue("USER_TEST_02 was not made departmentleader.", !u2.getRoles().contains(UserRole.EMPLOYEE) && u2.getRoles().contains(UserRole.DEPARTMENTLEADER));
+        Assertions.assertTrue(u1.getRoles().contains(UserRole.EMPLOYEE) && !u1.getRoles().contains(UserRole.DEPARTMENTLEADER), "USER_TEST_01 was not made employee.");
+        Assertions.assertTrue(!u2.getRoles().contains(UserRole.EMPLOYEE) && u2.getRoles().contains(UserRole.DEPARTMENTLEADER), "USER_TEST_02 was not made departmentleader.");
     }
 
     /**
      * Tests setting the department leader with lacking authorization
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
-    public void set_department_leader_unauthorized() throws ProdigaGeneralExpectedException
+    public void set_department_leader_unauthorized()
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_02");
-        departmentService.setDepartmentLeader(dept, u2);
 
-        Assert.fail("Department was updated despite lacking authorization");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            departmentService.setDepartmentLeader(dept, u2);
+        }, "Department was updated despite lacking authorization");
     }
 
     /**
      * Tests setting the department leader to an employee outside the department
      */
     @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void set_department_leader_outside() throws ProdigaGeneralExpectedException
+    public void set_department_leader_outside()
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_03");
-        departmentService.setDepartmentLeader(dept, u2);
 
-        Assert.fail("Department was updated despite USER_TEST_03 not being from the right department.");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.setDepartmentLeader(dept, u2);
+        }, "Department was updated despite USER_TEST_03 not being from the right department.");
     }
 
     /**
      * Tests setting the department leader to an employee who is already teamleader/departmentleader
      */
     @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void set_department_leader_to_teamleader() throws ProdigaGeneralExpectedException
+    public void set_department_leader_to_teamleader()
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_02");
         Set<UserRole> u2Roles = u2.getRoles();
         u2Roles.add(UserRole.TEAMLEADER);
         u2.setRoles(u2Roles);
-        u2 = userRepository.save(u2);
+        User u3 = userRepository.save(u2);
 
-        departmentService.setDepartmentLeader(dept, u2);
-
-        Assert.fail("Department was updated despite USER_TEST_02 being a teamleader..");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.setDepartmentLeader(dept, u3);
+        }, "Department was updated despite USER_TEST_02 being a teamleader..");
     }
 
     /**
      * Tests setting the department leader to a nonexisting DB user
      */
     @DirtiesContext
-    @Test(expected = RuntimeException.class)
+    @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void set_department_leader_to_new_object() throws ProdigaGeneralExpectedException
+    public void set_department_leader_to_new_object()
     {
         Department dept = departmentRepository.findFirstByName("DEPT_TEST_01");
         User u2 = new User();
 
-        departmentService.setDepartmentLeader(dept, u2);
-
-        Assert.fail("Department was updated despite User not existing in the database.");
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            departmentService.setDepartmentLeader(dept, u2);
+        }, "Department was updated despite User not existing in the database.");
     }
 }
