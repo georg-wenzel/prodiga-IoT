@@ -115,10 +115,6 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
-<<<<<<< HEAD
-
-=======
->>>>>>> 6813f9ba108acb8a50332f428907faccff851acf
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
@@ -131,10 +127,6 @@
                     <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
-<<<<<<< HEAD
-
-=======
->>>>>>> 6813f9ba108acb8a50332f428907faccff851acf
         </dependency>
 
         <dependency>

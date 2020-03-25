@@ -1,15 +1,15 @@
 package uibk.ac.at.prodiga.tests;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
@@ -19,6 +19,7 @@ import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.TeamService;
+import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 import java.util.Collection;
@@ -28,7 +29,7 @@ import java.util.Set;
 /**
  * Test class for the Team Service
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @WebAppConfiguration
 public class TeamServiceTest implements InitializingBean
@@ -52,7 +53,7 @@ public class TeamServiceTest implements InitializingBean
     public void afterPropertiesSet()
     {
         //Grab admin user to set as creation user for test teams and users
-        User admin = userRepository.findFirstByUsername("admin");
+        User admin = DataHelper.createAdminUser("admin", userRepository);
 
         //Before tests, initialize 1 test team and user
         Department dept = new Department();
@@ -132,27 +133,28 @@ public class TeamServiceTest implements InitializingBean
     public void load_team_data()
     {
         Team team = teamService.getFirstByName("TEAM_TEST_01");
-        Assert.assertNotNull("Could not load test team TEAM_TEST_01.", team);
+        Assertions.assertNotNull(team, "Could not load test team TEAM_TEST_01.");
 
         User admin = userRepository.findFirstByUsername("admin");
 
-        Assert.assertEquals("Creation user of TEAM_TEST_01 does not match admin.", team.getObjectCreatedUser(), admin);
-        Assert.assertTrue("Creation date not loaded properly from TEAM_TEST_01.",  (new Date()).getTime() -  team.getObjectCreatedDateTime().getTime() < 1000 * 60);
-        Assert.assertNull("TEAM_TEST_01 changed date time should be null, but is not", team.getObjectChangedDateTime());
-        Assert.assertNull("TEAM_TEST_01 changed user should be null, but is not", team.getObjectChangedUser());
-        Assert.assertEquals("TEAM_TEST_01 department does not match DEPT_TEST_01", "DEPT_TEST_01", team.getDepartment().getName());
+        Assertions.assertEquals(team.getObjectCreatedUser(), admin, "Creation user of TEAM_TEST_01 does not match admin.");
+        Assertions.assertTrue((new Date()).getTime() -  team.getObjectCreatedDateTime().getTime() < 1000 * 60, "Creation date not loaded properly from TEAM_TEST_01.");
+        Assertions.assertNull(team.getObjectChangedDateTime(), "TEAM_TEST_01 changed date time should be null, but is not");
+        Assertions.assertNull(team.getObjectChangedUser(), "TEAM_TEST_01 changed user should be null, but is not");
+        Assertions.assertEquals("DEPT_TEST_01", team.getDepartment().getName(), "TEAM_TEST_01 department does not match DEPT_TEST_01");
     }
 
     /**
      * Tests unauthorized loading of team data
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void load_team_unauthorized()
     {
-        teamService.getFirstByName("TEAM_TEST_01");
-        Assert.fail("Team loaded despite lacking authorization of DEPARTMENTLEADER");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            teamService.getFirstByName("TEAM_TEST_01");
+        }, "Team loaded despite lacking authorization of DEPARTMENTLEADER");
     }
 
     /**
@@ -164,20 +166,21 @@ public class TeamServiceTest implements InitializingBean
     public void load_teams()
     {
         Collection<Team> teams = teamService.getAllTeams();
-        Assert.assertNotNull("Could not load list of teams", teams);
-        Assert.assertTrue("Could not find TEAM_TEST_01 within list of teams", teams.stream().anyMatch(x -> x.getName().equals("TEAM_TEST_01")));
+        Assertions.assertNotNull(teams, "Could not load list of teams");
+        Assertions.assertTrue(teams.stream().anyMatch(x -> x.getName().equals("TEAM_TEST_01")), "Could not find TEAM_TEST_01 within list of teams");
     }
 
     /**
      * Tests unauthorized loading of team collection
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void load_teams_unauthorized()
     {
-        teamService.getAllTeams();
-        Assert.fail("Team collection loaded despite lacking authorization of DEPARTMENTLEADER");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            teamService.getAllTeams();
+        }, "Team collection loaded despite lacking authorization of DEPARTMENTLEADER");
     }
 
     /**
@@ -193,24 +196,25 @@ public class TeamServiceTest implements InitializingBean
         team.setDepartment(departmentRepository.findFirstByName("DEPT_TEST_01"));
         team = teamService.saveTeam(team);
 
-        Assert.assertEquals("Created team is not equal to team loaded from database.", teamRepository.findFirstById(team.getId()), team);
-        Assert.assertEquals("Team creator TEST_DEPT_LEADER_01 did not become creator user of the DB object.", "TEST_DEPT_LEADER_01", team.getObjectCreatedUser().getUsername());
+        Assertions.assertEquals(teamRepository.findFirstById(team.getId()), team, "Created team is not equal to team loaded from database.");
+        Assertions.assertEquals("TEST_DEPT_LEADER_01", team.getObjectCreatedUser().getUsername(), "Team creator TEST_DEPT_LEADER_01 did not become creator user of the DB object.");
     }
 
     /**
      * Tests adding a team where the name is too short
      */
     @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void save_team_with_invalid_name() throws ProdigaGeneralExpectedException
     {
         Team team = new Team();
         team.setName("");
         team.setDepartment(departmentRepository.findFirstByName("DEPT_TEST_01"));
-        teamService.saveTeam(team);
 
-        Assert.fail("Team was able to be created despite the fact the team name was too short.");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            teamService.saveTeam(team);
+        }, "Team was able to be created despite the fact the team name was too short.");
     }
 
 
@@ -218,16 +222,17 @@ public class TeamServiceTest implements InitializingBean
      * Tests adding a team with lacking authorizations
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
     public void save_team_unauthorized() throws ProdigaGeneralExpectedException
     {
         Team team = new Team();
         team.setName("TEAM_TEST_02");
         team.setDepartment(departmentRepository.findFirstByName("DEPT_TEST_01"));
-        teamService.saveTeam(team);
 
-        Assert.fail("Team was able to be created despite lacking authorizations.");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            teamService.saveTeam(team);
+        }, "Team was able to be created despite lacking authorizations.");
     }
 
     /**
@@ -243,40 +248,42 @@ public class TeamServiceTest implements InitializingBean
         team = teamService.saveTeam(team);
 
         //check if update user and time has been set
-        Assert.assertEquals("Update User has not been properly set to TEST_DEPT_LEADER_01", "TEST_DEPT_LEADER_01", team.getObjectChangedUser().getUsername());
-        Assert.assertTrue("Creation date not set properly for TEAM_TEST_01.",  (new Date()).getTime() -  team.getObjectChangedDateTime().getTime() < 1000 * 60);
+        Assertions.assertEquals("TEST_DEPT_LEADER_01", team.getObjectChangedUser().getUsername(), "Update User has not been properly set to TEST_DEPT_LEADER_01");
+        Assertions.assertTrue((new Date()).getTime() -  team.getObjectChangedDateTime().getTime() < 1000 * 60, "Creation date not set properly for TEAM_TEST_01.");
 
         //Check if name is updated
-        Assert.assertEquals("Name of TEAM_TEST_01 was not updated accordingly", "TEAM_TEST_03", team.getName());
+        Assertions.assertEquals("TEAM_TEST_03", team.getName(), "Name of TEAM_TEST_01 was not updated accordingly");
     }
 
     /**
      * Tests changing a team with lacking authentication
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
-    public void update_team_unauthorized() throws ProdigaGeneralExpectedException
+    public void update_team_unauthorized()
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
         team.setName("TEAM_TEST_03");
-        teamService.saveTeam(team);
 
-        Assert.fail("Team was updated despite lacking authorization");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            teamService.saveTeam(team);
+        }, "Team was updated despite lacking authorization");
     }
 
     /**
      * Tests deleting a team with members
      */
     @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
-    public void delete_team_with_members() throws ProdigaGeneralExpectedException
+    public void delete_team_with_members()
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
-        teamService.deleteTeam(team);
 
-        Assert.fail("Team was deleted despite still having members");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            teamService.deleteTeam(team);
+        }, "Team was deleted despite still having members");
     }
 
     /**
@@ -303,12 +310,15 @@ public class TeamServiceTest implements InitializingBean
      * Tests deleting a team with lacking authorization
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
-    public void delete_team_unauthorized() throws ProdigaGeneralExpectedException
+    public void delete_team_unauthorized()
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
-        teamService.deleteTeam(team);
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            teamService.deleteTeam(team);
+        });
     }
 
     /**
@@ -326,73 +336,75 @@ public class TeamServiceTest implements InitializingBean
         User u1 = userRepository.findFirstByUsername("USER_TEST_01");
         u2 = userRepository.findFirstByUsername("USER_TEST_02");
 
-        Assert.assertTrue("USER_TEST_01 was not made employee.", u1.getRoles().contains(UserRole.EMPLOYEE) && !u1.getRoles().contains(UserRole.TEAMLEADER));
-        Assert.assertTrue("USER_TEST_02 was not made teamleader..", !u2.getRoles().contains(UserRole.EMPLOYEE) && u2.getRoles().contains(UserRole.TEAMLEADER));
+        Assertions.assertTrue(u1.getRoles().contains(UserRole.EMPLOYEE) && !u1.getRoles().contains(UserRole.TEAMLEADER), "USER_TEST_01 was not made employee.");
+        Assertions.assertTrue(!u2.getRoles().contains(UserRole.EMPLOYEE) && u2.getRoles().contains(UserRole.TEAMLEADER), "USER_TEST_02 was not made teamleader..");
     }
 
     /**
      * Tests setting the team leader with lacking authorization
      */
     @DirtiesContext
-    @Test(expected = org.springframework.security.access.AccessDeniedException.class)
+    @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
-    public void set_team_leader_unauthorized() throws ProdigaGeneralExpectedException
+    public void set_team_leader_unauthorized()
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_02");
-        teamService.setTeamLeader(team, u2);
 
-        Assert.fail("Team was updated despite lacking authorization");
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            teamService.setTeamLeader(team, u2);
+        }, "Team was updated despite lacking authorization");
     }
 
     /**
      * Tests setting the team leader to an employee outside the department
      */
     @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void set_team_leader_outside() throws ProdigaGeneralExpectedException
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_03");
-        teamService.setTeamLeader(team, u2);
 
-        Assert.fail("Team was updated despite USER_TEST_03 not being from the right department.");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            teamService.setTeamLeader(team, u2);
+        }, "Team was updated despite USER_TEST_03 not being from the right department.");
     }
 
     /**
      * Tests setting the team leader to an employee who is already teamleader/departmentleader
      */
     @DirtiesContext
-    @Test(expected = ProdigaGeneralExpectedException.class)
+    @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
-    public void set_team_leader_to_departmentleader() throws ProdigaGeneralExpectedException
+    public void set_team_leader_to_departmentleader()
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
         User u2 = userRepository.findFirstByUsername("USER_TEST_02");
         Set<UserRole> u2Roles = u2.getRoles();
         u2Roles.add(UserRole.DEPARTMENTLEADER);
         u2.setRoles(u2Roles);
-        u2 = userRepository.save(u2);
+        User u3 = userRepository.save(u2);
 
-        teamService.setTeamLeader(team, u2);
-
-        Assert.fail("Team was updated despite USER_TEST_02 being a department leader..");
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            teamService.setTeamLeader(team, u3);
+        }, "Team was updated despite USER_TEST_02 being a department leader..");
     }
 
     /**
      * Tests setting the team leader to a nonexisting DB user
      */
     @DirtiesContext
-    @Test(expected = RuntimeException.class)
+    @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
-    public void set_team_leader_to_new_object() throws ProdigaGeneralExpectedException
+    public void set_team_leader_to_new_object()
     {
         Team team = teamRepository.findFirstByName("TEAM_TEST_01");
         User u2 = new User();
 
-        teamService.setTeamLeader(team, u2);
-
-        Assert.fail("Team was updated despite User not existing in the database.");
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            teamService.setTeamLeader(team, u2);
+        }, "Team was updated despite User not existing in the database.");
     }
 }
