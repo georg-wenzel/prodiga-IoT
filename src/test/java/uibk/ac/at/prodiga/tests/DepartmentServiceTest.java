@@ -50,55 +50,57 @@ public class DepartmentServiceTest implements InitializingBean
         //Grab admin user to set as creation user for test departments and users
         User admin = DataHelper.createAdminUser("admin", userRepository);
 
-        //Before tests, initialize test departments and users
-        Department dept = new Department();
-        dept.setObjectCreatedDateTime(new Date());
-        dept.setObjectCreatedUser(admin);
-        dept.setName("DEPT_TEST_01");
-        dept = departmentRepository.save(dept);
+        //Before each fresh test, initialize test departments and users
+        if(departmentRepository.findFirstByName("DEPT_TEST_01") == null) {
+            Department dept = new Department();
+            dept.setObjectCreatedDateTime(new Date());
+            dept.setObjectCreatedUser(admin);
+            dept.setName("DEPT_TEST_01");
+            dept = departmentRepository.save(dept);
 
-        Department dept2 = new Department();
-        dept2.setObjectCreatedDateTime(new Date());
-        dept2.setObjectCreatedUser(admin);
-        dept2.setName("DEPT_TEST_02");
-        dept2 = departmentRepository.save(dept2);
+            User test_leader = new User();
+            test_leader.setUsername("USER_TEST_01");
+            test_leader.setRoles(Sets.newSet(UserRole.DEPARTMENTLEADER));
+            test_leader.setCreateUser(admin);
+            test_leader.setCreateDate(new Date());
+            test_leader.setAssignedDepartment(dept);
+            userRepository.save(test_leader);
 
-        User test_leader = new User();
-        test_leader.setUsername("USER_TEST_01");
-        test_leader.setRoles(Sets.newSet(UserRole.DEPARTMENTLEADER));
-        test_leader.setCreateUser(admin);
-        test_leader.setCreateDate(new Date());
-        test_leader.setAssignedDepartment(dept);
-        userRepository.save(test_leader);
+            User test_employee = new User();
+            test_employee.setUsername("USER_TEST_02");
+            test_employee.setRoles(Sets.newSet(UserRole.EMPLOYEE));
+            test_employee.setCreateUser(admin);
+            test_employee.setCreateDate(new Date());
+            test_employee.setAssignedDepartment(dept);
+            userRepository.save(test_employee);
 
-        User test_employee = new User();
-        test_employee.setUsername("USER_TEST_02");
-        test_employee.setRoles(Sets.newSet(UserRole.EMPLOYEE));
-        test_employee.setCreateUser(admin);
-        test_employee.setCreateDate(new Date());
-        test_employee.setAssignedDepartment(dept);
-        userRepository.save(test_employee);
+            Department dept2 = new Department();
+            dept2.setObjectCreatedDateTime(new Date());
+            dept2.setObjectCreatedUser(admin);
+            dept2.setName("DEPT_TEST_02");
+            dept2 = departmentRepository.save(dept2);
 
-        User test_employee2 = new User();
-        test_employee2.setUsername("USER_TEST_03");
-        test_employee2.setRoles(Sets.newSet(UserRole.EMPLOYEE));
-        test_employee2.setCreateUser(admin);
-        test_employee2.setCreateDate(new Date());
-        test_employee2.setAssignedDepartment(dept2);
-        userRepository.save(test_employee2);
 
-        User test_admin = new User();
-        test_admin.setUsername("ADMIN_TEST_01");
-        test_admin.setCreateUser(admin);
-        test_admin.setCreateDate(new Date());
-        test_admin.setRoles(Sets.newSet(UserRole.ADMIN));
-        userRepository.save(test_admin);
+            User test_employee2 = new User();
+            test_employee2.setUsername("USER_TEST_03");
+            test_employee2.setRoles(Sets.newSet(UserRole.EMPLOYEE));
+            test_employee2.setCreateUser(admin);
+            test_employee2.setCreateDate(new Date());
+            test_employee2.setAssignedDepartment(dept2);
+            userRepository.save(test_employee2);
+
+            User test_admin = new User();
+            test_admin.setUsername("ADMIN_TEST_01");
+            test_admin.setCreateUser(admin);
+            test_admin.setCreateDate(new Date());
+            test_admin.setRoles(Sets.newSet(UserRole.ADMIN));
+            userRepository.save(test_admin);
+        }
     }
 
     /**
      * Tests loading of department data
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_department_data()
@@ -118,7 +120,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests unauthorized loading of department data
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void load_department_unauthorized()
@@ -131,7 +132,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests loading of department collection
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void load_departments()
@@ -144,7 +144,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests unauthorized loading of department collection
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void load_departments_unauthorized()
@@ -175,7 +174,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests adding a department where the name is too short
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "ADMIN_TEST_01", authorities = {"ADMIN"})
     public void save_department_with_invalid_name() throws ProdigaGeneralExpectedException
@@ -192,7 +190,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests adding a department with lacking authorizations
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "DEPARTMENTLEADER"})
     public void save_department_unauthorized() throws ProdigaGeneralExpectedException
@@ -228,7 +225,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests changing a department with lacking authentication
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void update_department_unauthorized()
@@ -263,7 +259,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests setting the department leader with lacking authorization
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
     public void set_department_leader_unauthorized()
@@ -279,7 +274,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests setting the department leader to an employee outside the department
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void set_department_leader_outside()
@@ -295,7 +289,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests setting the department leader to an employee who is already teamleader/departmentleader
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void set_department_leader_to_teamleader()
@@ -315,7 +308,6 @@ public class DepartmentServiceTest implements InitializingBean
     /**
      * Tests setting the department leader to a nonexisting DB user
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void set_department_leader_to_new_object()

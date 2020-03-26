@@ -55,79 +55,81 @@ public class TeamServiceTest implements InitializingBean
         //Grab admin user to set as creation user for test teams and users
         User admin = DataHelper.createAdminUser("admin", userRepository);
 
-        //Before tests, initialize 1 test team and user
-        Department dept = new Department();
-        dept.setName("DEPT_TEST_01");
-        dept.setObjectCreatedUser(admin);
-        dept.setObjectCreatedDateTime(new Date());
-        dept = departmentRepository.save(dept);
+        //Before tests, initialize test teams and users
+        if(departmentRepository.findFirstByName("DEPT_TEST_01") == null)
+        {
+            Department dept = new Department();
+            dept.setName("DEPT_TEST_01");
+            dept.setObjectCreatedUser(admin);
+            dept.setObjectCreatedDateTime(new Date());
+            dept = departmentRepository.save(dept);
 
-        Department dept2 = new Department();
-        dept2.setName("DEPT_TEST_02");
-        dept2.setObjectCreatedUser(admin);
-        dept2.setObjectCreatedDateTime(new Date());
-        dept2 = departmentRepository.save(dept2);
+            Department dept2 = new Department();
+            dept2.setName("DEPT_TEST_02");
+            dept2.setObjectCreatedUser(admin);
+            dept2.setObjectCreatedDateTime(new Date());
+            dept2 = departmentRepository.save(dept2);
 
-        Team team = new Team();
-        team.setName("TEAM_TEST_01");
-        team.setObjectCreatedUser(admin);
-        team.setObjectCreatedDateTime(new Date());
-        team.setDepartment(dept);
-        team = teamRepository.save(team);
+            Team team = new Team();
+            team.setName("TEAM_TEST_01");
+            team.setObjectCreatedUser(admin);
+            team.setObjectCreatedDateTime(new Date());
+            team.setDepartment(dept);
+            team = teamRepository.save(team);
 
-        Team team2 = new Team();
-        team2.setName("TEAM_TEST_02");
-        team2.setObjectCreatedUser(admin);
-        team2.setObjectCreatedDateTime(new Date());
-        team2.setDepartment(dept2);
-        team2 = teamRepository.save(team2);
+            Team team2 = new Team();
+            team2.setName("TEAM_TEST_02");
+            team2.setObjectCreatedUser(admin);
+            team2.setObjectCreatedDateTime(new Date());
+            team2.setDepartment(dept2);
+            team2 = teamRepository.save(team2);
 
-        User test_leader = new User();
-        test_leader.setCreateDate(new Date());
-        test_leader.setCreateUser(admin);
-        test_leader.setUsername("USER_TEST_01");
-        test_leader.setAssignedDepartment(dept);
-        test_leader.setAssignedTeam(team);
-        test_leader.setRoles(Sets.newSet(UserRole.TEAMLEADER));
-        userRepository.save(test_leader);
+            User test_leader = new User();
+            test_leader.setCreateDate(new Date());
+            test_leader.setCreateUser(admin);
+            test_leader.setUsername("USER_TEST_01");
+            test_leader.setAssignedDepartment(dept);
+            test_leader.setAssignedTeam(team);
+            test_leader.setRoles(Sets.newSet(UserRole.TEAMLEADER));
+            userRepository.save(test_leader);
 
-        User test_dept_leader = new User();
-        test_dept_leader.setCreateDate(new Date());
-        test_dept_leader.setCreateUser(admin);
-        test_dept_leader.setAssignedDepartment(dept);
-        test_dept_leader.setUsername("TEST_DEPT_LEADER_01");
-        test_dept_leader.setRoles(Sets.newSet(UserRole.DEPARTMENTLEADER));
-        userRepository.save(test_dept_leader);
+            User test_dept_leader = new User();
+            test_dept_leader.setCreateDate(new Date());
+            test_dept_leader.setCreateUser(admin);
+            test_dept_leader.setAssignedDepartment(dept);
+            test_dept_leader.setUsername("TEST_DEPT_LEADER_01");
+            test_dept_leader.setRoles(Sets.newSet(UserRole.DEPARTMENTLEADER));
+            userRepository.save(test_dept_leader);
 
-        User test_employee = new User();
-        test_employee.setCreateDate(new Date());
-        test_employee.setCreateUser(admin);
-        test_employee.setUsername("USER_TEST_02");
-        test_employee.setRoles(Sets.newSet(UserRole.EMPLOYEE));
-        test_employee.setAssignedTeam(team);
-        userRepository.save(test_employee);
+            User test_employee = new User();
+            test_employee.setCreateDate(new Date());
+            test_employee.setCreateUser(admin);
+            test_employee.setUsername("USER_TEST_02");
+            test_employee.setRoles(Sets.newSet(UserRole.EMPLOYEE));
+            test_employee.setAssignedTeam(team);
+            userRepository.save(test_employee);
 
-        User test_external_employee = new User();
-        test_external_employee.setCreateDate(new Date());
-        test_external_employee.setCreateUser(admin);
-        test_external_employee.setUsername("USER_TEST_03");
-        test_external_employee.setRoles(Sets.newSet(UserRole.EMPLOYEE));
-        test_external_employee.setAssignedDepartment(dept2);
-        userRepository.save(test_external_employee);
+            User test_external_employee = new User();
+            test_external_employee.setCreateDate(new Date());
+            test_external_employee.setCreateUser(admin);
+            test_external_employee.setUsername("USER_TEST_03");
+            test_external_employee.setRoles(Sets.newSet(UserRole.EMPLOYEE));
+            test_external_employee.setAssignedDepartment(dept2);
+            userRepository.save(test_external_employee);
 
-        //Create test admin to change teams with
-        User test_admin = new User();
-        test_admin.setCreateDate(new Date());
-        test_admin.setCreateUser(admin);
-        test_admin.setUsername("ADMIN_TEST_01");
-        test_admin.setRoles(Sets.newSet(UserRole.ADMIN));
-        userRepository.save(test_admin);
+            //Create test admin to change teams with
+            User test_admin = new User();
+            test_admin.setCreateDate(new Date());
+            test_admin.setCreateUser(admin);
+            test_admin.setUsername("ADMIN_TEST_01");
+            test_admin.setRoles(Sets.newSet(UserRole.ADMIN));
+            userRepository.save(test_admin);
+        }
     }
 
     /**
      * Tests loading of team data
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void load_team_data()
@@ -147,7 +149,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests unauthorized loading of team data
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void load_team_unauthorized()
@@ -160,7 +161,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests loading of team collection
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void load_teams()
@@ -173,7 +173,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests unauthorized loading of team collection
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void load_teams_unauthorized()
@@ -203,7 +202,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests adding a team where the name is too short
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void save_team_with_invalid_name() throws ProdigaGeneralExpectedException
@@ -221,7 +219,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests adding a team with lacking authorizations
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
     public void save_team_unauthorized() throws ProdigaGeneralExpectedException
@@ -258,7 +255,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests changing a team with lacking authentication
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void update_team_unauthorized()
@@ -274,7 +270,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests deleting a team with members
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void delete_team_with_members()
@@ -309,7 +304,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests deleting a team with lacking authorization
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void delete_team_unauthorized()
@@ -343,7 +337,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests setting the team leader with lacking authorization
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
     public void set_team_leader_unauthorized()
@@ -359,7 +352,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests setting the team leader to an employee outside the department
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void set_team_leader_outside() throws ProdigaGeneralExpectedException
@@ -395,7 +387,6 @@ public class TeamServiceTest implements InitializingBean
     /**
      * Tests setting the team leader to a nonexisting DB user
      */
-    @DirtiesContext
     @Test
     @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
     public void set_team_leader_to_new_object()
@@ -406,5 +397,35 @@ public class TeamServiceTest implements InitializingBean
         Assertions.assertThrows(RuntimeException.class, () -> {
             teamService.setTeamLeader(team, u2);
         }, "Team was updated despite User not existing in the database.");
+    }
+
+    /**
+     * Tests changing the team of another department
+     */
+    @Test
+    @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
+    public void change_foreign_team() throws ProdigaGeneralExpectedException
+    {
+        Team team = teamRepository.findFirstByName("TEAM_TEST_02");
+        team.setName("Cool Team");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            teamService.saveTeam(team);
+        }, "Team was updated despite the department leader not being in the correct department.");
+    }
+
+    /**
+     * Tests changing the team's department
+     */
+    @Test
+    @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
+    public void change_team_dept() throws ProdigaGeneralExpectedException
+    {
+        Team team = teamRepository.findFirstByName("TEAM_TEST_01");
+        team.setDepartment(departmentRepository.findFirstByName("DEPT_TEST_02"));
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            teamService.saveTeam(team);
+        }, "Team was updated despite department being changed.");
     }
 }
