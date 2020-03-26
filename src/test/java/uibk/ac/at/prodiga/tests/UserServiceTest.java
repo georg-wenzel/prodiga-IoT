@@ -1,6 +1,5 @@
 package uibk.ac.at.prodiga.tests;
 
-import org.apache.tomcat.util.log.UserDataHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,11 +21,6 @@ import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

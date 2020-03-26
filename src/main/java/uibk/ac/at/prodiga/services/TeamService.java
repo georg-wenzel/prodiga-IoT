@@ -87,7 +87,7 @@ public class TeamService
         }
 
         //check that department matches the logged in users department
-        if(!userLoginManager.getCurrentUser().getAssignedDepartment().equals(team.getDepartment()))
+        if(userLoginManager.getCurrentUser().getAssignedDepartment() != null && !userLoginManager.getCurrentUser().getAssignedDepartment().equals(team.getDepartment()))
         {
             throw new ProdigaGeneralExpectedException("A team can only be created or changed within the department of the logged in user.", MessageType.ERROR);
         }
