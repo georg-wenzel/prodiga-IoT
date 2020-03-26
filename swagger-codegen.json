@@ -1,0 +1,9 @@
+{
+  "modelPackage": "dtos",
+  "apiÜackage": "api",
+  "invokerPackage": "uibk.ac.at.prodigaclient",
+  "hideGenerationTimestamp": true,
+  "dateLibrary": "java8",
+  "java8": true,
+  "library": "retrofit2"
+}
