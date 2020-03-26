@@ -8,6 +8,7 @@ import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
+import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
@@ -24,13 +25,15 @@ import java.util.Set;
 public class DepartmentService
 {
     private final DepartmentRepository departmentRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, ProdigaUserLoginManager userLoginManager)
+    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager)
     {
         this.departmentRepository = departmentRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
         this.userLoginManager = userLoginManager;
     }
 
@@ -117,14 +120,14 @@ public class DepartmentService
             roles.remove(UserRole.DEPARTMENTLEADER);
             roles.add(UserRole.EMPLOYEE);
             oldLeader.setRoles(roles);
-            userService.saveUser(oldLeader);
+            userRepository.save(oldLeader);
         }
         //Set new leader role to departmentleader
         Set<UserRole> roles = newLeader.getRoles();
         roles.remove(UserRole.EMPLOYEE);
         roles.add(UserRole.DEPARTMENTLEADER);
         newLeader.setRoles(roles);
-        userService.saveUser(newLeader);
+        userRepository.save(newLeader);
     }
 
 

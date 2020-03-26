@@ -1,6 +1,5 @@
 package uibk.ac.at.prodiga.tests;
 
-import org.apache.tomcat.util.log.UserDataHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,12 +19,8 @@ import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -86,7 +81,7 @@ public class UserServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DirtiesContext
-    public void userService_updateUser_FieldsChangeAccordingly() {
+    public void userService_updateUser_FieldsChangeAccordingly() throws ProdigaGeneralExpectedException {
         DataHelper.createAdminUser("admin", userRepository);
         User u = DataHelper.createRandomUser(userRepository);
 
@@ -105,7 +100,7 @@ public class UserServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     @DirtiesContext
-    public void userService_createUser_UserExistsInDB() {
+    public void userService_createUser_UserExistsInDB() throws ProdigaGeneralExpectedException {
         User adminUser = DataHelper.createAdminUser("admin", userRepository);
 
         User toBeCreatedUser = new User();
@@ -207,22 +202,11 @@ public class UserServiceTest {
     @DirtiesContext
     public void testLoadDepartmentLeader() {
         User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept1 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        User test_leader = DataHelper.createUserWithRoles(Sets.newSet(UserRole.DEPARTMENTLEADER), admin, dept1, null, userRepository);
 
-        Department dept = new Department();
-        dept.setName("DEPT_TEST_01");
-        dept.setObjectCreatedDateTime(new Date());
-        dept.setObjectCreatedUser(admin);
-        dept = departmentRepository.save(dept);
 
-        User test_leader = new User();
-        test_leader.setUsername("USER_TEST_01");
-        test_leader.setRoles(Sets.newSet(UserRole.DEPARTMENTLEADER));
-        test_leader.setAssignedDepartment(dept);
-        test_leader.setCreateDate(new Date());
-        test_leader.setCreateUser(admin);
-        test_leader = userRepository.save(test_leader);
-
-        Assertions.assertEquals(userService.getDepartmentLeaderOf(dept), test_leader, "DEPT_TEST_01 department leader does not match USER_TEST_01.");
+        Assertions.assertEquals(userService.getDepartmentLeaderOf(dept1), test_leader, "Department leader does not match the selected user.");
     }
 
     @Test
@@ -230,30 +214,11 @@ public class UserServiceTest {
     @DirtiesContext
     public void testLoadTeamLeader() {
         User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User test_leader = DataHelper.createUserWithRoles(Sets.newSet(UserRole.TEAMLEADER), admin, dept, team, userRepository);
 
-        Department dept = new Department();
-        dept.setName("DEPT_TEST_01");
-        dept.setObjectCreatedDateTime(new Date());
-        dept.setObjectCreatedUser(admin);
-        dept = departmentRepository.save(dept);
-
-        Team team = new Team();
-        team.setName("DEPT_TEST_01");
-        team.setDepartment(dept);
-        team.setObjectCreatedDateTime(new Date());
-        team.setObjectCreatedUser(admin);
-        team = teamRepository.save(team);
-
-        User test_leader = new User();
-        test_leader.setUsername("USER_TEST_01");
-        test_leader.setRoles(Sets.newSet(UserRole.TEAMLEADER));
-        test_leader.setAssignedDepartment(dept);
-        test_leader.setAssignedTeam(team);
-        test_leader.setCreateDate(new Date());
-        test_leader.setCreateUser(admin);
-        test_leader = userRepository.save(test_leader);
-
-        Assertions.assertEquals(userService.getTeamLeaderOf(team), test_leader, "TEAM_TEST_01 team leader does not match USER_TEST_01.");
+        Assertions.assertEquals(userService.getTeamLeaderOf(team), test_leader, "Team leader does not match the selected user.");
     }
 
     @Test
@@ -272,5 +237,122 @@ public class UserServiceTest {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             userService.getDepartmentLeaderOf(new Department());
         }, "Department leader was loaded despite missing authorization.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testIncorrectTeamDepartmentSetup()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
+
+        test_user.setAssignedDepartment(dept2);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            userService.saveUser(test_user);
+        }, "User was assigned an illegal department/team combination.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "dept_leader", authorities = {"DEPARTMENTLEADER"})
+    public void testChangeTeam() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User dept_leader = DataHelper.createUserWithRoles("dept_leader", Sets.newSet(UserRole.DEPARTMENTLEADER), userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
+        Team team2 = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.TEAMLEADER), admin, dept, team, userRepository);
+
+        test_user = userService.assignTeam(test_user, team2);
+        Assertions.assertEquals(test_user.getAssignedTeam(), team2, "Team was not properly changed.");
+        Assertions.assertTrue(test_user.getRoles().contains(UserRole.EMPLOYEE) && !test_user.getRoles().contains(UserRole.TEAMLEADER), "Teamleader role was not revoked when team was changed.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
+    public void testChangeTeamUnauthorized() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User dept_leader = DataHelper.createUserWithRoles("dept_leader", Sets.newSet(UserRole.DEPARTMENTLEADER), userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
+        Team team2 = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            userService.assignTeam(test_user, team2);
+        }, "Team was changed despite missing authorization.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "dept_leader", authorities = {"DEPARTMENTLEADER"})
+    public void testChangeTeamIllegal() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User dept_leader = DataHelper.createUserWithRoles("dept_leader", Sets.newSet(UserRole.DEPARTMENTLEADER), userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
+        Team team2 = DataHelper.createRandomTeam(dept2, dept_leader, teamRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            userService.assignTeam(test_user, team2);
+        }, "Team was changed despite being in a different department.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testChangeDepartment() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+
+        test_user = userService.assignDepartment(test_user, dept2);
+        Assertions.assertEquals(test_user.getAssignedDepartment(), dept2, "Department was not properly changed.");
+        Assertions.assertTrue(test_user.getRoles().contains(UserRole.EMPLOYEE) && !test_user.getRoles().contains(UserRole.DEPARTMENTLEADER), "Departmentleader role was not revoked when department was changed.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "testuser", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
+    public void testChangeDepartmentUnauthorized() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            userService.assignDepartment(test_user, dept2);
+        }, "Department was changed despite missing authorization.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void testChangeDepartmentIllegal() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.DEPARTMENTLEADER), admin, dept, team, userRepository);
+        Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            userService.assignDepartment(test_user, dept2);
+        }, "Department was changed even though user was still part of a team in the department.");
     }
 }
