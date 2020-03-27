@@ -19,10 +19,11 @@ public class DepartmentController {
 
     private final DepartmentService departmentService;
     private Department department;
-    private UserService userService;
+    private final UserService userService;
 
-    public DepartmentController(DepartmentService departmentService) {
+    public DepartmentController(DepartmentService departmentService, UserService userService) {
         this.departmentService = departmentService;
+        this.userService = userService;
     }
 
      /**
