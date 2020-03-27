@@ -8,7 +8,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import uibk.ac.at.prodiga.utils.Constants;
 
@@ -18,6 +20,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     DataSource dataSource;
+
+    @Autowired
+    PreAuthRequestFilter preAuthRequestFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,8 +37,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login.xhtml");
 
         http.authorizeRequests()
-                //Permit access to the H2 console
-                .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/h2-console/**", "/api/auth").permitAll();
+
+        http.authorizeRequests()
+                .and()
+                .exceptionHandling().accessDeniedPage("/error/denied.xhtml")
+                .and()
+                .sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml")
                 .and()
                 .formLogin()
                 .loginPage("/login.xhtml")
@@ -41,10 +51,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/welcome.xhtml")
                 .failureUrl("/login.xhtml?error=true");
 
-        http.exceptionHandling().accessDeniedPage("/error/denied.xhtml");
+        http.authorizeRequests()
+                .antMatchers("/api/**").authenticated();
 
-        http.sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml");
-
+        http.addFilterBefore(preAuthRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Autowired
