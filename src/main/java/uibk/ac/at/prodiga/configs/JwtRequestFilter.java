@@ -31,7 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // Only apply for REST API methods - otherwise ignore
         if(!httpServletRequest.getRequestURI().startsWith("/api")) {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
+           // filterChain.doFilter(httpServletRequest, httpServletResponse);
             return;
         }
 
