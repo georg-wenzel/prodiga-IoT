@@ -22,7 +22,6 @@ import java.util.Set;
 /**
  * Service for accessing and manipulating teams.
  */
-//TODO: Nur der eigene Departmentleader darf Teams im Department verändern, Teams dürfen nicht in andere Departments zugewiesen werden, abgleichen User die Teamleader werden, müssen das gleiche Department haben wie das Team. (& entsprechende Tests)
 @Component
 @Scope("application")
 public class TeamService
@@ -87,6 +86,12 @@ public class TeamService
             throw new ProdigaGeneralExpectedException("Team name must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
+        //check that department matches the logged in users department
+        if(userLoginManager.getCurrentUser().getAssignedDepartment() != null && !userLoginManager.getCurrentUser().getAssignedDepartment().equals(team.getDepartment()))
+        {
+            throw new ProdigaGeneralExpectedException("A team can only be created or changed within the department of the logged in user.", MessageType.ERROR);
+        }
+
         //set appropriate fields
         if(team.isNew())
         {
@@ -97,6 +102,12 @@ public class TeamService
         {
             team.setObjectChangedDateTime(new Date());
             team.setObjectChangedUser(userLoginManager.getCurrentUser());
+
+            //Check that department has not changed
+            if(!team.getDepartment().equals(teamRepository.findFirstById(team.getId()).getDepartment()))
+            {
+                throw new ProdigaGeneralExpectedException("A team's department cannot be changed.", MessageType.ERROR);
+            }
         }
         return teamRepository.save(team);
     }

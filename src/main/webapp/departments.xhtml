@@ -1,0 +1,32 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Departments</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/departments">Departments</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Departments</h1>
+                    <h:form id="departmentForm">
+                        <p:dataTable id="departmentTable" var="department" scrollable="true" scrollHeight="500" value="#{departmentController.allDepartments}">
+
+                        </p:dataTable>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>
