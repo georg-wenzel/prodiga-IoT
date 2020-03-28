@@ -16,27 +16,115 @@
         <f:metadata>
             <f:viewParam name="username" value="#{userDetailController.userByName}"/>
         </f:metadata>
-        <div class="ui-g">
-            <div class="ui-g-12">
                 <div class="card">
-                    <h1>Users</h1>
+                    <h1>#{userDetailController.user.username}</h1>
                     <h:form id="userForm">
                         <p:messages id="msgs" for="msgs"/>
-                        <div class="ui-g ui-g-offset-2">
-                            <div class="ui-g-4">
-                                <div class="ui-g-12 input-form">
-                                    <p:outputLabel for="username" value="Username: "/>
+                        <div class="ui-g">
+                            <div class="ui-g-3">
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="username" value="Benutzername: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
                                     <p:inputText id="username"
                                                  value="#{userDetailController.user.username}"
                                                  disabled="#{not userDetailController.user['new']}"
                                                  required="#{userDetailController.user['new']}"
                                                  label="Username"/>
                                 </div>
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="firstname" value="Vorname: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="firstname"
+                                                 value="#{userDetailController.user.firstName}"
+                                                 disabled="#{not userDetailController.user['new']}"
+                                                 required="#{userDetailController.user['new']}"
+                                                 label="Username"/>
+                                </div>
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="lastname" value="Nachname: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="lastname"
+                                                 value="#{userDetailController.user.lastName}"
+                                                 disabled="#{not userDetailController.user['new']}"
+                                                 required="#{userDetailController.user['new']}"
+                                                 label="Username"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-3">
+
+                                <div class="ui-g-3 input-form">
+                                    <p:outputLabel styleClass="input-form" for="email" value="E-Mail: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="email" value="#{userDetailController.user.email}" required="false"
+                                                 label="email"/>
+                                </div>
+
+                                <div class="ui-g-3 input-form">
+                                    <p:outputLabel styleClass="input-form" for="phone" value="Phone: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputMask id="phone" value="#{userDetailController.user.phone}" mask="+99? 999 9999999"/>
+                                </div>
                             </div>
                         </div>
+                        <div class="ui-g">
+                            <div class="ui-g-3">
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel styleClass="input-form" for="assignedTeam" value="Team: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="assignedTeam" value="#{userDetailController.user.assignedTeam.name}" required="false"
+                                                 label="email"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-3">
+                                <div class="ui-g-3 input-form">
+                                    <p:outputLabel styleClass="input-form" for="assignedDepartment" value="Abteilung: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="assignedDepartment" value="#{userDetailController.user.assignedDepartment.name}" required="false"
+                                                 label="email"/>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ui-g">
+                            <div class="ui-g-3 input-form">
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="roles" value="Rollen: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:selectManyButton id="roles"
+                                                        value="#{userDetailController.user.rolesAsString}" disabled="true">
+                                        <f:selectItems value="#{userDetailController.allRoles}" var="role" itemLabel="#{role}" itemValue="#{role}" />
+                                    </p:selectManyButton>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br/>
+                        <div class="ui-g">
+                            <p:commandButton value="Save"
+                                             action="#{userDetailController.doSaveUser()}"
+                                             ajax="true"
+                                             icon="fa fa-fw fa-save"
+                                             validateClient="true"
+                                             update="growl msgs">
+                            </p:commandButton>
+                            <p:commandButton value="Reload"
+                                             rendered="#{not userDetailController.user['new']}"
+                                             action="#{userDetailController.doReloadUser(userDetailController.user.username)}"
+                                             ajax="true"
+                                             icon="fa fa-fw fa-refresh"
+                                             update="growl msgs userForm">
+                            </p:commandButton>
+                        </div>
                     </h:form></div>
-            </div>
-        </div>
 
     </ui:define>
 
