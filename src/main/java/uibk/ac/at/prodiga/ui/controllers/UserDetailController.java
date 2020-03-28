@@ -24,14 +24,13 @@ public class UserDetailController {
     /**
      * Sets the currently displayed user and reloads it form db. This user is
      * targeted by any further calls of
-     * {@link #doReloadUser()}, {@link #doSaveUser()} and
-     * {@link #doDeleteUser()}.
+     *
      *
      * @param user
      */
-    public void setUser(User user) {
+    public void setUser(User user) throws Exception {
         this.user = user;
-        doReloadUser();
+        doReloadUser(user.getUsername());
     }
 
     /**
@@ -44,10 +43,16 @@ public class UserDetailController {
     }
 
     /**
-     * Action to force a reload of the currently displayed user.
+     * Reloads the given user. If {@param username} is empty a new user will be created
+     *
+     * @param username The name of the user to reload
      */
-    public void doReloadUser() {
-        user = userService.loadUser(user.getUsername());
+    public void doReloadUser(String username) throws Exception {
+        if (username != null && !username.trim().isEmpty()) {
+            this.user = userService.loadUser(username);
+        } else {
+            this.user = userService.createNewUser();
+        }
     }
 
     /**
@@ -63,6 +68,26 @@ public class UserDetailController {
     public void doDeleteUser() throws Exception {
         this.userService.deleteUser(user);
         user = null;
+    }
+
+    /**
+     * The the current user name
+     * @return The current user name
+     */
+    public String getUserByName() {
+        if(this.user == null) {
+            return null;
+        }
+        return user.getUsername();
+    }
+
+    /**
+     * Sets the current user based on username
+     *
+     * @param username The username
+     */
+    public void setUserByName(String username) throws Exception {
+        doReloadUser(username);
     }
 
 }
