@@ -9,6 +9,7 @@ INSERT INTO user_user_role (user_username, ROLES) VALUES ('user2', 'EMPLOYEE');
 
 INSERT INTO department (ID, NAME, object_created_date_time, object_created_user_username) VALUES (1, 'IT services',CURRENT_TIMESTAMP, 'admin');
 INSERT INTO department (ID, NAME, object_created_date_time, object_created_user_username) VALUES (2, 'Research and development',CURRENT_TIMESTAMP, 'admin');
+INSERT INTO department (ID, NAME, object_created_date_time, object_created_user_username) VALUES (3, 'Testing and development',CURRENT_TIMESTAMP, 'admin');
 
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id) VALUES(TRUE, 'John', 'Doe', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'ITS leader', 'admin', '2016-01-01 00:00:00', 1);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('ITS leader', 'DEPARTMENTLEADER');
