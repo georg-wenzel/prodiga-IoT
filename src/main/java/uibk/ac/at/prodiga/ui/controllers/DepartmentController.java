@@ -49,7 +49,7 @@ public class DepartmentController {
      * Saves currently selected department
      * @throws Exception when save fails
      */
-    public void saveDeparment() throws Exception {
+    public void saveDepartment() throws Exception {
         departmentService.saveDepartment(department);
         SnackbarHelper.getInstance().showSnackBar("Department " + department.getId() + " saved!", MessageType.INFO);
     }
@@ -92,4 +92,56 @@ public class DepartmentController {
     public User getDepartmentLeaderOf(Department department) {
         return userService.getDepartmentLeaderOf(department);
     }
+
+    /**
+     * Gets department by id.
+     *
+     * @return the department by id
+     */
+    public Long getDepartmentById() {
+        if(this.department == null){
+            return (long) -1;
+        }
+        return this.department.getId();
+    }
+
+    /**
+     * Sets current department by departmentId
+     * @throws Exception when department could not be found
+     */
+    public void setDepartmentById(Long departmentId) throws Exception{
+        loadDepartmentById(departmentId);
+    }
+
+    /**
+     * Sets currently active department by the id
+     * @param departmentId when deparmentId could not be found
+     */
+    public void loadDepartmentById(Long departmentId) throws Exception{
+        if(departmentId == null){
+            this.department = departmentService.createDepartment();
+        } else {
+            this.department = departmentService.loadDepartment(departmentId);
+        }
+    }
+
+    /**
+     * Gets department.
+     *
+     * @return the department
+     */
+    public Department getDepartment() {
+        return this.department;
+    }
+
+    /**
+     * Sets deparment.
+     *
+     * @param department
+     */
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+
 }
