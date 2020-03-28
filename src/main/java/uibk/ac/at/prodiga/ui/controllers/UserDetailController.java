@@ -3,22 +3,34 @@ package uibk.ac.at.prodiga.ui.controllers;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.UserService;
+import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+import uibk.ac.at.prodiga.utils.SnackbarHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("view")
 public class UserDetailController {
 
     private final UserService userService;
+    private final ProdigaUserLoginManager userLoginManager;
 
     /**
      * Attribute to cache the currently displayed user
      */
     private User user;
 
-    public UserDetailController(UserService userService) {
+    public UserDetailController(UserService userService, ProdigaUserLoginManager userLoginManager) {
         this.userService = userService;
+        this.userLoginManager = userLoginManager;
     }
 
     /**
@@ -60,6 +72,8 @@ public class UserDetailController {
      */
     public void doSaveUser() throws ProdigaGeneralExpectedException {
         user = this.userService.saveUser(user);
+        SnackbarHelper.getInstance()
+                .showSnackBar("User " + user.getUsername() + " saved!", MessageType.INFO);
     }
 
     /**
@@ -67,7 +81,26 @@ public class UserDetailController {
      */
     public void doDeleteUser() throws Exception {
         this.userService.deleteUser(user);
-        user = null;
+        SnackbarHelper.getInstance()
+                .showSnackBar("User " + user.getUsername() + " deleted!", MessageType.ERROR);
+    }
+
+    public List<String> getAllRoles() {
+        List<String> userRoleList = new LinkedList<>();
+
+        if(this.user.getRoles().contains(UserRole.ADMIN)){
+            userRoleList.add(UserRole.ADMIN.getLabel());
+        }
+        if(this.user.getRoles().contains(UserRole.DEPARTMENTLEADER)){
+            userRoleList.add(UserRole.EMPLOYEE.getLabel());
+        }
+        if(this.user.getRoles().contains(UserRole.TEAMLEADER)){
+            userRoleList.add(UserRole.TEAMLEADER.getLabel());
+        }
+        if(this.user.getRoles().contains(UserRole.EMPLOYEE)){
+            userRoleList.add(UserRole.EMPLOYEE.getLabel());
+        }
+        return userRoleList;
     }
 
     /**
