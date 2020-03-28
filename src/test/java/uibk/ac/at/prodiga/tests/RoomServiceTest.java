@@ -1,5 +1,5 @@
 package uibk.ac.at.prodiga.tests;
-
+/*
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import uibk.ac.at.prodiga.services.RoomService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-/*
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 @WebAppConfiguration
