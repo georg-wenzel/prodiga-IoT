@@ -92,7 +92,7 @@ public class UserDetailController {
             userRoleList.add(UserRole.ADMIN.getLabel());
         }
         if(this.user.getRoles().contains(UserRole.DEPARTMENTLEADER)){
-            userRoleList.add(UserRole.EMPLOYEE.getLabel());
+            userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
         }
         if(this.user.getRoles().contains(UserRole.TEAMLEADER)){
             userRoleList.add(UserRole.TEAMLEADER.getLabel());
