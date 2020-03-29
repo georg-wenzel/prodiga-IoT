@@ -1,20 +1,12 @@
 package uibk.ac.at.prodiga.tests.rest;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestContext;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AbstractTestExecutionListener;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,20 +17,18 @@ import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.rest.controller.AuthController;
 import uibk.ac.at.prodiga.rest.dtos.JwtRequestDTO;
 import uibk.ac.at.prodiga.rest.dtos.JwtResponseDTO;
-import uibk.ac.at.prodiga.tests.helper.TestHelper;
+import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.Constants;
 
 import java.util.Date;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners(listeners = {
-        DependencyInjectionTestExecutionListener.class,
-        AuthControllerTest.class})
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @WebAppConfiguration
-public class AuthControllerTest extends AbstractTestExecutionListener {
+public class AuthControllerTest {
 
-    private final String PASSWORD = "test";
+    private static final String PASSWORD = "test";
+    private static final String INTERNAL_ID = "Test123";
 
     @Autowired
     private AuthController authController;
@@ -49,18 +39,22 @@ public class AuthControllerTest extends AbstractTestExecutionListener {
     @Autowired
     private RaspberryPiRepository raspberryPiRepository;
 
-    private RaspberryPi raspi = null;
-    private User u = null;
+    private static RaspberryPi raspi = null;
+    private static User u = null;
 
-    @Override
-    public void beforeTestClass(TestContext testContext) throws Exception {
-        TestHelper.autoWireTestClass(testContext, this);
-
-        u = userRepository.findFirstByUsername("admin");
+    /**
+     * Initializes the test with test data
+     * @param userRepository userRepository for creating users
+     * @param raspberryPiRepository raspberryPiRepository for creating raspberry pis
+     */
+    @BeforeAll
+    public static void init(@Autowired UserRepository userRepository,
+                            @Autowired RaspberryPiRepository raspberryPiRepository)  {
+        u = DataHelper.createAdminUser("admin", userRepository);
 
         raspi = new RaspberryPi();
-        raspi.setInternalId("Test123");
-        raspi.setPassword(Constants.PASSWORD_ENCODER.encode("test"));
+        raspi.setInternalId(INTERNAL_ID);
+        raspi.setPassword(Constants.PASSWORD_ENCODER.encode(PASSWORD));
         raspi.setObjectChangedDateTime(new Date());
         raspi.setObjectCreatedDateTime(new Date());
         raspi.setObjectChangedUser(u);
@@ -69,8 +63,10 @@ public class AuthControllerTest extends AbstractTestExecutionListener {
         raspberryPiRepository.save(raspi);
     }
 
+    /**
+     * Tests whether a Raspi which is not registered can create an acess token
+     */
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void authenticate_AuthenticateNotConfiguredRaspi_ReturnsNotFound() {
         JwtRequestDTO request = new JwtRequestDTO();
         request.setInternalId("GibtEsNicht");
@@ -78,35 +74,41 @@ public class AuthControllerTest extends AbstractTestExecutionListener {
 
         try {
             authController.createToken(request);
+            Assertions.fail("Token sucessfull created with not configured raspi");
         } catch (ResponseStatusException ex) {
-            Assert.assertEquals(ex.getStatus().value(), 404);
+            Assertions.assertEquals(ex.getStatus().value(), 404);
         }
     }
 
+    /**
+     *Tests whether a raspi which has the wriong password can create an access token
+     */
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void authenticate_AuthenticateWrongPassword_ReturnsForbidden() {
         JwtRequestDTO request = new JwtRequestDTO();
-        request.setInternalId("Test123");
+        request.setInternalId(INTERNAL_ID);
         request.setPassword("GibtEsNicht");
 
         try {
             authController.createToken(request);
+            Assertions.fail("Token sucessull created with wrong password");
         } catch (ResponseStatusException ex) {
-            Assert.assertEquals(ex.getStatus().value(), 401);
+            Assertions.assertEquals(ex.getStatus().value(), 401);
         }
     }
 
+    /**
+     * Tests whether a valid configured raspi and registered raspi can create a token
+     */
     @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void authenticate_ValidRequest_ReturnsToken() {
         JwtRequestDTO request = new JwtRequestDTO();
-        request.setInternalId("Test123");
-        request.setPassword("test");
+        request.setInternalId(INTERNAL_ID);
+        request.setPassword(PASSWORD);
 
         JwtResponseDTO response = authController.createToken(request);
 
-        Assert.assertNotNull(response);
-        Assert.assertFalse(StringUtils.isEmpty(response.getToken()));
+        Assertions.assertNotNull(response, "authController.createToken(request) response may not be null.");
+        Assertions.assertFalse(StringUtils.isEmpty(response.getToken()), "token in response may not be empty!");
     }
 }

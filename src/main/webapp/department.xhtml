@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Departments</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/departments">Abteilungen</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputText value="#{departmentController.loadDepartmentById(param['department'])}"/>
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>#{departmentController.department.name}</h1>
+                    <h:form id="departmentForm" enctype="multipart/form-data">
+                        <p:messages id="msgs" for="msgs"/>
+                        <div class="ui-g">
+
+                                <div class="ui-g-12 input-form">
+
+                                    <p:outputLabel for="departmentId" value="Abteilungsnummer: "/>
+                                    <p:inputText id="departmentId"
+                                                 value="#{departmentController.department.id}"
+                                                 disabled="true"
+                                                 label="Department id"/>
+                                </div>
+
+                                <div class="ui-g-12 input-form">
+                                    <p:outputLabel for="departmentLeader" value="Abteilungsleiter: "/>
+                                    <p:inputText id="departmentLeader"
+                                                 value="#{departmentController.getDepartmentLeaderOf(departmentController.department).firstName} #{departmentController.getDepartmentLeaderOf(departmentController.department).lastName}"
+                                                 disabled="true"
+                                                 label="Department name"/>
+                                </div>
+
+
+
+                    </div>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Persistable;
 
 @Entity
@@ -16,7 +19,7 @@ public class User implements Persistable<String>, Serializable {
     @Column(length = 100)
     private String username;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private User createUser;
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,6 +46,9 @@ public class User implements Persistable<String>, Serializable {
 
     @ManyToOne(targetEntity = Team.class, fetch = FetchType.EAGER, optional = true)
     private Team assignedTeam;
+
+    @ManyToOne(targetEntity = Department.class, fetch = FetchType.EAGER, optional = true)
+    private Department assignedDepartment;
 
     @Column(nullable = true)
     private FrequencyType frequencyType;
@@ -83,6 +89,14 @@ public class User implements Persistable<String>, Serializable {
 
     public void setAssignedTeam(Team assignedTeam) {
         this.assignedTeam = assignedTeam;
+    }
+
+    public Department getAssignedDepartment() {
+        return assignedDepartment;
+    }
+
+    public void setAssignedDepartment(Department assignedDepartment) {
+        this.assignedDepartment = assignedDepartment;
     }
 
     public String getUsername() {

@@ -2,6 +2,7 @@ package uibk.ac.at.prodiga.utils;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -11,7 +12,7 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.UserService;
 
 @Component
-@Scope("session")
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class ProdigaUserLoginManager {
 
     private final UserService userService;
