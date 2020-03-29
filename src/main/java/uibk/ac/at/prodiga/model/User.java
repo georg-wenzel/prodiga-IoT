@@ -2,8 +2,10 @@ package uibk.ac.at.prodiga.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.*;
 import javax.validation.Valid;
 
@@ -234,6 +236,41 @@ public class User implements Persistable<String>, Serializable {
     @Override
     public boolean isNew() {
         return (null == createDate);
+    }
+
+    /**
+     * Here is where Java gets weird. The view doesn't know how to handle enums - so we have to
+     * provide a setter and getter with strings Here we return all {@link UserRole#label} of the users
+     * roles
+     *
+     * @return A set of all {@link UserRole} but only the {@link UserRole#label}
+     */
+    public Set<String> getRolesAsString() {
+        if (roles == null) {
+            roles = new HashSet<>();
+        }
+        return this.roles.stream().map(UserRole::getLabel).collect(Collectors.toSet());
+    }
+
+    /**
+     * Same as the getter. The given roles will be "casted" to {@link UserRole} enum members
+     * @param roles Set of {@link UserRole} but only the {@link UserRole#label}
+     */
+    public void setRolesAsString(Set<String> roles) {
+        Set<UserRole> userRoles = new HashSet<>();
+        for(String string : roles){
+            if(string.equals("Department leader")){
+                userRoles.add(UserRole.valueOf(UserRole.class, "DEPARTMENTLEADER"));
+            }
+            else if(string.equals("Team leader")){
+                userRoles.add(UserRole.valueOf(UserRole.class,"TEAMLEADER"));
+            }
+            else{
+                userRoles.add(UserRole.valueOf(UserRole.class, string.toUpperCase()));
+            }
+
+        }
+        this.roles = userRoles;
     }
 
 }

@@ -7,13 +7,18 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
+import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
+import uibk.ac.at.prodiga.repositories.RoomRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
-
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 public class DataHelper {
+
+    public static String TEST_PASSWORD = "passwd";
+    public static String TEST_PASSWORD_ENCODED = "$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC";
 
     /**
      * Creates a new random user with random username
@@ -53,7 +58,7 @@ public class DataHelper {
         u.setEnabled(true);
         u.setFirstName("Generic");
         u.setLastName("Namer");
-        u.setPassword("$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC");
+        u.setPassword(TEST_PASSWORD_ENCODED);
         u.setUpdateDate(new Date());
 
         return userRepository.save(u);
@@ -82,7 +87,7 @@ public class DataHelper {
         u.setAssignedTeam(team);
         u.setFirstName("Generic");
         u.setLastName("Namer");
-        u.setPassword("$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC");
+        u.setPassword(TEST_PASSWORD_ENCODED);
         u.setUpdateDate(new Date());
 
         return userRepository.save(u);
@@ -99,8 +104,7 @@ public class DataHelper {
         return departmentRepository.save(dept);
     }
 
-    public static Team createRandomTeam(Department dept,  User createUser, TeamRepository teamRepository)
-    {
+    public static Team createRandomTeam(Department dept,  User createUser, TeamRepository teamRepository) {
         String name = createRandomString(30);
 
         Team team = new Team();
@@ -110,6 +114,83 @@ public class DataHelper {
         team.setDepartment(dept);
 
         return teamRepository.save(team);
+    }
+
+     /* Creates a given dice with the given data
+     * @param internalId The internal Id used by the dice (and the raspi if not exists)
+     * @param raspi The raspi may be null
+     * @param u The user which creates all objects
+     * @param diceRepository The Repository to save the dice
+     * @param raspberryPiRepository The Repository to save the raspi
+     * @param roomRepository The Repository to save the room
+     * @return The newly created Dice
+     */
+    public static Dice createDice(String internalId,
+                                  RaspberryPi raspi,
+                                  User u,
+                                  DiceRepository diceRepository,
+                                  RaspberryPiRepository raspberryPiRepository,
+                                  RoomRepository roomRepository) {
+        if(raspi == null) {
+            raspi = createRaspi(internalId, u, null, raspberryPiRepository, roomRepository);
+        }
+
+        Dice d = new Dice();
+        d.setAssignedRaspberry(raspi);
+        d.setInternalId(internalId);
+        d.setObjectChangedDateTime(new Date());
+        d.setObjectChangedUser(u);
+        d.setObjectCreatedDateTime(new Date());
+        d.setObjectCreatedUser(u);
+
+        return diceRepository.save(d);
+    }
+
+    /**
+     * Creates a raspi with the given internal Id
+     * @param internalId The internal ID to use
+     * @param raspberryPiRepository The repository to save the raspi
+     * @param u User which created the raspi
+     * @param r Room in which the raspi gets saved can be null
+     * @return The saved raspi
+     */
+    public static RaspberryPi createRaspi(String internalId,
+                                          User u,
+                                          Room r,
+                                          RaspberryPiRepository raspberryPiRepository,
+                                          RoomRepository roomRepository) {
+        if(r == null) {
+            r = createRoom(createRandomString(20), u, roomRepository);
+        }
+
+        RaspberryPi raspi = new RaspberryPi();
+        raspi.setInternalId(internalId);
+        raspi.setPassword(TEST_PASSWORD_ENCODED);
+        raspi.setObjectChangedDateTime(new Date());
+        raspi.setObjectCreatedDateTime(new Date());
+        raspi.setObjectChangedUser(u);
+        raspi.setObjectCreatedUser(u);
+        raspi.setAssignedRoom(r);
+
+        return raspberryPiRepository.save(raspi);
+    }
+
+    /**
+     * Creates a new room with the given user and the given name
+     * @param name Rooms name
+     * @param u  user which created the room
+     * @param roomRepository Repository used to save the room
+     * @return The newly created room
+     */
+    public static Room createRoom(String name, User u, RoomRepository roomRepository) {
+        Room r = new Room();
+        r.setName(name);
+        r.setObjectChangedDateTime(new Date());
+        r.setObjectChangedUser(u);
+        r.setObjectCreatedDateTime(new Date());
+        r.setObjectCreatedUser(u);
+
+        return roomRepository.save(r);
     }
 
     private static String createRandomString(int size) {
