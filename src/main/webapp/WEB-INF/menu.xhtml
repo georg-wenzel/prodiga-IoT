@@ -12,13 +12,13 @@
                     <div class="layout-menu-title">MAIN MENU</div>
                     <pe:menu widgetVar="me">
                         <p:menuitem id="om_dashboard" value="Startseite" icon="fa fa-fw fa-home" outcome="/welcome" />
-
                         <p:submenu id="om_user" label="User" icon="fa fa-fw fa-user">
                             <p:menuitem id="om_user_overview" value="Übersicht" icon="fa fa-fw fa-users" outcome="/user/users" />
                             <p:menuitem id="om_user_add" value="Hinzufügen" icon="fa fa-fw fa-user-plus" outcome="/user/add_user" />
                         </p:submenu>
-
                         <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" url="/holiday"/>
+                        <p:menuitem id="om_departments" value="Abteilungen" icon="fa fa-fw fa-users" outcome="/departments" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" />
+                        <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" url="/deparments"/>
                         <p:submenu id="om_customization" label="Benachrichtigung" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
                         <p:submenu id="om_calendar" label="Kalender" icon="fa fa-fw fa-calendar" outcome="calendar"/>
                         <p:submenu id="om_overview" label="Zeitübersicht" icon="fa fa-fw fa-dashboard" outcome="overview"/>

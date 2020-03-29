@@ -140,4 +140,21 @@ public class DepartmentService
     {
         return department.equals(departmentRepository.findFirstById(department.getId()));
     }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public Department createDepartment() {
+        Department p = new Department();
+        return p;
+    }
+
+    /**
+     * Loads a single department identified by its departmentId.
+     *
+     * @param departmentId the departmentId to search for
+     * @return the plane with the given planeId
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Department loadDepartment(Long departmentId) {
+        return departmentRepository.findFirstById(departmentId);
+    }
 }

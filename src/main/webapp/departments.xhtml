@@ -5,21 +5,38 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Departments</ui:define>
+    <ui:define name="title">Abteilungen</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/departments">Departments</p:link></li>
+        <li><p:link outcome="/departments">Abteilungen</p:link></li>
     </ui:define>
 
     <ui:define name="content">
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-                    <h1>Departments</h1>
+                    <h1>Abteilungen</h1>
                     <h:form id="departmentForm">
-                        <p:dataTable id="departmentTable" var="department" scrollable="true" scrollHeight="500" value="#{departmentController.allDepartments}">
+                        <p:dataTable id="departmentTable" var="department" scrollable="true" style="width:50%" scrollHeight="500" value="#{departmentController.allDepartments}">
+                            <p:column headerText="Abteilungsname">
+                                <h:outputText value="#{department.name}"/>
+                            </p:column>
 
+                            <p:column headerText="Abteilungsleiter">
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).firstName} "/>
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).lastName}"/>
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) == null}" value="No department leader"/>
+                            </p:column>
+
+                            <p:column style="width:100px;text-align: center">
+                                <p:linkButton icon="fa fa-fw fa-edit"
+                                              title="Edit"
+                                              outcome="department"
+                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <f:param name="department" value="#{department.id}" />
+                                </p:linkButton>
+                            </p:column>
                         </p:dataTable>
                     </h:form>
 
