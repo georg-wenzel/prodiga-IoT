@@ -188,4 +188,15 @@ public class UserService {
         dbUser.setAssignedDepartment(department);
         return this.saveUser(dbUser);
     }
+
+    /**
+     * Returns a newly created user
+     *
+     * @return A newly created user entity
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public User createNewUser() throws Exception {
+        User u = new User();
+        return u;
+    }
 }
