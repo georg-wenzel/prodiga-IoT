@@ -1551,6 +1551,9 @@ body .layout-wrapper .layout-main .layout-content {
   border-radius: 10px;
   border: none;
 }
+body .ui-selectonemenu.ui-state-error {
+  border-color: #c4c4c4 !important;
+}
 .login-body .login-panel {
   padding: 70px 70px 70px 70px;
   position: relative;
