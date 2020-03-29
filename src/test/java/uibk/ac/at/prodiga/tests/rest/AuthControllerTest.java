@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
+import uibk.ac.at.prodiga.repositories.RoomRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.rest.controller.AuthController;
 import uibk.ac.at.prodiga.rest.dtos.JwtRequestDTO;
@@ -20,6 +21,7 @@ import uibk.ac.at.prodiga.rest.dtos.JwtResponseDTO;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.Constants;
 
+import javax.xml.crypto.Data;
 import java.util.Date;
 
 @ExtendWith(SpringExtension.class)
@@ -27,20 +29,11 @@ import java.util.Date;
 @WebAppConfiguration
 public class AuthControllerTest {
 
-    private static final String PASSWORD = "test";
+    private static final String PASSWORD = DataHelper.TEST_PASSWORD;
     private static final String INTERNAL_ID = "Test123";
 
     @Autowired
     private AuthController authController;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RaspberryPiRepository raspberryPiRepository;
-
-    private static RaspberryPi raspi = null;
-    private static User u = null;
 
     /**
      * Initializes the test with test data
@@ -49,18 +42,11 @@ public class AuthControllerTest {
      */
     @BeforeAll
     public static void init(@Autowired UserRepository userRepository,
-                            @Autowired RaspberryPiRepository raspberryPiRepository)  {
-        u = DataHelper.createAdminUser("admin", userRepository);
+                            @Autowired RaspberryPiRepository raspberryPiRepository,
+                            @Autowired RoomRepository roomRepository)  {
+        User u = DataHelper.createAdminUser("admin", userRepository);
 
-        raspi = new RaspberryPi();
-        raspi.setInternalId(INTERNAL_ID);
-        raspi.setPassword(Constants.PASSWORD_ENCODER.encode(PASSWORD));
-        raspi.setObjectChangedDateTime(new Date());
-        raspi.setObjectCreatedDateTime(new Date());
-        raspi.setObjectChangedUser(u);
-        raspi.setObjectCreatedUser(u);
-
-        raspberryPiRepository.save(raspi);
+        DataHelper.createRaspi(INTERNAL_ID, u, null, raspberryPiRepository, roomRepository);
     }
 
     /**
