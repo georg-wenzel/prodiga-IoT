@@ -56,7 +56,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (internalId != null) {
             RaspberryPi raspberryPi = null;
             try {
-                raspberryPi = raspberryPiService.findByInternalIdAndThrow(internalId);
+                raspberryPi = raspberryPiService.findByInternalIdWithAuthAndThrow(internalId);
             } catch (Exception e) {
                 // TODO Max: Definetly Log here!!
             }
