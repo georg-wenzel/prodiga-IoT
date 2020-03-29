@@ -257,7 +257,20 @@ public class User implements Persistable<String>, Serializable {
      * @param roles Set of {@link UserRole} but only the {@link UserRole#label}
      */
     public void setRolesAsString(Set<String> roles) {
-        this.roles = roles.stream().map(String::toUpperCase).map(UserRole::valueOf).collect(Collectors.toSet());
+        Set<UserRole> userRoles = new HashSet<>();
+        for(String string : roles){
+            if(string.equals("Department leader")){
+                userRoles.add(UserRole.valueOf(UserRole.class, "DEPARTMENTLEADER"));
+            }
+            else if(string.equals("Team leader")){
+                userRoles.add(UserRole.valueOf(UserRole.class,"TEAMLEADER"));
+            }
+            else{
+                userRoles.add(UserRole.valueOf(UserRole.class, string.toUpperCase()));
+            }
+
+        }
+        this.roles = userRoles;
     }
 
 }
