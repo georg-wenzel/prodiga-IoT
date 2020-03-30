@@ -1,6 +1,8 @@
 package uibk.ac.at.prodiga.repositories;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uibk.ac.at.prodiga.model.Department;
@@ -29,4 +31,11 @@ public interface UserRepository extends AbstractRepository<User, String> {
     @Query("SELECT u FROM User u WHERE 'DEPARTMENTLEADER' MEMBER OF u.roles " +
             "AND u.assignedDepartment = :department")
     User findDepartmentLeaderOf(@Param("department") Department department);
+
+    /**
+     * Returns the first user with the given email
+     * @param email The email
+     * @return An optional containing the user
+     */
+    Optional<User> findFirstByEmail(String email);
 }
