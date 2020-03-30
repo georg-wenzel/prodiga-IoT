@@ -71,6 +71,14 @@ public class UserService {
 
         if (user.isNew())
         {
+            if(userRepository.findFirstByUsername(user.getUsername()) != null) {
+                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
+            }
+
+            if(userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
+                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
+            }
+
             user.setCreateDate(new Date());
             user.setCreateUser(getAuthenticatedUser());
         }

@@ -355,4 +355,32 @@ public class UserServiceTest {
             userService.assignDepartment(test_user, dept2);
         }, "Department was changed even though user was still part of a team in the department.");
     }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void userService_saveNewUserWithSameUsername_throwsException() {
+        DataHelper.createAdminUser("admin", userRepository);
+
+        User u = new User();
+        u.setUsername("admin");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                userService.saveUser(u),
+                "Save successful although user with same username already exists");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void userService_saveNewUserWithSameEmail_throwsException() {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u = new User();
+        u.setUsername("test31321");
+        u.setEmail(admin.getEmail());
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                        userService.saveUser(u),
+                "Save successful although user with same email already exists");
+    }
 }
