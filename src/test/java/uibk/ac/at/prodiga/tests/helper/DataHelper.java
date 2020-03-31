@@ -5,13 +5,9 @@ import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
-import uibk.ac.at.prodiga.repositories.DepartmentRepository;
-import uibk.ac.at.prodiga.repositories.TeamRepository;
+import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
-import uibk.ac.at.prodiga.repositories.DiceRepository;
-import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
-import uibk.ac.at.prodiga.repositories.RoomRepository;
-import uibk.ac.at.prodiga.repositories.UserRepository;
+
 import java.util.Date;
 import java.util.Set;
 
@@ -93,6 +89,12 @@ public class DataHelper {
         return userRepository.save(u);
     }
 
+    /**
+     * Creates a random department
+     * @param createUser The creation user of the department
+     * @param departmentRepository The repository to save the department
+     * @return The randomly generated department.
+     */
     public static Department createRandomDepartment(User createUser, DepartmentRepository departmentRepository)
     {
         String name = createRandomString(30);
@@ -104,6 +106,13 @@ public class DataHelper {
         return departmentRepository.save(dept);
     }
 
+    /**
+     * Creates a random team within a department
+     * @param dept The department the team is in
+     * @param createUser The creation user for the team
+     * @param teamRepository The repository to save the team.
+     * @return The ranomly generated team.
+     */
     public static Team createRandomTeam(Department dept,  User createUser, TeamRepository teamRepository) {
         String name = createRandomString(30);
 
@@ -114,6 +123,43 @@ public class DataHelper {
         team.setDepartment(dept);
 
         return teamRepository.save(team);
+    }
+
+    /**
+     * Creates a booking type with random name and specified properties
+     * @param side The side this booking type is for
+     * @param active Whether or not the booking type is active
+     * @param createUser The creation user for this booking type
+     * @param bookingTypeRepository The repository to save the booking type.
+     * @return The generated booking type.
+     */
+    public static BookingType createBookingType(int side, boolean active, User createUser, BookingTypeRepository bookingTypeRepository)
+    {
+        return createBookingType(side, active, createRandomString(20), createUser, bookingTypeRepository);
+    }
+
+    /**
+     * Creates a booking type with specified properties
+     * @param side The side this booking type is for
+     * @param active Whether or not the booking type is active
+     * @param activityName the name of the activity
+     * @param createUser The creation user for this booking type
+     * @param bookingTypeRepository The repository to save the booking type.
+     * @return The generated booking type.
+     */
+    public static BookingType createBookingType(int side, boolean active, String activityName, User createUser, BookingTypeRepository bookingTypeRepository)
+    {
+        //if flag is active and active booking type for this side already returns, return that one (avoids conflicts when test data exists)
+        if(active && bookingTypeRepository.findActiveCategoryForSide(side)  != null) return bookingTypeRepository.findActiveCategoryForSide(side);
+
+        BookingType bt = new BookingType();
+        bt.setActive(active);
+        bt.setSide(side);
+        bt.setActivityName(activityName);
+        bt.setObjectCreatedUser(createUser);
+        bt.setObjectCreatedDateTime(new Date());
+
+        return bookingTypeRepository.save(bt);
     }
 
      /* Creates a given dice with the given data
