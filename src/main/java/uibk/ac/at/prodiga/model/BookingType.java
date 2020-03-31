@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Booking Type (Category) within the system.
@@ -19,7 +20,7 @@ public class BookingType implements Persistable<Long>, Serializable
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false, length = 63)
+    @Column(nullable = false, length = 64)
     private String activityName;
 
     @Column
@@ -56,11 +57,14 @@ public class BookingType implements Persistable<Long>, Serializable
         this.id = id;
     }
 
-    public String getActivityName() {
+    public String getActivityName()
+    {
         return activityName;
     }
 
     public void setActivityName(String activityName) {
+        if(activityName.length() < 2 || activityName.length() > 64)
+            throw new RuntimeException("Acitivy Name must be between 2 and 64 characters.");
         this.activityName = activityName;
     }
 
@@ -76,7 +80,10 @@ public class BookingType implements Persistable<Long>, Serializable
         return side;
     }
 
-    public void setSide(int side) {
+    public void setSide(int side)
+    {
+        if(side < 1 || side > 12)
+            throw new RuntimeException("Side must be between 1 and 12.");
         this.side = side;
     }
 
@@ -110,5 +117,18 @@ public class BookingType implements Persistable<Long>, Serializable
 
     public void setObjectChangedDateTime(Date objectChangedDateTime) {
         this.objectChangedDateTime = objectChangedDateTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookingType that = (BookingType) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
