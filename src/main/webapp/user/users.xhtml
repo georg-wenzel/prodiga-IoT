@@ -91,7 +91,7 @@
                                 </h:panelGrid>
                                 <p:separator />
                                 <h:panelGrid columns="3">
-                                    <p:commandButton value="Save" action="#{userDetailController.doSaveUser()}" oncomplete="PF('userEditDialog').hide()" update=":userForm:usersTable"/>
+                                    <p:commandButton value="Save" ajax="true" action="#{userDetailController.doSaveUser()}" oncomplete="PF('userEditDialog').hide()" update=":userForm:usersTable"/>
                                     <p:commandButton value="Reload" action="#{userDetailController.doReloadUser(userDetailController.user)}" update=":userForm:userData"/>
                                     <p:commandButton value="Abort" onclick="PF('userEditDialog').hide()"/>
                                 </h:panelGrid>

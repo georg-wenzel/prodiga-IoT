@@ -31,18 +31,26 @@ public class ProdigaGeneralExpectedException extends Exception {
 
         switch (type) {
             case INFO:
-                this.severity = "info";
+                this.severity = "Info";
             case WARNING:
-                this.severity = "warn";
+                this.severity = "Warning";
             case ERROR:
-                this.severity = "error";
+                this.severity = "Error";
         }
     }
 
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
     /**
-     * Checks if the given exception wrappes a {@link GeneralExpectedException}
+     * Checks if the given exception wrappes a {@link ProdigaGeneralExpectedException}
      * @param ex The exception to check
-     * @throws Exception Either a {@link GeneralExpectedException} if wrapped otherwise {@param ex}
+     * @throws Exception Either a {@link ProdigaGeneralExpectedException} if wrapped otherwise {@param ex}
      */
     public static void throwWrappedException(Exception ex) throws Exception {
         if(ex instanceof ProdigaGeneralExpectedException) {
