@@ -48,4 +48,18 @@
     <h:outputStylesheet name = "css/login.css" library="ecuador-layout"/>
 </h:body>
 
+<p:ajaxExceptionHandler type="uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException"
+                        update="exceptionDialog"
+                        onexception="PF('exceptionDialog').show();" />
+
+<p:dialog id="exceptionDialog" header="'#{pfExceptionHandler.severity}'!" widgetVar="exceptionDialog"
+          height="500px" resizable="false">
+    Message: #{pfExceptionHandler.message}
+    <p:separator rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}" />
+    <h:outputText rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}"
+                  value="#{pfExceptionHandler.formattedStackTrace}"
+                  escape="false" />
+    eption'}" />
+</p:dialog>
+
 </html>
