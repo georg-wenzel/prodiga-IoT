@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class Dice implements Persistable<Long>, Serializable {
@@ -105,5 +106,19 @@ public class Dice implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return this.objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Dice dice = (Dice) o;
+        return Objects.equals(id, dice.id) &&
+                Objects.equals(internalId, dice.internalId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, internalId);
     }
 }

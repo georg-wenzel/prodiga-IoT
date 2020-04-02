@@ -33,11 +33,13 @@ public class User implements Persistable<String>, Serializable {
 
     private String password;
 
-
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
+
+    @Column(columnDefinition =  "boolean default false")
+    private boolean mayEditHistoricData;
 
     boolean enabled;
 
@@ -195,6 +197,14 @@ public class User implements Persistable<String>, Serializable {
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public boolean mayEditHistoricData() {
+        return mayEditHistoricData;
+    }
+
+    public void setMayEditHistoricData(boolean mayEditHistoricData) {
+        this.mayEditHistoricData = mayEditHistoricData;
     }
 
     @Override

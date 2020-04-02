@@ -5,7 +5,10 @@ import uibk.ac.at.prodiga.model.RaspberryPi;
 
 import java.util.List;
 
-public interface DiceRepository extends AbstractRepository<Dice, Long> {
+public interface DiceRepository extends AbstractRepository<Dice, Long>
+{
+
+    Dice findFirstById(long id);
 
     /**
      * Returns alll dices which are  aassigned to the given raspi

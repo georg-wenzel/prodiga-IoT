@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
 
 import java.util.Date;
+import java.util.Random;
 import java.util.Set;
 
 public class DataHelper {
@@ -160,6 +161,48 @@ public class DataHelper {
         bt.setObjectCreatedDateTime(new Date());
 
         return bookingTypeRepository.save(bt);
+    }
+
+    /**
+     * Creates a booking given the specified data and with a random task duration. Task duration will always lie in legal values (less than 7 days ago, less than 8 hours long, longer than 30 minutes)
+     * @param type The type of the booking
+     * @param forUser User who saves the activity (must have a dice attached)
+     * @param bookingRepository The repository to store the entry with.
+     * @return The booking entry after being stored in the database.
+     */
+    public static Booking createBooking(BookingType type, User forUser, BookingRepository bookingRepository)
+    {
+        Random r = new Random();
+        //offset for date endtime (from 0 minutes to (24*6)*60 minutes = 6 days ago)
+        int offset = r.nextInt(8641);
+        //duration of the task (from 30 minutes to 8*60 = 8 hours)
+        int duration = r.nextInt(451) + 30;
+
+        Date endDate = new Date(new Date().getTime() - offset * 60 * 1000);
+        Date startDate = new Date(endDate.getTime() - duration * 60 * 1000);
+
+        return createBooking(type, startDate, endDate, forUser, bookingRepository);
+    }
+
+    /**
+     * Creates a booking given the specified data and returns it
+     * @param type The type of the booking
+     * @param startDate Start of the activity
+     * @param endDate End of the activity
+     * @param forUser User who saves the activity (must have a dice attached)
+     * @param bookingRepository The repository to store the entry with.
+     * @return The booking entry after being stored in the database.
+     */
+    public static Booking createBooking(BookingType type, Date startDate, Date endDate, User forUser, BookingRepository bookingRepository)
+    {
+        Booking booking = new Booking();
+        booking.setActivityStartDate(startDate);
+        booking.setActivityEndDate(endDate);
+        booking.setDice(forUser.getDice());
+        booking.setType(type);
+        booking.setObjectCreatedDateTime(new Date());
+        booking.setObjectCreatedUser(forUser);
+        return bookingRepository.save(booking);
     }
 
      /* Creates a given dice with the given data
