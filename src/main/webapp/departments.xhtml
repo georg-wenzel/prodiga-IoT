@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/departments">Abteilungen</p:link></li>
+        <li><p:link outcome="/departments">Departments</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -19,11 +19,11 @@
                     <h1>Abteilungen</h1>
                     <h:form id="departmentForm">
                         <p:dataTable id="departmentTable" var="department" scrollable="true" style="width:50%" scrollHeight="500" value="#{departmentController.allDepartments}">
-                            <p:column headerText="Abteilungsname">
+                            <p:column headerText="Department name">
                                 <h:outputText value="#{department.name}"/>
                             </p:column>
 
-                            <p:column headerText="Abteilungsleiter">
+                            <p:column headerText="Department leader">
                                 <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).firstName} "/>
                                 <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).lastName}"/>
                                 <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) == null}" value="No department leader"/>
