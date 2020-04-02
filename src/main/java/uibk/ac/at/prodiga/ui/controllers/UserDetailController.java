@@ -70,7 +70,7 @@ public class UserDetailController {
     /**
      * Action to save the currently displayed user.
      */
-    public void doSaveUser() throws ProdigaGeneralExpectedException {
+    public void doSaveUser() throws Exception {
         user = this.userService.saveUser(user);
         SnackbarHelper.getInstance()
                 .showSnackBar("User " + user.getUsername() + " saved!", MessageType.INFO);

@@ -10,6 +10,8 @@
         <li>Pages</li>
         <li>/</li>
         <li><p:link outcome="/user/users">Users</p:link></li>
+        <li>/</li>
+        <li>#{userDetailController.user.username}</li>
     </ui:define>
 
     <ui:define name="content">
@@ -28,8 +30,8 @@
                                 <div class="ui-g-8 input-form">
                                     <p:inputText id="username"
                                                  value="#{userDetailController.user.username}"
-                                                 disabled="#{not userDetailController.user['new']}"
-                                                 required="#{userDetailController.user['new']}"
+                                                 disabled="false"
+                                                 required="true"
                                                  label="Username"  style="width:200px"/>
                                 </div>
                                 <div class="ui-g-4 input-form">
@@ -118,7 +120,8 @@
                                              ajax="true"
                                              icon="fa fa-fw fa-save"
                                              validateClient="true"
-                                             update="growl msgs">
+                                             update="growl msgs"
+                                                oncomplete="this.window.location.href = 'www.google.com'">
                             </p:commandButton>
                             <p:commandButton value="Reload"
                                              rendered="#{not userDetailController.user['new']}"

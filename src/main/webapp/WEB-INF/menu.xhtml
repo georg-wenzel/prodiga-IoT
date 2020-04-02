@@ -14,7 +14,9 @@
                         <p:menuitem id="om_dashboard" value="Startseite" icon="fa fa-fw fa-home" outcome="/welcome" />
                         <p:submenu id="om_user" label="User" icon="fa fa-fw fa-user">
                             <p:menuitem id="om_user_overview" value="Übersicht" icon="fa fa-fw fa-users" outcome="/user/users" />
-                            <p:menuitem id="om_user_add" value="Hinzufügen" icon="fa fa-fw fa-user-plus" outcome="/user/add_user" />
+                            <p:menuitem id="om_user_add" value="Hinzufügen" icon="fa fa-fw fa-user-plus" outcome="/user/add_user">
+                                <f:param name="username" value="" />
+                            </p:menuitem>
                         </p:submenu>
                         <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" url="/holiday"/>
                         <p:menuitem id="om_departments" value="Abteilungen" icon="fa fa-fw fa-users" outcome="/departments" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" />

@@ -56,7 +56,9 @@
                                 <p:separator />
                                 <h:panelGrid columns="2">
                                     <p:outputLabel for="firstName" value="First Name: " />
-                                    <p:inputText id="firstName" value="#{userDetailController.user.firstName}"/>
+                                    <p:inputText id="firstName" required="true" requiredMessage="Please add an IATA"
+                                                 value="#{userDetailController.user.firstName}"/>
+                                    <!--<p:inputText id="firstName" value="#{userDetailController.user.firstName}" required="true"/>-->
                                     <p:outputLabel for="firstName" value="Last Name: " />
                                     <p:inputText id="lastName" value="#{userDetailController.user.lastName}"/>
                                     <p:outputLabel for="email" value="E-Mail: " />
@@ -91,7 +93,7 @@
                                 </h:panelGrid>
                                 <p:separator />
                                 <h:panelGrid columns="3">
-                                    <p:commandButton value="Save" ajax="true" action="#{userDetailController.doSaveUser()}" oncomplete="PF('userEditDialog').hide()" update=":userForm:usersTable"/>
+                                    <p:commandButton value="Save" ajax="true" action="#{userDetailController.doSaveUser()}" oncomplete="PF('testDialog').hide()" update=":userForm:usersTable"/>
                                     <p:commandButton value="Reload" action="#{userDetailController.doReloadUser(userDetailController.user)}" update=":userForm:userData"/>
                                     <p:commandButton value="Abort" onclick="PF('userEditDialog').hide()"/>
                                 </h:panelGrid>
