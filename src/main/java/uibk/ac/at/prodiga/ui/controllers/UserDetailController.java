@@ -103,6 +103,15 @@ public class UserDetailController {
         return userRoleList;
     }
 
+    public List<String> getAllRolesTotal() {
+        List<String> userRoleList = new LinkedList<>();
+        userRoleList.add(UserRole.ADMIN.getLabel());
+        userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
+        userRoleList.add(UserRole.TEAMLEADER.getLabel());
+        userRoleList.add(UserRole.EMPLOYEE.getLabel());
+        return userRoleList;
+    }
+
     /**
      * The the current user name
      * @return The current user name

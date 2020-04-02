@@ -18,7 +18,7 @@
                 <div class="card">
                     <h1>Users</h1>
                     <h:form id="userForm">
-                        <p:dataTable id="usersTable" var="user" value="#{userListController.users}">
+                        <p:dataTable id="usersTable" var="user" value="#{userListController.users}" reflow="true" paginator="false">
                             <p:column headerText="Username">
                                 <h:outputText value="#{user.username}"/>
                             </p:column>
@@ -34,7 +34,7 @@
                             <p:column headerText="Enabled">
                                 <h:selectBooleanCheckbox value="#{user.enabled}" disabled="true"/>
                             </p:column>
-                            <p:column style="width:100px;text-align: center">
+                            <p:column style="text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="user">
