@@ -75,7 +75,7 @@ public class UserService {
                 throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
             }
 
-            if(userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
+            if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
                 throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
             }
 
