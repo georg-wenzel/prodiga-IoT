@@ -24,34 +24,36 @@
                         <p:messages id="msgs" for="msgs"/>
                         <div class="ui-g">
                             <div class="ui-g-5">
-                                <div class="ui-g-5 input-form">
+                                <div class="ui-g-4 input-form">
                                     <p:outputLabel for="username" value="Benutzername: "/>
                                 </div>
-                                <div class="ui-g-7 input-form">
+                                <div class="ui-g-8 input-form">
                                     <p:inputText id="username"
                                                  value="#{userDetailController.user.username}"
                                                  disabled="false"
                                                  required="true"
-                                                 label="Username"  style="width:200px"/>
+                                                 label="Username"  style="width:100%"/>
                                 </div>
-                                <div class="ui-g-5 input-form">
+                                <div class="ui-g-4 input-form">
                                     <p:outputLabel for="firstname" value="Vorname: "/>
                                 </div>
-                                <div class="ui-g-7 input-form">
+                                <div class="ui-g-8 input-form">
                                     <p:inputText id="firstname"
                                                  value="#{userDetailController.user.firstName}"
                                                  required="#{userDetailController.user['new']}"
-                                                 label="Firstname"  style="width:200px"/>
+                                                 label="Firstname"  style="width:100%"/>
                                 </div>
-                                <div class="ui-g-5 input-form">
+                                <div class="ui-g-4 input-form">
                                     <p:outputLabel for="lastname" value="Nachname: "/>
                                 </div>
-                                <div class="ui-g-7 input-form">
+                                <div class="ui-g-8 input-form">
                                     <p:inputText id="lastname"
                                                  value="#{userDetailController.user.lastName}"
                                                  required="#{userDetailController.user['new']}"
-                                                 label="Lastname"  style="width:200px"/>
+                                                 label="Lastname"  style="width:100%"/>
                                 </div>
+                            </div>
+                            <div class="ui-g-1">
                             </div>
                             <div class="ui-g-5">
 
@@ -60,19 +62,19 @@
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:inputText id="email" value="#{userDetailController.user.email}" required="false"
-                                                 label="email"  style="width:200px"/>
+                                                 label="email"  style="width:100%"/>
                                 </div>
 
                                 <div class="ui-g-3 input-form">
                                     <p:outputLabel styleClass="input-form" for="phone" value="Phone: " />
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:inputMask id="phone" value="#{userDetailController.user.phone}" mask="+99? 999 9999999"  style="width:200px"/>
+                                    <p:inputMask id="phone" value="#{userDetailController.user.phone}" mask="+99? 999 9999999"  style="width:100%"/>
                                 </div>
                             </div>
                         </div>
                         <div class="ui-g">
-                            <div class="ui-g-3">
+                            <div class="ui-g-5">
                                 <!-- add this when teamController is added
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel styleClass="input-form" for="assignedTeam" value="Team: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
@@ -85,24 +87,23 @@
                                 </div>-->
 
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel styleClass="input-form" for="departments" value="Abteilung: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
+                                    <p:outputLabel styleClass="input-form" for="departments" value="Department: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:selectOneMenu id="departments" value="#{userDetailController.user.assignedDepartment.name}" style="width:200px" rendered="#{userDetailController.user.assignedDepartment != null}">
-                                        <f:selectItem itemLabel="#{userDetailController.user.assignedDepartment.name}" itemValue="" />
-                                        <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department}"/>
+                                    <p:selectOneMenu id="departments" value="#{userDetailController.user.assignedDepartment.id}" style="width:100%" rendered="#{userDetailController.user.assignedDepartment != null}">
+                                        <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department.id}"/>
                                     </p:selectOneMenu>
 
                                 </div>
                             </div>
                         </div>
-
+                        <br></br>
                         <div class="ui-g">
-                            <div class="ui-g-3 input-form">
-                                <div class="ui-g-4 input-form">
+                            <div class="ui-g-10 input-form">
+                                <div class="ui-g-2 input-form">
                                     <p:outputLabel for="roles" value="Rollen: " />
                                 </div>
-                                <div class="ui-g-8 input-form">
+                                <div class="ui-g-10 input-form">
                                     <p:selectManyButton id="roles"
                                                         value="#{userDetailController.user.rolesAsString}">
                                         <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
