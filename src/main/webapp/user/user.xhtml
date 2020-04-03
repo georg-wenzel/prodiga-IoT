@@ -40,7 +40,6 @@
                                 <div class="ui-g-7 input-form">
                                     <p:inputText id="firstname"
                                                  value="#{userDetailController.user.firstName}"
-                                                 disabled="#{not userDetailController.user['new']}"
                                                  required="#{userDetailController.user['new']}"
                                                  label="Firstname"  style="width:200px"/>
                                 </div>
@@ -50,7 +49,6 @@
                                 <div class="ui-g-7 input-form">
                                     <p:inputText id="lastname"
                                                  value="#{userDetailController.user.lastName}"
-                                                 disabled="#{not userDetailController.user['new']}"
                                                  required="#{userDetailController.user['new']}"
                                                  label="Lastname"  style="width:200px"/>
                                 </div>
@@ -91,7 +89,7 @@
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:selectOneMenu id="departments" value="#{userDetailController.user.assignedDepartment.name}" style="width:200px" rendered="#{userDetailController.user.assignedDepartment != null}">
-                                        <f:selectItem itemLabel="#{userDetailController.user.assignedDepartment.name}" itemValue="#{userDetailController.user.assignedDepartment}" />
+                                        <f:selectItem itemLabel="#{userDetailController.user.assignedDepartment.name}" itemValue="" />
                                         <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department}"/>
                                     </p:selectOneMenu>
 
@@ -107,7 +105,7 @@
                                 <div class="ui-g-8 input-form">
                                     <p:selectManyButton id="roles"
                                                         value="#{userDetailController.user.rolesAsString}">
-                                        <f:selectItems value="#{userDetailController.allRoles}" var="role" itemLabel="#{role}" itemValue="#{role}" />
+                                        <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
                                     </p:selectManyButton>
                                 </div>
                             </div>
@@ -129,6 +127,8 @@
                                              icon="fa fa-fw fa-refresh"
                                              update="growl msgs userForm">
                             </p:commandButton>
+                            <p:linkButton outcome="/user/users" value="Back to user overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                            </p:linkButton>
                         </div>
                     </h:form></div>
 
