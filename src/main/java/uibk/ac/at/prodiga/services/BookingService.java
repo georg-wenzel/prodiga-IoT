@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
+import uibk.ac.at.prodiga.repositories.DiceRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -23,12 +24,14 @@ import java.util.GregorianCalendar;
 public class BookingService
 {
     private final BookingRepository bookingRepository;
+    private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager)
+    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository)
     {
         this.bookingRepository = bookingRepository;
         this.userLoginManager = userLoginManager;
+        this.diceRepository = diceRepository;
     }
 
     /**
@@ -38,7 +41,7 @@ public class BookingService
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
-        if(!userLoginManager.getCurrentUser().getDice().equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        if(!diceRepository.findDiceByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
         return Lists.newArrayList(bookingRepository.findAllByDice(dice));
     }
 
@@ -61,7 +64,7 @@ public class BookingService
     public Collection<Booking> getAllBookingsByDepartment(Department department)
     {
         if(!userLoginManager.getCurrentUser().getAssignedDepartment().equals(department)) throw new RuntimeException("Illegal attempt to load dice data from other department.");
-        return Lists.newArrayList(bookingRepository.findAllByDepartment(department));
+        return Lists.newArrayList(bookingRepository.findAllByDept(department));
     }
 
     /**
@@ -116,6 +119,10 @@ public class BookingService
             booking.setObjectChangedDateTime(new Date());
             booking.setObjectChangedUser(userLoginManager.getCurrentUser());
         }
+
+        //set dept and team to users current dept and team
+        booking.setDept(u.getAssignedDepartment());
+        booking.setTeam(u.getAssignedTeam());
 
         return bookingRepository.save(booking);
     }

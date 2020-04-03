@@ -72,13 +72,28 @@ public class DataHelper {
      */
     public static User createUserWithRoles(Set<UserRole> roles, User createUser, Department dept, Team team, UserRepository userRepository)
     {
+        return createUserWithRoles(createRandomString(30), roles, createUser, dept, team, userRepository);
+    }
+
+    /**
+     * Creates a user with a specified user name and roles, as well as a certain department and team
+     * @param username The username for this user.
+     * @param roles The roles to use
+     * @param createUser the creation user for this user.
+     * @param dept The department the user is in
+     * @param team The team the user is in
+     * @param userRepository The repository to use
+     * @return The newly created user
+     */
+    public static User createUserWithRoles(String username, Set<UserRole> roles, User createUser, Department dept, Team team, UserRepository userRepository)
+    {
         User u = new User();
-        u.setUsername(createRandomString(30));
+        u.setUsername(username);
         u.setCreateDate(new Date());
         u.setRoles(roles);
         u.setCreateUser(createUser);
         u.setEmail("test@test.com");
-        u.setId(createRandomString(30));
+        u.setId(username);
         u.setEnabled(true);
         u.setAssignedDepartment(dept);
         u.setAssignedTeam(team);
@@ -166,11 +181,12 @@ public class DataHelper {
     /**
      * Creates a booking given the specified data and with a random task duration. Task duration will always lie in legal values (less than 7 days ago, less than 8 hours long, longer than 30 minutes)
      * @param type The type of the booking
-     * @param forUser User who saves the activity (must have a dice attached)
+     * @param createUser User who saves the activity
+     * @param dice Dice which the activity is connected to
      * @param bookingRepository The repository to store the entry with.
      * @return The booking entry after being stored in the database.
      */
-    public static Booking createBooking(BookingType type, User forUser, BookingRepository bookingRepository)
+    public static Booking createBooking(BookingType type, User createUser, Dice dice, BookingRepository bookingRepository)
     {
         Random r = new Random();
         //offset for date endtime (from 0 minutes to (24*6)*60 minutes = 6 days ago)
@@ -181,7 +197,7 @@ public class DataHelper {
         Date endDate = new Date(new Date().getTime() - offset * 60 * 1000);
         Date startDate = new Date(endDate.getTime() - duration * 60 * 1000);
 
-        return createBooking(type, startDate, endDate, forUser, bookingRepository);
+        return createBooking(type, startDate, endDate, createUser, dice, bookingRepository);
     }
 
     /**
@@ -189,23 +205,27 @@ public class DataHelper {
      * @param type The type of the booking
      * @param startDate Start of the activity
      * @param endDate End of the activity
-     * @param forUser User who saves the activity (must have a dice attached)
+     * @param createUser User who saves the activity
+     * @param dice Dice which the activity is connected to
      * @param bookingRepository The repository to store the entry with.
      * @return The booking entry after being stored in the database.
      */
-    public static Booking createBooking(BookingType type, Date startDate, Date endDate, User forUser, BookingRepository bookingRepository)
+    public static Booking createBooking(BookingType type, Date startDate, Date endDate, User createUser, Dice dice, BookingRepository bookingRepository)
     {
         Booking booking = new Booking();
         booking.setActivityStartDate(startDate);
         booking.setActivityEndDate(endDate);
-        booking.setDice(forUser.getDice());
+        booking.setDice(dice);
         booking.setType(type);
+        booking.setDept(dice.getUser().getAssignedDepartment());
+        booking.setTeam(dice.getUser().getAssignedTeam());
         booking.setObjectCreatedDateTime(new Date());
-        booking.setObjectCreatedUser(forUser);
+        booking.setObjectCreatedUser(createUser);
         return bookingRepository.save(booking);
     }
 
-     /* Creates a given dice with the given data
+     /**
+      * Creates a given dice with the given data
      * @param internalId The internal Id used by the dice (and the raspi if not exists)
      * @param raspi The raspi may be null
      * @param u The user which creates all objects
@@ -231,6 +251,41 @@ public class DataHelper {
         d.setObjectChangedUser(u);
         d.setObjectCreatedDateTime(new Date());
         d.setObjectCreatedUser(u);
+        d.setUser(u);
+
+        return diceRepository.save(d);
+    }
+
+    /**
+     *  Creates a given dice with the given data
+     * @param internalId The internal Id used by the dice (and the raspi if not exists)
+     * @param raspi The raspi may be null
+     * @param createUser The user which creates all object
+     * @param diceUser The user which is assigned to the dice
+     * @param diceRepository The Repository to save the dice
+     * @param raspberryPiRepository The Repository to save the raspi
+     * @param roomRepository The Repository to save the room
+     * @return The newly created Dice
+     */
+    public static Dice createDice(String internalId,
+                                  RaspberryPi raspi,
+                                  User createUser,
+                                  User diceUser,
+                                  DiceRepository diceRepository,
+                                  RaspberryPiRepository raspberryPiRepository,
+                                  RoomRepository roomRepository) {
+        if(raspi == null) {
+            raspi = createRaspi(internalId, createUser, null, raspberryPiRepository, roomRepository);
+        }
+
+        Dice d = new Dice();
+        d.setAssignedRaspberry(raspi);
+        d.setInternalId(internalId);
+        d.setObjectCreatedDateTime(new Date());
+        d.setObjectCreatedUser(createUser);
+        d.setObjectChangedDateTime(new Date());
+        d.setObjectChangedUser(createUser);
+        d.setUser(diceUser);
 
         return diceRepository.save(d);
     }

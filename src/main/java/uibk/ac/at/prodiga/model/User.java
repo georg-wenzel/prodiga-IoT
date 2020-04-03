@@ -60,9 +60,6 @@ public class User implements Persistable<String>, Serializable {
     @Column(columnDefinition = "boolean default false")
     private Boolean notificationsEnabled;
 
-    @OneToOne(optional = true, fetch = FetchType.EAGER, targetEntity = Dice.class)
-    private Dice dice;
-
     public FrequencyType getFrequencyType() {
         return frequencyType;
     }
@@ -77,14 +74,6 @@ public class User implements Persistable<String>, Serializable {
 
     public void setNotificationsEnabled(Boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
-    }
-
-    public Dice getDice() {
-        return dice;
-    }
-
-    public void setDice(Dice dice) {
-        this.dice = dice;
     }
 
     public Team getAssignedTeam() {

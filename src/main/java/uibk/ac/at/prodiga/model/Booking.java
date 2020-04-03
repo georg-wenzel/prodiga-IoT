@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Single time entry (booking) within the system
@@ -23,6 +24,12 @@ public class Booking implements Persistable<Long>, Serializable
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = BookingType.class)
     private BookingType type;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Department.class)
+    private Department dept;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Team.class)
+    private Team team;
 
     @Column(nullable = false)
     private Date activityStartDate;
@@ -119,5 +126,34 @@ public class Booking implements Persistable<Long>, Serializable
 
     public void setObjectChangedDateTime(Date objectChangedDateTime) {
         this.objectChangedDateTime = objectChangedDateTime;
+    }
+
+    public Department getDept() {
+        return dept;
+    }
+
+    public void setDept(Department dept) {
+        this.dept = dept;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Booking booking = (Booking) o;
+        return id.equals(booking.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

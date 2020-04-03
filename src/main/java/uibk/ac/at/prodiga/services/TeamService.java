@@ -112,6 +112,7 @@ public class TeamService
         return teamRepository.save(team);
     }
 
+    //TODO: When team is deleted, set team to null in all past bookings.
     /**
      * Deletes the team with this ID from the database.
      * @param team The team to delete
