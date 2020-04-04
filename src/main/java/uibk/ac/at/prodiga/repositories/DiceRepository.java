@@ -1,5 +1,7 @@
 package uibk.ac.at.prodiga.repositories;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.User;
@@ -7,7 +9,10 @@ import uibk.ac.at.prodiga.model.User;
 import java.util.List;
 import java.util.Optional;
 
-public interface DiceRepository extends AbstractRepository<Dice, Long> {
+public interface DiceRepository extends AbstractRepository<Dice, Long>
+{
+
+    Dice findFirstById(long id);
 
     /**
      * Returns all dices which are  assigned to the given raspi

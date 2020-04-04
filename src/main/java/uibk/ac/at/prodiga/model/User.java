@@ -33,11 +33,13 @@ public class User implements Persistable<String>, Serializable {
 
     private String password;
 
-
     private String firstName;
     private String lastName;
     private String email;
     private String phone;
+
+    @Column(columnDefinition =  "boolean default false")
+    private boolean mayEditHistoricData;
 
     boolean enabled;
 
@@ -58,9 +60,6 @@ public class User implements Persistable<String>, Serializable {
     @Column(columnDefinition = "boolean default false")
     private Boolean notificationsEnabled;
 
-    @OneToOne(optional = true, fetch = FetchType.EAGER, targetEntity = Dice.class)
-    private Dice dice;
-
     public FrequencyType getFrequencyType() {
         return frequencyType;
     }
@@ -75,14 +74,6 @@ public class User implements Persistable<String>, Serializable {
 
     public void setNotificationsEnabled(Boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
-    }
-
-    public Dice getDice() {
-        return dice;
-    }
-
-    public void setDice(Dice dice) {
-        this.dice = dice;
     }
 
     public Team getAssignedTeam() {
@@ -195,6 +186,14 @@ public class User implements Persistable<String>, Serializable {
 
     public void setUpdateDate(Date updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public boolean mayEditHistoricData() {
+        return mayEditHistoricData;
+    }
+
+    public void setMayEditHistoricData(boolean mayEditHistoricData) {
+        this.mayEditHistoricData = mayEditHistoricData;
     }
 
     @Override

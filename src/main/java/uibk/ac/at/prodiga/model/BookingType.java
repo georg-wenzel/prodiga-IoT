@@ -7,23 +7,27 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * Booking Type (Category) within the system.
+ * Boolean active determines whether the type is outdated or is still used for new bookings.
+ * int side determines which side of the dice this category is used for.
+ * String activityName is the name of the activity (e.g. Development, Design...)
+ */
 @Entity
-public class Dice implements Persistable<Long>, Serializable {
-
-    private static final long serialVersionUID = 1543543567314567565L;
-
+public class BookingType implements Persistable<Long>, Serializable
+{
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = true, length = 1337)
-    private String internalId;
+    @Column(nullable = false, length = 64)
+    private String activityName;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = RaspberryPi.class)
-    private RaspberryPi assignedRaspberry;
+    @Column
+    private boolean isActive;
 
-    @OneToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
-    private User user;
+    @Column(nullable = false)
+    private int side;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectCreatedUser;
@@ -31,15 +35,38 @@ public class Dice implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
+    @Column
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 
-    @Column(nullable = false)
-    private boolean isActive;
+    @Override
+    public Long getId() {
+        return this.id;
+    }
+
+    @Override
+    public boolean isNew()
+    {
+        return this.objectCreatedDateTime == null;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getActivityName()
+    {
+        return activityName;
+    }
+
+    public void setActivityName(String activityName) {
+        if(activityName.length() < 2 || activityName.length() > 64)
+            throw new RuntimeException("Acitivy Name must be between 2 and 64 characters.");
+        this.activityName = activityName;
+    }
 
     public boolean isActive() {
         return isActive;
@@ -49,32 +76,15 @@ public class Dice implements Persistable<Long>, Serializable {
         isActive = active;
     }
 
-    public RaspberryPi getAssignedRaspberry() {
-        return assignedRaspberry;
+    public int getSide() {
+        return side;
     }
 
-    public void setAssignedRaspberry(RaspberryPi assignedRaspberry) {
-        this.assignedRaspberry = assignedRaspberry;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getInternalId() {
-        return internalId;
-    }
-
-    public void setInternalId(String internalId) {
-        this.internalId = internalId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public void setSide(int side)
+    {
+        if(side < 1 || side > 12)
+            throw new RuntimeException("Side must be between 1 and 12.");
+        this.side = side;
     }
 
     public User getObjectCreatedUser() {
@@ -110,26 +120,15 @@ public class Dice implements Persistable<Long>, Serializable {
     }
 
     @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    @Override
-    public boolean isNew() {
-        return this.objectCreatedDateTime == null;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Dice dice = (Dice) o;
-        return Objects.equals(id, dice.id) &&
-                Objects.equals(internalId, dice.internalId);
+        BookingType that = (BookingType) o;
+        return id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, internalId);
+        return Objects.hash(id);
     }
 }

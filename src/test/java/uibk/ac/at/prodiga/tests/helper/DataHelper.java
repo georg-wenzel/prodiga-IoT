@@ -5,14 +5,11 @@ import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
-import uibk.ac.at.prodiga.repositories.DepartmentRepository;
-import uibk.ac.at.prodiga.repositories.TeamRepository;
+import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
-import uibk.ac.at.prodiga.repositories.DiceRepository;
-import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
-import uibk.ac.at.prodiga.repositories.RoomRepository;
-import uibk.ac.at.prodiga.repositories.UserRepository;
+
 import java.util.Date;
+import java.util.Random;
 import java.util.Set;
 
 public class DataHelper {
@@ -75,13 +72,28 @@ public class DataHelper {
      */
     public static User createUserWithRoles(Set<UserRole> roles, User createUser, Department dept, Team team, UserRepository userRepository)
     {
+        return createUserWithRoles(createRandomString(30), roles, createUser, dept, team, userRepository);
+    }
+
+    /**
+     * Creates a user with a specified user name and roles, as well as a certain department and team
+     * @param username The username for this user.
+     * @param roles The roles to use
+     * @param createUser the creation user for this user.
+     * @param dept The department the user is in
+     * @param team The team the user is in
+     * @param userRepository The repository to use
+     * @return The newly created user
+     */
+    public static User createUserWithRoles(String username, Set<UserRole> roles, User createUser, Department dept, Team team, UserRepository userRepository)
+    {
         User u = new User();
-        u.setUsername(createRandomString(30));
+        u.setUsername(username);
         u.setCreateDate(new Date());
         u.setRoles(roles);
         u.setCreateUser(createUser);
         u.setEmail("test@test.com");
-        u.setId(createRandomString(30));
+        u.setId(username);
         u.setEnabled(true);
         u.setAssignedDepartment(dept);
         u.setAssignedTeam(team);
@@ -93,6 +105,12 @@ public class DataHelper {
         return userRepository.save(u);
     }
 
+    /**
+     * Creates a random department
+     * @param createUser The creation user of the department
+     * @param departmentRepository The repository to save the department
+     * @return The randomly generated department.
+     */
     public static Department createRandomDepartment(User createUser, DepartmentRepository departmentRepository)
     {
         String name = createRandomString(30);
@@ -104,6 +122,13 @@ public class DataHelper {
         return departmentRepository.save(dept);
     }
 
+    /**
+     * Creates a random team within a department
+     * @param dept The department the team is in
+     * @param createUser The creation user for the team
+     * @param teamRepository The repository to save the team.
+     * @return The ranomly generated team.
+     */
     public static Team createRandomTeam(Department dept,  User createUser, TeamRepository teamRepository) {
         String name = createRandomString(30);
 
@@ -116,7 +141,91 @@ public class DataHelper {
         return teamRepository.save(team);
     }
 
-     /* Creates a given dice with the given data
+    /**
+     * Creates a booking type with random name and specified properties
+     * @param side The side this booking type is for
+     * @param active Whether or not the booking type is active
+     * @param createUser The creation user for this booking type
+     * @param bookingTypeRepository The repository to save the booking type.
+     * @return The generated booking type.
+     */
+    public static BookingType createBookingType(int side, boolean active, User createUser, BookingTypeRepository bookingTypeRepository)
+    {
+        return createBookingType(side, active, createRandomString(20), createUser, bookingTypeRepository);
+    }
+
+    /**
+     * Creates a booking type with specified properties
+     * @param side The side this booking type is for
+     * @param active Whether or not the booking type is active
+     * @param activityName the name of the activity
+     * @param createUser The creation user for this booking type
+     * @param bookingTypeRepository The repository to save the booking type.
+     * @return The generated booking type.
+     */
+    public static BookingType createBookingType(int side, boolean active, String activityName, User createUser, BookingTypeRepository bookingTypeRepository)
+    {
+        //if flag is active and active booking type for this side already returns, return that one (avoids conflicts when test data exists)
+        if(active && bookingTypeRepository.findActiveCategoryForSide(side)  != null) return bookingTypeRepository.findActiveCategoryForSide(side);
+
+        BookingType bt = new BookingType();
+        bt.setActive(active);
+        bt.setSide(side);
+        bt.setActivityName(activityName);
+        bt.setObjectCreatedUser(createUser);
+        bt.setObjectCreatedDateTime(new Date());
+
+        return bookingTypeRepository.save(bt);
+    }
+
+    /**
+     * Creates a booking given the specified data and with a random task duration. Task duration will always lie in legal values (less than 7 days ago, less than 8 hours long, longer than 30 minutes)
+     * @param type The type of the booking
+     * @param createUser User who saves the activity
+     * @param dice Dice which the activity is connected to
+     * @param bookingRepository The repository to store the entry with.
+     * @return The booking entry after being stored in the database.
+     */
+    public static Booking createBooking(BookingType type, User createUser, Dice dice, BookingRepository bookingRepository)
+    {
+        Random r = new Random();
+        //offset for date endtime (from 0 minutes to (24*6)*60 minutes = 6 days ago)
+        int offset = r.nextInt(8641);
+        //duration of the task (from 30 minutes to 8*60 = 8 hours)
+        int duration = r.nextInt(451) + 30;
+
+        Date endDate = new Date(new Date().getTime() - offset * 60 * 1000);
+        Date startDate = new Date(endDate.getTime() - duration * 60 * 1000);
+
+        return createBooking(type, startDate, endDate, createUser, dice, bookingRepository);
+    }
+
+    /**
+     * Creates a booking given the specified data and returns it
+     * @param type The type of the booking
+     * @param startDate Start of the activity
+     * @param endDate End of the activity
+     * @param createUser User who saves the activity
+     * @param dice Dice which the activity is connected to
+     * @param bookingRepository The repository to store the entry with.
+     * @return The booking entry after being stored in the database.
+     */
+    public static Booking createBooking(BookingType type, Date startDate, Date endDate, User createUser, Dice dice, BookingRepository bookingRepository)
+    {
+        Booking booking = new Booking();
+        booking.setActivityStartDate(startDate);
+        booking.setActivityEndDate(endDate);
+        booking.setDice(dice);
+        booking.setType(type);
+        booking.setDept(dice.getUser().getAssignedDepartment());
+        booking.setTeam(dice.getUser().getAssignedTeam());
+        booking.setObjectCreatedDateTime(new Date());
+        booking.setObjectCreatedUser(createUser);
+        return bookingRepository.save(booking);
+    }
+
+     /**
+      * Creates a given dice with the given data
      * @param internalId The internal Id used by the dice (and the raspi if not exists)
      * @param raspi The raspi may be null
      * @param u The user which creates all objects
@@ -143,6 +252,40 @@ public class DataHelper {
         d.setObjectCreatedDateTime(new Date());
         d.setObjectCreatedUser(u);
         d.setUser(u);
+
+        return diceRepository.save(d);
+    }
+
+    /**
+     *  Creates a given dice with the given data
+     * @param internalId The internal Id used by the dice (and the raspi if not exists)
+     * @param raspi The raspi may be null
+     * @param createUser The user which creates all object
+     * @param diceUser The user which is assigned to the dice
+     * @param diceRepository The Repository to save the dice
+     * @param raspberryPiRepository The Repository to save the raspi
+     * @param roomRepository The Repository to save the room
+     * @return The newly created Dice
+     */
+    public static Dice createDice(String internalId,
+                                  RaspberryPi raspi,
+                                  User createUser,
+                                  User diceUser,
+                                  DiceRepository diceRepository,
+                                  RaspberryPiRepository raspberryPiRepository,
+                                  RoomRepository roomRepository) {
+        if(raspi == null) {
+            raspi = createRaspi(internalId, createUser, null, raspberryPiRepository, roomRepository);
+        }
+
+        Dice d = new Dice();
+        d.setAssignedRaspberry(raspi);
+        d.setInternalId(internalId);
+        d.setObjectCreatedDateTime(new Date());
+        d.setObjectCreatedUser(createUser);
+        d.setObjectChangedDateTime(new Date());
+        d.setObjectChangedUser(createUser);
+        d.setUser(diceUser);
 
         return diceRepository.save(d);
     }
