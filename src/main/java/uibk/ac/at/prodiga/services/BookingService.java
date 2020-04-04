@@ -41,7 +41,7 @@ public class BookingService
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
-        if(!diceRepository.findDiceByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
         return Lists.newArrayList(bookingRepository.findAllByDice(dice));
     }
 

@@ -18,7 +18,7 @@ public class User implements Persistable<String>, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String username;
 
     @ManyToOne(optional = true)
