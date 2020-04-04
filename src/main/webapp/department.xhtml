@@ -24,7 +24,7 @@
 
                                 <div class="ui-g-12 input-form">
 
-                                    <p:outputLabel for="departmentId" value="Abteilungsnummer: "/>
+                                    <p:outputLabel for="departmentId" value="Department id: "/>
                                     <p:inputText id="departmentId"
                                                  value="#{departmentController.department.id}"
                                                  disabled="true"
@@ -32,7 +32,7 @@
                                 </div>
 
                                 <div class="ui-g-12 input-form">
-                                    <p:outputLabel for="departmentLeader" value="Abteilungsleiter: "/>
+                                    <p:outputLabel for="departmentLeader" value="Department leader: "/>
                                     <p:inputText id="departmentLeader"
                                                  value="#{departmentController.getDepartmentLeaderOf(departmentController.department).firstName} #{departmentController.getDepartmentLeaderOf(departmentController.department).lastName}"
                                                  disabled="true"

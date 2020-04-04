@@ -70,7 +70,7 @@ public class UserDetailController {
     /**
      * Action to save the currently displayed user.
      */
-    public void doSaveUser() throws ProdigaGeneralExpectedException {
+    public void doSaveUser() throws Exception {
         user = this.userService.saveUser(user);
         SnackbarHelper.getInstance()
                 .showSnackBar("User " + user.getUsername() + " saved!", MessageType.INFO);
@@ -100,6 +100,15 @@ public class UserDetailController {
         if(this.user.getRoles().contains(UserRole.EMPLOYEE)){
             userRoleList.add(UserRole.EMPLOYEE.getLabel());
         }
+        return userRoleList;
+    }
+
+    public List<String> getAllRolesTotal() {
+        List<String> userRoleList = new LinkedList<>();
+        userRoleList.add(UserRole.ADMIN.getLabel());
+        userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
+        userRoleList.add(UserRole.TEAMLEADER.getLabel());
+        userRoleList.add(UserRole.EMPLOYEE.getLabel());
         return userRoleList;
     }
 

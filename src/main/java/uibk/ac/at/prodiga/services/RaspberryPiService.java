@@ -2,13 +2,11 @@ package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
 import io.micrometer.core.instrument.util.StringUtils;
-import org.checkerframework.checker.nullness.Opt;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.RaspberryPi;
-import uibk.ac.at.prodiga.repositories.DiceRepository;
 import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -23,16 +21,19 @@ public class RaspberryPiService {
 
     private final RaspberryPiRepository raspberryPiRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
-    private final DiceRepository diceRepository;
     private final LogInformationService logInformationService;
+    private final DiceService diceService;
 
     private final List<RaspberryPi> pendingRaspberryPis = Collections.synchronizedList(new ArrayList<>());
 
-    public RaspberryPiService(RaspberryPiRepository raspberryPiRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceRepository diceRepository, LogInformationService logInformationService) {
+    public RaspberryPiService(RaspberryPiRepository raspberryPiRepository,
+                              ProdigaUserLoginManager prodigaUserLoginManager,
+                              LogInformationService logInformationService,
+                              DiceService diceService) {
         this.raspberryPiRepository = raspberryPiRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
-        this.diceRepository = diceRepository;
         this.logInformationService = logInformationService;
+        this.diceService = diceService;
     }
 
     /**
@@ -161,7 +162,7 @@ public class RaspberryPiService {
             return;
         }
 
-        List<Dice> assignedDices = diceRepository.findAllByAssignedRaspberry(raspi);
+        List<Dice> assignedDices = diceService.getAllByRaspberryPi(raspi);
         if(!assignedDices.isEmpty()) {
             throw new ProdigaGeneralExpectedException(
                     "Cannot delete Raspberry Pi because there are still cubes assigned.",

@@ -16,7 +16,7 @@ public class Dice implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false, length = 1337)
+    @Column(nullable = true, length = 1337)
     private String internalId;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = RaspberryPi.class)
@@ -37,6 +37,17 @@ public class Dice implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
+
+    @Column(nullable = false)
+    private boolean isActive;
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     public RaspberryPi getAssignedRaspberry() {
         return assignedRaspberry;
