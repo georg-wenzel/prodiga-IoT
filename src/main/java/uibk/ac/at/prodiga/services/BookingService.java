@@ -104,6 +104,10 @@ public class BookingService
         //set appropriate fields
         if(booking.isNew())
         {
+            //set dept and team to users current dept and team (only on creation)
+            booking.setDept(u.getAssignedDepartment());
+            booking.setTeam(u.getAssignedTeam());
+
             booking.setObjectCreatedDateTime(new Date());
             booking.setObjectCreatedUser(userLoginManager.getCurrentUser());
         }
@@ -115,14 +119,14 @@ public class BookingService
             {
                 throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
             };
+            if(!db_booking.getDice().equals(booking.getDice()))
+            {
+                throw new RuntimeException("The dice of an activity may not be changed, as it is tied to the user.");
+            }
 
             booking.setObjectChangedDateTime(new Date());
             booking.setObjectChangedUser(userLoginManager.getCurrentUser());
         }
-
-        //set dept and team to users current dept and team
-        booking.setDept(u.getAssignedDepartment());
-        booking.setTeam(u.getAssignedTeam());
 
         return bookingRepository.save(booking);
     }

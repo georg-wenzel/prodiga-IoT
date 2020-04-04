@@ -7,6 +7,7 @@ import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.*;
@@ -53,6 +54,7 @@ public class BookingTest
     /**
      * Tests loading of booking by id.
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void load_booking_by_id()
@@ -78,6 +80,7 @@ public class BookingTest
     /**
      * Tests loading of booking by dice with lacking authorization
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"ADMIN", "DEPARTMENTLEADER", "TEAMLEADER"})
     public void load_booking_by_id_unauthorized()
@@ -98,6 +101,7 @@ public class BookingTest
     /**
      * Tests loading of booking by id when the logged in user does not match the user of the booking
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void load_booking_by_id_from_other_user()
@@ -118,6 +122,7 @@ public class BookingTest
     /**
      * Tests loading bookings by dice
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void load_booking_by_dice()
@@ -151,6 +156,7 @@ public class BookingTest
     /**
      * Tests loading bookings by dice with lacking authorization
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "ADMIN"})
     public void load_booking_by_dice_unauthorized()
@@ -170,6 +176,7 @@ public class BookingTest
     /**
      * Tests loading bookings by department
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"DEPARTMENTLEADER"})
     public void load_booking_by_dept()
@@ -205,6 +212,7 @@ public class BookingTest
     /**
      * Tests loading bookings by department with lacking authorization
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
     public void load_booking_by_dept_unauthorized()
@@ -228,6 +236,7 @@ public class BookingTest
     /**
      * Tests loading bookings by team
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"TEAMLEADER"})
     public void load_booking_by_team()
@@ -265,6 +274,7 @@ public class BookingTest
     /**
      * Tests loading bookings by team
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE", "DEPARTMENTLEADER", "ADMIN"})
     public void load_booking_by_team_unauthorized()
@@ -287,6 +297,7 @@ public class BookingTest
     /**
      * Tests adding a new booking
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void save_booking() throws ProdigaGeneralExpectedException
@@ -320,6 +331,7 @@ public class BookingTest
     /**
      * Tests adding a new booking where start date is before end date
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void save_booking_time_inverted() throws ProdigaGeneralExpectedException
@@ -349,6 +361,7 @@ public class BookingTest
     /**
      * Tests adding a new booking where start date is before end date
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void save_booking_too_long() throws ProdigaGeneralExpectedException
@@ -378,6 +391,7 @@ public class BookingTest
     /**
      * Tests adding a booking for another user
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void save_booking_other_user() throws ProdigaGeneralExpectedException
@@ -408,6 +422,7 @@ public class BookingTest
     /**
      * Tests adding data from longer ago than the previous week
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void save_booking_2_weeks_ago() throws ProdigaGeneralExpectedException
@@ -429,7 +444,7 @@ public class BookingTest
         Date startingTime = new Date(new Date().getTime() - (long)(1000*60*60*24*15.2));
         b1.setActivityStartDate(startingTime);
 
-        Assertions.assertThrows(RuntimeException.class, () -> {
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             bookingService.saveBooking(b1);
         }, "Booking was saved despite being before the previous week..");
     }
@@ -437,6 +452,7 @@ public class BookingTest
     /**
      * Tests adding data from longer ago than the previous week, with permissions
      */
+    @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void save_booking_2_weeks_ago_with_permissions() throws ProdigaGeneralExpectedException
@@ -463,5 +479,217 @@ public class BookingTest
         Assertions.assertDoesNotThrow(() -> {
             bookingService.saveBooking(b1);
         }, "Exception was thrown despite user having permissions to save historic data.");
+    }
+
+    /**
+     * Tests changing an existing booking
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void update_booking() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        Team team2 = DataHelper.createRandomTeam(dept2, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+
+        //Change users team and department -> should not change the team and department of the booking
+        u1.setAssignedTeam(team2);
+        u1.setAssignedDepartment(dept2);
+        userRepository.save(u1);
+
+        b1.setType(bt2);
+        //set activity end time to 5 minutes before current time.
+        Date endingTime = new Date(new Date().getTime() - 60*1000*5);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 30 minutes ago
+        Date startingTime = new Date(new Date().getTime() - 60*1000*30);
+        b1.setActivityStartDate(startingTime);
+
+        b1 = bookingService.saveBooking(b1);
+
+        Assertions.assertEquals(startingTime, b1.getActivityStartDate(), "Activity start time was not updated properly.");
+        Assertions.assertEquals(endingTime, b1.getActivityEndDate(), "Activity end time was not updated properly.");
+        Assertions.assertEquals(team, b1.getTeam(), "Team was updated, but should not have been.");
+        Assertions.assertEquals(dept, b1.getDept(), "Department was updated, but should not have been.");
+        Assertions.assertEquals(bt2, b1.getType(), "Booking type was not updated properly.");
+    }
+
+    /**
+     * Tests changing an existing booking and changing the dice, which is not allowed
+     */
+        @Test
+        @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+        public void update_booking_with_dice() throws ProdigaGeneralExpectedException
+        {
+            User admin = DataHelper.createAdminUser("admin", userRepository);
+            Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+            Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+            User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+            Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+            Dice d2 = DataHelper.createDice("testdice2", null, admin, null, diceRepository, raspberryPiRepository, roomRepository);
+            BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+            Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+
+            b1.setDice(d2);
+
+            Assertions.assertThrows(RuntimeException.class, () -> {
+                bookingService.saveBooking(b1);
+            }, "User was able to change the dice on the existing booking.");
+    }
+
+    /**
+     * Tests changing an existing booking's time into the past, without permission
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void update_booking_to_past() throws ProdigaGeneralExpectedException {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+
+        //set activity end time to 15 days before current time.
+        Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 15);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 15.2 days ago
+        Date startingTime = new Date(new Date().getTime() - (long) (1000 * 60 * 60 * 24 * 15.2));
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "User was able to update booking into before last week without having sufficient authorization.");
+    }
+
+    /**
+     * Tests changing an existing booking's time into the past, with permission
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void update_booking_to_past_with_permissions() throws ProdigaGeneralExpectedException {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+
+        u1.setMayEditHistoricData(true);
+        userRepository.save(u1);
+
+        //set activity end time to 15 days before current time.
+        Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 15);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 15.2 days ago
+        Date startingTime = new Date(new Date().getTime() - (long) (1000 * 60 * 60 * 24 * 15.2));
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertDoesNotThrow(() -> {
+            bookingService.saveBooking(b1);
+        }, "User was not able to update booking into before last week despite having sufficient authorization.");
+    }
+
+    /**
+     * Tests changing an existing booking's time from the past
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void update_booking_from_past() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+
+        b1.setType(bt2);
+        //Changing the activity time FROM an earlier date TO an allowed date should not allow the user to save the booking, since the original booking was too long ago.
+        //set activity end time to 3 days ago.
+        Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 3.2 days ago
+        Date startingTime = new Date(new Date().getTime() - (long) (1000 * 60 * 60 * 24 * 3.2));
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "User was able to update booking from before last week without having sufficient authorization.");
+    }
+
+    /**
+     * Tests changing an existing booking's time from the past, with authorizationn
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void update_booking_from_past_with_permissions() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+
+
+        u1.setMayEditHistoricData(true);
+        userRepository.save(u1);
+
+        b1.setType(bt2);
+        //set activity end time to 3 days ago.
+        Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 3.2 days ago
+        Date startingTime = new Date(new Date().getTime() - (long) (1000 * 60 * 60 * 24 * 3.2));
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertDoesNotThrow(() -> {
+            bookingService.saveBooking(b1);
+        }, "User was not able to update booking from before last week despite having sufficient authorization.");
+    }
+
+    /**
+     * Tests changing the booking of another user
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void update_booking_other_user() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d2 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, admin, d2, bookingRepository);
+
+
+        b1.setType(bt2);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "User was able to update booking from another user.");
     }
 }
