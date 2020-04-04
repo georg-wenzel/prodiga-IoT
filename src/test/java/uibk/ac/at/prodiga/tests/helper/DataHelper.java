@@ -142,6 +142,7 @@ public class DataHelper {
         d.setObjectChangedUser(u);
         d.setObjectCreatedDateTime(new Date());
         d.setObjectCreatedUser(u);
+        d.setUser(u);
 
         return diceRepository.save(d);
     }
