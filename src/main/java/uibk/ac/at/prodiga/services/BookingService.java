@@ -83,7 +83,7 @@ public class BookingService
         {
             throw new ProdigaGeneralExpectedException("Activity cannot start before ending.", MessageType.ERROR);
         }
-        if(booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime() > 1000 * 60 * 8)
+        if(booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime() > 1000 * 60 * 60 * 8)
         {
             throw new ProdigaGeneralExpectedException("Activity may not last longer than 8 hours at once.", MessageType.ERROR);
         }

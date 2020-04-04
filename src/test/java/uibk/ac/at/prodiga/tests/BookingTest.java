@@ -13,8 +13,10 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 import java.util.Collection;
+import java.util.Date;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -280,5 +282,186 @@ public class BookingTest
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             bookingService.getAllBookingsByTeam(team1);
         }, "Bookings of team loaded despite lacking authorization.");
+    }
+
+    /**
+     * Tests adding a new booking
+     */
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d1);
+        b1.setType(bt1);
+        //set activity end time to 5 minutes before current time.
+        Date endingTime = new Date(new Date().getTime() - 60*1000*5);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 30 minutes ago
+        Date startingTime = new Date(new Date().getTime() - 60*1000*30);
+        b1.setActivityStartDate(startingTime);
+        b1 = bookingService.saveBooking(b1);
+
+        Assertions.assertEquals(startingTime, b1.getActivityStartDate(), "Activity start time was not returned properly.");
+        Assertions.assertEquals(endingTime, b1.getActivityEndDate(), "Activity end time was not returned properly.");
+        Assertions.assertEquals(team, b1.getTeam(), "Team was not returned properly.");
+        Assertions.assertEquals(dept, b1.getDept(), "Department was not returned properly.");
+        Assertions.assertEquals(bt1, b1.getType(), "Booking type was not returned properly.");
+        Assertions.assertEquals(d1, b1.getDice(), "Dice was not returned properly.");
+    }
+
+    /**
+     * Tests adding a new booking where start date is before end date
+     */
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_time_inverted() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d1);
+        b1.setType(bt1);
+        //set activity end time to 30 minutes before current time.
+        Date endingTime = new Date(new Date().getTime() - 60*1000*30);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 5 minutes ago
+        Date startingTime = new Date(new Date().getTime() - 60*1000*5);
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "Booking was saved despite activity beginning before ending.");
+    }
+
+    /**
+     * Tests adding a new booking where start date is before end date
+     */
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_too_long() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d1);
+        b1.setType(bt1);
+        //set activity end time to 5 minutes before current time.
+        Date endingTime = new Date(new Date().getTime() - 60*1000*5);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 9 hours before current time
+        Date startingTime = new Date(new Date().getTime() - 60*1000*60*9);
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "Booking was saved despite activity being longer than 8 hours.");
+    }
+
+    /**
+     * Tests adding a booking for another user
+     */
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_other_user() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+
+        Booking b2 = new Booking();
+        b2.setDice(d2);
+        b2.setType(bt1);
+        //set activity end time to 5 minutes before current time.
+        Date endingTime = new Date(new Date().getTime() - 60*1000*5);
+        b2.setActivityEndDate(endingTime);
+        //set activity start time to 30 minutes ago
+        Date startingTime = new Date(new Date().getTime() - 60*1000*30);
+        b2.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            bookingService.saveBooking(b2);
+        }, "Booking was saved despite dice belonging to another user than logged in.");
+    }
+
+    /**
+     * Tests adding data from longer ago than the previous week
+     */
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_2_weeks_ago() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d1);
+        b1.setType(bt1);
+        //set activity end time to 15 days before current time.
+        Date endingTime = new Date(new Date().getTime() - 1000*60*60*24*15);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 15.2 days ago
+        Date startingTime = new Date(new Date().getTime() - (long)(1000*60*60*24*15.2));
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "Booking was saved despite being before the previous week..");
+    }
+
+    /**
+     * Tests adding data from longer ago than the previous week, with permissions
+     */
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_2_weeks_ago_with_permissions() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        u1.setMayEditHistoricData(true);
+        u1 = userRepository.save(u1);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d1);
+        b1.setType(bt1);
+        //set activity end time to 15 days before current time.
+        Date endingTime = new Date(new Date().getTime() - 1000*60*60*24*15);
+        b1.setActivityEndDate(endingTime);
+        //set activity start time to 15.2 days ago
+        Date startingTime = new Date(new Date().getTime() - (long)(1000*60*60*24*15.2));
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertDoesNotThrow(() -> {
+            bookingService.saveBooking(b1);
+        }, "Exception was thrown despite user having permissions to save historic data.");
     }
 }
