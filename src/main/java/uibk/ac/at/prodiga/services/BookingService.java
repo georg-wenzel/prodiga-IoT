@@ -145,6 +145,32 @@ public class BookingService
     }
 
     /**
+     * Deletes a booking
+     * @param booking The booking to delete
+     * @throws ProdigaGeneralExpectedException Thrown if the user is trying to delete a booking from longer than 2 weeks ago, but does not have permissions.
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
+    {
+        User u = userLoginManager.getCurrentUser();
+
+        booking = bookingRepository.findFirstById(booking.getId());
+        if(booking == null) return;
+
+        if(!booking.getDice().getUser().equals(u))
+        {
+            throw new RuntimeException("User cannot delete other user's bookings.");
+        }
+
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        {
+            throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
+        }
+
+        bookingRepository.delete(booking);
+    }
+
+    /**
      * For a given date, returns if this date is in the same week or previous week as the current date.
      * @param date The date to check
      * @return True if date is in current or last week, false otherwise.

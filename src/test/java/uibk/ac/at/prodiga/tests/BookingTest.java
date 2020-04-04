@@ -85,16 +85,8 @@ public class BookingTest
     @WithMockUser(username = "booking_test_user1", authorities = {"ADMIN", "DEPARTMENTLEADER", "TEAMLEADER"})
     public void load_booking_by_id_unauthorized()
     {
-        //Data setup
-        User admin = DataHelper.createAdminUser("admin", userRepository);
-        User u1 = DataHelper.createUserWithRoles("booking_test_user_1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d = DataHelper.createDice("testdice", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b = DataHelper.createBooking(bt, u1, d, bookingRepository);
-
-
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            bookingService.loadBooking(b.getId());
+            bookingService.loadBooking(0);
         }, "Booking loaded despite lacking authorization of EMPLOYEE");
     }
 
@@ -161,15 +153,8 @@ public class BookingTest
     @WithMockUser(username = "booking_test_user1", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "ADMIN"})
     public void load_booking_by_dice_unauthorized()
     {
-        //Data setup
-        User admin = DataHelper.createAdminUser("admin", userRepository);
-        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            bookingService.getAllBookingsByDice(d1);
+            bookingService.getAllBookingsByDice(new Dice());
         }, "Booking loaded despite lacking authorization of EMPLOYEE.");
     }
 
@@ -217,19 +202,8 @@ public class BookingTest
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
     public void load_booking_by_dept_unauthorized()
     {
-        //Data setup
-        User admin = DataHelper.createAdminUser("admin", userRepository);
-        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.DEPARTMENTLEADER),admin, dept, null, userRepository);
-        User u2 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, null, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-
-        //Create two bookings for user in department and one booking for user outside of department
-        Booking b1 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            bookingService.getAllBookingsByDepartment(dept);
+            bookingService.getAllBookingsByDepartment(new Department());
         }, "Bookings of department loaded despite lacking authorization.");
     }
 
@@ -279,18 +253,8 @@ public class BookingTest
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE", "DEPARTMENTLEADER", "ADMIN"})
     public void load_booking_by_team_unauthorized()
     {
-        //Data setup
-        User admin = DataHelper.createAdminUser("admin", userRepository);
-        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        Team team1 = DataHelper.createRandomTeam(dept, admin, teamRepository);
-        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.TEAMLEADER),admin, dept, team1, userRepository);
-        User u2 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team1, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            bookingService.getAllBookingsByTeam(team1);
+            bookingService.getAllBookingsByTeam(new Team());
         }, "Bookings of team loaded despite lacking authorization.");
     }
 
@@ -479,6 +443,20 @@ public class BookingTest
         Assertions.assertDoesNotThrow(() -> {
             bookingService.saveBooking(b1);
         }, "Exception was thrown despite user having permissions to save historic data.");
+    }
+
+
+    /**
+     * Tests accessing the save method without being EMPLOYEE
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMINISTRATOR"})
+    public void add_update_booking_unauthorized() throws ProdigaGeneralExpectedException
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            bookingService.saveBooking(new Booking());
+        }, "User was able to access deletion method despite lacking authorization.");
     }
 
     /**
@@ -691,5 +669,107 @@ public class BookingTest
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.saveBooking(b1);
         }, "User was able to update booking from another user.");
+    }
+
+    /**
+     * Tests deleting an existing booking
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void delete_booking() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+
+        Assertions.assertDoesNotThrow(() -> {
+            bookingService.deleteBooking(b1);
+        }, "User was not able to delete a valid booking.");
+    }
+
+    /**
+     * Tests deleting an existing booking without being EMPLOYEE
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMINISTRATOR"})
+    public void delete_booking_unauthorized() throws ProdigaGeneralExpectedException
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+                bookingService.deleteBooking(new Booking());
+        }, "User was able to access deletion method despite lacking authorization.");
+    }
+
+    /**
+     * Tests deleting another users existing booking
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void delete_booking_other_user() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            bookingService.deleteBooking(b1);
+        }, "User was able to delete another users valid booking.");
+    }
+
+
+    /**
+     * Tests deleting an existing booking from earlier than last week
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void delete_booking_old() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            bookingService.deleteBooking(b1);
+        }, "User was able to delete booking from before last week without having sufficient authorization.");
+    }
+
+    /**
+     * Tests deleting an existing booking from earlier than last week with permissions
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void delete_booking_old_with_permissions() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+
+        u1.setMayEditHistoricData(true);
+        userRepository.save(u1);
+
+        Assertions.assertDoesNotThrow(() -> {
+            bookingService.deleteBooking(b1);
+        }, "User was not able to delete booking from before last week despite having sufficient authorization.");
     }
 }
