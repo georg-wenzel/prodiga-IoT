@@ -34,6 +34,17 @@ public class RaspberryPi implements Persistable<Long>, Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Room.class)
+    private Room assignedRoom;
+
+    public Room getAssignedRoom() {
+        return assignedRoom;
+    }
+
+    public void setAssignedRoom(Room assignedRoom) {
+        this.assignedRoom = assignedRoom;
+    }
+
     public String getPassword() {
         return password;
     }

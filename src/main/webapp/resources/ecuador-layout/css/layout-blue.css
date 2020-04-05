@@ -742,7 +742,7 @@ body .layout-wrapper .layout-main .layout-content {
 .layout-wrapper .layout-main .layout-footer .logo-container {
   text-decoration: none; }
 .layout-wrapper .layout-main .layout-footer .logo-container img {
-  height: 26px;
+  height: 130px;
   vertical-align: middle; }
 .layout-wrapper .layout-main .layout-footer .logo-container .app-name {
   font-weight: 400;
@@ -1550,6 +1550,9 @@ body .layout-wrapper .layout-main .layout-content {
 .login-body .ui-staticmessage.ui-message{
   border-radius: 10px;
   border: none;
+}
+body .ui-selectonemenu.ui-state-error {
+  border-color: #c4c4c4 !important;
 }
 .login-body .login-panel {
   padding: 70px 70px 70px 70px;

@@ -1,6 +1,5 @@
 package uibk.ac.at.prodiga.rest.controller;
 
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,7 +11,7 @@ import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.JwtTokenUtil;
 
 import javax.validation.Valid;
-import java.util.logging.Logger;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -26,7 +25,26 @@ public class AuthController {
         this.raspberryPiService = raspberryPiService;
     }
 
+    /**
+     * Registers a new Raspberry Pi and adds it to the list of pending Raspberry Pis
+     * @param internalId The internal Id used by the Raspberry Pi.
+     */
+    @PostMapping("/api/register")
+    public void register(String internalId) {
+        Optional<RaspberryPi> existing = raspberryPiService.findByInternalId(internalId);
 
+        if(existing.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A raspi with the same internalId already exists");
+        }
+
+        raspberryPiService.addPendingRaspberry(internalId);
+    }
+
+    /**
+     * Creates a Jwt request token for the given Raspberry Pi.
+     * @param request A Jwt Request Object containing internal Id and password.
+     * @return The generated token.
+     */
     @PostMapping("/api/auth")
     public JwtResponseDTO createToken(@Valid @RequestBody JwtRequestDTO request) {
         RaspberryPi raspi;

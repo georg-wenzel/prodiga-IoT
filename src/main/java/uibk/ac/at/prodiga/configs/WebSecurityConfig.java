@@ -22,13 +22,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     DataSource dataSource;
 
     @Autowired
-    JwtAuthenticationEntryPoint authenticationEntryPoint;
-
-    @Autowired
-    JwtRequestFilter jwtRequestFilter;
-
-    @Autowired
-    CustomAuthenticationProvider customAuthenticationProvider;
+    PreAuthRequestFilter preAuthRequestFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -43,15 +37,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login.xhtml");
 
         http.authorizeRequests()
-                //Permit access to the H2 console
-                .antMatchers("/h2-console/**", "/api/auth").permitAll()
-                .antMatchers("/api/**").authenticated()
+                .antMatchers("/h2-console/**", "/api/auth").permitAll();
+
+        http.authorizeRequests()
                 .and()
-                .exceptionHandling()
-                    .authenticationEntryPoint(authenticationEntryPoint)
+                .exceptionHandling().accessDeniedPage("/error/denied.xhtml")
                 .and()
-                .sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml")
                 .and()
                 .formLogin()
                 .loginPage("/login.xhtml")
@@ -59,16 +51,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/welcome.xhtml")
                 .failureUrl("/login.xhtml?error=true");
 
-        http.exceptionHandling().accessDeniedPage("/error/denied.xhtml");
+        http.authorizeRequests()
+                .antMatchers("/api/**").authenticated();
 
-        http.sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml");
-
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(preAuthRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(customAuthenticationProvider);
+        //Configure roles and passwords via datasource
+        auth.jdbcAuthentication().dataSource(dataSource)
+                .usersByUsernameQuery("select username, password, enabled from user where username=?")
+                .authoritiesByUsernameQuery("select user_username, roles from user_user_role where user_username=?");
     }
 
     @Bean
