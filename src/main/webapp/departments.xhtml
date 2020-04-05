@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Protiga departments</ui:define>
+    <ui:define name="title">Prodiga departments</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -18,7 +18,11 @@
                 <div class="card">
                     <h1>Departments</h1>
                     <h:form id="departmentForm">
-                        <p:dataTable id="departmentTable" var="department" scrollable="true" style="width:50%" scrollHeight="500" value="#{departmentController.allDepartments}">
+                        <p:dataTable id="departmentTable" var="department" scrollable="true"  style="width:100%" scrollHeight="500" value="#{departmentController.allDepartments}">
+                            <p:column headerText="Department id" style="width: 15%; text-align: center">
+                                <h:outputText value="#{department.id}" />
+                            </p:column>
+
                             <p:column headerText="Department name">
                                 <h:outputText value="#{department.name}"/>
                             </p:column>
@@ -36,6 +40,10 @@
                                               rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                     <f:param name="department" value="#{department.id}" />
                                 </p:linkButton>
+                                <p:commandButton action="#{departmentController.doDeleteDepartment()}" icon="fa fa-fw fa-trash" title="Delete" update=":departmentForm:departmentTable">
+                                    <f:setPropertyActionListener value="#{department}" target="#{departmentController.department}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this department? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
                             </p:column>
                         </p:dataTable>
                     </h:form>
