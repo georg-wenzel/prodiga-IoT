@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.RaspberryPi;
+import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -81,6 +82,12 @@ public class RaspberryPiService {
                                 "found", MessageType.WARNING));
     }
 
+    public RaspberryPi findById(Long raspId) throws Exception {
+        return raspberryPiRepository.findById(raspId)
+                .orElseThrow(
+                        () -> new ProdigaGeneralExpectedException("Could not find Raspberry Pi wiht id " + raspId, MessageType.ERROR));
+    }
+
     /**
      * Returns all raspberry pis which are not configured
      * @return A list of raspberry pis
@@ -110,6 +117,15 @@ public class RaspberryPiService {
         pendingRaspberryPis.add(raspi);
         logInformationService.log("Raspberry Pi with internal ID " + internalId +
                 " added to pending Raspberrys");
+    }
+
+    /**
+     * Deletes raspberry from the pending list
+     */
+    public void deletePendingRaspberry(RaspberryPi raspi) {
+        pendingRaspberryPis.remove(raspi);
+        logInformationService.log("Raspberry Pi with internal ID " + raspi.getInternalId() +
+                " deleted from pending Raspberrys");
     }
 
     /**
@@ -171,5 +187,15 @@ public class RaspberryPiService {
 
         raspberryPiRepository.delete(raspi);
         logInformationService.log("Raspberry Pi " + raspi.getInternalId() + " deleted!");
+    }
+
+    public RaspberryPi createRaspi(String internalId) {
+        RaspberryPi raspberryPi = new RaspberryPi();
+        raspberryPi.setInternalId(internalId);
+        Room room = new Room();
+        room.setId(null);
+        raspberryPi.setAssignedRoom(room);
+
+        return raspberryPi;
     }
 }

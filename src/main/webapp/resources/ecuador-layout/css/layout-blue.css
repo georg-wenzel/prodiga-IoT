@@ -145,7 +145,7 @@ a {
   top: 20px;
   position: relative; }
 .layout-wrapper .layout-topbar .logo-container img {
-  height: 14px;
+  height: 23px;
   width: auto;
   vertical-align: middle;
   border: 0 none; }
@@ -1543,7 +1543,7 @@ body .layout-wrapper .layout-main .layout-content {
   top: 20px;
   position: relative; }
 .login-body .login-topbar .logo img {
-  height: 14px;
+  height: 23px;
   width: auto;
   vertical-align: middle;
   border: 0 none; }
@@ -2309,4 +2309,9 @@ body .ui-selectonemenu.ui-state-error {
     margin: 0; }
   .layout-wrapper.layout-rtl.layout-menu-horizontal .layout-main .route-bar {
     padding-right: 10px;
-    padding-left: 0; } }
+    padding-left: 0; }
+
+  .ui-menuitem-icon.raspberry-icon {
+    background: url("#{resource['ecuador-layout:images/raspi_grey.png']}")  no-repeat !important;
+  }
+}

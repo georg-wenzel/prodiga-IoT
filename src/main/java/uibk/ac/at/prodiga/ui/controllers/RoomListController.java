@@ -11,7 +11,7 @@ import java.util.Collection;
 
 @Controller
 @Scope("view")
-public class RoomListController implements Serializable {
+public class RoomListController {
 
     private final RoomService roomService;
 
