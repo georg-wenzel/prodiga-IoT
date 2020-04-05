@@ -49,7 +49,7 @@ public class DepartmentController {
      * Saves currently selected department
      * @throws Exception when save fails
      */
-    public void saveDepartment() throws Exception {
+    public void doSaveDepartment() throws Exception {
         departmentService.saveDepartment(department);
         SnackbarHelper.getInstance().showSnackBar("Department " + department.getId() + " saved!", MessageType.INFO);
     }
@@ -60,7 +60,7 @@ public class DepartmentController {
      * @return The new state of the object in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when name is not between 2 and 20 characters, department leader is not a valid database user or department leader user is already a teamleader or departmentleader elsewhere.
      */
-    public void saveDepartment(Department department) {
+    public void doSaveDepartment(Department department) {
         SnackbarHelper.getInstance().showSnackBar("Department " + department.getId() + " saved!", MessageType.INFO);
     }
 
@@ -143,5 +143,13 @@ public class DepartmentController {
         this.department = department;
     }
 
-
+    /**
+     * Deletes the department.
+     *
+     */
+    public void doDeleteDepartment() throws Exception {
+        this.departmentService.deleteDepartment(department);
+        SnackbarHelper.getInstance()
+                .showSnackBar("Department \"" + department.getName() + "\" deleted!", MessageType.ERROR);
+    }
 }
