@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Teams</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/teams">Teams</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Teams</h1>
+                    <h:form id="teamForm">
+                        <p:dataTable id="teamTable" var="team" scrollable="true" style="width:50%" scrollHeight="500" value="#{teamController.allTeams}">
+                            <p:column headerText="Teamname">
+                                <h:outputText value="#{team.name}"/>
+                            </p:column>
+
+                            <p:column headerText="Teamleader">
+                                <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).firstName} "/>
+                                <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).lastName}"/>
+                                <h:outputText rendered="#{teamController.getTeamLeaderOf(team) == null}" value="No team leader"/>
+                            </p:column>
+
+                            <p:column style="width:100px;text-align: center">
+                                <p:linkButton icon="fa fa-fw fa-edit"
+                                              title="Edit"
+                                              outcome="team"
+                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <f:param name="team" value="#{team.id}" />
+                                </p:linkButton>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>
