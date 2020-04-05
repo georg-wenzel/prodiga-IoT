@@ -33,7 +33,7 @@ public class UserService {
     /**
      * Returns a collection of all users.
      *
-     * @return
+     * @return collection of all users
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<User> getAllUsers() {
@@ -51,15 +51,7 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-    /**
-     * Saves the user. This method will also set {@link User#createDate} for new
-     * entities or {@link User#updateDate} for updated entities. The user
-     * requesting this operation will also be stored as {@link User#createDate}
-     * or {@link User#updateUser} respectively.
-     *
-     * @param user the user to save
-     * @return the updated user
-     */
+
     @PreAuthorize("hasAuthority('ADMIN')")
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
@@ -120,7 +112,7 @@ public class UserService {
      * @param user the user to delete
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void deleteUser(User user) throws Exception {
+    public void deleteUser(User user) {
         userRepository.delete(user);
         logInformationService.log("User " + user.getUsername() + " was deleted!");
     }
@@ -153,7 +145,7 @@ public class UserService {
         return userRepository.findDepartmentLeaderOf(department);
     }
 
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public User getTeamLeaderOf(Team team)
     {
         return userRepository.findTeamLeaderOf(team);
@@ -166,7 +158,7 @@ public class UserService {
      * @return The user after he was changed in the database
      * @throws ProdigaGeneralExpectedException Is thrown when team to assign and the users department in the DB do not match up.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public User assignTeam(User user, Team team) throws ProdigaGeneralExpectedException
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
@@ -208,8 +200,7 @@ public class UserService {
      * @return A newly created user entity
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public User createNewUser() throws Exception {
-        User u = new User();
-        return u;
+    public User createNewUser() {
+        return new User();
     }
 }
