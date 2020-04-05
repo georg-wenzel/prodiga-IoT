@@ -64,7 +64,7 @@ public class TeamController {
         loadTeamById(teamId);
     }
 
-    private void loadTeamById(Long teamId){
+    public void loadTeamById(Long teamId){
         if(teamId == null){
             this.team = teamService.createTeam();
         } else {
