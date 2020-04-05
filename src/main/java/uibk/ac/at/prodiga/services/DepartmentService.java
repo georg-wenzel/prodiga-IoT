@@ -143,7 +143,7 @@ public class DepartmentService
         return department.equals(departmentRepository.findFirstById(department.getId()));
     }
 
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Department createDepartment() {
         Department p = new Department();
         return p;
