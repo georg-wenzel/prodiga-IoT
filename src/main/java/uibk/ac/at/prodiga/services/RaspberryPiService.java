@@ -119,14 +119,7 @@ public class RaspberryPiService {
                 " added to pending Raspberrys");
     }
 
-    /**
-     * Deletes raspberry from the pending list
-     */
-    public void deletePendingRaspberry(RaspberryPi raspi) {
-        pendingRaspberryPis.remove(raspi);
-        logInformationService.log("Raspberry Pi with internal ID " + raspi.getInternalId() +
-                " deleted from pending Raspberrys");
-    }
+
 
     /**
      * Saves the given raspberry pi
@@ -137,6 +130,13 @@ public class RaspberryPiService {
     public RaspberryPi save(RaspberryPi raspi) throws Exception {
         if(raspi == null) {
             return null;
+        }
+
+        if(raspi.isNew()) {
+            if(raspberryPiRepository.findFirstByInternalId(raspi.getInternalId()).isPresent()) {
+                throw new ProdigaGeneralExpectedException("Raspberry Pi with internal ID "
+                        + raspi.getInternalId() + " already exists.", MessageType.WARNING);
+            }
         }
 
         // First check if there is a room
@@ -153,6 +153,8 @@ public class RaspberryPiService {
         if(StringUtils.isEmpty(raspi.getInternalId())) {
             throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty Internal ID", MessageType.WARNING);
         }
+
+        tryDeletePendingRaspberry(raspi);
 
         if(raspi.isNew()) {
             // If the raspi is new we have to hash the password here
@@ -197,5 +199,18 @@ public class RaspberryPiService {
         raspberryPi.setAssignedRoom(room);
 
         return raspberryPi;
+    }
+
+    /**
+     * Deletes raspberry from the pending list
+     */
+    private void tryDeletePendingRaspberry(RaspberryPi raspi) {
+        pendingRaspberryPis.stream()
+            .filter(x -> x.getInternalId().equals(raspi.getInternalId()))
+            .findFirst().ifPresent(raspiInList -> {
+                pendingRaspberryPis.remove(raspiInList);
+                logInformationService.log("Raspberry Pi with internal ID " + raspi.getInternalId() +
+                    " deleted from pending Raspberrys");
+        });
     }
 }

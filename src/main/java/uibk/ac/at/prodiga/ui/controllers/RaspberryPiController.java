@@ -94,9 +94,6 @@ public class RaspberryPiController {
      */
     public void doSaveRaspi() throws Exception {
         raspberryPi = this.raspberryPiService.save(raspberryPi);
-        if(this.raspberryPiService.getAllPendingRaspberryPis().contains(raspberryPi)){
-            this.raspberryPiService.deletePendingRaspberry(raspberryPi);
-        }
         SnackbarHelper.getInstance()
                 .showSnackBar("Raspberry Pi " + raspberryPi.getInternalId() + " saved!", MessageType.INFO);
     }
