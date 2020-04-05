@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.model.User;
@@ -79,14 +80,14 @@ public class RoomService {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @Transactional
-    public void deleteRoom(Room roomToDelete) throws ProdigaGeneralExpectedException
+    public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
     {
         Room managedRoom = this.getManagedInstance(roomToDelete);
 
-       if(!roomToDelete.getRaspberryPis().isEmpty()) {
-           throw new ProdigaGeneralExpectedException("Room can not be deleted if there is a Raspberry Pi in it", MessageType.WARNING);
-          }
-      roomRepository.delete(roomToDelete);
+        if(!roomToDelete.getRaspberryPis().isEmpty()) {
+            throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
+        }
+        roomRepository.delete(roomToDelete);
     }
 
     @Transactional
@@ -96,7 +97,7 @@ public class RoomService {
 
     @Transactional
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
-       this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
+        this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
 
     @Transactional

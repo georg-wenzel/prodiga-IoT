@@ -1,7 +1,7 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
-                xmlns:h="http://java.sun.com/jsf/html" 
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:pe="http://primefaces.org/ecuador">
 
@@ -24,7 +24,8 @@
                         <p:submenu id="om_customization" label="Notifications" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
                         <p:submenu id="om_overview" label="Time overview" icon="fa fa-fw fa-dashboard" outcome="overview"/>
                         <p:submenu id="om_themes" label="Badges" icon="fa fa-fw fa-trophy" outcome="calendar"/>
-                        <p:menuitem id="om_team" value="Teamverwaltung" icon="fa fa-fw fa-home" outcome="/teams" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"/>
+                        <p:menuitem id="om_team" value="Teams" icon="fa fa-fw fa-home" outcome="/teams" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"/>
+                        <p:menuitem id="om_room" value="Rooms" icon="fa fa-fw fa-home" outcome="/room" />
                         <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
 
 

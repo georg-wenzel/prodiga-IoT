@@ -112,9 +112,16 @@ public class UserService {
      * @param user the user to delete
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void deleteUser(User user) {
+    public void deleteUser(User user) throws Exception {
+        checkForUserDeletionOrDeactivation(user);
         userRepository.delete(user);
         logInformationService.log("User " + user.getUsername() + " was deleted!");
+    }
+
+    public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
+        if(user.getUsername().equals(getAuthenticatedUser().getUsername())){
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.WARNING);
+        }
     }
 
     private User getAuthenticatedUser() {
