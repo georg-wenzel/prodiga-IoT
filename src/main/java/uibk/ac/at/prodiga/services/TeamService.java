@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.*;
-import uibk.ac.at.prodiga.repositories.BookingRepository;
+import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.Team;
+import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
@@ -26,24 +28,22 @@ public class TeamService
 {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
-    private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository, BookingRepository bookingRepository)
+    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository)
     {
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
         this.userRepository = userRepository;
         this.userService = userService;
-        this.bookingRepository = bookingRepository;
     }
 
     /**
      * Returns a collection of all teams
      * @return A collection of all teams.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public Collection<Team> getAllTeams()
     {
         return Lists.newArrayList(teamRepository.findAll());
@@ -132,14 +132,6 @@ public class TeamService
             throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.ERROR);
         }
 
-        //remove this team from all bookings where it is present.
-        Collection<Booking> bookings = bookingRepository.findAllByTeam(dbTeam);
-        for(Booking b : bookings)
-        {
-            b.setTeam(null);
-            bookingRepository.save(b);
-        }
-
         //delete team
         teamRepository.delete(team);
     }
@@ -196,5 +188,16 @@ public class TeamService
     public boolean isTeamUnchanged(Team team)
     {
         return team.equals(teamRepository.findFirstById(team.getId()));
+    }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public Team createTeam(){
+        Team team = new Team();
+        return team;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Team loadTeam(Long teamId){
+        return teamRepository.findFirstById(teamId);
     }
 }
