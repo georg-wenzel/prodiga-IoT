@@ -28,13 +28,15 @@ public class DepartmentService
     private final UserRepository userRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
+    private final LogInformationService logInformationService;
 
-    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager)
+    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager, LogInformationService logInformationService)
     {
         this.departmentRepository = departmentRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.userLoginManager = userLoginManager;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -141,7 +143,7 @@ public class DepartmentService
         return department.equals(departmentRepository.findFirstById(department.getId()));
     }
 
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Department createDepartment() {
         Department p = new Department();
         return p;
@@ -156,5 +158,16 @@ public class DepartmentService
     @PreAuthorize("hasAuthority('ADMIN')")
     public Department loadDepartment(Long departmentId) {
         return departmentRepository.findFirstById(departmentId);
+    }
+
+    /**
+     * Deletes the department.
+     *
+     * @param department the department to delete
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteDepartment(Department department) {
+        departmentRepository.delete(department);
+        logInformationService.log("Department " + department.getName() + " was deleted!");
     }
 }

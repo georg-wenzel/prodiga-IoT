@@ -13,7 +13,9 @@
     </ui:define>
 
     <ui:define name="content">
-        <h:outputText value="#{departmentController.loadDepartmentById(param['department'])}"/>
+        <f:metadata>
+            <f:viewParam name="department" value="#{departmentController.departmentById}"/>
+        </f:metadata>
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
@@ -21,27 +23,50 @@
                     <h:form id="departmentForm" enctype="multipart/form-data">
                         <p:messages id="msgs" for="msgs"/>
                         <div class="ui-g">
-
-                                <div class="ui-g-12 input-form">
-
+                            <div class="ui-g-5">
+                                <div class="ui-g-4 input-form">
                                     <p:outputLabel for="departmentId" value="Department id: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
                                     <p:inputText id="departmentId"
                                                  value="#{departmentController.department.id}"
                                                  disabled="true"
-                                                 label="Department id"/>
+                                                 label="Department id" style="width:100%"/>
                                 </div>
 
-                                <div class="ui-g-12 input-form">
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="departmentName" value="Department name: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="departmentName"
+                                                 value="#{departmentController.department.name}"
+                                                 disabled="false"
+                                                 label="Department name" style="width:100%"/>
+                                </div>
+<!--
+                                <div class="ui-g-4 input-form">
                                     <p:outputLabel for="departmentLeader" value="Department leader: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
                                     <p:inputText id="departmentLeader"
                                                  value="#{departmentController.getDepartmentLeaderOf(departmentController.department).firstName} #{departmentController.getDepartmentLeaderOf(departmentController.department).lastName}"
-                                                 disabled="true"
-                                                 label="Department name"/>
-                                </div>
+                                                 disabled="false"
+                                                 label="Department leader" style="width:100%"/>
+                                </div>-->
+                            </div>
+                    </div><br/>
+                        <div class="ui-g">
+                            <p:commandButton value="Save"
+                                             action="#{departmentController.doSaveDepartment}"
+                                             ajax="true"
+                                             icon="fa fa-fw fa-save"
+                                             validateClient="true"
+                                             update="growl msgs">
+                            </p:commandButton>
 
-
-
-                    </div>
+                            <p:linkButton outcome="/departments" value="Back to department overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                            </p:linkButton>
+                        </div>
                     </h:form>
 
                 </div>
