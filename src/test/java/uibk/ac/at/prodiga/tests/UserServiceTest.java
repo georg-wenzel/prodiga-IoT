@@ -137,7 +137,7 @@ public class UserServiceTest {
 
         User toBeCreatedUser = new User();
 
-        Assertions.assertThrows(org.springframework.orm.jpa.JpaSystemException.class, () -> {
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             userService.saveUser(toBeCreatedUser);
         });
     }

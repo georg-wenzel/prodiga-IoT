@@ -4,10 +4,8 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.Department;
-import uibk.ac.at.prodiga.model.Team;
-import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
@@ -28,15 +26,17 @@ public class TeamService
 {
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository)
+    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository, BookingRepository bookingRepository)
     {
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.bookingRepository = bookingRepository;
     }
 
     /**
@@ -130,6 +130,14 @@ public class TeamService
         if(dbTeam == null)
         {
             throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.ERROR);
+        }
+
+        //remove this team from all bookings where it is present.
+        Collection<Booking> bookings = bookingRepository.findAllByTeam(dbTeam);
+        for(Booking b : bookings)
+        {
+            b.setTeam(null);
+            bookingRepository.save(b);
         }
 
         //delete team

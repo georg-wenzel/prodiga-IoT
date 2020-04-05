@@ -63,6 +63,11 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
+        if(user.getUsername() == null || user.getUsername().isEmpty())
+        {
+            throw new ProdigaGeneralExpectedException("Username cannot be empty.", MessageType.ERROR);
+        }
+
         //Check team and department consistency
         if(user.getAssignedTeam() != null && !user.getAssignedTeam().getDepartment().equals(user.getAssignedDepartment()))
         {
