@@ -51,7 +51,7 @@ public class DepartmentController {
      */
     public void doSaveDepartment() throws Exception {
         departmentService.saveDepartment(department);
-        SnackbarHelper.getInstance().showSnackBar("Department " + department.getId() + " saved!", MessageType.INFO);
+        SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
     }
 
     /**
