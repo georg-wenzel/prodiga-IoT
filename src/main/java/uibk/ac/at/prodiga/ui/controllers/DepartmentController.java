@@ -49,9 +49,9 @@ public class DepartmentController {
      * Saves currently selected department
      * @throws Exception when save fails
      */
-    public void saveDepartment() throws Exception {
+    public void doSaveDepartment() throws Exception {
         departmentService.saveDepartment(department);
-        SnackbarHelper.getInstance().showSnackBar("Department " + department.getId() + " saved!", MessageType.INFO);
+        SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
     }
 
     /**
@@ -60,8 +60,8 @@ public class DepartmentController {
      * @return The new state of the object in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when name is not between 2 and 20 characters, department leader is not a valid database user or department leader user is already a teamleader or departmentleader elsewhere.
      */
-    public void saveDepartment(Department department) {
-        SnackbarHelper.getInstance().showSnackBar("Department " + department.getId() + " saved!", MessageType.INFO);
+    public void doSaveDepartment(Department department) {
+        SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
     }
 
 
@@ -100,7 +100,7 @@ public class DepartmentController {
      */
     public Long getDepartmentById() {
         if(this.department == null){
-            return (long) -1;
+            return null;
         }
         return this.department.getId();
     }
@@ -117,11 +117,11 @@ public class DepartmentController {
      * Sets currently active department by the id
      * @param departmentId when deparmentId could not be found
      */
-    public void loadDepartmentById(Long departmentId) throws Exception{
-        if(departmentId == null){
-            this.department = departmentService.createDepartment();
-        } else {
+    public void loadDepartmentById(Long departmentId) {
+        if(departmentId != null){
             this.department = departmentService.loadDepartment(departmentId);
+        } else {
+            this.department = departmentService.createDepartment();
         }
     }
 
@@ -141,7 +141,16 @@ public class DepartmentController {
      */
     public void setDepartment(Department department) {
         this.department = department;
+        loadDepartmentById(department.getId());
     }
 
-
+    /**
+     * Deletes the department.
+     *
+     */
+    public void doDeleteDepartment() throws Exception {
+        this.departmentService.deleteDepartment(department);
+        SnackbarHelper.getInstance()
+                .showSnackBar("Department \"" + department.getName() + "\" deleted!", MessageType.ERROR);
+    }
 }

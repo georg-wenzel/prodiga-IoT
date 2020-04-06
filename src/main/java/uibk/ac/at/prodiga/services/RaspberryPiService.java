@@ -2,13 +2,12 @@ package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
 import io.micrometer.core.instrument.util.StringUtils;
-import org.checkerframework.checker.nullness.Opt;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.RaspberryPi;
-import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -23,16 +22,19 @@ public class RaspberryPiService {
 
     private final RaspberryPiRepository raspberryPiRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
-    private final DiceRepository diceRepository;
     private final LogInformationService logInformationService;
+    private final DiceService diceService;
 
     private final List<RaspberryPi> pendingRaspberryPis = Collections.synchronizedList(new ArrayList<>());
 
-    public RaspberryPiService(RaspberryPiRepository raspberryPiRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceRepository diceRepository, LogInformationService logInformationService) {
+    public RaspberryPiService(RaspberryPiRepository raspberryPiRepository,
+                              ProdigaUserLoginManager prodigaUserLoginManager,
+                              LogInformationService logInformationService,
+                              DiceService diceService) {
         this.raspberryPiRepository = raspberryPiRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
-        this.diceRepository = diceRepository;
         this.logInformationService = logInformationService;
+        this.diceService = diceService;
     }
 
     /**
@@ -80,6 +82,12 @@ public class RaspberryPiService {
                                 "found", MessageType.WARNING));
     }
 
+    public RaspberryPi findById(Long raspId) throws Exception {
+        return raspberryPiRepository.findById(raspId)
+                .orElseThrow(
+                        () -> new ProdigaGeneralExpectedException("Could not find Raspberry Pi wiht id " + raspId, MessageType.ERROR));
+    }
+
     /**
      * Returns all raspberry pis which are not configured
      * @return A list of raspberry pis
@@ -111,6 +119,8 @@ public class RaspberryPiService {
                 " added to pending Raspberrys");
     }
 
+
+
     /**
      * Saves the given raspberry pi
      * @param raspi The raspberry pi to save
@@ -120,6 +130,13 @@ public class RaspberryPiService {
     public RaspberryPi save(RaspberryPi raspi) throws Exception {
         if(raspi == null) {
             return null;
+        }
+
+        if(raspi.isNew()) {
+            if(raspberryPiRepository.findFirstByInternalId(raspi.getInternalId()).isPresent()) {
+                throw new ProdigaGeneralExpectedException("Raspberry Pi with internal ID "
+                        + raspi.getInternalId() + " already exists.", MessageType.WARNING);
+            }
         }
 
         // First check if there is a room
@@ -136,6 +153,8 @@ public class RaspberryPiService {
         if(StringUtils.isEmpty(raspi.getInternalId())) {
             throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty Internal ID", MessageType.WARNING);
         }
+
+        tryDeletePendingRaspberry(raspi);
 
         if(raspi.isNew()) {
             // If the raspi is new we have to hash the password here
@@ -161,7 +180,7 @@ public class RaspberryPiService {
             return;
         }
 
-        List<Dice> assignedDices = diceRepository.findAllByAssignedRaspberry(raspi);
+        List<Dice> assignedDices = diceService.getAllByRaspberryPi(raspi);
         if(!assignedDices.isEmpty()) {
             throw new ProdigaGeneralExpectedException(
                     "Cannot delete Raspberry Pi because there are still cubes assigned.",
@@ -170,5 +189,28 @@ public class RaspberryPiService {
 
         raspberryPiRepository.delete(raspi);
         logInformationService.log("Raspberry Pi " + raspi.getInternalId() + " deleted!");
+    }
+
+    public RaspberryPi createRaspi(String internalId) {
+        RaspberryPi raspberryPi = new RaspberryPi();
+        raspberryPi.setInternalId(internalId);
+        Room room = new Room();
+        room.setId(null);
+        raspberryPi.setAssignedRoom(room);
+
+        return raspberryPi;
+    }
+
+    /**
+     * Deletes raspberry from the pending list
+     */
+    private void tryDeletePendingRaspberry(RaspberryPi raspi) {
+        pendingRaspberryPis.stream()
+            .filter(x -> x.getInternalId().equals(raspi.getInternalId()))
+            .findFirst().ifPresent(raspiInList -> {
+                pendingRaspberryPis.remove(raspiInList);
+                logInformationService.log("Raspberry Pi with internal ID " + raspi.getInternalId() +
+                    " deleted from pending Raspberrys");
+        });
     }
 }

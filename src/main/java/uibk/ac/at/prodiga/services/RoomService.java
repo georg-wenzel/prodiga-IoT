@@ -84,10 +84,10 @@ public class RoomService {
     {
         Room managedRoom = this.getManagedInstance(roomToDelete);
 
-       if(!roomToDelete.getRaspberryPis().isEmpty()) {
-           throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
-          }
-      roomRepository.delete(roomToDelete);
+        if(!roomToDelete.getRaspberryPis().isEmpty()) {
+            throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
+        }
+        roomRepository.delete(roomToDelete);
     }
 
     @Transactional
@@ -97,7 +97,7 @@ public class RoomService {
 
     @Transactional
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
-       this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
+        this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
 
     @Transactional

@@ -37,7 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login.xhtml");
 
         http.authorizeRequests()
-                .antMatchers("/h2-console/**", "/api/auth").permitAll();
+                .antMatchers("/h2-console/**", "/api/auth", "/api/register").permitAll();
 
         http.authorizeRequests()
                 .and()

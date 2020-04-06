@@ -137,7 +137,7 @@ public class UserServiceTest {
 
         User toBeCreatedUser = new User();
 
-        Assertions.assertThrows(org.springframework.orm.jpa.JpaSystemException.class, () -> {
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             userService.saveUser(toBeCreatedUser);
         });
     }
@@ -222,7 +222,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void testLoadTeamLeaderUnauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
@@ -276,7 +276,7 @@ public class UserServiceTest {
 
     @DirtiesContext
     @Test
-    @WithMockUser(username = "admin", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
+    @WithMockUser(username = "admin", authorities = {"EMPLOYEE", "TEAMLEADER"})
     public void testChangeTeamUnauthorized() throws ProdigaGeneralExpectedException
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -354,5 +354,33 @@ public class UserServiceTest {
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             userService.assignDepartment(test_user, dept2);
         }, "Department was changed even though user was still part of a team in the department.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void userService_saveNewUserWithSameUsername_throwsException() {
+        DataHelper.createAdminUser("admin", userRepository);
+
+        User u = new User();
+        u.setUsername("admin");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                userService.saveUser(u),
+                "Save successful although user with same username already exists");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void userService_saveNewUserWithSameEmail_throwsException() {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u = new User();
+        u.setUsername("test31321");
+        u.setEmail(admin.getEmail());
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                        userService.saveUser(u),
+                "Save successful although user with same email already exists");
     }
 }

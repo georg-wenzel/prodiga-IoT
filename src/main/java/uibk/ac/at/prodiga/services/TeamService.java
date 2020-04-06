@@ -43,7 +43,7 @@ public class TeamService
      * Returns a collection of all teams
      * @return A collection of all teams.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public Collection<Team> getAllTeams()
     {
         return Lists.newArrayList(teamRepository.findAll());
@@ -188,5 +188,16 @@ public class TeamService
     public boolean isTeamUnchanged(Team team)
     {
         return team.equals(teamRepository.findFirstById(team.getId()));
+    }
+
+    @PreAuthorize("hasAuthority('MANAGER')")
+    public Team createTeam(){
+        Team team = new Team();
+        return team;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Team loadTeam(Long teamId){
+        return teamRepository.findFirstById(teamId);
     }
 }

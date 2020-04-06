@@ -1,17 +1,15 @@
 package uibk.ac.at.prodiga.configs;
 
+import com.google.common.collect.Lists;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.services.RaspberryPiService;
-import uibk.ac.at.prodiga.utils.CustomAuthenticationToken;
 import uibk.ac.at.prodiga.utils.JwtTokenUtil;
 
 import javax.servlet.FilterChain;
@@ -19,10 +17,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Serializable;
+import java.util.List;
 
 @Component
 public class PreAuthRequestFilter extends OncePerRequestFilter {
+
+    private List<String> allowedApiRequests = Lists.newArrayList("/api/auth", "/api/register");
 
     @Autowired
     RaspberryPiService raspberryPiService;
@@ -33,8 +33,9 @@ public class PreAuthRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
-        boolean handleRequest = httpServletRequest.getRequestURI().startsWith("/api")
-                && !httpServletRequest.getRequestURI().startsWith("/api/auth");
+        boolean handleRequest = httpServletRequest.getRequestURI().startsWith("/api") &&
+                allowedApiRequests.stream()
+                    .noneMatch(x -> httpServletRequest.getRequestURI().startsWith(x));
 
         if(handleRequest) {
             String requestTokenHeader = httpServletRequest.getHeader("Authorization");

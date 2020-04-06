@@ -265,4 +265,39 @@ public class RaspberryPiServiceTest {
                 () -> raspberryPiService.delete(raspi),
                 "Unauthorized User can delete raspi");
     }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void raspiService_saveRaspiWithExistingInternalId_throws() {
+        DataHelper.createRaspi("123", admin, null, raspberryPiRepository, roomRepository);
+
+        RaspberryPi raspi = new RaspberryPi();
+        raspi.setInternalId("123");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class,
+                () -> raspberryPiService.save(raspi),
+                "Raspi can with existing internal Id can be saved");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void raspiService_saveRaspi_removedFromPending() throws Exception {
+        authController.register("123");
+
+        Assertions.assertEquals(1, raspberryPiService.getAllPendingRaspberryPis().size(),
+                "Registered Raspi not in pending list");
+
+        Room r = DataHelper.createRoom("test", admin, roomRepository);
+        RaspberryPi raspi = new RaspberryPi();
+        raspi.setInternalId("123");
+        raspi.setAssignedRoom(r);
+        raspi.setPassword(DataHelper.TEST_PASSWORD);
+
+        raspberryPiService.save(raspi);
+
+        Assertions.assertEquals(0, raspberryPiService.getAllPendingRaspberryPis().size(),
+                "Saved Raspi still in pending list");
+    }
 }

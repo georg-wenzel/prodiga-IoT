@@ -33,7 +33,7 @@ public class UserService {
     /**
      * Returns a collection of all users.
      *
-     * @return
+     * @return collection of all users
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<User> getAllUsers() {
@@ -51,18 +51,15 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-    /**
-     * Saves the user. This method will also set {@link User#createDate} for new
-     * entities or {@link User#updateDate} for updated entities. The user
-     * requesting this operation will also be stored as {@link User#createDate}
-     * or {@link User#updateUser} respectively.
-     *
-     * @param user the user to save
-     * @return the updated user
-     */
+
     @PreAuthorize("hasAuthority('ADMIN')")
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
+        if(user.getUsername() == null || user.getUsername().isEmpty())
+        {
+            throw new ProdigaGeneralExpectedException("Username cannot be empty.", MessageType.ERROR);
+        }
+
         //Check team and department consistency
         if(user.getAssignedTeam() != null && !user.getAssignedTeam().getDepartment().equals(user.getAssignedDepartment()))
         {
@@ -71,6 +68,14 @@ public class UserService {
 
         if (user.isNew())
         {
+            if(userRepository.findFirstByUsername(user.getUsername()) != null) {
+                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
+            }
+
+            if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
+                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
+            }
+
             user.setCreateDate(new Date());
             user.setCreateUser(getAuthenticatedUser());
         }
@@ -108,8 +113,15 @@ public class UserService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(User user) throws Exception {
+        checkForUserDeletionOrDeactivation(user);
         userRepository.delete(user);
         logInformationService.log("User " + user.getUsername() + " was deleted!");
+    }
+
+    public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
+        if(user.getUsername().equals(getAuthenticatedUser().getUsername())){
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.WARNING);
+        }
     }
 
     private User getAuthenticatedUser() {
@@ -140,7 +152,7 @@ public class UserService {
         return userRepository.findDepartmentLeaderOf(department);
     }
 
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public User getTeamLeaderOf(Team team)
     {
         return userRepository.findTeamLeaderOf(team);
@@ -153,7 +165,7 @@ public class UserService {
      * @return The user after he was changed in the database
      * @throws ProdigaGeneralExpectedException Is thrown when team to assign and the users department in the DB do not match up.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public User assignTeam(User user, Team team) throws ProdigaGeneralExpectedException
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
@@ -195,8 +207,7 @@ public class UserService {
      * @return A newly created user entity
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public User createNewUser() throws Exception {
-        User u = new User();
-        return u;
+    public User createNewUser() {
+        return new User();
     }
 }

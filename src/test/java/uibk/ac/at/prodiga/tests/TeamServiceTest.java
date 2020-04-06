@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.internal.util.collections.Sets;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -25,7 +24,6 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
 /**
  * Test class for the Team Service
@@ -105,7 +103,7 @@ public class TeamServiceTest
      * Tests unauthorized loading of team collection
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void load_teams_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
