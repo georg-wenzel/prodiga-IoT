@@ -103,7 +103,7 @@ public class TeamServiceTest
      * Tests unauthorized loading of team collection
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void load_teams_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
