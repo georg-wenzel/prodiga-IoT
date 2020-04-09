@@ -13,24 +13,24 @@
             <input type="text"></input>
         </div>
 
-        <h:link outcome="/dashboard" styleClass="logo-container">
+        <h:link outcome="/welcome" styleClass="logo-container">
             <p:graphicImage name="images/logo.png" library="ecuador-layout" />
         </h:link>
 
         <a id="topbar-profile-menu-button" href="#">
-            <span>Spongebob Schwammkopf</span>
+            <span>#{prodigaUserLoginManager.getCurrentUser().username}</span>
             <p:graphicImage name="images/avatar.png" library="ecuador-layout" styleClass="topbar-profile" />
             <i class="fa fa-angle-down"></i>
         </a>
 
         <ul id="topbar-usermenu">
             <li>
-                <a href="#">
+                <a href="${pageContext.request.contextPath}/user/user.xhtml?username=#{prodigaUserLoginManager.getCurrentUser().username}">
                     <i class="fa fa-fw fa-user"></i>
-                    <span class="topbar-item-name">Profile</span>
-                    <span class="topbar-submenuitem-badge">4</span>
+                    Profile
                 </a>
             </li>
+
             <li>
                 <a href="#">
                     <i class="fa fa-fw fa-cog"></i>
@@ -64,70 +64,7 @@
                     </li>
                 </ul>
             </li>
-            <li>
-                <a href="#">
-                    <i class="fa fa-fw fa-envelope-o"></i>
-                    <span class="topbar-item-name">Messages</span>
-                </a>
-                <ul>
-                    <li role="menuitem">
-                        <a href="#" class="topbar-message">
-                            <p:graphicImage name="images/avatar-brooke.png" library="ecuador-layout" width="25"/>
-                            <span>Give me a call</span>
-                        </a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#" class="topbar-message">
-                            <p:graphicImage name="images/avatar-tom.png" library="ecuador-layout" width="25"/>
-                            <span>Reports attached</span>
-                        </a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#" class="topbar-message">
-                            <p:graphicImage name="images/avatar-maggie.png" library="ecuador-layout" width="25"/>
-                            <span>About your invoice</span>
-                        </a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#" class="topbar-message">
-                            <p:graphicImage name="images/avatar-lucas.png" library="ecuador-layout" width="25"/>
-                            <span>Meeting today</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="fa fa-fw fa-bell-o"></i>
-                    <span class="topbar-item-name">Notifications</span>
-                </a>
-                <ul>
-                    <li role="menuitem">
-                        <a href="#">
-                            <i class="fa fa-fw fa-tasks"></i>
-                            <span>Pending tasks</span>
-                        </a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#">
-                            <i class="fa fa-fw fa-calendar-check-o"></i>
-                            <span>Meeting today</span>
-                        </a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#">
-                            <i class="fa fa-fw fa-download"></i>
-                            <span>Download</span>
-                        </a>
-                    </li>
-                    <li role="menuitem">
-                        <a href="#">
-                            <i class="fa fa-fw fa-plane"></i>
-                            <span>Book flight</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+
         </ul>
 
         <a href="#" id="right-panel-button">
