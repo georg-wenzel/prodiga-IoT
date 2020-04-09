@@ -123,6 +123,8 @@ public class VacationService
     public Vacation getVacationById(Long vacationId)
     {
         Vacation v = vacationRepository.findFirstById(vacationId);
+        if(v == null) return null;
+
         if(!v.getUser().equals(userLoginManager.getCurrentUser()))
         {
             throw new RuntimeException("Attempted to load vacation from different user.");
@@ -136,12 +138,16 @@ public class VacationService
      * @param vacation the vacation to delete
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public void deleteVacation(Vacation vacation)
+    public void deleteVacation(Vacation vacation) throws ProdigaGeneralExpectedException
     {
         Vacation v = vacationRepository.findFirstById(vacation.getId());
         if(!v.getUser().equals(userLoginManager.getCurrentUser()))
         {
             throw new RuntimeException("Attempted to delete vacation from different user.");
+        }
+        if(v.getBeginDate().before(new Date()))
+        {
+            throw new ProdigaGeneralExpectedException("Cannot delete vacations that have already begun or ended.", MessageType.ERROR);
         }
         vacationRepository.delete(v);
     }
@@ -178,7 +184,10 @@ public class VacationService
         }
 
         //Check that there is no other vacations over the same days
-        if(!vacationRepository.findUsersVacationInRange(vacation.getUser(), vacation.getBeginDate(), vacation.getEndDate()).isEmpty())
+        Collection<Vacation> vcs = vacationRepository.findUsersVacationInRange(vacation.getUser(), vacation.getBeginDate(), vacation.getEndDate());
+        if(vacation.getId() != null) vcs.remove(vacation);
+
+        if(!vcs.isEmpty())
         {
             throw new ProdigaGeneralExpectedException("Vacation covers existing vacation time.", MessageType.ERROR);
         }

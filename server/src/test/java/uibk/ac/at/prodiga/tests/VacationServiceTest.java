@@ -271,6 +271,7 @@ public class VacationServiceTest
 
         //get 27th december of this year
         LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), 12, 27);
+        Date fromDate, toDate;
 
         //if in december month
         if(LocalDate.now().getMonth() == Month.DECEMBER)
@@ -280,8 +281,8 @@ public class VacationServiceTest
             if(LocalDate.now().getDayOfMonth() > 26)
             {
                 //start date is simply now, as it is already past the 26th, so there is less than 6 days in the current year
-                Date fromDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-                Date toDate = Date.from(LocalDate.now().plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                fromDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                toDate = Date.from(LocalDate.now().plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
                 v1.setBeginDate(fromDate);
                 v1.setEndDate(toDate);
                 v1.setUser(u1);
@@ -289,8 +290,8 @@ public class VacationServiceTest
             else
             {
                 //start date is 27th dec
-                Date fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                Date toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
+                fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
                 v1.setBeginDate(fromDate);
                 v1.setEndDate(toDate);
                 v1.setUser(u1);
@@ -301,8 +302,8 @@ public class VacationServiceTest
             //20 vacation days now
             DataHelper.createVacation(0,20, u1, vacationRepository);
             //start date is 27th dec
-            Date fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            Date toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
             v1.setBeginDate(fromDate);
             v1.setEndDate(toDate);
             v1.setUser(u1);
@@ -311,6 +312,10 @@ public class VacationServiceTest
         //user has 5 vacation days in this year remaining
         //new vacation lasts for 27 days, and starts at the latest at the 27th, so it should pass.
         vacationService.saveVacation(v1);
+
+        //asserts that dates still match
+        Assertions.assertEquals(fromDate, v1.getBeginDate(), "Beginning Date was not correctly stored in DB.");
+        Assertions.assertEquals(toDate, v1.getEndDate(), "End date was not correctly stored in DB.");
     }
 
     /**
@@ -473,5 +478,152 @@ public class VacationServiceTest
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             vacationService.saveVacation(new Vacation());
         }, "Vacations created despite lacking authorization of EMPLOYEE");
+    }
+
+    /**
+     * Tests changing a vacation which will always be valid.
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void update_vacation() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Vacation v1 = DataHelper.createVacation(LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), u1, vacationRepository);
+
+        Date newStartDate = Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date newEndDate = Date.from(LocalDate.now().plusDays(14).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        v1.setBeginDate(newStartDate);
+        v1.setEndDate(newEndDate);
+
+        v1 = vacationService.saveVacation(v1);
+
+        Assertions.assertEquals(newStartDate, v1.getBeginDate(), "Begin date not correctly updated for vacation.");
+        Assertions.assertEquals(newEndDate, v1.getEndDate(), "End date not correctly updated for vacation.");
+        Assertions.assertEquals(u1, v1.getUser(), "User not correctly stored for vacation.");
+        Assertions.assertEquals(u1, v1.getObjectChangedUser(), "User u1 did not become update user of the vacation.");
+        Assertions.assertTrue((new Date()).getTime() -  v1.getObjectChangedDateTime().getTime() < 1000 * 60, "Update date has not been properly set.");
+    }
+
+    /**
+     * Tests changing a vacation from the past to one with a valid time (should not work)
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void update_vacation_from_past() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Vacation v1 = DataHelper.createVacation(-6, -3, u1, vacationRepository);
+
+        Date newStartDate = Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date newEndDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        v1.setBeginDate(newStartDate);
+        v1.setEndDate(newEndDate);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            vacationService.saveVacation(v1);
+        }, "Vacation edited despite being from past date.");
+    }
+
+    /**
+     * Tests changing the user of a vacation to another.
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void update_vacation_to_other_user() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User u2 = DataHelper.createRandomUser(userRepository);
+        Vacation v1 = DataHelper.createVacation(5, 10, u1, vacationRepository);
+
+        v1.setUser(u2);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            vacationService.saveVacation(v1);
+        }, "Vacation edited despite user being changed to another.");
+    }
+
+    /**
+     * Tests changing the vacation of another user
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void update_vacation_from_other_user() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User u2 = DataHelper.createRandomUser(userRepository);
+        Vacation v1 = DataHelper.createVacation(5, 10, u2, vacationRepository);
+
+        v1.setUser(u1);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            vacationService.saveVacation(v1);
+        }, "Vacation edited despite user being not the logged in user.");
+    }
+
+    /**
+     * Tests deleting a vacation
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void delete_vacation() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Vacation v1 = DataHelper.createVacation(5,10, u1, vacationRepository);
+
+        vacationService.deleteVacation(v1);
+
+        Assertions.assertNull(vacationService.getVacationById(v1.getId()), "Vacation was not properly deleted.");
+    }
+
+    /**
+     * Tests deleting a vacation from another user
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void delete_vacation_other_user() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User u2 = DataHelper.createRandomUser(userRepository);
+        Vacation v1 = DataHelper.createVacation(5,10, u2, vacationRepository);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            vacationService.deleteVacation(v1);;
+        }, "Vacation deleted despite being from another user.");
+    }
+
+    /**
+     * Tests deleting a vacation from the past
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void delete_vacation_past() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Vacation v1 = DataHelper.createVacation(-6,5, u1, vacationRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            vacationService.deleteVacation(v1);
+        }, "Vacation deleted despite having started already.");
+    }
+
+    /**
+     * Tests deleting a vacation without employee authorization
+     */
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
+    public void delete_vacation_unauthorized() throws ProdigaGeneralExpectedException
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            vacationService.deleteVacation(new Vacation());
+        }, "Vacation deleted despite lacking authorization of EMPLOYEE");
     }
 }
