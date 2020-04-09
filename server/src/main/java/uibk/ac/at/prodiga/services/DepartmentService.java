@@ -144,16 +144,16 @@ public class DepartmentService
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Department createDepartment() {
-        Department p = new Department();
-        return p;
+    public Department createDepartment()
+    {
+        return new Department();
     }
 
     /**
      * Loads a single department identified by its departmentId.
      *
      * @param departmentId the departmentId to search for
-     * @return the plane with the given planeId
+     * @return the department with the given ID
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Department loadDepartment(Long departmentId) {
