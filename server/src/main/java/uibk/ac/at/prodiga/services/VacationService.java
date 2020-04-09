@@ -120,7 +120,7 @@ public class VacationService
      * @return the vacation with the given ID
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public Vacation loadVacation(Long vacationId)
+    public Vacation getVacationById(Long vacationId)
     {
         Vacation v = vacationRepository.findFirstById(vacationId);
         if(!v.getUser().equals(userLoginManager.getCurrentUser()))
