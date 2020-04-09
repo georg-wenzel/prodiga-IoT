@@ -163,9 +163,9 @@ public class VacationService
         LocalDate endDate = vacation.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         Duration d = Duration.between(startDate.atStartOfDay(), endDate.atStartOfDay());
-        if(d.toDays() < 1 || d.toDays() > 25)
+        if(d.toDays() < 1)
         {
-            throw new ProdigaGeneralExpectedException("Vacation must be between 1 and 25 days", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Vacation must cover at least one day.", MessageType.ERROR);
         }
 
         //Check remaining days for start year
@@ -202,16 +202,20 @@ public class VacationService
         LocalDate lowerBound = LocalDate.of(year-1,12,31);
 
         Collection<Vacation> vcsStart = vacationRepository.findUsersYearlyVacations(vacation.getUser(), year);
-        vcsStart.remove(vacation);
+        if(vacation.getId() != null) vcsStart.remove(vacation);
         int daysFromOtherVacations = vcsStart.stream().map(v ->
         {
             //correct all vacations to only take dates within the year
-            if(toLocalDate(v.getBeginDate()).isBefore(lowerBound)) v.setBeginDate(toDate(lowerBound));
-            if(toLocalDate(v.getEndDate()).isAfter(upperBound)) v.setEndDate(toDate(upperBound));
-            return v;
+            Vacation dummyV = new Vacation();
+            if(toLocalDate(v.getBeginDate()).isBefore(lowerBound)) dummyV.setBeginDate(toDate(lowerBound));
+            else dummyV.setBeginDate(v.getBeginDate());
+            if(toLocalDate(v.getEndDate()).isAfter(upperBound)) dummyV.setEndDate(toDate(upperBound));
+            else dummyV.setEndDate(v.getEndDate());
+            return dummyV;
         }).mapToInt(this::getVacationDays).sum();
         //add the vacation on
-        if(daysFromOtherVacations + getVacationDays(vacation) > 25)
+        int currentVacationTime = getVacationDaysInYear(vacation, year);
+        if(daysFromOtherVacations + currentVacationTime > 25)
         {
             throw new ProdigaGeneralExpectedException("Yearly vacation days for the year " + year + " cannot exceed 25.", MessageType.ERROR);
         }
@@ -237,10 +241,10 @@ public class VacationService
     {
         LocalDate upperBound = LocalDate.of(year+1,1,1);
         LocalDate lowerBound = LocalDate.of(year-1,12,31);
-        if(toLocalDate(vacation.getBeginDate()).isBefore(lowerBound)) vacation.setBeginDate(toDate(lowerBound));
-        if(toLocalDate(vacation.getEndDate()).isAfter(upperBound)) vacation.setEndDate(toDate(upperBound));
+        if(toLocalDate(vacation.getBeginDate()).isAfter(lowerBound)) lowerBound = toLocalDate(vacation.getBeginDate());
+        if(toLocalDate(vacation.getEndDate()).isBefore(upperBound)) upperBound = toLocalDate(vacation.getEndDate());
 
-        return(int)Duration.between(toLocalDate(vacation.getBeginDate()).atStartOfDay(), toLocalDate(vacation.getEndDate()).atStartOfDay()).toDays();
+        return(int)Duration.between(lowerBound.atStartOfDay(), upperBound.atStartOfDay()).toDays();
     }
 
     /**

@@ -250,6 +250,24 @@ public class DataHelper {
         return vacationRepository.save(vacation);
     }
 
+    /**
+     * Creates a vacation entry with absolute date values.
+     * This method does not do any validation on the input and simply stores what is given in the database.
+     * @param startDate the starting date of the vacation
+     * @param endDate the ending date of the vacation
+     * @return The vacation as it was saved in the database.
+     */
+    public static Vacation createVacation(LocalDate startDate, LocalDate endDate, User forUser, VacationRepository vacationRepository)
+    {
+        Vacation vacation = new Vacation();
+        vacation.setBeginDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setEndDate(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setUser(forUser);
+        vacation.setObjectCreatedDateTime(new Date());
+        vacation.setObjectCreatedUser(forUser);
+        return vacationRepository.save(vacation);
+    }
+
      /**
       * Creates a given dice with the given data
      * @param internalId The internal Id used by the dice (and the raspi if not exists)
