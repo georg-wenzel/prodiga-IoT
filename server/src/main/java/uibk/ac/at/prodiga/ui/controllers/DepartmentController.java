@@ -36,6 +36,16 @@ public class DepartmentController {
 
 
     /**
+     * Returns the number of all departments.
+     *
+     * @return number of all departments.
+     */
+    public int numDepartments(){
+        return departmentService.getAllDepartments().size();
+    }
+
+
+    /**
      * Returns the first department with a matching name (unique identifier)
      * @param name The name of the department
      * @return The first (and only) department with a matching name, or null if none was found
