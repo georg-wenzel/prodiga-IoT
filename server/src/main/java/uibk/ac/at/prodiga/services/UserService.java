@@ -146,6 +146,16 @@ public class UserService {
         return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
     }
 
+    /**
+     * Returns all users in the given department
+     * @param d The department to look for
+     * @return A list with users
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
+    public Collection<User> getUsersByDepartment(Department d){
+        return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     public User getDepartmentLeaderOf(Department department)
     {

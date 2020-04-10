@@ -16,4 +16,9 @@
         <exception-handler-factory>org.primefaces.application.exceptionhandler.PrimeExceptionHandlerFactory</exception-handler-factory>
     </factory>
 
+    <converter>
+        <converter-id>userConverter</converter-id>
+        <converter-class>uibk.ac.at.prodiga.ui.beans.UserConverter</converter-class>
+    </converter>
+
 </faces-config>
