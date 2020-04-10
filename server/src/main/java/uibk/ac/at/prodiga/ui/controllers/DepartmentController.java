@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.DepartmentService;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 import uibk.ac.at.prodiga.utils.MessageType;
-
 import java.util.Collection;
 
 @Component
@@ -20,6 +20,7 @@ public class DepartmentController {
     private final DepartmentService departmentService;
     private Department department;
     private final UserService userService;
+    private User departmentLeader;
 
     public DepartmentController(DepartmentService departmentService, UserService userService) {
         this.departmentService = departmentService;
@@ -60,7 +61,10 @@ public class DepartmentController {
      * @throws Exception when save fails
      */
     public void doSaveDepartment() throws Exception {
-        departmentService.saveDepartment(department);
+        department = departmentService.saveDepartment(department);
+        if(saveDepartmentLeader()) {
+            departmentService.setDepartmentLeader(department, departmentLeader);
+        }
         SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
     }
 
@@ -133,6 +137,9 @@ public class DepartmentController {
         } else {
             this.department = departmentService.createDepartment();
         }
+        if(department != null && !department.isNew()) {
+            departmentLeader = getDepartmentLeaderOf(department);
+        }
     }
 
     /**
@@ -162,5 +169,26 @@ public class DepartmentController {
         this.departmentService.deleteDepartment(department);
         SnackbarHelper.getInstance()
                 .showSnackBar("Department \"" + department.getName() + "\" deleted!", MessageType.ERROR);
+    }
+
+    /**
+     * Gets the current selected department leader
+     * @return The department leader as a user object
+     */
+    public User getDepartmentLeader() {
+        return departmentLeader;
+    }
+
+    /**
+     * Sets the current department leader
+     * @param departmentLeader The new department leader
+     */
+    public void setDepartmentLeader(User departmentLeader) {
+        this.departmentLeader = departmentLeader;
+    }
+
+    private boolean saveDepartmentLeader() {
+        return departmentLeader != null
+                && !departmentLeader.getRoles().contains(UserRole.DEPARTMENTLEADER);
     }
 }

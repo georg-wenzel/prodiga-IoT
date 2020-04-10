@@ -12,7 +12,7 @@ public class Vacation implements Persistable<Long>, Serializable {
     private static final long serialVersionUID = 1543543567124567552L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)

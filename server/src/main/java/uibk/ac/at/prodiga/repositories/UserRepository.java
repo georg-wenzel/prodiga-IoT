@@ -16,6 +16,8 @@ public interface UserRepository extends AbstractRepository<User, String> {
 
     List<User> findAllByAssignedTeam(Team team);
 
+    List<User> findAllByAssignedDepartment(Department d);
+
     List<User> findByUsernameContaining(String username);
 
     @Query("SELECT u FROM User u WHERE CONCAT(u.firstName, ' ', u.lastName) = :wholeName")

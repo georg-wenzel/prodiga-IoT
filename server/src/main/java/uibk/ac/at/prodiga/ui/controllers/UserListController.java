@@ -1,8 +1,10 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -36,4 +38,15 @@ public class UserListController {
         return userService.getAllUsers().size();
     }
 
+    /**
+     * Returns all user in the given department
+     * @param d The department
+     * @return A list with users or a empty list if department is null
+     */
+    public Collection<User> getAllUsersInDepartment(Department d){
+        if(d == null || d.isNew()) {
+            return new ArrayList<>();
+        }
+        return userService.getUsersByDepartment(d);
+    }
 }
