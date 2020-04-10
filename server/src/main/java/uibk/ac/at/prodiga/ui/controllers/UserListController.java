@@ -21,10 +21,19 @@ public class UserListController {
     /**
      * Returns a list of all users.
      *
-     * @return
+     * @return a Collection of all users.
      */
     public Collection<User> getUsers() {
         return userService.getAllUsers();
+    }
+
+    /**
+     * Returns the number of all users.
+     *
+     * @return number of total users.
+     */
+    public int numUsers(){
+        return userService.getAllUsers().size();
     }
 
 }
