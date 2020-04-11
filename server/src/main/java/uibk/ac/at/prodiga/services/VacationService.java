@@ -83,6 +83,9 @@ public class VacationService
             throw new ProdigaGeneralExpectedException("Vacations can only be set for the current and following year.", MessageType.ERROR);
         }
 
+        //check vacation specifics (see method details)
+        checkVacationBelowThresholdAndValid(vacation);
+
         //set appropriate fields
         if(vacation.isNew())
         {
@@ -105,9 +108,6 @@ public class VacationService
             vacation.setObjectChangedDateTime(new Date());
             vacation.setObjectChangedUser(userLoginManager.getCurrentUser());
         }
-
-        //check vacation specifics (see method details)
-        checkVacationBelowThresholdAndValid(vacation);
 
         //Save method if no exception has been thrown so far
         return vacationRepository.save(vacation);
@@ -167,7 +167,6 @@ public class VacationService
     /**
      * Given a vacation, gets all other vacations in the year of the start and end date.
      * The method then checks
-     *  - that the vacation is between 1 and 25 days.
      *  - that 25 vacation days are not passed for any year.
      *  - that no other vacation of this user covers the same days
      *  - that no booking is already taken for any of the vacation days.
@@ -179,12 +178,6 @@ public class VacationService
         //Check vacation duration
         LocalDate startDate = vacation.getBeginDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = vacation.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        Duration d = Duration.between(startDate.atStartOfDay(), endDate.atStartOfDay());
-        if(d.toDays() < 1)
-        {
-            throw new ProdigaGeneralExpectedException("Vacation must cover at least one day.", MessageType.ERROR);
-        }
 
         //Check remaining days for start year
         checkYearlyVacationDays(vacation, startDate.getYear());
@@ -236,9 +229,9 @@ public class VacationService
      * @param vacation The vacation to check
      * @return The number of days between start and end date.
      */
-    private int getVacationDays(Vacation vacation)
+    public int getVacationDays(Vacation vacation)
     {
-        return(int)Duration.between(toLocalDate(vacation.getBeginDate()).atStartOfDay(), toLocalDate(vacation.getEndDate()).atStartOfDay()).toDays();
+        return(int)Duration.between(toLocalDate(vacation.getBeginDate()).atStartOfDay(), toLocalDate(vacation.getEndDate()).plusDays(1).atStartOfDay()).toDays();
     }
 
     /**
@@ -264,7 +257,7 @@ public class VacationService
      * @param date the date to convert
      * @return The corresponding LocalDate
      */
-    private LocalDate toLocalDate(Date date)
+    public LocalDate toLocalDate(Date date)
     {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
@@ -274,7 +267,7 @@ public class VacationService
      * @param localDate the date to convert
      * @return The corresponding java.util.Date
      */
-    private Date toDate(LocalDate localDate)
+    public Date toDate(LocalDate localDate)
     {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }

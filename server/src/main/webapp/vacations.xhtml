@@ -5,6 +5,9 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
+
+    <h:outputStylesheet name = "vacations.css" library="css" />
+
     <ui:define name="title">Prodiga Vacations</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
@@ -16,9 +19,12 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-                    <h1>Your Vacations</h1>
-                    <h:form id="vacationForm">
-                        <p:dataTable id="vacationTable" var="vacation" scrollable="true"  style="width:100%" scrollHeight="500" value="#{vacationController.allVacations}">
+                    <h1>Vacation Info</h1>
+                    For the current year, you have  <h:outputText value="#{vacationController.currentYearDays}" /> vacation days remaining. For the upcoming year, you have <h:outputText value="#{vacationController.nextYearDays}" /> vacation days remaining.
+                    <h1>Your past vacations this year</h1>
+
+                    <h:form id="pastVacationForm">
+                        <p:dataTable id="pastVacationTable" var="vacation" scrollable="true" style="width:100%" scrollHeight="500" value="#{vacationController.pastVacations}" sortBy="#{vacation.beginDate}">
                             <p:column headerText="From">
                                 <h:outputText value="#{vacation.beginDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd" />
@@ -31,13 +37,39 @@
                                 </h:outputText>
                             </p:column>
 
+                            <p:column headerText="Duration">
+                                <h:outputText value="#{vacationController.getDays(vacation)}" /> days
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+
+                    <h1>Your Vacations</h1>
+                    <h:form id="vacationForm">
+                        <p:dataTable id="vacationTable" var="vacation" scrollable="true" style="width:100%" scrollHeight="500" value="#{vacationController.currentVacations}" sortBy="#{vacation.beginDate}">
+                            <p:column headerText="From">
+                                <h:outputText value="#{vacation.beginDate}">
+                                    <f:convertDateTime pattern="yyyy-MM-dd" />
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="To">
+                                <h:outputText value="#{vacation.endDate}">
+                                    <f:convertDateTime pattern="yyyy-MM-dd" />
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Duration">
+                                <h:outputText value="#{vacationController.getDays(vacation)}" /> days
+                            </p:column>
+
                             <p:column style="width:100px;text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
+                                              rendered="#{vacationController.hasStarted(vacation)}"
                                               outcome="vacation">
                                     <f:param name="vacation" value="#{vacation.id}" />
                                 </p:linkButton>
-                                <p:commandButton action="#{vacationController.doDeleteVacation()}" icon="fa fa-fw fa-trash" title="Delete" update=":vacationForm:vacationTable">
+                                <p:commandButton action="#{vacationController.doDeleteVacation()}" icon="fa fa-fw fa-trash" title="Delete" rendered="#{vacationController.hasStarted(vacation)}" update=":vacationForm:vacationTable">
                                     <f:setPropertyActionListener value="#{vacation}" target="#{vacationController.vacation}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this vacation? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>

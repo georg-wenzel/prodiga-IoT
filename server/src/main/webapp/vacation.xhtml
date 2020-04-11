@@ -19,26 +19,22 @@
     <div class="ui-g">
         <div class="ui-g-12">
             <div class="card">
-                <h1>Edit Vacation</h1>
                 <h:form id="vacationForm" enctype="multipart/form-data">
+                    <h:panelGroup layout="block" rendered="#{vacationController.getEditing()}">
+                        <h1>Edit Vacation</h1>
+                    </h:panelGroup>
+                    <h:panelGroup layout="block" rendered="#{!vacationController.getEditing()}">
+                        <h1>Create Vacation</h1>
+                    </h:panelGroup>
                     <p:messages id="msgs" for="msgs"/>
                     <div class="ui-g">
                         <div class="ui-g-5">
-                            <div class="ui-g-4 input-form">
-                                <p:outputLabel for="vacationId" value="Vacation ID: "/>
-                            </div>
-                            <div class="ui-g-8 input-form">
-                                <p:inputText id="vacationId"
-                                             value="#{vacationController.vacation.id}"
-                                             disabled="true"
-                                             label="Vacation ID" style="width:100%"/>
-                            </div>
                             <div class="card">
                                 <h:panelGrid columns="2" cellpadding="5">
                                     <p:outputLabel for="fromDate" value="Start date:" />
+                                    <p:calendar id="fromDate" value="#{vacationController.vacation.beginDate}"/>
                                     <p:outputLabel for="toDate" value="End date: " />
-                                    <p:calendar id="fromDate" value="#{vacationController.vacation.beginDate}" mode="inline" />
-                                    <p:calendar id="toDate" value="#{vacationController.vacation.endDate}" mode="inline" />
+                                    <p:calendar id="toDate" value="#{vacationController.vacation.endDate}" />
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -49,7 +45,7 @@
                                          ajax="true"
                                          icon="fa fa-fw fa-save"
                                          validateClient="true"
-                                         update="growl msgs">
+                                         update="growl msgs :vacationForm">
                         </p:commandButton>
 
                         <p:linkButton outcome="/vacations" value="Back to vacation overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
