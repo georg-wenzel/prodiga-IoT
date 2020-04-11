@@ -16,6 +16,7 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     Collection<Booking> findAllByDice(Dice d);
     Collection<Booking> findAllByTeam(Team team);
     Collection<Booking> findAllByDept(Department department);
+    Collection<Booking> findAllByBookingCategory(BookingCategory category);
 
     /**
      * Gets all bookings of a given user in a given timespan, specifically, considering the timespans should be start of days

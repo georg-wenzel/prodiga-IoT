@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.tests;
 
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,17 +12,19 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import uibk.ac.at.prodiga.model.Dice;
-import uibk.ac.at.prodiga.model.RaspberryPi;
-import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.model.UserRole;
-import uibk.ac.at.prodiga.repositories.DiceRepository;
-import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
-import uibk.ac.at.prodiga.repositories.RoomRepository;
-import uibk.ac.at.prodiga.repositories.UserRepository;
+import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.repositories.*;
+import uibk.ac.at.prodiga.rest.controller.DiceController;
+import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -39,6 +42,15 @@ public class DiceServiceTest {
 
     @Autowired
     RoomRepository roomRepository;
+
+    @Autowired
+    BookingCategoryRepository bookingCategoryRepository;
+
+    @Autowired
+    DiceSideRepository diceSideRepository;
+
+    @Autowired
+    DiceController diceController;
 
     User admin = null;
     User notAdmin = null;
@@ -266,5 +278,97 @@ public class DiceServiceTest {
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> diceService.save(d), "Unauthorized user can save");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void diceService_completeConfigurationWithoutSides_throws() {
+        Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+        DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> diceService.completeConfiguration(d), "Can complete without sides");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void diceService_completeConfigurationWithInvalidSides_throws() {
+        Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+        DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
+        Map<Integer, BookingCategory> sides = new HashMap<>();
+
+        for(int i = 0; i < 5; i++) {
+            sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
+        }
+
+        wrapper.setCompletedSides(sides);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> diceService.completeConfiguration(d), "Can complete without sides");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void diceService_completeConfigurationValid_diceConfigured() throws ProdigaGeneralExpectedException {
+        Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
+        Map<Integer, BookingCategory> sides = new HashMap<>();
+
+        for(int i = 0; i < 12; i++) {
+            sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
+        }
+
+        wrapper.setCompletedSides(sides);
+
+        diceService.completeConfiguration(d);
+
+        ArrayList<DiceSide> all = Lists.newArrayList(diceSideRepository.findAll());
+
+        Assertions.assertEquals(12, all.size());
+
+        Assertions.assertTrue(all.stream().allMatch(x -> x.getDice().getId().equals(d.getId())));
+
+        Assertions.assertFalse(diceService.diceInConfigurationMode(d.getInternalId()), "Dice in configuration mode");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void diceService_configurationWorkflow_diceConfigured() throws ProdigaGeneralExpectedException {
+        Dice d = DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        NewDiceSideRequestDTO request = new NewDiceSideRequestDTO();
+        request.setInternalId("123");
+        request.setSide(1);
+
+        diceService.addDiceToConfiguration(d);
+
+        diceService.registerNewSideCallback(UUID.randomUUID(), x -> {
+            DiceConfigurationWrapper wrapper = x.getValue1();
+            wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
+                    DataHelper.createBookingCategory("test" + wrapper.getCurrentSide(), admin, bookingCategoryRepository));
+        });
+
+
+        Assertions.assertTrue(diceService.diceInConfigurationMode(d.getInternalId()), "Dice not in configuration mode");
+
+        diceController.notifyNewSide(request);
+
+        for(int i = 0; i < 12; i++) {
+            request.setSide(i + 1);
+            diceController.notifyNewSide(request);
+        }
+
+        diceService.completeConfiguration(d);
+
+        ArrayList<DiceSide> all = Lists.newArrayList(diceSideRepository.findAll());
+
+        Assertions.assertEquals(12, all.size());
+
+        Assertions.assertTrue(all.stream().allMatch(x -> x.getDice().getId().equals(d.getId())));
+
+        Assertions.assertFalse(diceService.diceInConfigurationMode(d.getInternalId()), "Dice in configuration mode");
     }
 }
