@@ -23,10 +23,12 @@ public class DiceService {
 
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
+    private final LogInformationService logInformationService;
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, LogInformationService logInformationService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -100,9 +102,6 @@ public class DiceService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         if(dice.isActive()) {
-            if(dice.getAssignedRaspberry() == null) {
-                throw new ProdigaGeneralExpectedException("Dice has to be assigned to a RaspberryPi", MessageType.WARNING);
-            }
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
                 throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.WARNING);
@@ -130,5 +129,22 @@ public class DiceService {
         dice.setObjectChangedDateTime(new Date());
 
         return diceRepository.save(dice);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Dice createDice()
+    {
+        return new Dice();
+    }
+
+    /**
+     * Deletes the dice.
+     *
+     * @param dice the dice to delete
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteDice(Dice dice) {
+        diceRepository.delete(dice);
+        logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
     }
 }
