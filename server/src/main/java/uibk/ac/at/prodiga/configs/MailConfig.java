@@ -17,6 +17,7 @@ public class MailConfig {
 
         mailSender.setUsername("prodiga.project@gmail.com");
         mailSender.setPassword("prodiga1project1");
+        //TODO: pw verschlüsseln
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

@@ -24,12 +24,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final LogInformationService logInformationService;
-    private final MailService mailService;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService, MailService mailService) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService) {
         this.userRepository = userRepository;
         this.logInformationService = logInformationService;
-        this.mailService = mailService;
     }
 
     /**
@@ -104,8 +102,6 @@ public class UserService {
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
         }
-        mailService.sendEmailTo(user, "New user",
-                "Welcome in our team!");
         return userRepository.save(user);
     }
 
