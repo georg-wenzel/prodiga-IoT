@@ -10,7 +10,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-;import java.util.Collection;
+import java.util.Collection;
 import java.util.Date;
 
 /**
