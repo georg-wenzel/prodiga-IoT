@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class Dice implements Persistable<Long>, Serializable {
@@ -15,7 +16,7 @@ public class Dice implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(nullable = false, length = 1337)
+    @Column(nullable = true, length = 1337)
     private String internalId;
 
     @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = RaspberryPi.class)
@@ -36,6 +37,17 @@ public class Dice implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
+
+    @Column(nullable = false)
+    private boolean isActive;
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     public RaspberryPi getAssignedRaspberry() {
         return assignedRaspberry;
@@ -105,5 +117,19 @@ public class Dice implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return this.objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Dice dice = (Dice) o;
+        return Objects.equals(id, dice.id) &&
+                Objects.equals(internalId, dice.internalId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, internalId);
     }
 }

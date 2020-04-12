@@ -8,9 +8,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import uibk.ac.at.prodiga.utils.Constants;
 
 @Configuration
 @EnableWebSecurity()
@@ -18,6 +20,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     DataSource dataSource;
+
+    @Autowired
+    PreAuthRequestFilter preAuthRequestFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -32,19 +37,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/login.xhtml");
 
         http.authorizeRequests()
-                //Permit access to the H2 console
-                .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/h2-console/**", "/api/auth", "/api/register").permitAll();
+
+        http.authorizeRequests()
+                .and()
+                .exceptionHandling().accessDeniedPage("/error/denied.xhtml")
+                .and()
+                .sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml")
                 .and()
                 .formLogin()
                 .loginPage("/login.xhtml")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/welcome.xhtml");
-        // :TODO: user failureUrl(/login.xhtml?error) and make sure that a corresponding message is displayed
+                .defaultSuccessUrl("/welcome.xhtml")
+                .failureUrl("/login.xhtml?error=true");
 
-        http.exceptionHandling().accessDeniedPage("/error/denied.xhtml");
+        http.authorizeRequests()
+                .antMatchers("/api/**").authenticated();
 
-        http.sessionManagement().invalidSessionUrl("/error/invalid_session.xhtml");
-
+        http.addFilterBefore(preAuthRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Autowired
@@ -57,7 +67,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
-        // :TODO: use proper passwordEncoder and do not store passwords in plain text
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+        return Constants.PASSWORD_ENCODER;
     }
 }

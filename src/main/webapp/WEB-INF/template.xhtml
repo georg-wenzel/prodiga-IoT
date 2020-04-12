@@ -35,6 +35,7 @@
             </div>
 
             <div class="layout-content" style="min-height:300px">
+                <p:growl id="growl" severity="info,warn,error" globalOnly="true"/>
                 <ui:insert name="content"></ui:insert>
             </div>
 
@@ -61,7 +62,27 @@
 
     <h:outputStylesheet name="css/nanoscroller.css" library="ecuador-layout" />
     <h:outputStylesheet name="css/layout-blue.css" library="ecuador-layout" />
+    <h:outputStylesheet name="css/exception.css" />
 
 </h:body>
+
+<p:ajaxExceptionHandler type="uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException" update="exceptionDialog"
+                        onexception="PF('exceptionDialog').show();" />
+<p:ajaxExceptionHandler type="java.lang.Exception" update="exceptionDialog"
+                        onexception="PF('exceptionDialog').show();" />
+<p:dialog id="exceptionDialog"
+          header="#{pfExceptionHandler.exception.severity}"
+          widgetVar="exceptionDialog"
+          resizable="false"
+          styleClass="#{exceptionHelperBean.displayException(pfExceptionHandler.exception) ?
+              'exception-dialog' : ''}">
+    <p:staticMessage severity="#{exceptionHelperBean.getUiSeverity(pfExceptionHandler.exception)}"
+                     summary="#{pfExceptionHandler.exception.severity}"
+                     detail="#{pfExceptionHandler.message}" escape="true" />
+    <p:separator rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}" />
+    <h:outputText rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}"
+                  value="#{pfExceptionHandler.formattedStackTrace}"
+                  escape="false" />
+</p:dialog>
 
 </html>

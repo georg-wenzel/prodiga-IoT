@@ -2,8 +2,7 @@ package uibk.ac.at.prodiga.services;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
@@ -11,9 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.UserRepository;
-import uibk.ac.at.prodiga.utils.AsyncHelper;
+import uibk.ac.at.prodiga.utils.MessageType;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 @Component
 @Scope("application")
@@ -30,7 +33,7 @@ public class UserService {
     /**
      * Returns a collection of all users.
      *
-     * @return
+     * @return collection of all users
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<User> getAllUsers() {
@@ -48,24 +51,58 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-    /**
-     * Saves the user. This method will also set {@link User#createDate} for new
-     * entities or {@link User#updateDate} for updated entities. The user
-     * requesting this operation will also be stored as {@link User#createDate}
-     * or {@link User#updateUser} respectively.
-     *
-     * @param user the user to save
-     * @return the updated user
-     */
+
     @PreAuthorize("hasAuthority('ADMIN')")
-    public User saveUser(User user) {
-        if (user.isNew()) {
+    public User saveUser(User user) throws ProdigaGeneralExpectedException
+    {
+        if(user.getUsername() == null || user.getUsername().isEmpty())
+        {
+            throw new ProdigaGeneralExpectedException("Username cannot be empty.", MessageType.ERROR);
+        }
+
+        //Check team and department consistency
+        if(user.getAssignedTeam() != null && !user.getAssignedTeam().getDepartment().equals(user.getAssignedDepartment()))
+        {
+            throw new ProdigaGeneralExpectedException("Assigned Team and Department of the user do not match up.", MessageType.ERROR);
+        }
+
+        if (user.isNew())
+        {
+            if(userRepository.findFirstByUsername(user.getUsername()) != null) {
+                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
+            }
+
+            if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
+                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
+            }
+
             user.setCreateDate(new Date());
             user.setCreateUser(getAuthenticatedUser());
-        } else {
+        }
+        else
+        {
+            User dbUser = userRepository.findFirstByUsername(user.getUsername());
+
+            //If team changed, revoke teamleader role if previously held
+            Set<UserRole> roles = user.getRoles();
+            if(dbUser.getAssignedTeam() != null && !dbUser.getAssignedTeam().equals(user.getAssignedTeam()))
+            {
+                roles.remove(UserRole.TEAMLEADER);
+            }
+
+            //If department changed, revoke department leader role if previously held
+            if(dbUser.getAssignedDepartment() != null && !dbUser.getAssignedDepartment().equals(user.getAssignedDepartment()))
+            {
+                roles.remove(UserRole.DEPARTMENTLEADER);
+            }
+
+            roles.add(UserRole.EMPLOYEE);
+            user.setRoles(roles);
+
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
         }
+
         return userRepository.save(user);
     }
 
@@ -76,10 +113,15 @@ public class UserService {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(User user) throws Exception {
+        checkForUserDeletionOrDeactivation(user);
         userRepository.delete(user);
-        Future<Void> result = logInformationService.logAsync("User " + user.getUsername() + " was deleted!");
-        // Do it synchron here
-        AsyncHelper.getAsyncResultOrThrow(result);
+        logInformationService.log("User " + user.getUsername() + " was deleted!");
+    }
+
+    public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
+        if(user.getUsername().equals(getAuthenticatedUser().getUsername())){
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.WARNING);
+        }
     }
 
     private User getAuthenticatedUser() {
@@ -87,4 +129,85 @@ public class UserService {
         return userRepository.findFirstByUsername(auth.getName());
     }
 
+    /**
+     * Compares a user object with the database, and checks whether it is unchanged from the DB state.
+     * @param user The user object to compare
+     * @return A boolean signifying whether the user object is unchanged from the database.
+     */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER') || hasAuthority('EMPLOYEE')")
+    public boolean isUserUnchanged(User user)
+    {
+        return user.equals(userRepository.findFirstByUsername(user.getUsername()));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')")
+    public Collection<User> getUsersByTeam(Team team)
+    {
+        return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public User getDepartmentLeaderOf(Department department)
+    {
+        return userRepository.findDepartmentLeaderOf(department);
+    }
+
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
+    public User getTeamLeaderOf(Team team)
+    {
+        return userRepository.findTeamLeaderOf(team);
+    }
+
+    /**
+     * Assigns a team to a user
+     * @param user The user
+     * @param team The team
+     * @return The user after he was changed in the database
+     * @throws ProdigaGeneralExpectedException Is thrown when team to assign and the users department in the DB do not match up.
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
+    public User assignTeam(User user, Team team) throws ProdigaGeneralExpectedException
+    {
+        User dbUser = userRepository.findFirstByUsername(user.getUsername());
+        if(dbUser.getAssignedDepartment() != null && dbUser.getAssignedDepartment().equals(team.getDepartment()))
+        {
+            if(dbUser.getAssignedTeam() != null && dbUser.getAssignedTeam().equals(team)) return dbUser;
+
+            dbUser.setAssignedTeam(team);
+            Set<UserRole> roles = dbUser.getRoles();
+            roles.remove(UserRole.TEAMLEADER);
+            roles.add(UserRole.EMPLOYEE);
+            dbUser.setRoles(roles);
+            return userRepository.save(dbUser);
+        }
+        else
+        {
+            throw new ProdigaGeneralExpectedException("User team does not match assigned department.", MessageType.ERROR);
+        }
+    }
+
+     /**
+     * Assigns a department to a user
+     * @param user The user
+     * @param department The department
+     * @return The user after he was changed in the database
+     * @throws ProdigaGeneralExpectedException Is thrown when saveUser assignemnt was unsuccessful.
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public User assignDepartment(User user, Department department) throws ProdigaGeneralExpectedException
+    {
+        User dbUser = userRepository.findFirstByUsername(user.getUsername());
+        dbUser.setAssignedDepartment(department);
+        return this.saveUser(dbUser);
+    }
+
+    /**
+     * Returns a newly created user
+     *
+     * @return A newly created user entity
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public User createNewUser() {
+        return new User();
+    }
 }

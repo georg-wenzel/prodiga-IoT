@@ -1,7 +1,7 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" 
-                xmlns:h="http://java.sun.com/jsf/html" 
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:ui="http://java.sun.com/jsf/facelets" 
+                xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:pe="http://primefaces.org/ecuador">
 
@@ -11,24 +11,33 @@
                 <h:form id="menuform">
                     <div class="layout-menu-title">MAIN MENU</div>
                     <pe:menu widgetVar="me">
-                        <p:menuitem id="om_dashboard" value="Startseite" icon="fa fa-fw fa-home" outcome="/welcome" />
-                        <p:submenu id="om_customization_mode" label="Urlaub" icon="fa fa-fw fa-plane" outcome="/empty"/>
-                        <p:submenu id="om_customization" label="Benachrichtigung" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
-                        <p:submenu id="om_calendar" label="Kalender" icon="fa fa-fw fa-calendar" outcome="calendar"/>
-                        <p:submenu id="om_overview" label="Zeitübersicht" icon="fa fa-fw fa-dashboard" outcome="overview"/>
+                        <p:menuitem id="om_homepage" value="Homepage" icon="fa fa-fw fa-home" outcome="/welcome" />
+                        <p:submenu id="om_user" label="User" icon="fa fa-fw fa-user">
+                            <p:menuitem id="om_user_overview" value="Overview" icon="fa fa-fw fa-users" outcome="/user/users" />
+                            <p:menuitem id="om_user_add" value="Add user" icon="fa fa-fw fa-user-plus" outcome="/user/add_user">
+                                <f:param name="username" value="" />
+                            </p:menuitem>
+                        </p:submenu>
+                        <p:submenu id="om_customization_mode" label="Vacation" icon="fa fa-fw fa-plane" url="/holiday"/>
+                        <p:submenu id="om_calendar" label="Calendar" icon="fa fa-fw fa-calendar" outcome="calendar"/>
+                        <p:submenu id="om_departments" label="Departments" icon="fa fa-fw fa-sitemap" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                            <p:menuitem id="om_department_overview" value="Overview" icon="fa fa-fw fa-square" outcome="/departments" />
+                            <p:menuitem id="om_department_add" value="Add department" icon="fa fa-fw fa fa-plus" outcome="/add_department">
+                                <f:param name="department" value="" />
+                            </p:menuitem>
+                        </p:submenu>
+                        <p:submenu id="om_customization" label="Notifications" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
+                        <p:submenu id="om_overview" label="Time overview" icon="fa fa-fw fa-dashboard" outcome="overview"/>
                         <p:submenu id="om_themes" label="Badges" icon="fa fa-fw fa-trophy" outcome="calendar"/>
+                        <p:submenu id="om_raspis" label="Raspberry Pis" icon="fa fa-fw fa-pie-chart">
+                            <p:menuitem id="om_raspis_conf" value="Configured" icon="fa fa-fw fa-toggle-on" outcome="/raspberry_pis_configured" />
+                            <p:menuitem id="om_raspis_pend" value="Pending" icon="fa fa-fw fa-toggle-off" outcome="/raspberry_pis_pending"/>
+                        </p:submenu>
+                        <p:menuitem id="om_team" value="Teams" icon="fa fa-fw fa-home" outcome="/teams" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"/>
+                        <p:menuitem id="om_room" value="Rooms" icon="fa fa-fw fa-home" outcome="/room" />
                         <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
 
 
-                        <!--
-                        <p:submenu id="om_default" label="Pages" icon="fa fa-fw fa-cube">
-                            <p:menuitem id="om_empty" value="Empty" icon="fa fa-fw fa-square-o" outcome="/empty" />
-                            <p:menuitem id="om_login" value="Login" icon="fa fa-fw fa-sign-in" outcome="/login" />
-                            <p:menuitem id="om_db_landing" value="Landing" icon="fa fa-fw fa-certificate" outcome="/landing" />
-                            <p:menuitem id="om_error" value="Error" icon="fa fa-fw fa-exclamation-circle" outcome="/error" />
-                            <p:menuitem id="om_404" value="404" icon="fa fa-fw fa-times" outcome="/404" />
-                            <p:menuitem id="om_access" value="Access Denied" icon="fa fa-fw fa-exclamation-triangle" outcome="/access" />
-                        </p:submenu>-->
 
                     </pe:menu>
                 </h:form>

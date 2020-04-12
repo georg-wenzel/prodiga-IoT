@@ -2,9 +2,14 @@ package uibk.ac.at.prodiga.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.*;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Persistable;
 
 @Entity
@@ -13,10 +18,10 @@ public class User implements Persistable<String>, Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String username;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private User createUser;
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -33,6 +38,9 @@ public class User implements Persistable<String>, Serializable {
     private String email;
     private String phone;
 
+    @Column(columnDefinition =  "boolean default false")
+    private boolean mayEditHistoricData;
+
     boolean enabled;
 
     @ElementCollection(targetClass = UserRole.class, fetch = FetchType.EAGER)
@@ -43,14 +51,14 @@ public class User implements Persistable<String>, Serializable {
     @ManyToOne(targetEntity = Team.class, fetch = FetchType.EAGER, optional = true)
     private Team assignedTeam;
 
+    @ManyToOne(targetEntity = Department.class, fetch = FetchType.EAGER, optional = true)
+    private Department assignedDepartment;
+
     @Column(nullable = true)
     private FrequencyType frequencyType;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean notificationsEnabled;
-
-    @OneToOne(optional = true, fetch = FetchType.EAGER, targetEntity = Dice.class)
-    private Dice dice;
 
     public FrequencyType getFrequencyType() {
         return frequencyType;
@@ -68,20 +76,20 @@ public class User implements Persistable<String>, Serializable {
         this.notificationsEnabled = notificationsEnabled;
     }
 
-    public Dice getDice() {
-        return dice;
-    }
-
-    public void setDice(Dice dice) {
-        this.dice = dice;
-    }
-
     public Team getAssignedTeam() {
         return assignedTeam;
     }
 
     public void setAssignedTeam(Team assignedTeam) {
         this.assignedTeam = assignedTeam;
+    }
+
+    public Department getAssignedDepartment() {
+        return assignedDepartment;
+    }
+
+    public void setAssignedDepartment(Department assignedDepartment) {
+        this.assignedDepartment = assignedDepartment;
     }
 
     public String getUsername() {
@@ -180,6 +188,14 @@ public class User implements Persistable<String>, Serializable {
         this.updateDate = updateDate;
     }
 
+    public boolean mayEditHistoricData() {
+        return mayEditHistoricData;
+    }
+
+    public void setMayEditHistoricData(boolean mayEditHistoricData) {
+        this.mayEditHistoricData = mayEditHistoricData;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -219,6 +235,41 @@ public class User implements Persistable<String>, Serializable {
     @Override
     public boolean isNew() {
         return (null == createDate);
+    }
+
+    /**
+     * Here is where Java gets weird. The view doesn't know how to handle enums - so we have to
+     * provide a setter and getter with strings Here we return all {@link UserRole#label} of the users
+     * roles
+     *
+     * @return A set of all {@link UserRole} but only the {@link UserRole#label}
+     */
+    public Set<String> getRolesAsString() {
+        if (roles == null) {
+            roles = new HashSet<>();
+        }
+        return this.roles.stream().map(UserRole::getLabel).collect(Collectors.toSet());
+    }
+
+    /**
+     * Same as the getter. The given roles will be "casted" to {@link UserRole} enum members
+     * @param roles Set of {@link UserRole} but only the {@link UserRole#label}
+     */
+    public void setRolesAsString(Set<String> roles) {
+        Set<UserRole> userRoles = new HashSet<>();
+        for(String string : roles){
+            if(string.equals("Department leader")){
+                userRoles.add(UserRole.valueOf(UserRole.class, "DEPARTMENTLEADER"));
+            }
+            else if(string.equals("Team leader")){
+                userRoles.add(UserRole.valueOf(UserRole.class,"TEAMLEADER"));
+            }
+            else{
+                userRoles.add(UserRole.valueOf(UserRole.class, string.toUpperCase()));
+            }
+
+        }
+        this.roles = userRoles;
     }
 
 }

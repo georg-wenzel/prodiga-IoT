@@ -3,34 +3,46 @@ package uibk.ac.at.prodiga.ui.controllers;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.UserService;
+import uibk.ac.at.prodiga.utils.MessageType;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+import uibk.ac.at.prodiga.utils.SnackbarHelper;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("view")
 public class UserDetailController {
 
     private final UserService userService;
+    private final ProdigaUserLoginManager userLoginManager;
 
     /**
      * Attribute to cache the currently displayed user
      */
     private User user;
 
-    public UserDetailController(UserService userService) {
+    public UserDetailController(UserService userService, ProdigaUserLoginManager userLoginManager) {
         this.userService = userService;
+        this.userLoginManager = userLoginManager;
     }
 
     /**
      * Sets the currently displayed user and reloads it form db. This user is
      * targeted by any further calls of
-     * {@link #doReloadUser()}, {@link #doSaveUser()} and
-     * {@link #doDeleteUser()}.
+     *
      *
      * @param user
      */
-    public void setUser(User user) {
+    public void setUser(User user) throws Exception {
         this.user = user;
-        doReloadUser();
+        doReloadUser(user.getUsername());
     }
 
     /**
@@ -43,17 +55,25 @@ public class UserDetailController {
     }
 
     /**
-     * Action to force a reload of the currently displayed user.
+     * Reloads the given user. If {@param username} is empty a new user will be created
+     *
+     * @param username The name of the user to reload
      */
-    public void doReloadUser() {
-        user = userService.loadUser(user.getUsername());
+    public void doReloadUser(String username) throws Exception {
+        if (username != null && !username.trim().isEmpty()) {
+            this.user = userService.loadUser(username);
+        } else {
+            this.user = userService.createNewUser();
+        }
     }
 
     /**
      * Action to save the currently displayed user.
      */
-    public void doSaveUser() {
+    public void doSaveUser() throws Exception {
         user = this.userService.saveUser(user);
+        SnackbarHelper.getInstance()
+                .showSnackBar("User " + user.getUsername() + " saved!", MessageType.INFO);
     }
 
     /**
@@ -61,7 +81,55 @@ public class UserDetailController {
      */
     public void doDeleteUser() throws Exception {
         this.userService.deleteUser(user);
-        user = null;
+        SnackbarHelper.getInstance()
+                .showSnackBar("User " + user.getUsername() + " deleted!", MessageType.ERROR);
+    }
+
+    public List<String> getAllRoles() {
+        List<String> userRoleList = new LinkedList<>();
+
+        if(this.user.getRoles().contains(UserRole.ADMIN)){
+            userRoleList.add(UserRole.ADMIN.getLabel());
+        }
+        if(this.user.getRoles().contains(UserRole.DEPARTMENTLEADER)){
+            userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
+        }
+        if(this.user.getRoles().contains(UserRole.TEAMLEADER)){
+            userRoleList.add(UserRole.TEAMLEADER.getLabel());
+        }
+        if(this.user.getRoles().contains(UserRole.EMPLOYEE)){
+            userRoleList.add(UserRole.EMPLOYEE.getLabel());
+        }
+        return userRoleList;
+    }
+
+    public List<String> getAllRolesTotal() {
+        List<String> userRoleList = new LinkedList<>();
+        userRoleList.add(UserRole.ADMIN.getLabel());
+        userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
+        userRoleList.add(UserRole.TEAMLEADER.getLabel());
+        userRoleList.add(UserRole.EMPLOYEE.getLabel());
+        return userRoleList;
+    }
+
+    /**
+     * The the current user name
+     * @return The current user name
+     */
+    public String getUserByName() {
+        if(this.user == null) {
+            return null;
+        }
+        return user.getUsername();
+    }
+
+    /**
+     * Sets the current user based on username
+     *
+     * @param username The username
+     */
+    public void setUserByName(String username) throws Exception {
+        doReloadUser(username);
     }
 
 }

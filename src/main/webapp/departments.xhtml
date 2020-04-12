@@ -1,0 +1,57 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga departments</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/departments">Departments</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Departments</h1>
+                    <h:form id="departmentForm">
+                        <p:dataTable id="departmentTable" var="department" scrollable="true"  style="width:100%" scrollHeight="500" value="#{departmentController.allDepartments}">
+                            <p:column headerText="Department id" style="width: 15%; text-align: center">
+                                <h:outputText value="#{department.id}" />
+                            </p:column>
+
+                            <p:column headerText="Department name">
+                                <h:outputText value="#{department.name}"/>
+                            </p:column>
+
+                            <p:column headerText="Department leader">
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).firstName} "/>
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).lastName}"/>
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) == null}" value="No department leader"/>
+                            </p:column>
+
+                            <p:column style="width:100px;text-align: center">
+                                <p:linkButton icon="fa fa-fw fa-edit"
+                                              title="Edit"
+                                              outcome="department"
+                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <f:param name="department" value="#{department.id}" />
+                                </p:linkButton>
+                                <p:commandButton action="#{departmentController.doDeleteDepartment()}" icon="fa fa-fw fa-trash" title="Delete" update=":departmentForm:departmentTable">
+                                    <f:setPropertyActionListener value="#{department}" target="#{departmentController.department}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this department? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
 public class Team implements Persistable<Long>, Serializable {
@@ -18,9 +19,6 @@ public class Team implements Persistable<Long>, Serializable {
     @Column(nullable = false, length = 300)
     private String name;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
-    private User teamLeader;
-
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Department.class)
     private Department department;
 
@@ -30,10 +28,9 @@ public class Team implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 
@@ -47,14 +44,6 @@ public class Team implements Persistable<Long>, Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public User getTeamLeader() {
-        return teamLeader;
-    }
-
-    public void setTeamLeader(User teamLeader) {
-        this.teamLeader = teamLeader;
     }
 
     public User getObjectCreatedUser() {
@@ -89,6 +78,15 @@ public class Team implements Persistable<Long>, Serializable {
         this.objectChangedDateTime = objectChangedDateTime;
     }
 
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+
     @Override
     public Long getId() {
         return this.id;
@@ -97,5 +95,18 @@ public class Team implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Team team = (Team) o;
+        return id.equals(team.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

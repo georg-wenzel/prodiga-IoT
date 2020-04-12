@@ -25,7 +25,7 @@ public class LogInformationService {
     /**
      * Logs the given text for the current logged in user
      * @param text The text to log
-     * @return A future wor awaiting the task
+     * @return A future for awaiting the task
      */
     public Future<Void> logAsync(String text) {
         return ProdigaThreadPool.getInstance().getCachedPool().submit(() -> {
@@ -35,7 +35,11 @@ public class LogInformationService {
         });
     }
 
-    private void log(String text) {
+    /**
+     * Logs the given text for the current logged in user
+     * @param text The text to log
+     */
+    public void log(String text) {
         LogInformation log = new LogInformation();
         log.setObjectedCreatedDateTime(new Date());
         log.setObjectedUpdatedDateTime(new Date());
