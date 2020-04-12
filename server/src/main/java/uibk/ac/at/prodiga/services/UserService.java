@@ -51,7 +51,6 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-
     @PreAuthorize("hasAuthority('ADMIN')")
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {

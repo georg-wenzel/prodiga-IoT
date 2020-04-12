@@ -36,7 +36,21 @@
                             <p:menuitem id="om_raspis_conf" value="Configured" icon="fa fa-fw fa-toggle-on" outcome="/raspberry_pis_configured" />
                             <p:menuitem id="om_raspis_pend" value="Pending" icon="fa fa-fw fa-toggle-off" outcome="/raspberry_pis_pending"/>
                         </p:submenu>
-                        <p:menuitem id="om_team" value="Teams" icon="fa fa-fw fa-home" outcome="/teams" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"/>
+                        <p:submenu id="om_team"
+                                   label="Teams"
+                                   icon="fa fa-fw fa-users"
+                                   rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
+                            <p:menuitem id="om_teams"
+                                        value="Overview"
+                                        icon="fa fa-fw fa-square"
+                                        outcome="/teams"/>
+                            <p:menuitem id="om_add_teams"
+                                        value="Add team"
+                                        icon="fa fa-fw fa-plus"
+                                        outcome="/add_team">
+                                <f:param name="team" value="" />
+                            </p:menuitem>
+                        </p:submenu>
                         <p:menuitem id="om_room" value="Rooms" icon="fa fa-fw fa-home" outcome="/room" />
                         <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
 

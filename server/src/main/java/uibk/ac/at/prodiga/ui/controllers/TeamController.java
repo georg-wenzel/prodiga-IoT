@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -18,6 +19,7 @@ public class TeamController {
     private final TeamService teamService;
     private Team team;
     private final UserService userService;
+    private User teamLeader;
 
     public TeamController(TeamService teamService, UserService userService){
         this.teamService = teamService;
@@ -31,7 +33,6 @@ public class TeamController {
     public Collection<Team> getAllTeams(){
         return teamService.getAllTeams();
     }
-
 
     /**
      * Returns the number of all teams.
@@ -55,15 +56,10 @@ public class TeamController {
      * @throws Exception when save fails
      */
     public void saveTeam() throws Exception{
-        teamService.saveTeam(team);
-        SnackbarHelper.getInstance().showSnackBar("Team " + team.getId() + " saved!", MessageType.INFO);
-    }
-
-    /**
-     * Saves a team in the database. If an object with this ID already exists, overwrites the object's data at this ID
-     * @param team The team to save
-     */
-    public void saveTeam(Team team){
+        this.team = teamService.saveTeam(team);
+        if(saveTeamLeader()) {
+            setTeamLeader(team, teamLeader);
+        }
         SnackbarHelper.getInstance().showSnackBar("Team " + team.getId() + " saved!", MessageType.INFO);
     }
 
@@ -124,6 +120,9 @@ public class TeamController {
         } else {
             this.team = teamService.loadTeam(teamId);
         }
+        if(team != null && !team.isNew()) {
+            teamLeader = getTeamLeaderOf(team);
+        }
     }
 
     public Team getTeam() {
@@ -132,5 +131,18 @@ public class TeamController {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public User getTeamLeader() {
+        return teamLeader;
+    }
+
+    public void setTeamLeader(User teamLeader) {
+        this.teamLeader = teamLeader;
+    }
+
+    private boolean saveTeamLeader() {
+        return teamLeader != null
+            && !teamLeader.getRoles().contains(UserRole.TEAMLEADER);
     }
 }

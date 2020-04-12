@@ -1,15 +1,16 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Teams</ui:define>
+    <ui:define name="title">Add team</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/teams">Teams</p:link></li>
+        <li><p:link outcome="/add_team">Add Team</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -19,9 +20,9 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-                    <h1>#{teamController.team.name}</h1>
-                    <h:form id="teamForm" enctype="multipart/form-data">
+                    <h:form id="addTeamForm" prependId="false">
                         <p:messages id="msgs" for="msgs"/>
+
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
@@ -40,40 +41,40 @@
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:selectOneMenu id="teamLeader"
-                                                     value="#{teamController.teamLeader}"
+                                                     value="#{teamController.team.department.id}"
                                                      disabled="false"
                                                      required="false"
                                                      label="Team leader"
-                                                     style="width: 100%"
-                                                     converter="userConverter">
-                                        <f:selectItems value="#{userListController.getAllUsersInTeam(teamController.team)}"
-                                                       var="u"
-                                                       itemValue="#{u}"
-                                                       itemLabel="#{u.firstName} #{u.lastName}" />
+                                                     style="width: 100%">
+                                        <f:selectItems value="#{departmentController.allDepartments}"
+                                                       var="d"
+                                                       itemValue="#{d.id}"
+                                                       itemLabel="#{d.name}" />
                                     </p:selectOneMenu>
                                 </div>
                             </div>
                         </div>
-                        <br />
-                        <div class="ui-g">
-                            <p:commandButton value="Save"
-                                             action="#{teamController.saveTeam}"
-                                             ajax="true"
-                                             icon="fa fa-fw fa-save"
-                                             validateClient="true"
-                                             update="growl msgs">
-                            </p:commandButton>
-
-                            <p:linkButton outcome="/teams" value="Back to team overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                            </p:linkButton>
-                        </div>
+                        <p:spacer/>
+                        <p:separator/>
+                        <p:spacer/>
+                        <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
+                            <p:row style="width: 100%">
+                                <p:column>
+                                    <p:commandButton value="Save"
+                                                     action="#{teamController.saveTeam}"
+                                                     ajax="true"
+                                                     icon="fa fa-fw fa-save"
+                                                     validateClient="true"
+                                                     update="growl msgs">
+                                    </p:commandButton>
+                                    <p:linkButton outcome="/teams" value="Back to team overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                                    </p:linkButton>
+                                </p:column>
+                            </p:row>
+                        </p:panelGrid>
                     </h:form>
-
                 </div>
             </div>
         </div>
-
-
     </ui:define>
-
 </ui:composition>
