@@ -74,7 +74,7 @@ public class TeamServiceTest
      * Tests unauthorized loading of team data
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void load_team_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
@@ -157,7 +157,7 @@ public class TeamServiceTest
      * Tests adding a team with lacking authorizations
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
+    @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER"})
     public void save_team_unauthorized() throws ProdigaGeneralExpectedException
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -201,7 +201,7 @@ public class TeamServiceTest
      * Tests changing a team with lacking authentication
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void update_team_unauthorized()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -256,7 +256,7 @@ public class TeamServiceTest
      * Tests deleting a team with lacking authorization
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void delete_team_unauthorized()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -298,7 +298,7 @@ public class TeamServiceTest
      * Tests setting the team leader with lacking authorization
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void set_team_leader_unauthorized()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
