@@ -102,7 +102,6 @@ public class UserService {
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
         }
-
         return userRepository.save(user);
     }
 
