@@ -83,6 +83,9 @@ public class VacationService
             throw new ProdigaGeneralExpectedException("Vacations can only be set for the current and following year.", MessageType.ERROR);
         }
 
+        //check vacation specifics (see method details)
+        checkVacationBelowThresholdAndValid(vacation);
+
         //set appropriate fields
         if(vacation.isNew())
         {
@@ -105,9 +108,6 @@ public class VacationService
             vacation.setObjectChangedDateTime(new Date());
             vacation.setObjectChangedUser(userLoginManager.getCurrentUser());
         }
-
-        //check vacation specifics (see method details)
-        checkVacationBelowThresholdAndValid(vacation);
 
         //Save method if no exception has been thrown so far
         return vacationRepository.save(vacation);
@@ -153,9 +153,20 @@ public class VacationService
     }
 
     /**
+     * Returns an integer containing the number of remaining vacation days in the given year
+     * @param year The given year
+     * @return The number of remaining vacation days in this year.
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    public int getUsersRemainingVacationDays(int year)
+    {
+        User u = userLoginManager.getCurrentUser();
+        return 25 - vacationRepository.findUsersYearlyVacations(u,year).stream().mapToInt(v -> getVacationDaysInYear(v, year)).sum();
+    }
+
+    /**
      * Given a vacation, gets all other vacations in the year of the start and end date.
      * The method then checks
-     *  - that the vacation is between 1 and 25 days.
      *  - that 25 vacation days are not passed for any year.
      *  - that no other vacation of this user covers the same days
      *  - that no booking is already taken for any of the vacation days.
@@ -167,12 +178,6 @@ public class VacationService
         //Check vacation duration
         LocalDate startDate = vacation.getBeginDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = vacation.getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        Duration d = Duration.between(startDate.atStartOfDay(), endDate.atStartOfDay());
-        if(d.toDays() < 1)
-        {
-            throw new ProdigaGeneralExpectedException("Vacation must cover at least one day.", MessageType.ERROR);
-        }
 
         //Check remaining days for start year
         checkYearlyVacationDays(vacation, startDate.getYear());
@@ -207,21 +212,10 @@ public class VacationService
      */
     private void checkYearlyVacationDays(Vacation vacation, int year) throws ProdigaGeneralExpectedException
     {
-        LocalDate upperBound = LocalDate.of(year+1,1,1);
-        LocalDate lowerBound = LocalDate.of(year-1,12,31);
-
         Collection<Vacation> vcsStart = vacationRepository.findUsersYearlyVacations(vacation.getUser(), year);
         if(vacation.getId() != null) vcsStart.remove(vacation);
-        int daysFromOtherVacations = vcsStart.stream().map(v ->
-        {
-            //correct all vacations to only take dates within the year
-            Vacation dummyV = new Vacation();
-            if(toLocalDate(v.getBeginDate()).isBefore(lowerBound)) dummyV.setBeginDate(toDate(lowerBound));
-            else dummyV.setBeginDate(v.getBeginDate());
-            if(toLocalDate(v.getEndDate()).isAfter(upperBound)) dummyV.setEndDate(toDate(upperBound));
-            else dummyV.setEndDate(v.getEndDate());
-            return dummyV;
-        }).mapToInt(this::getVacationDays).sum();
+        int daysFromOtherVacations = vcsStart.stream().mapToInt(v ->
+                getVacationDaysInYear(v, year)).sum();
         //add the vacation on
         int currentVacationTime = getVacationDaysInYear(vacation, year);
         if(daysFromOtherVacations + currentVacationTime > 25)
@@ -235,9 +229,9 @@ public class VacationService
      * @param vacation The vacation to check
      * @return The number of days between start and end date.
      */
-    private int getVacationDays(Vacation vacation)
+    public int getVacationDays(Vacation vacation)
     {
-        return(int)Duration.between(toLocalDate(vacation.getBeginDate()).atStartOfDay(), toLocalDate(vacation.getEndDate()).atStartOfDay()).toDays();
+        return(int)Duration.between(toLocalDate(vacation.getBeginDate()).atStartOfDay(), toLocalDate(vacation.getEndDate()).plusDays(1).atStartOfDay()).toDays();
     }
 
     /**
@@ -248,12 +242,14 @@ public class VacationService
      */
     private int getVacationDaysInYear(Vacation vacation, int year)
     {
+        LocalDate beginDate = toLocalDate(vacation.getBeginDate());
+        LocalDate endDate = toLocalDate(vacation.getEndDate()).plusDays(1);
         LocalDate upperBound = LocalDate.of(year+1,1,1);
-        LocalDate lowerBound = LocalDate.of(year-1,12,31);
-        if(toLocalDate(vacation.getBeginDate()).isAfter(lowerBound)) lowerBound = toLocalDate(vacation.getBeginDate());
-        if(toLocalDate(vacation.getEndDate()).isBefore(upperBound)) upperBound = toLocalDate(vacation.getEndDate());
+        LocalDate lowerBound = LocalDate.of(year,1,1);
+        if(beginDate.isBefore(lowerBound)) beginDate = lowerBound;
+        if(endDate.isAfter(upperBound)) endDate = upperBound;
 
-        return(int)Duration.between(lowerBound.atStartOfDay(), upperBound.atStartOfDay()).toDays();
+        return (int)Duration.between(beginDate.atStartOfDay(), endDate.atStartOfDay()).toDays();
     }
 
     /**
@@ -261,7 +257,7 @@ public class VacationService
      * @param date the date to convert
      * @return The corresponding LocalDate
      */
-    private LocalDate toLocalDate(Date date)
+    public LocalDate toLocalDate(Date date)
     {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
@@ -271,7 +267,7 @@ public class VacationService
      * @param localDate the date to convert
      * @return The corresponding java.util.Date
      */
-    private Date toDate(LocalDate localDate)
+    public Date toDate(LocalDate localDate)
     {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
