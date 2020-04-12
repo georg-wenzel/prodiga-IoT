@@ -220,20 +220,22 @@ public class VacationServiceTest
             vacationService.saveVacation(v1);
         }, "Vacation saved despite ending before starting.");
 
+        //vacation that is in the past
+        fromDate = Date.from(LocalDate.now().minusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        toDate = Date.from(LocalDate.now().minusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        //vacation that is too short (same day)
         Vacation v2 = new Vacation();
         v2.setBeginDate(fromDate);
-        v2.setEndDate(fromDate);
+        v2.setEndDate(toDate);
         v2.setUser(u1);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             vacationService.saveVacation(v2);
-        }, "Vacation saved despite being too short.");
+        }, "Vacation saved despite being in the past.");
 
-        //vacation that is in the past
-        fromDate = Date.from(LocalDate.now().minusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        toDate = Date.from(LocalDate.now().minusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        //vacation that is too far in the future
+        fromDate = Date.from(LocalDate.now().plusYears(2).plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        toDate = Date.from(LocalDate.now().plusYears(2).plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Vacation v3 = new Vacation();
         v3.setBeginDate(fromDate);
@@ -242,19 +244,6 @@ public class VacationServiceTest
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             vacationService.saveVacation(v3);
-        }, "Vacation saved despite being in the past.");
-
-        //vacation that is too far in the future
-        fromDate = Date.from(LocalDate.now().plusYears(2).plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        toDate = Date.from(LocalDate.now().plusYears(2).plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        Vacation v4 = new Vacation();
-        v4.setBeginDate(fromDate);
-        v4.setEndDate(toDate);
-        v4.setUser(u1);
-
-        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            vacationService.saveVacation(v4);
         }, "Vacation saved despite being too far in the future.");
     }
 
