@@ -1,5 +1,5 @@
 package uibk.ac.at.prodiga.configs;
-//from last years project
+//https://www.baeldung.com/spring-email
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;

@@ -1,5 +1,5 @@
 package uibk.ac.at.prodiga.services;
-//from last years project
+//https://www.baeldung.com/spring-email
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
