@@ -1,6 +1,5 @@
 package uibk.ac.at.prodiga.ui.beans;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

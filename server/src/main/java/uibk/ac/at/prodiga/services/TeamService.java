@@ -55,7 +55,7 @@ public class TeamService
      * @param name The name of the team
      * @return The first team in the database which has this name, or null if none exists
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public Team getFirstByName(String name)
     {
         return teamRepository.findFirstByName(name);
@@ -66,7 +66,7 @@ public class TeamService
      * @param id The id of the team
      * @return The team with this Id, or null if none exists
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public Team getFirstById(long id)
     {
         return teamRepository.findFirstById(id);
@@ -77,7 +77,7 @@ public class TeamService
      * @param team The team to save
      * @return The new state of the team after saving in the DB
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public Team saveTeam(Team team) throws ProdigaGeneralExpectedException
     {
         //check fields
@@ -116,7 +116,7 @@ public class TeamService
      * Deletes the team with this ID from the database.
      * @param team The team to delete
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public void deleteTeam(Team team) throws ProdigaGeneralExpectedException
     {
         //check if this team has no users
@@ -142,7 +142,7 @@ public class TeamService
      * @param newLeader The user to make leader
      * @throws ProdigaGeneralExpectedException If team/user are not valid, or the user cannot be made leader of this team, an exception is thrown.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public void setTeamLeader(Team team, User newLeader) throws ProdigaGeneralExpectedException
     {
         //check that user is a valid, unchanged database user
@@ -190,9 +190,12 @@ public class TeamService
         return team.equals(teamRepository.findFirstById(team.getId()));
     }
 
-    @PreAuthorize("hasAuthority('MANAGER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
     public Team createTeam(){
         Team team = new Team();
+        Department d = new Department();
+        d.setId(null);
+        team.setDepartment(d);
         return team;
     }
 
