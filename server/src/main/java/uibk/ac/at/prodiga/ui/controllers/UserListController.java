@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -48,5 +49,17 @@ public class UserListController {
             return new ArrayList<>();
         }
         return userService.getUsersByDepartment(d);
+    }
+
+    /**
+     * Returns a list with all users in the given team
+     * @param t The team
+     * @return A list with users
+     */
+    public Collection<User> getAllUsersInTeam(Team t) {
+        if(t == null || t.isNew()) {
+            return new ArrayList<>();
+        }
+        return userService.getUsersByTeam(t);
     }
 }
