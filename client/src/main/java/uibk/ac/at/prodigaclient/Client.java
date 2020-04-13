@@ -3,12 +3,13 @@ package uibk.ac.at.prodigaclient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import uibk.ac.at.prodiga.rest.dtos.GenericStringDTO;
+import uibk.ac.at.prodigaclient.dtos.GenericStringDTO;
 import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+// TODO: fix the dtos
 public class Client {
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Hallo, ich bin ein client!!!");

@@ -1,7 +1,7 @@
 package uibk.ac.at.prodigaclient.api;
 
-import uibk.ac.at.prodiga.rest.dtos.GenericStringDTO;
-import uibk.ac.at.prodiga.rest.dtos.InstrincsDTO;
+import uibk.ac.at.prodigaclient.dtos.GenericStringDTO;
+import uibk.ac.at.prodigaclient.dtos.InstrincsDTO;
 import uibk.ac.at.prodigaclient.CollectionFormats.*;
 
 import retrofit2.Call;
