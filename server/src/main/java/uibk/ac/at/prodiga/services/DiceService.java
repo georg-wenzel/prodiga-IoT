@@ -26,15 +26,17 @@ public class DiceService {
 
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
+    private final LogInformationService logInformationService;
     private final DiceSideService diceSideService;
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
         this.diceSideService = diceSideService;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -108,9 +110,6 @@ public class DiceService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         if(dice.isActive()) {
-            if(dice.getAssignedRaspberry() == null) {
-                throw new ProdigaGeneralExpectedException("Dice has to be assigned to a RaspberryPi", MessageType.WARNING);
-            }
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
                 throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.WARNING);
@@ -138,6 +137,24 @@ public class DiceService {
         dice.setObjectChangedDateTime(new Date());
 
         return diceRepository.save(dice);
+    }
+
+<<<<<<< server/src/main/java/uibk/ac/at/prodiga/services/DiceService.java
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Dice createDice()
+    {
+        return new Dice();
+    }
+
+    /**
+     * Deletes the dice.
+     *
+     * @param dice the dice to delete
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteDice(Dice dice) {
+        diceRepository.delete(dice);
+        logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
     }
 
     /**
