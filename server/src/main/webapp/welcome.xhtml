@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <h:outputStylesheet name = "css/layout-blue.css" library="ecuador-layout" />
+    <h:outputStylesheet name = "css/fonts.css" library="ecuador-layout" />
+    <ui:define name="title">Empty Page</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/welcome">Welcome</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="layout-dashboard">
+        <div class="ui-g">
+        <div class="ui-g-12">
+            <h1>Welcome, #{prodigaUserLoginManager.getCurrentUser().username}!</h1><br/>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="overview-box sales">
+                    <p:graphicImage name="images/user_white.png" library="ecuador-layout"  styleClass="image-icon" />
+                    <div class="overview-title">USERS</div>
+                    <div class="overview-numbers">
+                        #{userListController.numUsers()}
+                    </div>
+                    <br></br>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="overview-box views">
+                    <p:graphicImage name="images/department_white.png" library="ecuador-layout" styleClass="image-icon"/>
+                    <div class="overview-title">DEPARTMENTS</div>
+                    <div class="overview-numbers">
+                        #{departmentController.numDepartments()}
+                    </div>
+                    <br></br>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="overview-box users">
+                    <p:graphicImage name="images/team_white.png" library="ecuador-layout" styleClass="image-icon"/>
+                    <div class="overview-title">TEAMS</div>
+                    <div class="overview-numbers">
+                        #{teamController.numTeams()}
+                    </div>
+                    <br></br>
+                </div>
+            </div>
+            <div class="ui-g-12 ui-md-6 ui-lg-3">
+                <div class="overview-box checkins">
+                    <p:graphicImage name="images/raspi_white.png" library="ecuador-layout"  styleClass="image-icon" />
+                    <div class="overview-title">RASPBERRY PIS</div>
+                    <div class="overview-numbers">
+                        #{raspberryPiController.numRaspberryPis()}
+                    </div>
+                    <br></br>
+                </div>
+            </div>
+
+        </div></div>
+
+        </div>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,74 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+    <h:outputStylesheet library="webjars" name="font-awesome/4.6.3/css/font-awesome-jsf.css" />
+
+    <div class="layout-topbar">
+        <a href="#" id="topbar-menu-button">
+            <i class="fa fa-angle-left arrow"/>
+            <i class="fa fa-angle-up mobile"/>
+        </a>
+
+        <div class="search-input">
+            <i class="fa fa-search icon-search"></i>
+            <input type="text"></input>
+        </div>
+
+        <h:link outcome="/welcome" styleClass="logo-container">
+            <p:graphicImage name="images/logo.png" library="ecuador-layout" />
+        </h:link>
+
+        <a id="topbar-profile-menu-button" href="#">
+            <span>#{prodigaUserLoginManager.getCurrentUser().username}</span>
+            <p:graphicImage name="images/avatar.png" library="ecuador-layout" styleClass="topbar-profile" />
+            <i class="fa fa-angle-down"></i>
+        </a>
+
+        <ul id="topbar-usermenu">
+            <li>
+                <a href="${pageContext.request.contextPath}/user/user.xhtml?username=#{prodigaUserLoginManager.getCurrentUser().username}">
+                    <i class="fa fa-fw fa-user"></i>
+                    Profile
+                </a>
+            </li>
+
+            <li>
+                <a href="#">
+                    <i class="fa fa-fw fa-cog"></i>
+                    <span class="topbar-item-name">Settings</span>
+                    <span class="topbar-submenuitem-badge">2</span>
+                </a>
+                <ul>
+                    <li role="menuitem">
+                        <a href="#">
+                            <i class="fa fa-fw fa-paint-brush"></i>
+                            <span>Change</span>
+                        </a>
+                    </li>
+                    <li role="menuitem">
+                        <a href="#">
+                            <i class="fa fa-fw fa-star-o"></i>
+                            <span>Favorites</span>
+                        </a>
+                    </li>
+                    <li role="menuitem">
+                        <a href="#">
+                            <i class="fa fa-fw fa-lock"></i>
+                            <span>Lock Screen</span>
+                        </a>
+                    </li>
+                    <li role="menuitem">
+                        <a href="#">
+                            <i class="fa fa-fw fa-picture-o"></i>
+                            <span>Wallpaper</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+        </ul>
+
+        <a href="#" id="right-panel-button">
+            <i class="fa fa-angle-double-left"></i>
+        </a>
+    </div>
+</ui:composition>
