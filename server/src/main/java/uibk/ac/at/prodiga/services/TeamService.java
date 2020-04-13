@@ -167,13 +167,11 @@ public class TeamService
             //set old user to employee
             Set<UserRole> roles = oldLeader.getRoles();
             roles.remove(UserRole.TEAMLEADER);
-            roles.add(UserRole.EMPLOYEE);
             oldLeader.setRoles(roles);
             userRepository.save(oldLeader);
         }
         //Set new leader role to teamleader
         Set<UserRole> roles = newLeader.getRoles();
-        roles.remove(UserRole.EMPLOYEE);
         roles.add(UserRole.TEAMLEADER);
         newLeader.setRoles(roles);
         userRepository.save(newLeader);

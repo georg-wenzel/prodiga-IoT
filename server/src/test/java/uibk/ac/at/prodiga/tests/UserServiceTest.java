@@ -317,7 +317,7 @@ public class UserServiceTest {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Department dept2 = DataHelper.createRandomDepartment(admin, departmentRepository);
-        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+        User test_user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE, UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
 
         test_user = userService.assignDepartment(test_user, dept2);
         Assertions.assertEquals(test_user.getAssignedDepartment(), dept2, "Department was not properly changed.");
