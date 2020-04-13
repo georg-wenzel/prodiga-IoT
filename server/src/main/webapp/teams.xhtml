@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/teams">Teams</p:link></li>
+        <li><p:link outcome="teams">Teams</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -18,7 +18,7 @@
                 <div class="card">
                     <h1>Teams</h1>
                     <h:form id="teamForm">
-                        <p:dataTable id="teamTable" var="team" scrollable="true" style="width:50%" scrollHeight="500" value="#{teamController.allTeams}">
+                        <p:dataTable id="teamTable" var="team" scrollable="true" style="width:60%" scrollHeight="500" value="#{teamController.allTeams}">
                             <p:column headerText="Teamname">
                                 <h:outputText value="#{team.name}"/>
                             </p:column>
@@ -27,6 +27,10 @@
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).firstName} "/>
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).lastName}"/>
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) == null}" value="No team leader"/>
+                            </p:column>
+
+                            <p:column headerText="Number of users">
+                                <h:outputText value="#{userListController.getAllUsersInTeam(team).size()}" />
                             </p:column>
 
                             <p:column style="width:100px;text-align: center">

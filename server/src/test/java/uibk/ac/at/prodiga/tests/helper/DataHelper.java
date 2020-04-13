@@ -381,6 +381,18 @@ public class DataHelper {
         return roomRepository.save(r);
     }
 
+    public static BookingCategory createBookingCategory(String name, User u,
+                                                 BookingCategoryRepository bookingCategoryRepository) {
+        BookingCategory cat = new BookingCategory();
+        cat.setName(name);
+        cat.setObjectChangedDateTime(new Date());
+        cat.setObjectChangedUser(u);
+        cat.setObjectCreatedUser(u);
+        cat.setObjectCreatedDateTime(new Date());
+
+        return bookingCategoryRepository.save(cat);
+    }
+
     private static String createRandomString(int size) {
         String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789"

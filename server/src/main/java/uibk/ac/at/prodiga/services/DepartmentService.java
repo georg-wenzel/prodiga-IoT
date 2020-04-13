@@ -120,13 +120,11 @@ public class DepartmentService
             //set old user to employee
             Set<UserRole> roles = oldLeader.getRoles();
             roles.remove(UserRole.DEPARTMENTLEADER);
-            roles.add(UserRole.EMPLOYEE);
             oldLeader.setRoles(roles);
             userRepository.save(oldLeader);
         }
         //Set new leader role to departmentleader
         Set<UserRole> roles = newLeader.getRoles();
-        roles.remove(UserRole.EMPLOYEE);
         roles.add(UserRole.DEPARTMENTLEADER);
         newLeader.setRoles(roles);
         userRepository.save(newLeader);

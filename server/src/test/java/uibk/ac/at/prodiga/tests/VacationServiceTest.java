@@ -220,20 +220,22 @@ public class VacationServiceTest
             vacationService.saveVacation(v1);
         }, "Vacation saved despite ending before starting.");
 
+        //vacation that is in the past
+        fromDate = Date.from(LocalDate.now().minusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        toDate = Date.from(LocalDate.now().minusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        //vacation that is too short (same day)
         Vacation v2 = new Vacation();
         v2.setBeginDate(fromDate);
-        v2.setEndDate(fromDate);
+        v2.setEndDate(toDate);
         v2.setUser(u1);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             vacationService.saveVacation(v2);
-        }, "Vacation saved despite being too short.");
+        }, "Vacation saved despite being in the past.");
 
-        //vacation that is in the past
-        fromDate = Date.from(LocalDate.now().minusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        toDate = Date.from(LocalDate.now().minusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        //vacation that is too far in the future
+        fromDate = Date.from(LocalDate.now().plusYears(2).plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        toDate = Date.from(LocalDate.now().plusYears(2).plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Vacation v3 = new Vacation();
         v3.setBeginDate(fromDate);
@@ -242,19 +244,6 @@ public class VacationServiceTest
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             vacationService.saveVacation(v3);
-        }, "Vacation saved despite being in the past.");
-
-        //vacation that is too far in the future
-        fromDate = Date.from(LocalDate.now().plusYears(2).plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        toDate = Date.from(LocalDate.now().plusYears(2).plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        Vacation v4 = new Vacation();
-        v4.setBeginDate(fromDate);
-        v4.setEndDate(toDate);
-        v4.setUser(u1);
-
-        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            vacationService.saveVacation(v4);
         }, "Vacation saved despite being too far in the future.");
     }
 
@@ -277,37 +266,31 @@ public class VacationServiceTest
         if(LocalDate.now().getMonth() == Month.DECEMBER)
         {
             //20 vacation days earlier
-            DataHelper.createVacation(-30,-25, u1, vacationRepository);
+            DataHelper.createVacation(-30,-11, u1, vacationRepository);
             if(LocalDate.now().getDayOfMonth() > 26)
             {
                 //start date is simply now, as it is already past the 26th, so there is less than 6 days in the current year
                 fromDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
                 toDate = Date.from(LocalDate.now().plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                v1.setBeginDate(fromDate);
-                v1.setEndDate(toDate);
-                v1.setUser(u1);
             }
             else
             {
                 //start date is 27th dec
                 fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
                 toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
-                v1.setBeginDate(fromDate);
-                v1.setEndDate(toDate);
-                v1.setUser(u1);
             }
         }
         else
         {
             //20 vacation days now
-            DataHelper.createVacation(0,20, u1, vacationRepository);
+            DataHelper.createVacation(0,19, u1, vacationRepository);
             //start date is 27th dec
             fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            v1.setBeginDate(fromDate);
-            v1.setEndDate(toDate);
-            v1.setUser(u1);
         }
+        v1.setBeginDate(fromDate);
+        v1.setEndDate(toDate);
+        v1.setUser(u1);
 
         //user has 5 vacation days in this year remaining
         //new vacation lasts for 27 days, and starts at the latest at the 27th, so it should pass.
@@ -625,5 +608,38 @@ public class VacationServiceTest
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             vacationService.deleteVacation(new Vacation());
         }, "Vacation deleted despite lacking authorization of EMPLOYEE");
+    }
+
+    /**
+     * Tests getting the number of remaining vacation days
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void get_remaining_vacation_days() throws ProdigaGeneralExpectedException
+    {
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        //7 days in current year, 10 days in next year
+        DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 12, 25), LocalDate.of(LocalDate.now().getYear() + 1, 1, 10), u1, vacationRepository);;
+        //3 days in next year
+        DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear() + 1, 3, 5), LocalDate.of(LocalDate.now().getYear() + 1, 3, 7), u1, vacationRepository);;
+        //11 days in current year
+        DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 6, 10), LocalDate.of(LocalDate.now().getYear() , 6, 20), u1, vacationRepository);
+
+        //remaining should be: 25 - 18 = 7 in current year, 25 - 13 = 12 in next yaer
+        Assertions.assertEquals(7, vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()), "Vacation days for the current year were not calculated properly.");
+        Assertions.assertEquals(12, vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1), "Vacation days for the next year were not calculated properly.");
+    }
+
+    /**
+     * Tests getting remaining vacation days without employee authorization
+     */
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
+    public void get_remaining_vacation_days_unauthorized() throws ProdigaGeneralExpectedException
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            vacationService.getUsersRemainingVacationDays(2020);
+        }, "Vacation days returned despite lacking authorization of EMPLOYEE");
     }
 }

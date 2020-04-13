@@ -51,7 +51,6 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-
     @PreAuthorize("hasAuthority('ADMIN')")
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
@@ -95,14 +94,11 @@ public class UserService {
             {
                 roles.remove(UserRole.DEPARTMENTLEADER);
             }
-
-            roles.add(UserRole.EMPLOYEE);
             user.setRoles(roles);
 
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
         }
-
         return userRepository.save(user);
     }
 
@@ -134,13 +130,13 @@ public class UserService {
      * @param user The user object to compare
      * @return A boolean signifying whether the user object is unchanged from the database.
      */
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER') || hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
     public boolean isUserUnchanged(User user)
     {
         return user.equals(userRepository.findFirstByUsername(user.getUsername()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')")
     public Collection<User> getUsersByTeam(Team team)
     {
         return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
