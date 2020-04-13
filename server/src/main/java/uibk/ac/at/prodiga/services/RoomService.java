@@ -30,16 +30,18 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final RaspberryPiRepository raspberryPiRepository;
+    private final LogInformationService logInformationService;
 
     private User getAuthenicatedUser(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findFirstByUsername(auth.getName());
     }
 
-    public RoomService(RoomRepository roomRepository, UserRepository userRepository, RaspberryPiRepository raspberryPiRepository){
+    public RoomService(RoomRepository roomRepository, UserRepository userRepository, RaspberryPiRepository raspberryPiRepository, LogInformationService logInformationService){
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
         this.raspberryPiRepository = raspberryPiRepository;
+        this.logInformationService = logInformationService;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -65,15 +67,22 @@ public class RoomService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room saveRoom(Room room) throws ProdigaGeneralExpectedException{
         if(room.getName() == null || room.getName().isEmpty()){
-            throw new ProdigaGeneralExpectedException("No room name found", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Roomname cannot be empty", MessageType.ERROR);
         }
         if(room.getName().length() < 2 || room.getName().length() > 20) {
             throw new ProdigaGeneralExpectedException("Room name must be between 2 and 20 characters", MessageType.ERROR);
         }
 
         if(room.isNew()){
+            if(roomRepository.findFirstByName(room.getName()) != null){
+                throw new ProdigaGeneralExpectedException("Room with same name already exists.", MessageType.WARNING);
+            }
             room.setObjectCreatedDateTime(new Date());
             room.setObjectCreatedUser(getAuthenicatedUser());
+        }
+        else{
+            room.setObjectChangedDateTime(new Date());
+            room.setObjectChangedUser(getAuthenicatedUser());
         }
         return roomRepository.save(room);
     }
@@ -88,6 +97,7 @@ public class RoomService {
             throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
         }
         roomRepository.delete(roomToDelete);
+        logInformationService.log("Room " + roomToDelete.getName() + " was deleted!");
     }
 
     @Transactional
@@ -98,6 +108,11 @@ public class RoomService {
     @Transactional
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname")
+    public Room loadRoom(String roomname) {
+        return roomRepository.findFirstByName(roomname);
     }
 
     @Transactional
