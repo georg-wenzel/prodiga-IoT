@@ -37,6 +37,10 @@ public class Room implements Persistable<Long>, Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 
+    @OneToMany(fetch=FetchType.EAGER)
+    private Set<RaspberryPi> raspberryPiSet = new HashSet<RaspberryPi>();
+
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -99,8 +103,6 @@ public class Room implements Persistable<Long>, Serializable {
         return this.objectCreatedDateTime == null;
     }
 
-    @OneToMany
-    private Set<RaspberryPi> raspberryPiSet = new HashSet<>();
 
     public Set<RaspberryPi> getRaspberryPis() {
         return raspberryPiSet;
