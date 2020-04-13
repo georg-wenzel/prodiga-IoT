@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
-import uibk.ac.at.prodiga.rest.controller.DiceController;
+import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
@@ -50,7 +50,7 @@ public class DiceServiceTest {
     DiceSideRepository diceSideRepository;
 
     @Autowired
-    DiceController diceController;
+    DiceRestController diceRestController;
 
     User admin = null;
     User notAdmin = null;
@@ -354,11 +354,11 @@ public class DiceServiceTest {
 
         Assertions.assertTrue(diceService.diceInConfigurationMode(d.getInternalId()), "Dice not in configuration mode");
 
-        diceController.notifyNewSide(request);
+        diceRestController.notifyNewSide(request);
 
         for(int i = 0; i < 12; i++) {
             request.setSide(i + 1);
-            diceController.notifyNewSide(request);
+            diceRestController.notifyNewSide(request);
         }
 
         diceService.completeConfiguration(d);

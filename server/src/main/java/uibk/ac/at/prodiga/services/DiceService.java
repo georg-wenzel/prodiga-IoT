@@ -139,7 +139,6 @@ public class DiceService {
         return diceRepository.save(dice);
     }
 
-<<<<<<< server/src/main/java/uibk/ac/at/prodiga/services/DiceService.java
     @PreAuthorize("hasAuthority('ADMIN')")
     public Dice createDice()
     {

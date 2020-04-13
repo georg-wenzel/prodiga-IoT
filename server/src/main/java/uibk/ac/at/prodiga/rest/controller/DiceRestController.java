@@ -11,11 +11,11 @@ import javax.validation.Valid;
 
 @RestController
 @CrossOrigin
-public class DiceController {
+public class DiceRestController {
 
     private final DiceService diceService;
 
-    public DiceController(DiceService diceService) {
+    public DiceRestController(DiceService diceService) {
         this.diceService = diceService;
     }
 
