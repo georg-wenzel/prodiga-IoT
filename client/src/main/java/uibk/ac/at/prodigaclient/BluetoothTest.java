@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
 
 public class BluetoothTest {
-//    private static final float SCALE_LSB = 0.03125f;
     static boolean running = true;
 
     static void printDevice(BluetoothDevice device) {
@@ -71,6 +70,23 @@ public class BluetoothTest {
         return null;
     }
 
+    static boolean is_last(byte [] test) {
+        for (byte x : test) {
+            if (x != 0x00) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static int getFacet(byte [] byteArray) {
+        return byteArray[2] >> 2;
+    }
+
+    static int getTime(byte [] byteArray) {
+        return ((byteArray[2] & 0x03) << 16) | (byteArray[1] << 8) | (byteArray[0]);
+    }
+
     public static void main(String[] args) throws InterruptedException {
 
         /*
@@ -116,17 +132,15 @@ public class BluetoothTest {
         Lock lock = new ReentrantLock();
         Condition cv = lock.newCondition();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                running = false;
-                lock.lock();
-                try {
-                    cv.signalAll();
-                } finally {
-                    lock.unlock();
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            running = false;
+            lock.lock();
+            try {
+                cv.signalAll();
+            } finally {
+                lock.unlock();
             }
-        });
+        }));
 
 
         BluetoothGattService facetService = getService(cube, "f1196f50-71a4-11e6-bdf4-0800200c9a66"); // TimeFlip Service
@@ -168,7 +182,6 @@ public class BluetoothTest {
             System.out.println("Something went wrong with the battery characteristics");
         }
 
-
         /*
          * Read history
          */
@@ -177,11 +190,33 @@ public class BluetoothTest {
 
         if (commandOutputChar != null) {
             byte[] history = commandOutputChar.readValue();
-            System.out.print("History = {");
-            for (byte b : history) {
-                System.out.print(String.format("%02x,", b));
+
+            while (!is_last(history)) {
+                System.out.print("History = {");
+
+                for (byte b : history) {
+                    System.out.print(String.format("%02x,", b));
+                }
+
+                System.out.println("}");
+
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 0, 3)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 0, 3)));
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 3, 6)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 3, 6)));
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 6, 9)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 6, 9)));
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 9, 12)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 9, 12)));
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 12, 15)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 12, 15)));
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 15, 18)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 15, 18)));
+                System.out.println("Facet: " + getFacet(Arrays.copyOfRange(history, 18, 21)) + " Time: " +
+                        getTime(Arrays.copyOfRange(history, 18, 21)));
+
+                history = commandOutputChar.readValue();
             }
-            System.out.println("}");
         } else {
             System.out.println("Something went wrong with the battery characteristics");
         }
@@ -198,10 +233,8 @@ public class BluetoothTest {
              * print out facets
              */
             System.out.println("Facet ID (in int) = { " + (facet[0] & 0xff) + " }");
-//             int objectFacetRaw = (facet[0] & 0xff) | (facet[1] << 8);
 
-//            System.out.println("Current facet = " + objectFacetRaw);
-
+            running = false;
             lock.lock();
             try {
                 cv.await(1, TimeUnit.SECONDS);
@@ -209,8 +242,8 @@ public class BluetoothTest {
                 lock.unlock();
             }
         }
-        cube.disconnect();
 
+        cube.disconnect();
     }
 }
 
