@@ -75,16 +75,15 @@
                         </div>
                         <div class="ui-g">
                             <div class="ui-g-5">
-                                <!-- add this when teamController is added
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel styleClass="input-form" for="assignedTeam" value="Team: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
+                                    <p:outputLabel styleClass="input-form" for="teams" value="Team: " rendered="#{userDetailController.user.assignedTeam != null}"/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:selectOneMenu id="teams" value="#{userDetailController.user.assignedTeam.name}" style="width:250px" rendered="#{userDetailController.user.assignedDepartment != null}">
+                                    <p:selectOneMenu id="teams" value="#{userDetailController.user.assignedTeam.name}" style="width:250px" rendered="#{userDetailController.user.assignedTeam != null}">
                                         <f:selectItem itemLabel="#{userDetailController.user.assignedTeam.name}" itemValue="#{userDetailController.user.assignedTeam}" />
                                         <f:selectItems value="#{teamController.allTeams}" var="team" itemLabel="#{team.name}" itemValue="#{team}"/>
                                     </p:selectOneMenu>
-                                </div>-->
+                                </div>
 
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel styleClass="input-form" for="departments" value="Department: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
@@ -97,7 +96,6 @@
                                 </div>
                             </div>
                         </div>
-                        <br></br>
                         <div class="ui-g">
                             <div class="ui-g-10 input-form">
                                 <div class="ui-g-2 input-form">
@@ -112,24 +110,27 @@
                             </div>
                         </div>
 
-                        <br/>
+                        <br/><br/>
                         <div class="ui-g">
-                            <p:commandButton value="Save"
-                                             action="#{userDetailController.doSaveUser()}"
-                                             ajax="true"
-                                             icon="fa fa-fw fa-save"
-                                             validateClient="true"
-                                             update="growl msgs">
-                            </p:commandButton>
-                            <p:commandButton value="Reload"
-                                             rendered="#{not userDetailController.user['new']}"
-                                             action="#{userDetailController.doReloadUser(userDetailController.user.username)}"
-                                             ajax="true"
-                                             icon="fa fa-fw fa-refresh"
-                                             update="growl msgs userForm">
-                            </p:commandButton>
-                            <p:linkButton outcome="/user/users" value="Back to user overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                            </p:linkButton>
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/user/users" value="Back to user overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                                <p:commandButton value="Reload"
+                                                 rendered="#{not userDetailController.user['new']}"
+                                                 action="#{userDetailController.doReloadUser(userDetailController.user.username)}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-refresh"
+                                                 update="growl msgs userForm">
+                                </p:commandButton>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{userDetailController.doSaveUser()}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
                         </div>
                     </h:form></div>
 
