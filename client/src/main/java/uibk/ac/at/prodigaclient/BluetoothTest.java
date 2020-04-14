@@ -42,8 +42,8 @@ public class BluetoothTest {
         System.out.println("Services exposed by device:");
         BluetoothGattService specificBluetoothService = null;
         List<BluetoothGattService> bluetoothServices = null;
-        do
-        {
+
+        do {
             bluetoothServices = device.getServices();
             if (bluetoothServices == null)
                 return null;
@@ -55,6 +55,7 @@ public class BluetoothTest {
             }
             Thread.sleep(4000);
         } while (bluetoothServices.isEmpty() && running);
+
         return specificBluetoothService;
     }
 
