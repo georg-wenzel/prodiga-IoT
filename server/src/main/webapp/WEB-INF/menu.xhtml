@@ -22,7 +22,6 @@
                             <p:menuitem id="om_vacation_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/vacations" />
                             <p:menuitem id="om_vacation_add" value="Add vacation" icon="fa fa-fw fa-plus" outcome="/vacation" />
                         </p:submenu>
-                        <p:submenu id="om_calendar" label="Calendar" icon="fa fa-fw fa-calendar" outcome="calendar"/>
                         <p:submenu id="om_departments" label="Departments" icon="fa fa-fw fa-sitemap" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                             <p:menuitem id="om_department_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/departments" />
                             <p:menuitem id="om_department_add" value="Add department" icon="fa fa-fw fa fa-plus" outcome="/add_department">
