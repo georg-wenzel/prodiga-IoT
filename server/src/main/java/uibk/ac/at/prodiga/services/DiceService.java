@@ -1,20 +1,23 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
+import org.javatuples.Pair;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import uibk.ac.at.prodiga.model.Dice;
+import uibk.ac.at.prodiga.model.DiceSide;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,10 +26,17 @@ public class DiceService {
 
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
+    private final LogInformationService logInformationService;
+    private final DiceSideService diceSideService;
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager) {
+    private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
+    private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
+
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
+        this.diceSideService = diceSideService;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -100,9 +110,6 @@ public class DiceService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         if(dice.isActive()) {
-            if(dice.getAssignedRaspberry() == null) {
-                throw new ProdigaGeneralExpectedException("Dice has to be assigned to a RaspberryPi", MessageType.WARNING);
-            }
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
                 throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.WARNING);
@@ -130,5 +137,129 @@ public class DiceService {
         dice.setObjectChangedDateTime(new Date());
 
         return diceRepository.save(dice);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Dice createDice()
+    {
+        return new Dice();
+    }
+
+    /**
+     * Deletes the dice.
+     *
+     * @param dice the dice to delete
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteDice(Dice dice) {
+        diceRepository.delete(dice);
+        logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
+    }
+
+    /**
+     * If the dice is in configuration mode sets the current side to the given side
+     * and notifies all subscribers about the change
+     * @param internalId The dices internalId
+     * @param side The current Side of the dice
+     */
+    public void onNewDiceSide(String internalId, int side) {
+        //First check if the dice is in config mode
+        if(diceConfigurationWrapperDict.containsKey(internalId)) {
+            DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict.get(internalId);
+            wrapper.setCurrentSide(side);
+
+            onNewDiceSideCallBackDict.forEach((key, value) -> value.accept(Pair.with(key, wrapper)));
+        }
+    }
+
+    /**
+     * Returns whether the dice with given id is in configuration mode
+     * @param internalId The dices internal id
+     * @return Whether the dice is in configuration mode
+     */
+    public boolean diceInConfigurationMode(String internalId) {
+        return diceConfigurationWrapperDict.containsKey(internalId);
+    }
+
+    /**
+     * Can be called if your service wants to get notified when the dice side changes
+     * @param id An identifier of your service
+     * @param action The action which will be executed
+     */
+    public void registerNewSideCallback(UUID id, Consumer<Pair<UUID, DiceConfigurationWrapper>> action) {
+        if(id == null) {
+            return;
+        }
+
+        onNewDiceSideCallBackDict.put(id, action);
+    }
+
+    /**
+     * Unregisters the service with the given id from the newSide Callback
+     * @param id The services id
+     */
+    public void unregisterNewSideCallback(UUID id) {
+        if(id == null) {
+            return;
+        }
+
+        onNewDiceSideCallBackDict.remove(id);
+    }
+
+    /**
+     * Adds the given dice in configuration mode
+     * @param d The dice to add
+     */
+    public DiceConfigurationWrapper addDiceToConfiguration(Dice d) {
+        if(d == null) {
+            return null;
+        }
+
+        DiceConfigurationWrapper wrapper = new DiceConfigurationWrapper();
+        wrapper.setCurrentSide(-1);
+        wrapper.setDice(d);
+
+        diceConfigurationWrapperDict.put(d.getInternalId(), wrapper);
+
+        return wrapper;
+    }
+
+    /**
+     * Completes the given Configuration for the given dice
+     * @param d The dice
+     * @throws ProdigaGeneralExpectedException When dice == null or not enough sides are configured
+     */
+    public void completeConfiguration(Dice d) throws ProdigaGeneralExpectedException {
+        if(d == null) {
+            return;
+        }
+
+        DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict.getOrDefault(d.getInternalId(), null);
+
+        if(wrapper == null) {
+            return;
+        }
+
+        if(wrapper.getDice() == null) {
+            throw new ProdigaGeneralExpectedException("Cannot complete configuration without dice", MessageType.ERROR);
+        }
+
+        if(wrapper.getCompletedSides() == null) {
+            throw new ProdigaGeneralExpectedException("Cannot complete configuration without completed sides", MessageType.ERROR);
+        }
+
+        if(wrapper.getCompletedSides().size() != 12) {
+            throw new ProdigaGeneralExpectedException("Exactly 12 sides need to be configured", MessageType.ERROR);
+        }
+
+        wrapper.getCompletedSides().forEach((key, value) -> {
+            DiceSide ds = new DiceSide();
+            ds.setBookingCategory(value);
+            ds.setDice(wrapper.getDice());
+            ds.setSide(key);
+            diceSideService.saveOrModify(ds);
+        });
+
+        diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
     }
 }

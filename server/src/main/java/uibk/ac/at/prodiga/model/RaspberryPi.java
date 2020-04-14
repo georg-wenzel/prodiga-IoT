@@ -12,7 +12,7 @@ public class RaspberryPi implements Persistable<Long>, Serializable {
     private static final long serialVersionUID = 1543543567124562365L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 1337)

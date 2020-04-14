@@ -120,13 +120,11 @@ public class DepartmentService
             //set old user to employee
             Set<UserRole> roles = oldLeader.getRoles();
             roles.remove(UserRole.DEPARTMENTLEADER);
-            roles.add(UserRole.EMPLOYEE);
             oldLeader.setRoles(roles);
             userRepository.save(oldLeader);
         }
         //Set new leader role to departmentleader
         Set<UserRole> roles = newLeader.getRoles();
-        roles.remove(UserRole.EMPLOYEE);
         roles.add(UserRole.DEPARTMENTLEADER);
         newLeader.setRoles(roles);
         userRepository.save(newLeader);
@@ -144,16 +142,16 @@ public class DepartmentService
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    public Department createDepartment() {
-        Department p = new Department();
-        return p;
+    public Department createDepartment()
+    {
+        return new Department();
     }
 
     /**
      * Loads a single department identified by its departmentId.
      *
      * @param departmentId the departmentId to search for
-     * @return the plane with the given planeId
+     * @return the department with the given ID
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Department loadDepartment(Long departmentId) {

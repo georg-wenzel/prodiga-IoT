@@ -13,7 +13,7 @@ public class Dice implements Persistable<Long>, Serializable {
     private static final long serialVersionUID = 1543543567314567565L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = true, length = 1337)

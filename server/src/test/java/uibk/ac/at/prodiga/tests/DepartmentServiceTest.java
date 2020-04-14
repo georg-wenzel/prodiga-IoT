@@ -139,7 +139,7 @@ public class DepartmentServiceTest
      */
     @Test
     @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "DEPARTMENTLEADER"})
-    public void save_department_unauthorized() throws ProdigaGeneralExpectedException
+    public void save_department_unauthorized()
     {
         Department dept = new Department();
         dept.setName("TEST_DEPARTMENT");
@@ -197,7 +197,7 @@ public class DepartmentServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        User user1 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+        User user1 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE, UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
         User user2 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, null, userRepository);
 
         departmentService.setDepartmentLeader(dept, user2);
@@ -207,7 +207,7 @@ public class DepartmentServiceTest
         user2 = userRepository.findFirstByUsername(user2.getUsername());
 
         Assertions.assertTrue(user1.getRoles().contains(UserRole.EMPLOYEE) && !user1.getRoles().contains(UserRole.DEPARTMENTLEADER), "user1 was not made employee.");
-        Assertions.assertTrue(!user2.getRoles().contains(UserRole.EMPLOYEE) && user2.getRoles().contains(UserRole.DEPARTMENTLEADER), "user2 was not made departmentleader.");
+        Assertions.assertTrue(user2.getRoles().contains(UserRole.EMPLOYEE) && user2.getRoles().contains(UserRole.DEPARTMENTLEADER), "user2 was not made department leader.");
     }
 
     /**
@@ -252,11 +252,11 @@ public class DepartmentServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        User user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.TEAMLEADER), admin, dept, null, userRepository);
+        User user = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE, UserRole.TEAMLEADER), admin, dept, null, userRepository);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             departmentService.setDepartmentLeader(dept, user);
-        }, "Department was updated despite user being a teamleader.");
+        }, "Department was updated despite user being a team leader.");
     }
 
     /**

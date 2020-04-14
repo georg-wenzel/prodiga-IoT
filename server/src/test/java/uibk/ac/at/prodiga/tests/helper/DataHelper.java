@@ -8,6 +8,9 @@ import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Random;
 import java.util.Set;
@@ -224,6 +227,47 @@ public class DataHelper {
         return bookingRepository.save(booking);
     }
 
+    /**
+     * Creates a vacation entry with a date relative to the current date.
+     * This method does not do any validation on the input and simply stores what is given in the database.
+     * Negative values can be used to create a vacation in the past.
+     * @param daysFromNow the days from the current day until the vacation starts
+     * @param toDaysFromNow the days from the current day until the vacation ends
+     * @return The vacation as it was saved in the database.
+     */
+    public static Vacation createVacation(int daysFromNow, int toDaysFromNow, User forUser, VacationRepository vacationRepository)
+    {
+        LocalDate nowDate = LocalDate.now();
+        LocalDate fromDate = nowDate.plusDays(daysFromNow);
+        LocalDate toDate = nowDate.plusDays(toDaysFromNow);
+
+        Vacation vacation = new Vacation();
+        vacation.setBeginDate(Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setEndDate(Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setUser(forUser);
+        vacation.setObjectCreatedDateTime(new Date());
+        vacation.setObjectCreatedUser(forUser);
+        return vacationRepository.save(vacation);
+    }
+
+    /**
+     * Creates a vacation entry with absolute date values.
+     * This method does not do any validation on the input and simply stores what is given in the database.
+     * @param startDate the starting date of the vacation
+     * @param endDate the ending date of the vacation
+     * @return The vacation as it was saved in the database.
+     */
+    public static Vacation createVacation(LocalDate startDate, LocalDate endDate, User forUser, VacationRepository vacationRepository)
+    {
+        Vacation vacation = new Vacation();
+        vacation.setBeginDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setEndDate(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setUser(forUser);
+        vacation.setObjectCreatedDateTime(new Date());
+        vacation.setObjectCreatedUser(forUser);
+        return vacationRepository.save(vacation);
+    }
+
      /**
       * Creates a given dice with the given data
      * @param internalId The internal Id used by the dice (and the raspi if not exists)
@@ -335,6 +379,18 @@ public class DataHelper {
         r.setObjectCreatedUser(u);
 
         return roomRepository.save(r);
+    }
+
+    public static BookingCategory createBookingCategory(String name, User u,
+                                                 BookingCategoryRepository bookingCategoryRepository) {
+        BookingCategory cat = new BookingCategory();
+        cat.setName(name);
+        cat.setObjectChangedDateTime(new Date());
+        cat.setObjectChangedUser(u);
+        cat.setObjectCreatedUser(u);
+        cat.setObjectCreatedDateTime(new Date());
+
+        return bookingCategoryRepository.save(cat);
     }
 
     private static String createRandomString(int size) {

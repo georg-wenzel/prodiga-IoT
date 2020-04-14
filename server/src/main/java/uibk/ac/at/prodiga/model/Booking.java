@@ -25,6 +25,10 @@ public class Booking implements Persistable<Long>, Serializable
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = BookingType.class)
     private BookingType type;
 
+    // TODO: optional = false
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = BookingCategory.class)
+    private BookingCategory bookingCategory;
+
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Department.class)
     private Department dept;
 
@@ -78,6 +82,14 @@ public class Booking implements Persistable<Long>, Serializable
 
     public void setType(BookingType type) {
         this.type = type;
+    }
+
+    public BookingCategory getBookingCategory() {
+        return bookingCategory;
+    }
+
+    public void setBookingCategory(BookingCategory bookingCategory) {
+        this.bookingCategory = bookingCategory;
     }
 
     public Date getActivityStartDate() {

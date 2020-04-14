@@ -20,7 +20,7 @@
             <div class="ui-g-12">
                 <div class="card">
                     <h1>#{departmentController.department.name}</h1>
-                    <h:form id="departmentForm" enctype="multipart/form-data">
+                    <h:form id="departmentForm">
                         <p:messages id="msgs" for="msgs"/>
                         <div class="ui-g">
                             <div class="ui-g-5">
@@ -43,29 +43,41 @@
                                                  disabled="false"
                                                  label="Department name" style="width:100%"/>
                                 </div>
-<!--
+
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="departmentLeader" value="Department leader: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:inputText id="departmentLeader"
-                                                 value="#{departmentController.getDepartmentLeaderOf(departmentController.department).firstName} #{departmentController.getDepartmentLeaderOf(departmentController.department).lastName}"
-                                                 disabled="false"
-                                                 label="Department leader" style="width:100%"/>
-                                </div>-->
+                                    <p:selectOneMenu id="departmentLeader"
+                                                     value="#{departmentController.departmentLeader}"
+                                                     disabled="false"
+                                                     required="false"
+                                                     label="Department leader"
+                                                     style="width: 100%"
+                                                     converter="userConverter">
+                                        <f:selectItems value="#{userListController.getAllUsersInDepartment(departmentController.department)}"
+                                                       var="u"
+                                                       itemValue="#{u}"
+                                                       itemLabel="#{u.firstName} #{u.lastName}" />
+                                    </p:selectOneMenu>
+                                </div>
                             </div>
-                    </div><br/>
+                    </div>
+                        <br/>
                         <div class="ui-g">
-                            <p:commandButton value="Save"
-                                             action="#{departmentController.doSaveDepartment}"
-                                             ajax="true"
-                                             icon="fa fa-fw fa-save"
-                                             validateClient="true"
-                                             update="growl msgs">
-                            </p:commandButton>
-
-                            <p:linkButton outcome="/departments" value="Back to department overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                            </p:linkButton>
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/departments" value="Back to department overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                                </p:linkButton>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{departmentController.doSaveDepartment}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
                         </div>
                     </h:form>
 

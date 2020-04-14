@@ -13,7 +13,7 @@ public class Team implements Persistable<Long>, Serializable {
     private static final long serialVersionUID = 1543543567124567544L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 300)

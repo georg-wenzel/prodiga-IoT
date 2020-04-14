@@ -1561,9 +1561,13 @@ body .ui-selectonemenu.ui-state-error {
   width: 550px;
   height: 550px;
   border-radius: 100%;
+  font-weight: bold;
   text-align: center;
-  background-color: rgba(255,255,255,0.8);
-  top: 22%; }
+  background-color: rgba(255,255,255,0.5);
+  -webkit-box-shadow: 0px 0px 137px 0px rgba(255,255,255,1);
+  -moz-box-shadow: 0px 0px 137px 0px rgba(255,255,255,1);
+  box-shadow: 0px 0px 137px 0px rgba(255,255,255,1);
+  top: 20%; }
 .login-body .login-panel img {
   height: 28px;
   width: auto;

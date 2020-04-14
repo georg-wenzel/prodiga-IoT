@@ -74,12 +74,12 @@ public class TeamServiceTest
      * Tests unauthorized loading of team data
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void load_team_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             teamService.getFirstByName("somename");
-        }, "Team loaded despite lacking authorization of DEPARTMENTLEADER");
+        }, "Team loaded despite lacking authorization of DEPARTMENTLEADER or ADMIN");
     }
 
     /**
@@ -108,7 +108,7 @@ public class TeamServiceTest
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             teamService.getAllTeams();
-        }, "Team collection loaded despite lacking authorization of DEPARTMENTLEADER");
+        }, "Team collection loaded despite lacking authorization of DEPARTMENTLEADER or ADMIN");
     }
 
     /**
@@ -157,7 +157,7 @@ public class TeamServiceTest
      * Tests adding a team with lacking authorizations
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER", "ADMIN"})
+    @WithMockUser(username = "testuser", authorities = {"EMPLOYEE", "TEAMLEADER"})
     public void save_team_unauthorized() throws ProdigaGeneralExpectedException
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -201,7 +201,7 @@ public class TeamServiceTest
      * Tests changing a team with lacking authentication
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void update_team_unauthorized()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -213,7 +213,7 @@ public class TeamServiceTest
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             teamService.saveTeam(team);
-        }, "Team was updated despite lacking authorization");
+        }, "Team was updated despite lacking authorization.");
     }
 
     /**
@@ -256,7 +256,7 @@ public class TeamServiceTest
      * Tests deleting a team with lacking authorization
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void delete_team_unauthorized()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
@@ -266,7 +266,7 @@ public class TeamServiceTest
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             teamService.deleteTeam(team);
-        });
+        }, "Team was deleted despite lacking authorization.");
     }
 
     /**
@@ -281,7 +281,7 @@ public class TeamServiceTest
         User dept_leader = DataHelper.createUserWithRoles("TEST_DEPT_LEADER_01", Sets.newSet(UserRole.DEPARTMENTLEADER), userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
-        User team_leader = DataHelper.createUserWithRoles(Sets.newSet(UserRole.TEAMLEADER), admin, dept, team, userRepository);
+        User team_leader = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE, UserRole.TEAMLEADER), admin, dept, team, userRepository);
         User team_member = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
 
         teamService.setTeamLeader(team, team_member);
@@ -291,14 +291,14 @@ public class TeamServiceTest
         team_member =  userRepository.findFirstByUsername(team_member.getUsername());
 
         Assertions.assertTrue(team_leader.getRoles().contains(UserRole.EMPLOYEE) && !team_leader.getRoles().contains(UserRole.TEAMLEADER), "team_leader was not made employee.");
-        Assertions.assertTrue(!team_member.getRoles().contains(UserRole.EMPLOYEE) && team_member.getRoles().contains(UserRole.TEAMLEADER), "team_member was not made teamleader.");
+        Assertions.assertTrue(team_member.getRoles().contains(UserRole.EMPLOYEE) && team_member.getRoles().contains(UserRole.TEAMLEADER), "team_member was not made teamleader.");
     }
 
     /**
      * Tests setting the team leader with lacking authorization
      */
     @Test
-    @WithMockUser(username = "testuser", authorities = {"ADMIN", "TEAMLEADER", "EMPLOYEE"})
+    @WithMockUser(username = "testuser", authorities = {"TEAMLEADER", "EMPLOYEE"})
     public void set_team_leader_unauthorized()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);

@@ -13,7 +13,7 @@ public class Department implements Persistable<Long>, Serializable
     private static final long serialVersionUID = 1543543567124567565L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique=true, length = 300)
