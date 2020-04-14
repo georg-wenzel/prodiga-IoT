@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
@@ -10,7 +11,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
-@Controller
+@Component
 @Scope("view")
 public class RoomDetailController {
     private final RoomService roomService;
@@ -31,13 +32,32 @@ public class RoomDetailController {
     }
 
     /**
+     * Action to delete the currently displayed user.
+     */
+    public void doDeleteRoom() throws Exception {
+        this.roomService.deleteRoom(room);
+        SnackbarHelper.getInstance()
+                .showSnackBar("Room " + room.getName() + " deleted!", MessageType.ERROR);
+    }
+
+    /**
      * Saves a room in the database. If an object with this ID already exists, overwrithes the object's data at this ID
-     * @param room The room to save
      * ProdigaGeneralExpectedException Is thrown when name is not between 2 and 20 characters or does not exist
      */
-    public void saveRoom(Room room){
-        SnackbarHelper.getInstance().showSnackBar("Room " + room.getId() + " saved!", MessageType.INFO);
+    public void doSaveRoom()throws Exception{
+        room = this.roomService.saveRoom(room);
+        SnackbarHelper.getInstance().showSnackBar("Room " + room.getName() + " saved!", MessageType.INFO);
     }
+
+    public void doReloadRoom(String roomname) throws Exception {
+        if (roomname != null && !roomname.trim().isEmpty()) {
+            this.room = roomService.loadRoom(roomname);
+        } else {
+            this.room = roomService.createRoom();
+        }
+    }
+
+
 
     public Room getManagedInstance(){
         return roomService.getManagedInstance(room);
@@ -87,5 +107,16 @@ public class RoomDetailController {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public String getRoomByName() {
+        if(this.room == null) {
+            return null;
+        }
+        return room.getName();
+    }
+
+    public void setRoomByName(String name) throws Exception {
+        doReloadRoom(name);
     }
 }
