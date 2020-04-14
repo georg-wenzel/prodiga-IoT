@@ -19,7 +19,7 @@
                             </p:menuitem>
                         </p:submenu>
                         <p:submenu id="om_vacation" label="Vacation" icon="fa fa-fw fa-plane" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}">
-                            <p:menuitem id="om_vacation_overview" value="Overview" icon="fa fa-fw fa-square" outcome="/vacations" />
+                            <p:menuitem id="om_vacation_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/vacations" />
                             <p:menuitem id="om_vacation_add" value="Add vacation" icon="fa fa-fw fa-plus" outcome="/vacation" />
                         </p:submenu>
                         <p:submenu id="om_calendar" label="Calendar" icon="fa fa-fw fa-calendar" outcome="calendar"/>
@@ -48,7 +48,7 @@
                                    rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
                             <p:menuitem id="om_teams"
                                         value="Overview"
-                                        icon="fa fa-fw fa-square"
+                                        icon="fa fa-fw fa-list-ul"
                                         outcome="/teams"/>
                             <p:menuitem id="om_add_teams"
                                         value="Add team"
