@@ -40,16 +40,19 @@
                         </div>
                     </div><br/>
                     <div class="ui-g">
-                        <p:commandButton value="Save"
-                                         action="#{vacationController.doSaveVacation}"
-                                         ajax="true"
-                                         icon="fa fa-fw fa-save"
-                                         validateClient="true"
-                                         update="growl msgs :vacationForm">
-                        </p:commandButton>
-
-                        <p:linkButton outcome="/vacations" value="Back to vacation overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                        </p:linkButton>
+                        <div class="ui-g-6">
+                            <p:linkButton outcome="/vacations" value="Vacation overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                            </p:linkButton>
+                        </div>
+                        <div class="ui-g-6" align="right">
+                            <p:commandButton value="Save"
+                                             action="#{vacationController.doSaveVacation}"
+                                             ajax="true"
+                                             icon="fa fa-fw fa-save"
+                                             validateClient="true"
+                                             update="growl msgs :vacationForm">
+                            </p:commandButton>
+                        </div>
                     </div>
                 </h:form>
 

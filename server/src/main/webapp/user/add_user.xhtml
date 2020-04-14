@@ -69,17 +69,24 @@
                                     <p:selectBooleanCheckbox id="addEnabled" value="#{userDetailController.user.enabled}"/>
                                     <p:outputLabel for="addEnabled" value=" Enabled"/>
                                 </p:column>
-                                <p:column style="text-align: right">
-                                    <p:commandButton value="Save"
-                                                     action="#{userDetailController.doSaveUser()}"
-                                                     ajax="true"
-                                                     icon="fa fa-fw fa-save"
-                                                     validateClient="true"
-                                                     update="growl msgs">
-                                    </p:commandButton>
-                                </p:column>
+
                             </p:row>
                         </p:panelGrid>
+                        <br></br>
+                        <div class="ui-g">
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/user/users" value="User overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{userDetailController.doSaveUser()}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
+                        </div>
                     </h:form>
 
 
