@@ -49,6 +49,11 @@ public class TeamService
         return Lists.newArrayList(teamRepository.findAll());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<Team> findTeamsOfDepartment(Department department) {
+        return Lists.newArrayList(teamRepository.findTeamOfDepartment(department));
+    }
+
     /**
      * Gets the FIRST team with the specified team name.
      * This may NOT return a unique result, as teams can have the same name across departments.

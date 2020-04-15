@@ -40,6 +40,12 @@ public class UserService {
         return Lists.newArrayList(userRepository.findAll());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<User> getAllUsersOfDepartment(Department department) {
+        return Lists.newArrayList(userRepository.findDepartmentMemberOf(department));
+    }
+
+
     /**
      * Loads a single user identified by its username.
      *
