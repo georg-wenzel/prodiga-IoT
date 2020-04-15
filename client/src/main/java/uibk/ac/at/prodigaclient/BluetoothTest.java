@@ -80,6 +80,7 @@ public class BluetoothTest {
         return true;
     }
 
+    // facets decoding
     static int getFacet(byte [] byteArray) {
         return byteArray[2] >> 2;
     }

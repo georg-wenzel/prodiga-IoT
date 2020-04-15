@@ -30,24 +30,37 @@ public class ManageCubes {
         }
     }
 
-     public BluetoothGattService getService(BluetoothDevice device, String UUID) throws InterruptedException {
+    public BluetoothGattService getService(BluetoothDevice device, String UUID) {
         BluetoothGattService specificBluetoothService = null;
-        List<BluetoothGattService> bluetoothServices = null;
+        List<BluetoothGattService> bluetoothServices = device.getServices();
+        if (bluetoothServices == null) {
+            return null;
+        }
 
-        do {
-            bluetoothServices = device.getServices();
-            if (bluetoothServices == null) {
-                return null;
+        for (BluetoothGattService service : bluetoothServices) {
+            if (service.getUUID().equals(UUID)) {
+                specificBluetoothService = service;
             }
-
-            for (BluetoothGattService service : bluetoothServices) {
-                if (service.getUUID().equals(UUID)) {
-                    specificBluetoothService = service;
-                }
-            }
-            Thread.sleep(4000);
-        } while (bluetoothServices.isEmpty());
+        }
 
         return specificBluetoothService;
     }
+
+    static BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
+        BluetoothGattCharacteristic specificBluetoothCharacteristic = null;
+        List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
+
+        if (characteristics == null) {
+            return null;
+        }
+
+        for (BluetoothGattCharacteristic characteristic : characteristics) {
+            if (characteristic.getUUID().equals(UUID)) {
+                specificBluetoothCharacteristic = characteristic;
+            }
+        }
+
+        return specificBluetoothCharacteristic;
+    }
+
 }
