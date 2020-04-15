@@ -68,11 +68,11 @@ public class UserService {
         if (user.isNew())
         {
             if(userRepository.findFirstByUsername(user.getUsername()) != null) {
-                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
+                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.ERROR);
             }
 
             if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
-                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
+                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.ERROR);
             }
 
             user.setCreateDate(new Date());
@@ -116,7 +116,7 @@ public class UserService {
 
     public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
         if(user.getUsername().equals(getAuthenticatedUser().getUsername())){
-            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.ERROR);
         }
     }
 

@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import uibk.ac.at.prodiga.utils.Constants;
+
 import java.util.Properties;
 
 @Configuration
@@ -15,7 +17,7 @@ public class MailConfig {
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
-        mailSender.setUsername("prodiga.project@gmail.com");
+        mailSender.setUsername(Constants.DEFAULT_EMAIL_RECEIVER);
         mailSender.setPassword("prodiga1project1");
         //TODO: pw verschlüsseln
 

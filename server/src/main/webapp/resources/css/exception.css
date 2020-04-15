@@ -1,7 +1,0 @@
-.exception-dialog {
-    max-height: 500px;
-}
-
-.exception-dialog div:nth-child(2) {
-    height: 450px !important;
-}
