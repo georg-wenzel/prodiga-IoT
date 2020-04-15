@@ -46,7 +46,7 @@ public class ManageCubes {
         return specificBluetoothService;
     }
 
-    static BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
+    public BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
         BluetoothGattCharacteristic specificBluetoothCharacteristic = null;
         List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
