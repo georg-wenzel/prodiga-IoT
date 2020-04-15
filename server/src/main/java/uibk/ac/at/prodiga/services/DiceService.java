@@ -57,7 +57,7 @@ public class DiceService {
     public Dice loadDice(long diceId) throws ProdigaGeneralExpectedException {
         return diceRepository.findById(diceId).orElseThrow(()
                 -> new ProdigaGeneralExpectedException("No dice with Id " + diceId + " found",
-                MessageType.WARNING));
+                MessageType.ERROR));
     }
 
     /**
@@ -112,7 +112,7 @@ public class DiceService {
         if(dice.isActive()) {
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
-                throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.WARNING);
+                throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.ERROR);
             }
 
             // Here we check if the user already has a dice
@@ -123,7 +123,7 @@ public class DiceService {
                 // If the user already has a dice and the current dice is NOT the usersDice we also throw
                 if(userDice != null && (dice.isNew() || !dice.getId().equals(userDice.getId()))) {
                     throw new ProdigaGeneralExpectedException("User " + dice.getUser().getUsername()
-                            + " already has a assigned Dice", MessageType.WARNING);
+                            + " already has a assigned Dice", MessageType.ERROR);
                 }
             }
         }

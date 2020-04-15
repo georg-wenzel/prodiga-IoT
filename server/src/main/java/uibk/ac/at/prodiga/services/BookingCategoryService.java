@@ -61,7 +61,7 @@ public class BookingCategoryService {
         }
 
         if(StringUtils.isEmpty(cat.getName())) {
-            throw new ProdigaGeneralExpectedException("Name may not be null", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Name may not be null", MessageType.ERROR);
         }
 
         if(cat.isNew()) {
@@ -82,12 +82,12 @@ public class BookingCategoryService {
         }
 
         if(cat.getTeams() != null && cat.getTeams().size() > 0) {
-            throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at least one team", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at least one team", MessageType.ERROR);
         }
 
 
         if(bookingRepository.findAllByBookingCategory(cat).size() > 0) {
-            throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at lease on booking", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at lease on booking", MessageType.ERROR);
         }
 
         bookingCategoryRepository.save(cat);
