@@ -5,6 +5,7 @@ import tinyb.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,14 @@ public class ManageCubes {
         discoveryStarted = manager.startDiscovery();
     }
 
+    public void closeManager() {
+        manager.stopDiscovery();
+    }
+
+    public Set<String> getCubeIDList() {
+        return listOfCubes.keySet();
+    }
+
     public void updateDeviceList() {
         List<BluetoothDevice> list = manager.getDevices();
 
@@ -27,7 +36,11 @@ public class ManageCubes {
             // TODO: test if all devices are shown instantly or we have to add a delay
             // first filter than map to Cube because of memory saves
             listOfCubes = list.stream().filter(x -> x.getName().toLowerCase().contains("timeflip"))
-                    .map(Cube::new).collect(Collectors.toMap(Cube::getName, Function.identity()));
+                    .map(Cube::new).collect(Collectors.toMap(Cube::getAddress, Function.identity()));
         }
+    }
+
+    public List<HistoryEntry> getHistory(String cubeID) {
+        return listOfCubes.get(cubeID).getHistory();
     }
 }

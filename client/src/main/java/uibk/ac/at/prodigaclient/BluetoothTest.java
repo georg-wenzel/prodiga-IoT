@@ -71,7 +71,7 @@ public class BluetoothTest {
         return null;
     }
 
-    static boolean is_last(byte [] test) {
+    static boolean isLast(byte [] test) {
         for (byte x : test) {
             if (x != 0x00) {
                 return false;
@@ -195,7 +195,7 @@ public class BluetoothTest {
         if (commandOutputChar != null) {
             byte[] history = commandOutputChar.readValue();
 
-            while (!is_last(history)) {
+            while (!isLast(history)) {
                 System.out.print("History = {");
 
                 for (byte b : history) {
