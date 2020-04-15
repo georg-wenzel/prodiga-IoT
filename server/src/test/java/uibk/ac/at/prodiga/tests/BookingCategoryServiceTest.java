@@ -49,11 +49,14 @@ public class BookingCategoryServiceTest {
     @Autowired
     RoomRepository roomRepository;
 
+    @Autowired UserRepository userRepository;
+
     User admin = null;
     User notAdmin = null;
 
     @BeforeEach
-    public void init(@Autowired UserRepository userRepository) {
+    public void init()
+    {
         admin = DataHelper.createAdminUser("admin", userRepository);
         notAdmin = DataHelper.createUserWithRoles("notAdmin", Sets.newSet(UserRole.EMPLOYEE), userRepository);
     }
@@ -111,6 +114,46 @@ public class BookingCategoryServiceTest {
 
         Assertions.assertEquals(2, bookingCategoryService.findAllCategoriesNotUsedByTeam(t).size(), "Could not find correct amount of booking categories.");
     }
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    public void bookingCategoryService_findAllByTeamTeamleader_returnCorrectAmount()
+    {
+        int amount = 5;
+        Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
+        DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
+        for(int i = 0; i < amount; i++) {
+            BookingCategory cat = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
+
+            if(i % 2 == 0) {
+                cat.setTeams(Sets.newSet(t));
+                bookingCategoryRepository.save(cat);
+            }
+        }
+
+        Assertions.assertEquals(3, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    public void bookingCategoryService_findAllNotUsedByTeamTeamleader_returnCorrectAmount() {
+        int amount = 5;
+        Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
+        DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
+        for(int i = 0; i < amount; i++) {
+            BookingCategory cat = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
+
+            if(i % 2 == 0) {
+                cat.setTeams(Sets.newSet(t));
+                bookingCategoryRepository.save(cat);
+            }
+        }
+        Assertions.assertEquals(2, bookingCategoryService.findAllCategoriesNotUsedByTeam().size(), "Could not find correct amount of booking categories.");
+    }
+
 
     @Test
     @DirtiesContext
@@ -170,7 +213,7 @@ public class BookingCategoryServiceTest {
 
     @Test
     @DirtiesContext
-    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE", "DEPARTMENTLEADER"})
     public void bookingCategoryService_findAllUnauthorized_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> bookingCategoryService.findAllCategories(),
