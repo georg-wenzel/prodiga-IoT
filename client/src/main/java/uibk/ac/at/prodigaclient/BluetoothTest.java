@@ -84,8 +84,10 @@ public class BluetoothTest {
         return byteArray[2] >> 2;
     }
 
+    // little endian conversion
     static int getTime(byte [] byteArray) {
-        return ((byteArray[2] & 0x03) << 16) | (byteArray[1] << 8) | (byteArray[0]);
+        return ((Byte.toUnsignedInt(byteArray[2]) & 0x03) << 16) | (Byte.toUnsignedInt(byteArray[1]) << 8)
+                | (Byte.toUnsignedInt(byteArray[0]));
     }
 
     public static void main(String[] args) throws InterruptedException {
