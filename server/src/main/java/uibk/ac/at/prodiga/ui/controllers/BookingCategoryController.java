@@ -5,11 +5,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
+import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Controller for global (administrative) configuration of possible booking categories
@@ -19,6 +19,7 @@ import java.util.List;
 public class BookingCategoryController
 {
     private final BookingCategoryService bookingCategoryService;
+    private final BookingService bookingService;
     private final ProdigaUserLoginManager userLoginManager;
 
     private String newCategoryName;
@@ -26,9 +27,11 @@ public class BookingCategoryController
     private long editCategoryId;
     private BookingCategory deleteCategory;
     private boolean isEditing = false;
+    private Map<BookingCategory, Integer> usedInBookings = new HashMap<BookingCategory, Integer>();
 
-    public BookingCategoryController(BookingCategoryService bookingCategoryService, ProdigaUserLoginManager userLoginManager)
+    public BookingCategoryController(BookingCategoryService bookingCategoryService, ProdigaUserLoginManager userLoginManager, BookingService bookingService)
     {
+        this.bookingService = bookingService;
         this.bookingCategoryService = bookingCategoryService;
         this.userLoginManager = userLoginManager;
     }
@@ -122,5 +125,11 @@ public class BookingCategoryController
 
     public void setDeleteCategory(BookingCategory deleteCategory) {
         this.deleteCategory = deleteCategory;
+    }
+
+    public int getUsedInBookings(BookingCategory category)
+    {
+        if(!usedInBookings.containsKey(category)) usedInBookings.put(category, bookingService.getNumberOfBookingsWithCategory(category));
+        return usedInBookings.get(category);
     }
 }

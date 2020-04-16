@@ -76,6 +76,20 @@ public class BookingCategoryServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void bookingCategoryService_findById_returnsCorrectCategory()
+    {
+        BookingCategory cat = DataHelper.createBookingCategory("somename", admin, bookingCategoryRepository);
+        BookingCategory cat_db = bookingCategoryService.findById(cat.getId());
+
+        Assertions.assertEquals(cat.getId(), cat_db.getId(), "ID was not properly returned.");
+        Assertions.assertEquals(cat.getName(), cat_db.getName(), "Name was not properly returned.");
+        Assertions.assertEquals(cat.getObjectCreatedUser(), cat_db.getObjectCreatedUser(), "Creation user was not properly returned.");
+        Assertions.assertEquals(cat.getObjectCreatedDateTime(), cat_db.getObjectCreatedDateTime(), "Creation date was not properly returned.");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void bookingCategoryService_findAllByTeam_returnCorrectAmount() {
         int amount = 5;
         Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
@@ -252,5 +266,13 @@ public class BookingCategoryServiceTest {
     public void bookingCategoryService_deleteUnauthorized_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> bookingCategoryService.delete(null), "EMPLYOEE can delete Categories");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void bookingCategoryService_findById_throws() {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                () -> bookingCategoryService.findById(0), "EMPLYOEE can find categories by id.");
     }
 }
