@@ -40,8 +40,16 @@
                                               rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                     <f:param name="team" value="#{team.id}" />
                                 </p:linkButton>
+                                <p:commandButton action="#{teamController.doDeleteTeam()}" icon="fa fa-fw fa-trash" title="Delete" update=":teamForm:teamTable">
+                                    <f:setPropertyActionListener value="#{team}" target="#{teamController.team}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this team? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
                             </p:column>
                         </p:dataTable>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
                     </h:form>
 
                 </div>
