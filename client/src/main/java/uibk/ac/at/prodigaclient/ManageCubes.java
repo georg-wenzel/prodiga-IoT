@@ -43,4 +43,8 @@ public class ManageCubes {
     public List<HistoryEntry> getHistory(String cubeID) {
         return listOfCubes.get(cubeID).getHistory();
     }
+
+    public int getBattery(String cubeID) {
+        return listOfCubes.get(cubeID).getBattery();
+    }
 }

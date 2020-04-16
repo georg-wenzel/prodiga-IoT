@@ -145,4 +145,24 @@ public class Cube {
 
         return historyEntryList;
     }
+
+    public int getBattery() {
+        int batteryStatus = 0;
+        cube.connect();
+
+        BluetoothGattService batteryService = getService(BATTERYSERVICEUUID); // TimeFlip Service
+
+        if (batteryService != null) {
+            BluetoothGattCharacteristic batteryChar = getCharacteristic(batteryService, BATTERYCHARACTERISTICUUID); // command output characteristic used to read the history
+            byte[] batteryStatusHex = batteryChar.readValue();
+            batteryStatus = Byte.toUnsignedInt(batteryStatusHex[0]);
+        } else {
+            System.out.println("Facet service not found");
+        }
+
+        cube.disconnect();
+
+        return batteryStatus;
+    }
+
 }

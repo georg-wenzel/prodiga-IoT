@@ -6,6 +6,7 @@ public class ManageCubeMain {
         manageCubes.updateDeviceList();
         System.out.println(manageCubes.getCubeIDList());
         System.out.println(manageCubes.getHistory("0C:61:CF:C7:8F:D5"));
+        System.out.println(manageCubes.getBattery("0C:61:CF:C7:8F:D5") + "%");
         manageCubes.closeManager();
     }
 }
