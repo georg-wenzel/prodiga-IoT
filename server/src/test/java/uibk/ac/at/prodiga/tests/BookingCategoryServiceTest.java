@@ -227,7 +227,7 @@ public class BookingCategoryServiceTest {
 
     @Test
     @DirtiesContext
-    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE", "DEPARTMENTLEADER"})
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
     public void bookingCategoryService_findAllUnauthorized_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> bookingCategoryService.findAllCategories(),
