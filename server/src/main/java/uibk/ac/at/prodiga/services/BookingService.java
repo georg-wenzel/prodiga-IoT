@@ -78,17 +78,19 @@ public class BookingService
         return bookingRepository.findAllByBookingCategory(cat).size();
     }
 
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
+        return saveBooking(booking, userLoginManager.getCurrentUser());
+    }
+
     /**
      * Saves or updates a booking.
      * @param booking The booking to save.
      * @return The booking after storing it in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when users are trying to modify the bookings of others, or modify old bookings without appropriate permissions.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException
+    public Booking saveBooking(Booking booking, User u) throws ProdigaGeneralExpectedException
     {
-        User u = userLoginManager.getCurrentUser();
-
         //check fields
         if(booking.getActivityEndDate().before(booking.getActivityStartDate()))
         {
