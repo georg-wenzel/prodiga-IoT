@@ -29,14 +29,16 @@ public class DepartmentService
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
     private final LogInformationService logInformationService;
+    private final TeamService teamService;
 
-    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager, LogInformationService logInformationService)
+    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager, LogInformationService logInformationService, TeamService teamService)
     {
         this.departmentRepository = departmentRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.userLoginManager = userLoginManager;
         this.logInformationService = logInformationService;
+        this.teamService = teamService;
     }
 
     /**
@@ -164,8 +166,23 @@ public class DepartmentService
      * @param department the department to delete
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void deleteDepartment(Department department) {
+    public void deleteDepartment(Department department) throws Exception {
+        checkForDepartmentDeletionOrDeactivation(department);
         departmentRepository.delete(department);
         logInformationService.log("Department " + department.getName() + " was deleted!");
     }
+
+    public void checkForDepartmentDeletionOrDeactivation(Department department) throws ProdigaGeneralExpectedException {
+        if(userService.getDepartmentLeaderOf(department) != null){
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with an aktive leader!", MessageType.WARNING);
+        }
+        if(userService.getUsersByDepartment(department) != null && !userService.getUsersByDepartment(department).isEmpty()){
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with aktive members!", MessageType.WARNING);
+        }
+        if(teamService.findTeamsOfDepartment(department) !=null && !teamService.findTeamsOfDepartment(department).isEmpty()){
+
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with aktive teams!", MessageType.WARNING);
+        }
+    }
+
 }

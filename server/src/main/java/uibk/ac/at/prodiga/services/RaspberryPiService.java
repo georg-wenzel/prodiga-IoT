@@ -57,7 +57,7 @@ public class RaspberryPiService {
         return findByInternalIdWithAuth(internalId)
                 .orElseThrow(() -> new ProdigaGeneralExpectedException(
                         "RaspberryPi with internal id " + internalId + " not " +
-                                "found", MessageType.WARNING));
+                                "found", MessageType.ERROR));
     }
 
     /**
@@ -79,7 +79,7 @@ public class RaspberryPiService {
         return findByInternalId(internalId)
                 .orElseThrow(() -> new ProdigaGeneralExpectedException(
                         "RaspberryPi with internal id " + internalId + " not " +
-                                "found", MessageType.WARNING));
+                                "found", MessageType.ERROR));
     }
 
     public RaspberryPi findById(Long raspId) throws Exception {
@@ -135,23 +135,23 @@ public class RaspberryPiService {
         if(raspi.isNew()) {
             if(raspberryPiRepository.findFirstByInternalId(raspi.getInternalId()).isPresent()) {
                 throw new ProdigaGeneralExpectedException("Raspberry Pi with internal ID "
-                        + raspi.getInternalId() + " already exists.", MessageType.WARNING);
+                        + raspi.getInternalId() + " already exists.", MessageType.ERROR);
             }
         }
 
         // First check if there is a room
         if(raspi.getAssignedRoom() == null) {
-            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi without room!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi without room!", MessageType.ERROR);
         }
 
         // Next check if the password is set
         if(StringUtils.isEmpty(raspi.getPassword())) {
-            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty password!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty password!", MessageType.ERROR);
         }
 
         // Check if internal ID is set
         if(StringUtils.isEmpty(raspi.getInternalId())) {
-            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty Internal ID", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty Internal ID", MessageType.ERROR);
         }
 
         tryDeletePendingRaspberry(raspi);
@@ -184,7 +184,7 @@ public class RaspberryPiService {
         if(!assignedDices.isEmpty()) {
             throw new ProdigaGeneralExpectedException(
                     "Cannot delete Raspberry Pi because there are still cubes assigned.",
-                    MessageType.WARNING);
+                    MessageType.ERROR);
         }
 
         raspberryPiRepository.delete(raspi);

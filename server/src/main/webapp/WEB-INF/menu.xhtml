@@ -57,6 +57,12 @@
                                 <f:param name="team" value="" />
                             </p:menuitem>
                         </p:submenu>
+                        <p:submenu id="om_categories" label="Categories" icon="fa fa-fw fa-columns" rendered="#{prodigaUserLoginManager.hasRole('ADMIN') || prodigaUserLoginManager.hasRole('TEAMLEADER')}">
+                            <p:menuitem id="om_categories_manage"
+                                        value="Global Overview"
+                                        icon="fa fa-fw fa-list-ul"
+                                        outcome="/booking-categories"/>
+                        </p:submenu>
                         <!--<p:menuitem id="om_room" value="Rooms" icon="fa fa-fw fa-home" outcome="/room" />-->
                         <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
                     </pe:menu>
