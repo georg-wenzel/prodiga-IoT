@@ -1,7 +1,7 @@
 package uibk.ac.at.prodigaclient.api;
 
-import uibk.ac.at.prodiga.rest.dtos.JwtRequestDTO;
-import uibk.ac.at.prodiga.rest.dtos.JwtResponseDTO;
+import uibk.ac.at.prodigaclient.dtos.JwtRequestDTO;
+import uibk.ac.at.prodigaclient.dtos.JwtResponseDTO;
 import uibk.ac.at.prodigaclient.CollectionFormats.*;
 
 import retrofit2.Call;
