@@ -16,6 +16,7 @@ import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 @Scope("application")
@@ -31,6 +32,13 @@ public class BookingCategoryService
         this.bookingCategoryRepository = bookingCategoryRepository;
         this.bookingRepository = bookingRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public BookingCategory findById(long id)
+    {
+        Optional<BookingCategory> cat = bookingCategoryRepository.findById(id);
+        return cat.orElse(null);
     }
 
     /**
@@ -128,9 +136,9 @@ public class BookingCategoryService
 
 
         if(bookingRepository.findAllByBookingCategory(cat).size() > 0) {
-            throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at lease on booking", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at least one booking", MessageType.ERROR);
         }
 
-        bookingCategoryRepository.save(cat);
+        bookingCategoryRepository.delete(cat);
     }
 }

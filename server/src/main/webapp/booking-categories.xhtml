@@ -31,7 +31,6 @@
                             <div class="ui-g-6 input-form">
                                 <p:inputText id="categoryName"
                                              value="#{bookingCategoryController.newCategoryName}"
-                                             disabled="false"
                                              label="Category Name" style="width:100%"/>
                             </div>
                             <div class="ui-g-2 input-form">
@@ -40,7 +39,7 @@
                                              ajax="true"
                                              icon="fa fa-fw fa-save"
                                              validateClient="true"
-                                             update="growl msgs">
+                                             update="growl msgs :categoriesForm :categoryForm">
                             </p:commandButton>
                          </div>
                         </div>
@@ -50,6 +49,7 @@
                     </div>
                     </h:form>
                     <h1>Current Booking Categories</h1>
+                    Please keep in mind booking categories may not be deleted if any teams are still using them, or they were used previously in any bookings.
                     <h:form id="categoriesForm">
                         <p:dataTable id="categoryTable" var="category" scrollable="true" style="width:100%" scrollHeight="500" value="#{bookingCategoryController.allBookingCategories}">
                             <p:column headerText="ID">
@@ -57,7 +57,11 @@
                             </p:column>
 
                             <p:column headerText="Name">
-                                <h:outputText value="#{category.name}" />
+                                <h:outputText value="#{category.name}" rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
+                                <p:inputText id="categoryEditName"
+                                             value="#{bookingCategoryController.editCategoryName}"
+                                             rendered="#{bookingCategoryController.isEditing and category.id == bookingCategoryController.editCategoryId}"
+                                             label="Category Name" style="width:100%"/>
                             </p:column>
 
                             <p:column headerText="Used by teams">
@@ -65,13 +69,18 @@
                             </p:column>
 
                             <p:column style="width:100px;text-align: center">
-                                <p:linkButton icon="fa fa-fw fa-edit"
-                                              title="Edit"
-                                              outcome="booking-category">
-                                    <f:param name="category" value="#{category.id}" />
-                                </p:linkButton>
-                                <p:commandButton action="#{bookingCategoryController.deleteCategory()}" icon="fa fa-fw fa-trash" title="Delete" update=":categoriesForm:categoryTable">
-                                    <f:setPropertyActionListener value="#{category}" target="#{bookingCategoryController.category}" />
+                                <p:commandButton icon="fa fa-fw fa-edit"
+                                              title="Edit" action="#{bookingCategoryController.editCategory(category.id)}"
+                                                update=":categoriesForm"
+                                                rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
+                                <p:commandButton icon="fa fa-fw fa-check"
+                                                 title="Save" action="#{bookingCategoryController.saveEditedCategory}"
+                                                 update=":categoriesForm"
+                                                 rendered="#{bookingCategoryController.isEditing and category.id == bookingCategoryController.editCategoryId}">
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to edit this booking category? This will change historical data. If you are not just clarifying or fixing typos, consider creating a new booking category instead." icon="ui-icon-alert" />
+                                </p:commandButton>
+                                <p:commandButton action="#{bookingCategoryController.doDeleteCategory()}" icon="fa fa-fw fa-trash" title="Delete" update=":categoriesForm:categoryTable">
+                                    <f:setPropertyActionListener value="#{category}" target="#{bookingCategoryController.deleteCategory}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this booking category? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>
                             </p:column>
