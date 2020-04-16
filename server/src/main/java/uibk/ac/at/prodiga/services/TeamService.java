@@ -127,14 +127,14 @@ public class TeamService
         //check if this team has no users
         if(!userRepository.findAllByAssignedTeam(team).isEmpty())
         {
-            throw new ProdigaGeneralExpectedException("Team cannot be deleted because it has remaining users.", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Team cannot be deleted because it has remaining users.", MessageType.WARNING);
         }
 
         //check if team can be found
         Team dbTeam = teamRepository.findFirstById(team.getId());
         if(dbTeam == null)
         {
-            throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.WARNING);
         }
 
         //delete team
