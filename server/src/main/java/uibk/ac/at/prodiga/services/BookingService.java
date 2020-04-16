@@ -68,6 +68,17 @@ public class BookingService
     }
 
     /**
+     * Returns the number of bookings using a certain category
+     * @param cat The booking category
+     * @return the number (int) of bookings using this category
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public int getNumberOfBookingsWithCategory(BookingCategory cat)
+    {
+        return bookingRepository.findAllByBookingCategory(cat).size();
+    }
+
+    /**
      * Saves or updates a booking.
      * @param booking The booking to save.
      * @return The booking after storing it in the database.

@@ -1,0 +1,107 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Booking Category Configuration</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/booking-categories">Booking Categories Configuration</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Global Booking Category Configuration</h1>
+                    From this page, the global pool of booking categories can be managed. Keep in mind any editing of this pool can result in the changing of historic data! Please be very mindful when managing this data.
+
+                    <h1>Add Booking Category</h1>
+                    Adding a new booking category allows teams to allow this dice side category to be configured in the employee's dice and show up as a category in statistical groupings.
+                    <h:form id="categoryForm">
+                    <p:messages id="msgs" for="msgs"/>
+                    <div class="ui-g">
+                        <div class="ui-g-5">
+                            <div class="ui-g-3 input-form">
+                                <p:outputLabel for="categoryName" value="Category Name: "/>
+                            </div>
+                            <div class="ui-g-6 input-form">
+                                <p:inputText id="categoryName"
+                                             value="#{bookingCategoryController.newCategoryName}"
+                                             required="true"
+                                             label="Category Name" style="width:100%"/>
+                            </div>
+                            <div class="ui-g-2 input-form">
+                            <p:commandButton value="Save"
+                                             action="#{bookingCategoryController.saveNewCategory}"
+                                             ajax="true"
+                                             icon="fa fa-fw fa-save"
+                                             validateClient="true"
+                                             update="growl msgs :categoriesForm :categoryForm">
+                            </p:commandButton>
+                         </div>
+                        </div>
+                    </div>
+                    <div class="ui-g-6">
+
+                    </div>
+                    </h:form>
+                    <h1>Current Booking Categories</h1>
+                    Please keep in mind booking categories may not be deleted if any teams are still using them, or they were used previously in any bookings.
+                    <h:form id="categoriesForm">
+                        <p:dataTable id="categoryTable" var="category" scrollable="true" style="width:100%; margin-top:30px;" scrollHeight="500" value="#{bookingCategoryController.allBookingCategories}">
+                            <p:column headerText="ID" style="width:50px">
+                                <h:outputText value="#{category.id}" />
+                            </p:column>
+
+                            <p:column headerText="Name">
+                                <h:outputText value="#{category.name}" rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
+                                <p:inputText id="categoryEditName"
+                                             value="#{bookingCategoryController.editCategoryName}"
+                                             rendered="#{bookingCategoryController.isEditing and category.id == bookingCategoryController.editCategoryId}"
+                                             label="Category Name" style="width:100%"/>
+                            </p:column>
+
+                            <p:column headerText="Used by teams">
+                                <h:outputText value="#{category.teams}" />
+                            </p:column>
+
+                            <p:column headerText="Number of Bookings" style="width:150px">
+                                <h:outputText value="#{bookingCategoryController.getUsedInBookings(category)}" />
+                            </p:column>
+
+                            <p:column style="width:100px;text-align: center">
+                                <p:commandButton icon="fa fa-fw fa-edit"
+                                              title="Edit" action="#{bookingCategoryController.editCategory(category.id)}"
+                                                update=":categoriesForm"
+                                                rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
+                                <p:commandButton icon="fa fa-fw fa-check"
+                                                 title="Save" action="#{bookingCategoryController.saveEditedCategory}"
+                                                 update=":categoriesForm"
+                                                 rendered="#{bookingCategoryController.isEditing and category.id == bookingCategoryController.editCategoryId}">
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to edit this booking category? This will change historical data. If you are not just clarifying or fixing typos, consider creating a new booking category instead." icon="ui-icon-alert" />
+                                </p:commandButton>
+                                <p:commandButton action="#{bookingCategoryController.doDeleteCategory()}" icon="fa fa-fw fa-trash" title="Delete" update=":categoriesForm:categoryTable"
+                                                 rendered="#{(category.getTeams() == null or category.getTeams().size() == 0) and bookingCategoryController.getUsedInBookings(category) == 0}">
+                                    <f:setPropertyActionListener value="#{category}" target="#{bookingCategoryController.deleteCategory}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this booking category? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="fa fa-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="fa fa-close" />
+                    </p:confirmDialog>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>
