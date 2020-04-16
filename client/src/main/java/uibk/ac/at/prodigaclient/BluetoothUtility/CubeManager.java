@@ -1,6 +1,8 @@
-package uibk.ac.at.prodigaclient;
+package uibk.ac.at.prodigaclient.BluetoothUtility;
 
 import tinyb.*;
+import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
+import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,12 +11,12 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class ManageCubes {
+public class CubeManager {
     private BluetoothManager manager;
     private Map<String, Cube> listOfCubes;
     private boolean discoveryStarted;
 
-    public ManageCubes () {
+    public CubeManager() {
         manager = BluetoothManager.getBluetoothManager();
         listOfCubes = new HashMap<>();
         discoveryStarted = manager.startDiscovery();

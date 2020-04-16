@@ -1,4 +1,4 @@
-package uibk.ac.at.prodigaclient;
+package uibk.ac.at.prodigaclient.BluetoothUtility;
 
 import tinyb.BluetoothDevice;
 import tinyb.BluetoothGattCharacteristic;
