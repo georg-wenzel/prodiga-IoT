@@ -1,9 +1,13 @@
 package uibk.ac.at.prodigaclient.BluetoothUtility;
 
+import net.jodah.failsafe.*;
 import tinyb.BluetoothDevice;
+import tinyb.BluetoothException;
 import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
 
+import javax.xml.stream.FactoryConfigurationError;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,9 +44,18 @@ public class Cube {
         return address;
     }
 
-    public BluetoothGattService getService(String UUID) {
+    // check if device has the service we need to use.
+    public boolean isCube() {
+        failsafeConnect();
+        BluetoothGattService gattService = getService(FACETSERVICEUUID);
+        failsafeDisconnect();
+        return (gattService != null);
+    }
+
+    private BluetoothGattService getService(String UUID) {
         BluetoothGattService specificBluetoothService = null;
         List<BluetoothGattService> bluetoothServices = cube.getServices();
+
         if (bluetoothServices == null) {
             return null;
         }
@@ -56,7 +69,7 @@ public class Cube {
         return specificBluetoothService;
     }
 
-    public BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
+    private BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
         BluetoothGattCharacteristic specificBluetoothCharacteristic = null;
         List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
@@ -80,6 +93,28 @@ public class Cube {
             }
         }
         return true;
+    }
+
+    protected void failsafeConnect() {
+        RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
+                .handle(BluetoothException.class)
+                .withDelay(Duration.ofSeconds(1))
+                .withMaxRetries(3);
+
+        if (!cube.getConnected()) {
+            Failsafe.with(retryPolicy).run(() -> cube.connect());
+        }
+    }
+
+    protected void failsafeDisconnect() {
+        RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
+                .handle(BluetoothException.class)
+                .withDelay(Duration.ofSeconds(1))
+                .withMaxRetries(3);
+
+        if (cube.getConnected()) {
+            Failsafe.with(retryPolicy).run(() -> cube.disconnect());
+        }
     }
 
     private void inputPW(BluetoothGattService facetService) {
@@ -114,9 +149,6 @@ public class Cube {
 
     public List<HistoryEntry> getHistory() {
         List<HistoryEntry> historyEntryList = null;
-
-        cube.connect();
-
         BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
 
         if (facetService != null) {
@@ -141,15 +173,11 @@ public class Cube {
             System.out.println("Facet service not found");
         }
 
-        cube.disconnect();
-
         return historyEntryList;
     }
 
     public int getBattery() {
         int batteryStatus = 0;
-        cube.connect();
-
         BluetoothGattService batteryService = getService(BATTERYSERVICEUUID); // TimeFlip Service
 
         if (batteryService != null) {
@@ -157,12 +185,9 @@ public class Cube {
             byte[] batteryStatusHex = batteryChar.readValue();
             batteryStatus = Byte.toUnsignedInt(batteryStatusHex[0]);
         } else {
-            System.out.println("Facet service not found");
+            System.out.println("Battery service not found");
         }
-
-        cube.disconnect();
 
         return batteryStatus;
     }
-
 }

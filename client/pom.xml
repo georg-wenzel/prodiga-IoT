@@ -59,6 +59,13 @@
 			<artifactId>gson-fire</artifactId>
 			<version>1.8.4</version>
 		</dependency>
+
+		<!--	Fail save	-->
+		<dependency>
+			<groupId>net.jodah</groupId>
+			<artifactId>failsafe</artifactId>
+			<version>2.3.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>
