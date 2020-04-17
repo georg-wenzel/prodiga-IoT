@@ -414,11 +414,10 @@ public class VacationServiceTest
         BookingType bt = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
         DataHelper.createBooking(bt, Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 2)), Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 3)),  u1, d, bookingRepository);
 
-        //vacation that overlaps with beginning date of v1
+        //vacation that overlaps with the booking
         Date fromDate1 = Date.from(LocalDate.now().plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date toDate1 = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        //None of these should pass
         Vacation v1 = new Vacation();
         v1.setBeginDate(fromDate1);
         v1.setEndDate(toDate1);
