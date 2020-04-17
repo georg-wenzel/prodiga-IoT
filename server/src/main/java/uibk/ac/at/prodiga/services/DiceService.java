@@ -8,10 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
-import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
-import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+import uibk.ac.at.prodiga.utils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -25,15 +22,17 @@ public class DiceService {
     private final ProdigaUserLoginManager prodigaUserLoginManager;
     private final LogInformationService logInformationService;
     private final DiceSideService diceSideService;
+    private final BookingCategoryService bookingCategoryService;
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
         this.diceSideService = diceSideService;
         this.logInformationService = logInformationService;
+        this.bookingCategoryService = bookingCategoryService;
     }
 
     /**
@@ -270,12 +269,19 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Exactly 12 sides need to be configured", MessageType.ERROR);
         }
 
+        if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
+            BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
+
+            throw new ProdigaGeneralExpectedException("At leats one side must be configured with " + bc.getName(),
+                    MessageType.ERROR);
+        }
+
         wrapper.getCompletedSides().forEach((key, value) -> {
             DiceSide ds = new DiceSide();
             ds.setBookingCategory(value);
             ds.setDice(wrapper.getDice());
             ds.setSide(key);
-            diceSideService.saveOrModify(ds);
+            diceSideService.save(ds);
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
