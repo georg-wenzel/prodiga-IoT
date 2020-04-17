@@ -61,6 +61,26 @@
                                                        itemLabel="#{u.firstName} #{u.lastName}" />
                                     </p:selectOneMenu>
                                 </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="assignedTeams" value="Assigned Teams: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:selectOneMenu id="assignedTeams"
+                                                     value="Teams"
+                                                     disabled="false"
+                                                     required="false"
+                                                     label="Assigned Teams"
+                                                     style="width: 100%"
+                                                     converter="userConverter">
+                                        <f:selectItems value="#{departmentController.showTeamsofDepartment(departmentController.department)}"
+                                                       var="t"
+                                                       itemValue="#{t}"
+                                                       itemLabel="#{t.name}" />
+                                    </p:selectOneMenu>
+                                </div>
+
+
                             </div>
                     </div>
                         <br/>
