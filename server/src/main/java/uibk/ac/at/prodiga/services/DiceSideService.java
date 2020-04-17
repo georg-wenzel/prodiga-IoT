@@ -26,8 +26,9 @@ public class DiceSideService {
      * @param ds The diceSide to save
      * @return The newly saved dice side
      */
-    public DiceSide saveOrModify(DiceSide ds) {
+    public DiceSide save(DiceSide ds) {
         if(ds.isNew()) {
+            ds.setCurrentSeconds(0);
             ds.setObjectCreatedDateTime(new Date());
             ds.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
         } else {

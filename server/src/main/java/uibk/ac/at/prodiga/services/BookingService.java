@@ -46,6 +46,15 @@ public class BookingService
     }
 
     /**
+     * Returns the last booking for the given dice
+     * @param d The dice
+     * @return
+     */
+    public Booking getLastBookingForDice(Dice d) {
+        return bookingRepository.findFirstByDiceOrderByObjectCreatedDateTimeDesc(d);
+    }
+
+    /**
      * Returns a collection of all bookings for a team.
      * @return A collection of all bookings for the given team.
      */
