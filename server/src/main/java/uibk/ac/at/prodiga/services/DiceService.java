@@ -6,10 +6,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import uibk.ac.at.prodiga.model.Dice;
-import uibk.ac.at.prodiga.model.DiceSide;
-import uibk.ac.at.prodiga.model.RaspberryPi;
-import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
 import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -43,9 +40,19 @@ public class DiceService {
      * Returns all dices
      * @return A list with dices
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')")
     public List<Dice> getAllDice() {
-        return Lists.newArrayList(diceRepository.findAll());
+        User currentUser = prodigaUserLoginManager.getCurrentUser();
+        if(currentUser.getRoles().contains(UserRole.ADMIN)) {
+            return Lists.newArrayList(diceRepository.findAll());
+        } else {
+            Dice d = getDiceByUser(currentUser);
+            if(d != null) {
+                return Lists.newArrayList(d);
+            } else {
+                return new ArrayList<>();
+            }
+        }
     }
 
     /**
@@ -55,9 +62,13 @@ public class DiceService {
      * @throws ProdigaGeneralExpectedException If no dice could be found
      */
     public Dice loadDice(long diceId) throws ProdigaGeneralExpectedException {
-        return diceRepository.findById(diceId).orElseThrow(()
+        Dice d = diceRepository.findById(diceId).orElseThrow(()
                 -> new ProdigaGeneralExpectedException("No dice with Id " + diceId + " found",
                 MessageType.ERROR));
+
+        checkAccessDiceAndThrow(d);
+
+        return d;
     }
 
     /**
@@ -65,6 +76,7 @@ public class DiceService {
      * @param internalId the internal id
      * @return The found dice
      */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Dice getDiceByInternalId(String internalId) {
         return diceRepository.findFirstByInternalId(internalId);
     }
@@ -74,12 +86,13 @@ public class DiceService {
      * @param u The user
      * @return The assigned dice
      */
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #u.username")
     public Dice getDiceByUser(User u) {
         if(u == null) {
             return null;
         }
-
         return diceRepository.findFirstByUser(u);
+
     }
 
     /**
@@ -87,6 +100,7 @@ public class DiceService {
      * @param raspi The raspi
      * @return A list with dices
      */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Dice> getAllByRaspberryPi(RaspberryPi raspi) {
         return diceRepository.findAllByAssignedRaspberry(raspi);
     }
@@ -95,6 +109,7 @@ public class DiceService {
      * Returns all dices which are active and assigned to a user
      * @return A list of dices
      */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public List<Dice> getAllAvailableDices() {
         return getAllDice().stream()
                 .filter(x -> x.isActive() && x.getUser() == null)
@@ -107,8 +122,11 @@ public class DiceService {
      * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')")
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
+        checkAccessDiceAndThrow(dice);
+
+
         if(dice.isActive()) {
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
@@ -261,5 +279,18 @@ public class DiceService {
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
+    }
+
+    private void checkAccessDiceAndThrow(Dice d) throws ProdigaGeneralExpectedException {
+        User currentUser = prodigaUserLoginManager.getCurrentUser();
+
+        if(d.getUser() == null && !currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new ProdigaGeneralExpectedException("Only admins can edit dices without users",
+                    MessageType.ERROR);
+        } else if(d.getUser() != null
+                && !currentUser.getUsername().equals(d.getUser().getUsername())) {
+            throw new ProdigaGeneralExpectedException("You cannot save someone else's dice",
+                    MessageType.ERROR);
+        }
     }
 }
