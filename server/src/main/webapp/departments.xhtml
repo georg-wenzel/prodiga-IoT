@@ -33,6 +33,10 @@
                                 <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) == null}" value="No department leader"/>
                             </p:column>
 
+                            <p:column headerText="Number of users">
+                                <h:outputText value="#{userListController.getAllUsersInDepartment(department).size()}" />
+                            </p:column>
+
                             <p:column style="width:100px;text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
