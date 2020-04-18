@@ -32,7 +32,7 @@ public class CalendarController implements Serializable {
         vacations.forEach(x ->
         {
             Instant endInstant = x.getEndDate().toInstant();
-            Date newEnd = Date.from(endInstant.plus(1, ChronoUnit.MINUTES));
+            Date newEnd = Date.from(endInstant.plus(1, ChronoUnit.DAYS));
 
             DefaultScheduleEvent vacation = new DefaultScheduleEvent("Vacation", x.getBeginDate(), newEnd, true);
             vacation.setData(x);
