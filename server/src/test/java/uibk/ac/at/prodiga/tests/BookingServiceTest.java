@@ -289,7 +289,7 @@ public class BookingServiceTest
         Assertions.assertEquals(endingTime, b1.getActivityEndDate(), "Activity end time was not returned properly.");
         Assertions.assertEquals(team, b1.getTeam(), "Team was not returned properly.");
         Assertions.assertEquals(dept, b1.getDept(), "Department was not returned properly.");
-        Assertions.assertEquals(cat, b1.getBookingCategory(), "Booking type was not returned properly.");
+        Assertions.assertEquals(cat, b1.getBookingCategory(), "Booking category was not returned properly.");
         Assertions.assertEquals(d1, b1.getDice(), "Dice was not returned properly.");
     }
 
@@ -498,7 +498,7 @@ public class BookingServiceTest
         Assertions.assertEquals(endingTime, b1.getActivityEndDate(), "Activity end time was not updated properly.");
         Assertions.assertEquals(team, b1.getTeam(), "Team was updated, but should not have been.");
         Assertions.assertEquals(dept, b1.getDept(), "Department was updated, but should not have been.");
-        Assertions.assertEquals(cat2, b1.getBookingCategory(), "Booking type was not updated properly.");
+        Assertions.assertEquals(cat2, b1.getBookingCategory(), "Booking category was not updated properly.");
     }
 
     /**
