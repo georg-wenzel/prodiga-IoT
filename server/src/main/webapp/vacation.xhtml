@@ -32,9 +32,9 @@
                             <div class="card">
                                 <h:panelGrid columns="2" cellpadding="5">
                                     <p:outputLabel for="fromDate" value="Start date:" />
-                                    <p:calendar id="fromDate" value="#{vacationController.vacation.beginDate}"/>
+                                    <p:calendar id="fromDate" value="#{vacationController.vacation.beginDate}" required="true"/>
                                     <p:outputLabel for="toDate" value="End date: " />
-                                    <p:calendar id="toDate" value="#{vacationController.vacation.endDate}" />
+                                    <p:calendar id="toDate" value="#{vacationController.vacation.endDate}" required="true"/>
                                 </h:panelGrid>
                             </div>
                         </div>

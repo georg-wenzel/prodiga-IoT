@@ -145,4 +145,10 @@ public class TeamController {
         return teamLeader != null
             && !teamLeader.getRoles().contains(UserRole.TEAMLEADER);
     }
+
+    public void doDeleteTeam() throws Exception {
+        this.teamService.deleteTeam(team);
+        SnackbarHelper.getInstance()
+                .showSnackBar("Team \"" + team.getName() + "\" deleted!", MessageType.ERROR);
+    }
 }

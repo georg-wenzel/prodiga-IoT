@@ -266,8 +266,9 @@ public class DiceServiceTest {
     @Test
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
     public void diceService_getAllWithoutRights_throws() {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> diceService.getAllDice(), "Unauthorized user can see all dice");
+        DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        Assertions.assertEquals(0, diceService.getAllDice().size());
     }
 
     @DirtiesContext
@@ -276,7 +277,7 @@ public class DiceServiceTest {
     public void diceService_saveWithoutRights_throws() {
         Dice d = new Dice();
 
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class,
                 () -> diceService.save(d), "Unauthorized user can save");
     }
 

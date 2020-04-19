@@ -46,6 +46,15 @@ public class BookingService
     }
 
     /**
+     * Returns the last booking for the given dice
+     * @param d The dice
+     * @return
+     */
+    public Booking getLastBookingForDice(Dice d) {
+        return bookingRepository.findFirstByDiceOrderByObjectCreatedDateTimeDesc(d);
+    }
+
+    /**
      * Returns a collection of all bookings for a team.
      * @return A collection of all bookings for the given team.
      */
@@ -68,16 +77,29 @@ public class BookingService
     }
 
     /**
+     * Returns the number of bookings using a certain category
+     * @param cat The booking category
+     * @return the number (int) of bookings using this category
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public int getNumberOfBookingsWithCategory(BookingCategory cat)
+    {
+        return bookingRepository.findAllByBookingCategory(cat).size();
+    }
+
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
+        return saveBooking(booking, userLoginManager.getCurrentUser());
+    }
+
+    /**
      * Saves or updates a booking.
      * @param booking The booking to save.
      * @return The booking after storing it in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when users are trying to modify the bookings of others, or modify old bookings without appropriate permissions.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException
+    public Booking saveBooking(Booking booking, User u) throws ProdigaGeneralExpectedException
     {
-        User u = userLoginManager.getCurrentUser();
-
         //check fields
         if(booking.getActivityEndDate().before(booking.getActivityStartDate()))
         {

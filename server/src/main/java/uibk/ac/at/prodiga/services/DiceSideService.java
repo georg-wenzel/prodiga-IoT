@@ -2,6 +2,7 @@ package uibk.ac.at.prodiga.services;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.DiceSide;
 import uibk.ac.at.prodiga.repositories.DiceSideRepository;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -25,8 +26,9 @@ public class DiceSideService {
      * @param ds The diceSide to save
      * @return The newly saved dice side
      */
-    public DiceSide saveOrModify(DiceSide ds) {
+    public DiceSide save(DiceSide ds) {
         if(ds.isNew()) {
+            ds.setCurrentSeconds(0);
             ds.setObjectCreatedDateTime(new Date());
             ds.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
         } else {
@@ -42,5 +44,9 @@ public class DiceSideService {
         ds.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return diceSideRepository.save(ds);
+    }
+
+    public DiceSide findByDiceAndSide(Dice dice, Integer side){
+        return diceSideRepository.findFirstByDiceAndSide(dice, side);
     }
 }

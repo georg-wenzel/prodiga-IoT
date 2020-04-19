@@ -75,7 +75,7 @@ public class RoomService {
 
         if(room.isNew()){
             if(roomRepository.findFirstByName(room.getName()) != null){
-                throw new ProdigaGeneralExpectedException("Room with same name already exists.", MessageType.WARNING);
+                throw new ProdigaGeneralExpectedException("Room with same name already exists.", MessageType.ERROR);
             }
             room.setObjectCreatedDateTime(new Date());
             room.setObjectCreatedUser(getAuthenicatedUser());

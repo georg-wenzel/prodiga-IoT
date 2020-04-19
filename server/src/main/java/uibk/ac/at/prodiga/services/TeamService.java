@@ -49,6 +49,11 @@ public class TeamService
         return Lists.newArrayList(teamRepository.findAll());
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<Team> findTeamsOfDepartment(Department department) {
+        return Lists.newArrayList(teamRepository.findTeamOfDepartment(department));
+    }
+
     /**
      * Gets the FIRST team with the specified team name.
      * This may NOT return a unique result, as teams can have the same name across departments.
@@ -122,14 +127,14 @@ public class TeamService
         //check if this team has no users
         if(!userRepository.findAllByAssignedTeam(team).isEmpty())
         {
-            throw new ProdigaGeneralExpectedException("Team cannot be deleted because it has remaining users.", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Team cannot be deleted because it has remaining users.", MessageType.WARNING);
         }
 
         //check if team can be found
         Team dbTeam = teamRepository.findFirstById(team.getId());
         if(dbTeam == null)
         {
-            throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.WARNING);
         }
 
         //delete team

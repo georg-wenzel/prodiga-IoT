@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Prodiga departments</ui:define>
+    <ui:define name="title">Prodiga Departments</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -33,6 +33,10 @@
                                 <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) == null}" value="No department leader"/>
                             </p:column>
 
+                            <p:column headerText="Number of users">
+                                <h:outputText value="#{userListController.getAllUsersInDepartment(department).size()}" />
+                            </p:column>
+
                             <p:column style="width:100px;text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
@@ -46,6 +50,11 @@
                                 </p:commandButton>
                             </p:column>
                         </p:dataTable>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
                     </h:form>
 
                 </div>

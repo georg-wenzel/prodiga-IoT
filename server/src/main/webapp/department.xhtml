@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Departments</ui:define>
+    <ui:define name="title">Prodiga Department</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -48,11 +48,18 @@
                                     <p:outputLabel for="departmentLeader" value="Department leader: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:selectOneMenu id="departmentLeader"
-                                                     value="#{departmentController.departmentLeader}"
-                                                     disabled="false"
-                                                     required="false"
-                                                     label="Department leader"
+                                    <p:inputText id="departmentLeader"
+                                                 value="#{departmentController.departmentLeader.firstName} #{departmentController.departmentLeader.lastName}"
+                                                 disabled="false"
+                                                 label="Department leader" style="width:100%"/>
+                                </div>
+
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="departmentMembers" value="Department members: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:selectOneMenu id="departmentMembers"
                                                      style="width: 100%"
                                                      converter="userConverter">
                                         <f:selectItems value="#{userListController.getAllUsersInDepartment(departmentController.department)}"
@@ -61,6 +68,26 @@
                                                        itemLabel="#{u.firstName} #{u.lastName}" />
                                     </p:selectOneMenu>
                                 </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="assignedTeams" value="Assigned Teams: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:selectOneMenu id="assignedTeams"
+                                                     value="Teams"
+                                                     disabled="false"
+                                                     required="false"
+                                                     label="Assigned Teams"
+                                                     style="width: 100%"
+                                                     converter="userConverter">
+                                        <f:selectItems value="#{departmentController.showTeamsofDepartment(departmentController.department)}"
+                                                       var="t"
+                                                       itemValue="#{t}"
+                                                       itemLabel="#{t.name}" />
+                                    </p:selectOneMenu>
+                                </div>
+
+
                             </div>
                     </div>
                         <br/>

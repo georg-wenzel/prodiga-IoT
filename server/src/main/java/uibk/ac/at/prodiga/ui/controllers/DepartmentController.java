@@ -4,14 +4,17 @@ package uibk.ac.at.prodiga.ui.controllers;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.DepartmentService;
+import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 import uibk.ac.at.prodiga.utils.MessageType;
 import java.util.Collection;
+import java.util.List;
 
 @Component
 @Scope("view")
@@ -21,10 +24,12 @@ public class DepartmentController {
     private Department department;
     private final UserService userService;
     private User departmentLeader;
+    private TeamService teamService;
 
-    public DepartmentController(DepartmentService departmentService, UserService userService) {
+    public DepartmentController(DepartmentService departmentService, UserService userService, TeamService teamService) {
         this.departmentService = departmentService;
         this.userService = userService;
+        this.teamService = teamService;
     }
 
      /**
@@ -190,5 +195,9 @@ public class DepartmentController {
     private boolean saveDepartmentLeader() {
         return departmentLeader != null
                 && !departmentLeader.getRoles().contains(UserRole.DEPARTMENTLEADER);
+    }
+
+    public Collection<Team> showTeamsofDepartment(Department department){
+        return this.teamService.findTeamsOfDepartment(department);
     }
 }

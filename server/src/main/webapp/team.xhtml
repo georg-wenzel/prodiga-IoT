@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Teams</ui:define>
+    <ui:define name="title">Prodiga Team</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -36,14 +36,20 @@
                                 </div>
 
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel for="teamLeader" value="Teamleader: "/>
+                                    <p:outputLabel for="teamLeader" value="Team leader: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:selectOneMenu id="teamLeader"
-                                                     value="#{teamController.teamLeader}"
-                                                     disabled="false"
-                                                     required="false"
-                                                     label="Team leader"
+                                    <p:inputText id="teamLeader"
+                                                 value="#{teamController.teamLeader.firstName} #{teamController.teamLeader.lastName}"
+                                                 disabled="false"
+                                                 label="Team leader" style="width:100%"/>
+                                </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel for="teamMembers" value="Team members: "/>
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:selectOneMenu id="teamMembers"
                                                      style="width: 100%"
                                                      converter="userConverter">
                                         <f:selectItems value="#{userListController.getAllUsersInTeam(teamController.team)}"

@@ -11,6 +11,7 @@ import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -64,11 +65,11 @@ public class VacationController
     public void doSaveVacation() throws ProdigaGeneralExpectedException
     {
         if(vacation == null) throw new RuntimeException("No vacation found to save.");
-
         vacation.setUser(userLoginManager.getCurrentUser());
-        //add 5 hours offset, because of some sketchy time zone stuff...
-        vacation.setBeginDate(Date.from(Instant.ofEpochMilli(vacation.getBeginDate().getTime() + 1000 * 60 * 60 * 5)));
-        vacation.setEndDate(Date.from(Instant.ofEpochMilli(vacation.getEndDate().getTime() + 1000 * 60 * 60 * 5)));
+
+        //Normalize the date to be at midnight UTC
+        vacation.setBeginDate(Date.from(Instant.ofEpochMilli(vacation.getBeginDate().getTime() + ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getTotalSeconds() * 1000)));
+        vacation.setEndDate(Date.from(Instant.ofEpochMilli(vacation.getEndDate().getTime() + ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getTotalSeconds() * 1000)));
 
         Vacation save_vacation = vacationService.saveVacation(vacation);
         //update if vacation was saved successfully
@@ -130,6 +131,7 @@ public class VacationController
     public void doDeleteVacation() throws Exception
     {
         this.vacationService.deleteVacation(vacation);
+        this.currentVacations.remove(vacation);
         SnackbarHelper.getInstance()
                 .showSnackBar("Vacation \"" + vacation.getId() + "\" deleted!", MessageType.ERROR);
     }
@@ -184,7 +186,6 @@ public class VacationController
 
     /**
      * Returns whether or not the vacation is being edited or created at the moment
-     * @param vacation The vacation to check
      * @return true if the vacation is being edited, i.e. has an existing database object.
      */
     public boolean getEditing()

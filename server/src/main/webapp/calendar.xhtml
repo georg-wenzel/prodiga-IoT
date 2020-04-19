@@ -1,0 +1,63 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+                
+    <ui:define name="title">Empty Page</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/calendar">Calendar</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Calendar overview</h1>
+                    <br></br>
+                    <div class="ui-g">
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-8">
+                            <h:form id="calendarForm">
+                                <p:growl id="messages" showDetail="false" severity="info"/>
+
+                                <h:panelGrid columnClasses="value">
+                                    <p:schedule id="schedule" value="#{calendarController.eventModel}"
+                                                idgetVar="myschedule"
+                                                locale="#{calendarController.locale}"
+                                                draggable="false"
+                                                resizable="false"
+                                                timeZone="CET">
+
+                                        <p:ajax event="eventSelect" listener="#{calendarController.onEventSelect}" update="eventDetails" oncomplete="PF('eventDialog').show();" />
+
+                                    </p:schedule>
+                                </h:panelGrid>
+
+                                <p:dialog widgetVar="eventDialog" header="Event Details" showEffect="clip" hideEffect="clip">
+                                    <h:panelGrid id="eventDetails" columns="2">
+                                        <p:outputLabel for="title" value="Titles:" />
+                                        <p:inputText id="title" value="#{calendarController.event.title}" required="true" disabled="true"/>
+                                        <br/><br/>
+                                        <p:linkButton
+                                                value="Go to vacation"
+                                                icon="fa fa-plane"
+                                                outcome="/vacation">
+                                            <f:param name="vacation" value="#{calendarController.event.data.id}" />
+                                        </p:linkButton>
+                                    </h:panelGrid>
+                                </p:dialog>
+                            </h:form>
+                        </div>
+                        <div class="ui-g-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </ui:define>
+
+</ui:composition>
