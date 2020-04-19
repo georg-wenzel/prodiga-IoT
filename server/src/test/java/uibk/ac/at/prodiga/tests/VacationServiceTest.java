@@ -47,7 +47,7 @@ public class VacationServiceTest
     BookingRepository bookingRepository;
 
     @Autowired
-    BookingTypeRepository bookingTypeRepository;
+    BookingCategoryRepository bookingCategoryRepository;
 
     @Autowired
     RaspberryPiRepository raspberryPiRepository;
@@ -411,8 +411,8 @@ public class VacationServiceTest
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Dice d = DataHelper.createDice("testdice", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        DataHelper.createBooking(bt, Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 2)), Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 3)),  u1, d, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        DataHelper.createBooking(cat, Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 2)), Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 3)),  u1, d, bookingRepository);
 
         //vacation that overlaps with the booking
         Date fromDate1 = Date.from(LocalDate.now().plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant());

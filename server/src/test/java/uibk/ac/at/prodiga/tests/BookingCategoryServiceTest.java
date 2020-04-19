@@ -38,9 +38,6 @@ public class BookingCategoryServiceTest {
     BookingRepository bookingRepository;
 
     @Autowired
-    BookingTypeRepository bookingTypeRepository;
-
-    @Autowired
     DiceRepository diceRepository;
 
     @Autowired
@@ -214,9 +211,8 @@ public class BookingCategoryServiceTest {
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void bookingCategoryService_deleteWithBooking_throws() {
         Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType t = DataHelper.createBookingType(1, true, admin, bookingTypeRepository);
-        Booking b = DataHelper.createBooking(t, admin, d, bookingRepository);
-        BookingCategory cat = DataHelper.createBookingCategory("test", admin, bookingCategoryRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b = DataHelper.createBooking(cat, admin, d, bookingRepository);
 
         b.setBookingCategory(cat);
 

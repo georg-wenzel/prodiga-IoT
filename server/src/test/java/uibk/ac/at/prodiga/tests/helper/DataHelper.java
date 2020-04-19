@@ -145,51 +145,14 @@ public class DataHelper {
     }
 
     /**
-     * Creates a booking type with random name and specified properties
-     * @param side The side this booking type is for
-     * @param active Whether or not the booking type is active
-     * @param createUser The creation user for this booking type
-     * @param bookingTypeRepository The repository to save the booking type.
-     * @return The generated booking type.
-     */
-    public static BookingType createBookingType(int side, boolean active, User createUser, BookingTypeRepository bookingTypeRepository)
-    {
-        return createBookingType(side, active, createRandomString(20), createUser, bookingTypeRepository);
-    }
-
-    /**
-     * Creates a booking type with specified properties
-     * @param side The side this booking type is for
-     * @param active Whether or not the booking type is active
-     * @param activityName the name of the activity
-     * @param createUser The creation user for this booking type
-     * @param bookingTypeRepository The repository to save the booking type.
-     * @return The generated booking type.
-     */
-    public static BookingType createBookingType(int side, boolean active, String activityName, User createUser, BookingTypeRepository bookingTypeRepository)
-    {
-        //if flag is active and active booking type for this side already returns, return that one (avoids conflicts when test data exists)
-        if(active && bookingTypeRepository.findActiveCategoryForSide(side)  != null) return bookingTypeRepository.findActiveCategoryForSide(side);
-
-        BookingType bt = new BookingType();
-        bt.setActive(active);
-        bt.setSide(side);
-        bt.setActivityName(activityName);
-        bt.setObjectCreatedUser(createUser);
-        bt.setObjectCreatedDateTime(new Date());
-
-        return bookingTypeRepository.save(bt);
-    }
-
-    /**
      * Creates a booking given the specified data and with a random task duration. Task duration will always lie in legal values (less than 7 days ago, less than 8 hours long, longer than 30 minutes)
-     * @param type The type of the booking
+     * @param category The category of the booking
      * @param createUser User who saves the activity
      * @param dice Dice which the activity is connected to
      * @param bookingRepository The repository to store the entry with.
      * @return The booking entry after being stored in the database.
      */
-    public static Booking createBooking(BookingType type, User createUser, Dice dice, BookingRepository bookingRepository)
+    public static Booking createBooking(BookingCategory category, User createUser, Dice dice, BookingRepository bookingRepository)
     {
         Random r = new Random();
         //offset for date endtime (from 0 minutes to (24*6)*60 minutes = 6 days ago)
@@ -200,12 +163,12 @@ public class DataHelper {
         Date endDate = new Date(new Date().getTime() - offset * 60 * 1000);
         Date startDate = new Date(endDate.getTime() - duration * 60 * 1000);
 
-        return createBooking(type, startDate, endDate, createUser, dice, bookingRepository);
+        return createBooking(category, startDate, endDate, createUser, dice, bookingRepository);
     }
 
     /**
      * Creates a booking given the specified data and returns it
-     * @param type The type of the booking
+     * @param category The category of the booking
      * @param startDate Start of the activity
      * @param endDate End of the activity
      * @param createUser User who saves the activity
@@ -213,13 +176,13 @@ public class DataHelper {
      * @param bookingRepository The repository to store the entry with.
      * @return The booking entry after being stored in the database.
      */
-    public static Booking createBooking(BookingType type, Date startDate, Date endDate, User createUser, Dice dice, BookingRepository bookingRepository)
+    public static Booking createBooking(BookingCategory category, Date startDate, Date endDate, User createUser, Dice dice, BookingRepository bookingRepository)
     {
         Booking booking = new Booking();
         booking.setActivityStartDate(startDate);
         booking.setActivityEndDate(endDate);
         booking.setDice(dice);
-        booking.setType(type);
+        booking.setBookingCategory(category);
         booking.setDept(dice.getUser().getAssignedDepartment());
         booking.setTeam(dice.getUser().getAssignedTeam());
         booking.setObjectCreatedDateTime(new Date());
@@ -381,16 +344,20 @@ public class DataHelper {
         return roomRepository.save(r);
     }
 
-    public static BookingCategory createBookingCategory(String name, User u,
-                                                 BookingCategoryRepository bookingCategoryRepository) {
+    public static BookingCategory createBookingCategory(String name, User u, Set<Team> teams,
+                                                        BookingCategoryRepository bookingCategoryRepository) {
         BookingCategory cat = new BookingCategory();
         cat.setName(name);
-        cat.setObjectChangedDateTime(new Date());
-        cat.setObjectChangedUser(u);
+        cat.setTeams(teams);
         cat.setObjectCreatedUser(u);
         cat.setObjectCreatedDateTime(new Date());
 
         return bookingCategoryRepository.save(cat);
+    }
+
+    public static BookingCategory createBookingCategory(String name, User u,
+                                                 BookingCategoryRepository bookingCategoryRepository) {
+        return createBookingCategory(name, u, null, bookingCategoryRepository);
     }
 
     private static String createRandomString(int size) {
