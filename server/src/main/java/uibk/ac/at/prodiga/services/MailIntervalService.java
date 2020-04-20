@@ -16,14 +16,14 @@ public class MailIntervalService {
     //every monday 12:00pm
     @Scheduled(cron = "0 12 * * 1")
     public void sendWeeklyNotification(){
-        //mailService.sendEmailTo(user, "Your monthly Prodiga Statistics", "coming soon")
+        //mailService.sendEmailTo(user, "Your weekly Prodiga Statistics", "coming soon")
 
     }
 
     //every day 12:00pm
     @Scheduled(cron = "0 12 * * *")
     public void sendDailyNotification(){
-        //mailService.sendEmailTo(user, "Your monthly Prodiga Statistics", "coming soon")
+        //mailService.sendEmailTo(user, "Your daily Prodiga Statistics", "coming soon")
 
     }
 }
