@@ -44,16 +44,30 @@ public class RoomService {
         this.logInformationService = logInformationService;
     }
 
+    /**
+     * Returns a collection of all rooms
+     * @return A collection of all rooms
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<Room> getAllRooms(){
         return Lists.newArrayList(roomRepository.findAll());
     }
 
+    /**
+     * Gets the first room with the specified id. (Unique identifier)
+     * @param id the id of the room
+     * @return The room with this Id, or null if none exists
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room getFirstById(long id){
         return roomRepository.findFirstById(id);
     }
 
+    /**
+     * Gets the FIRST room with the specified room name.
+     * @param name the name of the room
+     * @return The first room in the database which has this name, or null if none exists
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room getFirstByName(String name){
         return roomRepository.findFirstByName(name);
@@ -64,6 +78,11 @@ public class RoomService {
         return this.roomRepository.findFirstById(room.getId());
     }
 
+    /**
+     * Saves the current room in the database. If room with this ID already exists, overwrites data of existing room in the database.
+     * @param room The room to save
+     * @return The new state of the room after saving in the DB
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room saveRoom(Room room) throws ProdigaGeneralExpectedException{
         if(room.getName() == null || room.getName().isEmpty()){
@@ -87,6 +106,10 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
+    /**
+     * Deletes the room with this ID from the database.
+     * @param roomToDelete The room to delete
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @Transactional
     public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
@@ -100,21 +123,40 @@ public class RoomService {
         logInformationService.log("Room " + roomToDelete.getName() + " was deleted!");
     }
 
+    /**
+     * Adds a raspberry pi to a room
+     * @param room that gets the raspberry pi added
+     * @param raspberryPi to be add to the given room
+     */
     @Transactional
     public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).addRaspberryPi(raspberryPi);
     }
 
+    /**
+     * Removes the raspberry pi from a room
+     * @param room that gets the raspberry pi removed
+     * @param raspberryPi to be removed from the given room
+     */
     @Transactional
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
 
+    /**
+     * Loads a room by its roomname
+     * @param roomname roomname to search for
+     * @return a room with the given roomname
+     */
     @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname")
     public Room loadRoom(String roomname) {
         return roomRepository.findFirstByName(roomname);
     }
 
+    /**
+     * Creates a new room
+     * @return a new room
+     */
     @Transactional
     public Room createRoom(){
         Room room = new Room();
@@ -123,6 +165,10 @@ public class RoomService {
         return room;
     }
 
+    /**
+     * Returns the amount of rooms in the db
+     * @return the amount of rooms
+     */
     public long getRoomCount(){
         return roomRepository.count();
     }

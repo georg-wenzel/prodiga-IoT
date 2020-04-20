@@ -22,7 +22,10 @@ public class MailFrequencyService {
         this.mailService = mailService;
     }
 
-    //every first day of the month 12:00pm
+    /**
+     * sends every first day of the month at 12:00pm
+     * a notification to all users who have the frequency type set to monthly
+     */
     @Scheduled(cron = "0 0 12 1 * ?")
     public void sendMonthlyNotification(){
         for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.MONTHLY)){
@@ -30,7 +33,10 @@ public class MailFrequencyService {
         }
     }
 
-    //every monday 12:00pm
+    /**
+     * sends every monday at 12:00pm
+     * a notification to all users who have the frequency type set to monthly
+     */
     @Scheduled(cron = "0 0 12 * * MON")
     public void sendWeeklyNotification(){
         for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.WEEKLY)) {
@@ -38,7 +44,10 @@ public class MailFrequencyService {
         }
     }
 
-    //every weekday 12:00pm
+    /**
+     * sends every weekday at 12:00pm
+     * a notification to all users who have the frequency type set to monthly
+     */
     @Scheduled(cron = "0 0 12 * * MON-FRI")
     public void sendDailyNotification(){
         for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.DAILY)) {

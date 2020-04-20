@@ -10,11 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.Team;
+import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 @Component
 @Scope("application")
@@ -22,12 +24,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final LogInformationService logInformationService;
-    private final ProdigaUserLoginManager userLoginManager;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService, ProdigaUserLoginManager userLoginManager) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService) {
         this.userRepository = userRepository;
         this.logInformationService = logInformationService;
-        this.userLoginManager = userLoginManager;
     }
 
     /**
@@ -39,12 +39,6 @@ public class UserService {
     public Collection<User> getAllUsers() {
         return Lists.newArrayList(userRepository.findAll());
     }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Collection<User> getAllUsersOfDepartment(Department department) {
-        return Lists.newArrayList(userRepository.findDepartmentMemberOf(department));
-    }
-
 
     /**
      * Loads a single user identified by its username.
@@ -74,11 +68,11 @@ public class UserService {
         if (user.isNew())
         {
             if(userRepository.findFirstByUsername(user.getUsername()) != null) {
-                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.ERROR);
+                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
             }
 
             if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
-                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.ERROR);
+                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
             }
 
             user.setCreateDate(new Date());
@@ -90,7 +84,6 @@ public class UserService {
 
             //If team changed, revoke teamleader role if previously held
             Set<UserRole> roles = user.getRoles();
-            FrequencyType frequencyType = user.getFrequencyType();
             if(dbUser.getAssignedTeam() != null && !dbUser.getAssignedTeam().equals(user.getAssignedTeam()))
             {
                 roles.remove(UserRole.TEAMLEADER);
@@ -102,7 +95,6 @@ public class UserService {
                 roles.remove(UserRole.DEPARTMENTLEADER);
             }
             user.setRoles(roles);
-            user.setFrequencyType(frequencyType);
 
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
@@ -124,7 +116,7 @@ public class UserService {
 
     public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
         if(user.getUsername().equals(getAuthenticatedUser().getUsername())){
-            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.WARNING);
         }
     }
 
@@ -223,28 +215,5 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public User createNewUser() {
         return new User();
-    }
-
-    /**
-     *
-     * @param frequencyType
-     * @throws ProdigaGeneralExpectedException
-     */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public void saveFrequencyType(FrequencyType frequencyType) throws ProdigaGeneralExpectedException
-    {
-        User u = userLoginManager.getCurrentUser();
-        u.setFrequencyType(frequencyType);
-        this.saveUser(u);
-    }
-
-    public FrequencyType getFrequencyTypeOfCurrentUser(){
-        User u = userLoginManager.getCurrentUser();
-        return u.getFrequencyType();
-    }
-
-    public void setFrequencyTypeOfCurrentUser(FrequencyType newFrequencyType){
-        User u = userLoginManager.getCurrentUser();
-        u.setFrequencyType(newFrequencyType);
     }
 }

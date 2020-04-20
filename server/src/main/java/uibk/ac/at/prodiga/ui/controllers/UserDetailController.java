@@ -2,6 +2,7 @@ package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.FrequencyType;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.UserService;
@@ -103,6 +104,10 @@ public class UserDetailController {
         return userRoleList;
     }
 
+    /**
+     * Returns a list of all existing user roles
+     * @return list of all existing user roles
+     */
     public List<String> getAllRolesTotal() {
         List<String> userRoleList = new LinkedList<>();
         userRoleList.add(UserRole.ADMIN.getLabel());
@@ -132,4 +137,15 @@ public class UserDetailController {
         doReloadUser(username);
     }
 
+    /**
+     * Returns a list of all existing frequency types
+     * @return all frequency types
+     */
+    public List<FrequencyType> getAllFrequencyTypesTotal() {
+        List<FrequencyType> freqencyTypeList = new LinkedList<>();
+        freqencyTypeList.add(FrequencyType.DAILY);
+        freqencyTypeList.add(FrequencyType.WEEKLY);
+        freqencyTypeList.add(FrequencyType.MONTHLY);
+        return freqencyTypeList;
+    }
 }
