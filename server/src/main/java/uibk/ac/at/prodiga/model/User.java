@@ -61,6 +61,9 @@ public class User implements Persistable<String>, Serializable {
     private Boolean notificationsEnabled;
 
     public FrequencyType getFrequencyType() {
+        if (frequencyType == null){
+            frequencyType = FrequencyType.WEEKLY;
+        }
         return frequencyType;
     }
 

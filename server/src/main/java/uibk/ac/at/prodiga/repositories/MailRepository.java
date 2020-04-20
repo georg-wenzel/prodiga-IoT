@@ -7,7 +7,7 @@ import uibk.ac.at.prodiga.model.User;
 
 import java.util.List;
 
-public interface MailRepoitory {
+public interface MailRepository extends AbstractRepository<User,Long>{
 
     @Query("SELECT u FROM User u WHERE u.frequencyType=:frequencyType")
     List<User> findUserByFrequencyType(@Param("frequencyType") FrequencyType frequencyType);

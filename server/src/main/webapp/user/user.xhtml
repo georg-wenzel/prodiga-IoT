@@ -109,7 +109,21 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="ui-g">
+                            <div class="ui-g-10 input-form">
+                                <div class="ui-g-2 input-form">
+                                    <p:outputLabel for="frequencyType" value="Email frequency Type: "/>
+                                </div>
+                                <div class="ui-g-10 input-form">
+                                    <p:selectOneMenu id="frequencyType"
+                                                     style="width: 100%"
+                                                     value="#{userDetailController.user.frequencyType}"
+                                                     required="#{userDetailController.user['new']}">
+                                        <f:selectItems value="#{notificationController.allFrequencyTypesTotal}" var="frequencyType" itemLabel="#{frequencyType}" itemValue="#{frequencyType}" />                                                        />
+                                    </p:selectOneMenu>
+                                </div>
+                            </div>
+                        </div>
                         <br/><br/>
                         <div class="ui-g">
                             <div class="ui-g-6">
