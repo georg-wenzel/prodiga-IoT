@@ -33,7 +33,7 @@ public class BookingTypeService
      * Returns a collection of all booking types
      * @return A collection of all booking types.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<BookingType> getAllBookingTypes()
     {
         return Lists.newArrayList(bookingTypeRepository.findAll());
@@ -43,7 +43,7 @@ public class BookingTypeService
      * Returns a collection of all booking types with the isActive flag set.
      * @return A collection of all active booking types.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<BookingType> getAllActiveBookingTypes()
     {
         return Lists.newArrayList(bookingTypeRepository.findAllActiveCategories());
@@ -55,7 +55,7 @@ public class BookingTypeService
      * @param side The side to find the booking type for.
      * @return The active booking type for this side.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingType getActiveBookingForSide(int side)
     {
         return bookingTypeRepository.findActiveCategoryForSide(side);
@@ -67,7 +67,7 @@ public class BookingTypeService
      * @return The booking type after storing it in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when activity name does not fit the criteria (2-64 characters)
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingType saveBookingType(BookingType bookingType) throws ProdigaGeneralExpectedException
     {
         //check fields
@@ -122,7 +122,7 @@ public class BookingTypeService
      * @param id the ID
      * @return The booking type with this Id
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingType loadBookingType(long id)
     {
         return bookingTypeRepository.findFirstById(id);

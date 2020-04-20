@@ -45,7 +45,7 @@ public class DepartmentService
      * Returns a collection of all departments
      * @return A collection of all departments
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<Department> getAllDepartments()
     {
         return Lists.newArrayList(departmentRepository.findAll());
@@ -56,7 +56,7 @@ public class DepartmentService
      * @param name The name of the department
      * @return The first (and only) department with a matching name, or null if none was found
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Department getFirstByName(String name)
     {
         return departmentRepository.findFirstByName(name);
@@ -68,7 +68,7 @@ public class DepartmentService
      * @return The new state of the object in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when name is not between 2 and 20 characters, department leader is not a valid database user or department leader user is already a teamleader or departmentleader elsewhere.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Department saveDepartment(Department department) throws ProdigaGeneralExpectedException
     {
         //check fields
@@ -97,7 +97,7 @@ public class DepartmentService
      * @param newLeader The user to make leader
      * @throws ProdigaGeneralExpectedException If department/user are not valid, or the user cannot be made leader of this department, an exception is thrown.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void setDepartmentLeader(Department department, User newLeader) throws ProdigaGeneralExpectedException
     {
         //check that user is a valid, unchanged database user
@@ -143,7 +143,7 @@ public class DepartmentService
         return department.equals(departmentRepository.findFirstById(department.getId()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Department createDepartment()
     {
         return new Department();
@@ -155,7 +155,7 @@ public class DepartmentService
      * @param departmentId the departmentId to search for
      * @return the department with the given ID
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Department loadDepartment(Long departmentId) {
         return departmentRepository.findFirstById(departmentId);
     }
@@ -165,7 +165,7 @@ public class DepartmentService
      *
      * @param department the department to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteDepartment(Department department) throws Exception {
         checkForDepartmentDeletionOrDeactivation(department);
         departmentRepository.delete(department);

@@ -44,17 +44,17 @@ public class RoomService {
         this.logInformationService = logInformationService;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<Room> getAllRooms(){
         return Lists.newArrayList(roomRepository.findAll());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room getFirstById(long id){
         return roomRepository.findFirstById(id);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room getFirstByName(String name){
         return roomRepository.findFirstByName(name);
     }
@@ -64,7 +64,7 @@ public class RoomService {
         return this.roomRepository.findFirstById(room.getId());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room saveRoom(Room room) throws ProdigaGeneralExpectedException{
         if(room.getName() == null || room.getName().isEmpty()){
             throw new ProdigaGeneralExpectedException("Roomname cannot be empty", MessageType.ERROR);
@@ -87,7 +87,7 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     @Transactional
     public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
     {
@@ -110,7 +110,7 @@ public class RoomService {
         this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname")
+    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname") //NOSONAR
     public Room loadRoom(String roomname) {
         return roomRepository.findFirstByName(roomname);
     }

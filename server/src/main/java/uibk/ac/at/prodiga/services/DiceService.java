@@ -39,7 +39,7 @@ public class DiceService {
      * Returns all dices
      * @return A list with dices
      */
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public List<Dice> getAllDice() {
         User currentUser = prodigaUserLoginManager.getCurrentUser();
         if(currentUser.getRoles().contains(UserRole.ADMIN)) {
@@ -75,7 +75,7 @@ public class DiceService {
      * @param internalId the internal id
      * @return The found dice
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Dice getDiceByInternalId(String internalId) {
         return diceRepository.findFirstByInternalId(internalId);
     }
@@ -99,7 +99,7 @@ public class DiceService {
      * @param raspi The raspi
      * @return A list with dices
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<Dice> getAllByRaspberryPi(RaspberryPi raspi) {
         return diceRepository.findAllByAssignedRaspberry(raspi);
     }
@@ -108,7 +108,7 @@ public class DiceService {
      * Returns all dices which are active and assigned to a user
      * @return A list of dices
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<Dice> getAllAvailableDices() {
         return getAllDice().stream()
                 .filter(x -> x.isActive() && x.getUser() == null)
@@ -121,7 +121,7 @@ public class DiceService {
      * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         checkAccessDiceAndThrow(dice);
 
@@ -156,7 +156,7 @@ public class DiceService {
         return diceRepository.save(dice);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Dice createDice()
     {
         return new Dice();
@@ -167,7 +167,7 @@ public class DiceService {
      *
      * @param dice the dice to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteDice(Dice dice) {
         diceRepository.delete(dice);
         logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
