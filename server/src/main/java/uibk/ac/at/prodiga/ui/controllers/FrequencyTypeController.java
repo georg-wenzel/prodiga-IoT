@@ -36,11 +36,11 @@ public class FrequencyTypeController {
     }
 
 
-    public List<String> getAllFrequencyTypesTotal() {
-        List<String> freqencyTypeList = new LinkedList<>();
-        freqencyTypeList.add(FrequencyType.DAILY.getLabel());
-        freqencyTypeList.add(FrequencyType.WEEKLY.getLabel());
-        freqencyTypeList.add(FrequencyType.MONTHLY.getLabel());
+    public List<FrequencyType> getAllFrequencyTypesTotal() {
+        List<FrequencyType> freqencyTypeList = new LinkedList<>();
+        freqencyTypeList.add(FrequencyType.DAILY);
+        freqencyTypeList.add(FrequencyType.WEEKLY);
+        freqencyTypeList.add(FrequencyType.MONTHLY);
         return freqencyTypeList;
     }
 }
