@@ -7,16 +7,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.Team;
+import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Scope("application")
@@ -123,6 +121,11 @@ public class BookingCategoryService
         return bookingCategoryRepository.save(cat);
     }
 
+    /**
+     * Deletes given booking category
+     * @param cat The booking category to delete
+     * @throws ProdigaGeneralExpectedException Is thrown when category can't be deleted, i.e. because it is still in use or was in use in the past.
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
@@ -140,5 +143,43 @@ public class BookingCategoryService
         }
 
         bookingCategoryRepository.delete(cat);
+    }
+
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public void allowForTeam(BookingCategory cat) throws ProdigaGeneralExpectedException
+    {
+        if(cat == null || cat.getId() == null) return;
+        User teamleader = prodigaUserLoginManager.getCurrentUser();
+        BookingCategory db_cat = bookingCategoryRepository.findById(cat.getId()).orElse(null);
+
+        if(db_cat == null)
+            throw new ProdigaGeneralExpectedException("Category was not found. Please reload the page to update categories.", MessageType.ERROR);
+
+        if(!db_cat.getName().equals(cat.getName()))
+            throw new ProdigaGeneralExpectedException("Category name has changed. Consider reloading the page before making changes.", MessageType.WARNING);
+
+        Set<Team> teams = db_cat.getTeams();
+        teams.add(teamleader.getAssignedTeam());
+        db_cat.setTeams(teams);
+        bookingCategoryRepository.save(db_cat);
+    }
+
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public void disallowForTeam(BookingCategory cat) throws ProdigaGeneralExpectedException
+    {
+        if(cat == null || cat.getId() == null) return;
+        User teamleader = prodigaUserLoginManager.getCurrentUser();
+        BookingCategory db_cat = bookingCategoryRepository.findById(cat.getId()).orElse(null);
+
+        if(db_cat == null)
+            throw new ProdigaGeneralExpectedException("Category was not found. Please reload the page to update categories.", MessageType.ERROR);
+
+        if(!db_cat.getName().equals(cat.getName()))
+            throw new ProdigaGeneralExpectedException("Category name has changed. Consider reloading the page before making changes.", MessageType.WARNING);
+
+        Set<Team> teams = db_cat.getTeams();
+        teams.remove(teamleader.getAssignedTeam());
+        db_cat.setTeams(teams);
+        bookingCategoryRepository.save(db_cat);
     }
 }
