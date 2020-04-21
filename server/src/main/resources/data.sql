@@ -74,6 +74,4 @@ INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_us
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (5, 'admin', DATE(NOW() + INTERVAL 10 DAY), DATE(NOW() + INTERVAL 12 DAY), 'admin', NOW());
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (6, 'admin', DATE(NOW() + INTERVAL 32 DAY), DATE(NOW() + INTERVAL 39 DAY), 'admin', NOW());
 
-/* Test booking to test booking category, needs to be adapted once booking_type is changed */
-INSERT INTO booking_type (id, activity_name, is_active, object_created_user_username, object_created_date_time, side) VALUES (1,'test',true,'admin',NOW(), 3);
-INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id, type_id) VALUES (1,DATE(NOW() - INTERVAL 1 HOUR), DATE(NOW() - INTERVAL 2 HOUR), NOW(), 'admin', 9,1,1,1,1);
+INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (1,DATE(NOW() - INTERVAL 1 HOUR), DATE(NOW() - INTERVAL 2 HOUR), NOW(), 'admin', 9,1,1,1);

@@ -22,11 +22,7 @@ public class Booking implements Persistable<Long>, Serializable
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Dice.class)
     private Dice dice;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = BookingType.class)
-    private BookingType type;
-
-    // TODO: optional = false
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = BookingCategory.class)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = BookingCategory.class)
     private BookingCategory bookingCategory;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Department.class)
@@ -74,14 +70,6 @@ public class Booking implements Persistable<Long>, Serializable
 
     public void setDice(Dice dice) {
         this.dice = dice;
-    }
-
-    public BookingType getType() {
-        return type;
-    }
-
-    public void setType(BookingType type) {
-        this.type = type;
     }
 
     public BookingCategory getBookingCategory() {
