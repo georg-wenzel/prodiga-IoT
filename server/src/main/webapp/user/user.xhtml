@@ -122,6 +122,15 @@
                                 </div>
                             </div>
                         </div>
+                        <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
+                            <p:row style="width: 100%">
+                                <p:column>
+                                    <p:selectBooleanCheckbox id="notificationsEnabled" value="#{userDetailController.user.notificationsEnabled}"/>
+                                    <p:outputLabel for="notificationsEnabled" value=" notificationsEnabled"/>
+                                </p:column>
+
+                            </p:row>
+                        </p:panelGrid>
                         <br/><br/>
                         <div class="ui-g">
                             <div class="ui-g-6">
