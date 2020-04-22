@@ -34,7 +34,7 @@ public class BookingCategoryService
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingCategory findById(long id)
     {
         Optional<BookingCategory> cat = bookingCategoryRepository.findById(id);
@@ -45,7 +45,7 @@ public class BookingCategoryService
      * Returns all saved booking categories
      * @return All booking categories
      */
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategories()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAll());
@@ -56,7 +56,7 @@ public class BookingCategoryService
      * @param t The team
      * @return All booking categories used by that team
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam(Team t)
     {
         if(t == null) {
@@ -70,7 +70,7 @@ public class BookingCategoryService
      * Returns all booking categories of the user's team
      * @return All booking categories of the team the user is in. This should always exist, since the user calling the method is teamleader.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
@@ -81,7 +81,7 @@ public class BookingCategoryService
      * @param t The team
      * @return All booking categories not used by that team
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesNotUsedByTeam(Team t)
     {
         if(t == null) {
@@ -95,13 +95,13 @@ public class BookingCategoryService
      * Returns all booking categories not used by the team the calling user is in
      * @return All booking categories not used by that team.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesNotUsedByTeam()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsNotContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingCategory save(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
         if(cat == null) {
@@ -123,7 +123,7 @@ public class BookingCategoryService
         return bookingCategoryRepository.save(cat);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void delete(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
         if(cat == null) {
