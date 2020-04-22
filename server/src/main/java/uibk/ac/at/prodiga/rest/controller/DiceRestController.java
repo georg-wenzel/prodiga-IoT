@@ -1,7 +1,6 @@
 package uibk.ac.at.prodiga.rest.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +23,6 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 public class DiceRestController {
 
     private final DiceService diceService;
@@ -89,7 +87,7 @@ public class DiceRestController {
                 // We add the different between the total seconds on the dice
                 // and the last saved seconds to the existing end Time
                 // So we get a new end Time
-                Instant newEnd = endDate.plus(Duration.ofSeconds(entry.getSeconds() - diceSide.getCurrentSeconds()));
+                Instant newEnd = endDate.plus(Duration.ofSeconds((long)entry.getSeconds() - diceSide.getCurrentSeconds()));
 
                 // Update update the currentSeconds on the diceSide first - in case that fails
                 // We do not modify the the booking and next them this method gets called

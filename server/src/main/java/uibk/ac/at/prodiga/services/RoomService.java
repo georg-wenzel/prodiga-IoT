@@ -44,31 +44,43 @@ public class RoomService {
         this.logInformationService = logInformationService;
     }
 
+<<<<<<< HEAD
     /**
      * Returns a collection of all rooms
      * @return A collection of all rooms
      */
     @PreAuthorize("hasAuthority('ADMIN')")
+=======
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+>>>>>>> issue-54
     public Collection<Room> getAllRooms(){
         return Lists.newArrayList(roomRepository.findAll());
     }
 
+<<<<<<< HEAD
     /**
      * Gets the first room with the specified id. (Unique identifier)
      * @param id the id of the room
      * @return The room with this Id, or null if none exists
      */
     @PreAuthorize("hasAuthority('ADMIN')")
+=======
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+>>>>>>> issue-54
     public Room getFirstById(long id){
         return roomRepository.findFirstById(id);
     }
 
+<<<<<<< HEAD
     /**
      * Gets the FIRST room with the specified room name.
      * @param name the name of the room
      * @return The first room in the database which has this name, or null if none exists
      */
     @PreAuthorize("hasAuthority('ADMIN')")
+=======
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+>>>>>>> issue-54
     public Room getFirstByName(String name){
         return roomRepository.findFirstByName(name);
     }
@@ -78,12 +90,16 @@ public class RoomService {
         return this.roomRepository.findFirstById(room.getId());
     }
 
+<<<<<<< HEAD
     /**
      * Saves the current room in the database. If room with this ID already exists, overwrites data of existing room in the database.
      * @param room The room to save
      * @return The new state of the room after saving in the DB
      */
     @PreAuthorize("hasAuthority('ADMIN')")
+=======
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+>>>>>>> issue-54
     public Room saveRoom(Room room) throws ProdigaGeneralExpectedException{
         if(room.getName() == null || room.getName().isEmpty()){
             throw new ProdigaGeneralExpectedException("Roomname cannot be empty", MessageType.ERROR);
@@ -110,7 +126,7 @@ public class RoomService {
      * Deletes the room with this ID from the database.
      * @param roomToDelete The room to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     @Transactional
     public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
     {
@@ -148,7 +164,7 @@ public class RoomService {
      * @param roomname roomname to search for
      * @return a room with the given roomname
      */
-    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname")
+    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname") //NOSONAR
     public Room loadRoom(String roomname) {
         return roomRepository.findFirstByName(roomname);
     }

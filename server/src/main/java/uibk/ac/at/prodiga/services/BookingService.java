@@ -38,7 +38,7 @@ public class BookingService
      * Returns a collection of all bookings for a dice.
      * @return A collection of all bookings for the given dice.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
         if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
@@ -58,7 +58,7 @@ public class BookingService
      * Returns a collection of all bookings for a team.
      * @return A collection of all bookings for the given team.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<Booking> getAllBookingsByTeam(Team team)
     {
         if(!userLoginManager.getCurrentUser().getAssignedTeam().equals(team)) throw new RuntimeException("Illegal attempt to load dice data from other team.");
@@ -69,7 +69,7 @@ public class BookingService
      * Returns a collection of all bookings for a department.
      * @return A collection of all bookings for the given department.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<Booking> getAllBookingsByDepartment(Department department)
     {
         if(!userLoginManager.getCurrentUser().getAssignedDepartment().equals(department)) throw new RuntimeException("Illegal attempt to load dice data from other department.");
@@ -81,13 +81,13 @@ public class BookingService
      * @param cat The booking category
      * @return the number (int) of bookings using this category
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public int getNumberOfBookingsWithCategory(BookingCategory cat)
     {
         return bookingRepository.findAllByBookingCategory(cat).size();
     }
 
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
         return saveBooking(booking, userLoginManager.getCurrentUser());
     }
@@ -158,7 +158,7 @@ public class BookingService
      * @param id the ID
      * @return The booking with this Id
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Booking loadBooking(long id)
     {
         Booking b = bookingRepository.findFirstById(id);
@@ -171,7 +171,7 @@ public class BookingService
      * @param booking The booking to delete
      * @throws ProdigaGeneralExpectedException Thrown if the user is trying to delete a booking from longer than 2 weeks ago, but does not have permissions.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
         User u = userLoginManager.getCurrentUser();
