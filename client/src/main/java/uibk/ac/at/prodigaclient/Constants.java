@@ -45,7 +45,9 @@ public class Constants {
         if(client == null) {
             client = new ApiClient("JWT");
         }
-        return client;
+        synchronized (jwtLock) {
+            return client;
+        }
     }
 
     public static String getJwt() {
