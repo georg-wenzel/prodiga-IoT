@@ -41,7 +41,7 @@ public class VacationService
      * Returns a collection of all the users
      * @return A collection of all vacations of the user calling the method
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Vacation> getAllVacations()
     {
         User u = userLoginManager.getCurrentUser();
@@ -54,7 +54,7 @@ public class VacationService
      * @return The new state of the object in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when data is not valid, e.g. dates do not work out or vacation user is not currently logged in user.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Vacation saveVacation(Vacation vacation) throws ProdigaGeneralExpectedException
     {
         User u = userLoginManager.getCurrentUser();
@@ -119,7 +119,7 @@ public class VacationService
      * @param vacationId The id to search by
      * @return the vacation with the given ID
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Vacation getVacationById(Long vacationId)
     {
         Vacation v = vacationRepository.findFirstById(vacationId);
@@ -137,7 +137,7 @@ public class VacationService
      *
      * @param vacation the vacation to delete
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public void deleteVacation(Vacation vacation) throws ProdigaGeneralExpectedException
     {
         Vacation v = vacationRepository.findFirstById(vacation.getId());
@@ -157,7 +157,7 @@ public class VacationService
      * @param year The given year
      * @return The number of remaining vacation days in this year.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public int getUsersRemainingVacationDays(int year)
     {
         User u = userLoginManager.getCurrentUser();
