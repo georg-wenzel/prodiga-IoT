@@ -25,7 +25,7 @@ public class Department implements Persistable<Long>, Serializable
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
     @Column(nullable = true)

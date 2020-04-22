@@ -15,13 +15,13 @@ public class LogInformation implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectedCreatedUser;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectedCreatedDateTime;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectedUpdatedUser;
 
     @Temporal(TemporalType.TIMESTAMP)

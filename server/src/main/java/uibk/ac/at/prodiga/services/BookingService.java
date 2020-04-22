@@ -121,7 +121,7 @@ public class BookingService
         if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
-        };
+        }
 
         //set appropriate fields
         if(booking.isNew())
