@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
@@ -24,7 +25,7 @@ import java.util.Date;
 Anlegen, abfragen, bearbeiten und löschen von Räumen.
 Checken was passiert, wenn noch ein Raspi/Würfel in dem Raum is usw...
  */
-@Service
+@Component
 @Scope("application")
 public class RoomService {
     private final RoomRepository roomRepository;
@@ -73,7 +74,7 @@ public class RoomService {
         return roomRepository.findFirstByName(name);
     }
 
-    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Room getManagedInstance(Room room){
         return this.roomRepository.findFirstById(room.getId());
     }
@@ -110,8 +111,7 @@ public class RoomService {
      * Deletes the room with this ID from the database.
      * @param roomToDelete The room to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
     {
         Room managedRoom = this.getManagedInstance(roomToDelete);
@@ -128,7 +128,7 @@ public class RoomService {
      * @param room that gets the raspberry pi added
      * @param raspberryPi to be add to the given room
      */
-    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).addRaspberryPi(raspberryPi);
     }
@@ -138,7 +138,7 @@ public class RoomService {
      * @param room that gets the raspberry pi removed
      * @param raspberryPi to be removed from the given room
      */
-    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
@@ -154,10 +154,20 @@ public class RoomService {
     }
 
     /**
+     * Loads a room by its roomId
+     * @param roomId roomId to search for
+     * @return a room with the given roomId
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Room loadRoom(Long roomId){
+        return roomRepository.findFirstById(roomId);
+    }
+
+    /**
      * Creates a new room
      * @return a new room
      */
-    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Room createRoom(){
         Room room = new Room();
         room.setObjectCreatedDateTime(new Date());
@@ -165,6 +175,10 @@ public class RoomService {
         return room;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Room createNewRoom() {
+        return new Room();
+    }
     /**
      * Returns the amount of rooms in the db
      * @return the amount of rooms
