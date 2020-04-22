@@ -162,10 +162,10 @@ public class RaspberryPiService {
 
             raspi.setObjectCreatedDateTime(new Date());
             raspi.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            raspi.setObjectChangedDateTime(new Date());
+            raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        raspi.setObjectChangedDateTime(new Date());
-        raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return raspberryPiRepository.save(raspi);
     }

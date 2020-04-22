@@ -115,10 +115,10 @@ public class BookingCategoryService
         if(cat.isNew()) {
             cat.setObjectCreatedDateTime(new Date());
             cat.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            cat.setObjectChangedDateTime(new Date());
+            cat.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        cat.setObjectChangedDateTime(new Date());
-        cat.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return bookingCategoryRepository.save(cat);
     }

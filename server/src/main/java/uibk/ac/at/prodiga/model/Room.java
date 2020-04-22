@@ -24,13 +24,13 @@ public class Room implements Persistable<Long>, Serializable {
     @Column(nullable = true)
     private byte[] picture;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectCreatedUser;
 
     @Column(nullable = true)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
     @Column(nullable = true)

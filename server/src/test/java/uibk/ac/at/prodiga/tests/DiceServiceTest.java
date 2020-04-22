@@ -193,6 +193,7 @@ public class DiceServiceTest {
     public void diceService_saveInactiveDice_diceInDB() throws ProdigaGeneralExpectedException {
         Dice d = new Dice();
         d.setActive(false);
+        d.setObjectCreatedUser(admin);
 
         diceService.save(d);
 

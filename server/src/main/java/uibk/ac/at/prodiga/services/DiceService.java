@@ -148,10 +148,10 @@ public class DiceService {
         if(dice.isNew()) {
             dice.setObjectCreatedDateTime(new Date());
             dice.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
+            dice.setObjectChangedDateTime(new Date());
         }
-
-        dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
-        dice.setObjectChangedDateTime(new Date());
 
         return diceRepository.save(dice);
     }
