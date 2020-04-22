@@ -38,7 +38,7 @@
                         <p:submenu id="om_room" label="Rooms" icon="fa fa-fw fa-home" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                         <p:menuitem id="om_room_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/rooms" />
                         <p:menuitem id="om_room_add" value="Add room" icon="fa fa-fw fa-plus" outcome="/add_room">
-                            <f:param name="room" value="" />
+                            <f:param name="roomid" value="" />
                         </p:menuitem>
                         </p:submenu>
                         <p:submenu id="om_dices" label="Dices" icon="fa fa-fw fa-connectdevelop">

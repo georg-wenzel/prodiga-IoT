@@ -127,7 +127,7 @@ public class RoomDetailController {
      */
     public void loadRoomById(Long roomId){
         if(roomId == null){
-            this.room = roomService.createRoom();
+            this.room = roomService.createNewRoom();
         } else {
             this.room = roomService.loadRoom(roomId);
         }
