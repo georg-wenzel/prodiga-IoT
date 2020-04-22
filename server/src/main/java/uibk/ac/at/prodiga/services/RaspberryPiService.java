@@ -111,12 +111,18 @@ public class RaspberryPiService {
      * Adds a new raspberry to the pending list
      * @param internalId The raspberry pis internal ID
      */
-    public void addPendingRaspberry(String internalId) {
+    public boolean tryAddPendingRaspberry(String internalId) {
+        if(pendingRaspberryPis.stream().anyMatch(x -> x.getInternalId().equals(internalId))) {
+            return false;
+        }
+
         RaspberryPi raspi = new RaspberryPi();
         raspi.setInternalId(internalId);
         pendingRaspberryPis.add(raspi);
         logInformationService.log("Raspberry Pi with internal ID " + internalId +
                 " added to pending Raspberrys");
+
+        return true;
     }
 
 

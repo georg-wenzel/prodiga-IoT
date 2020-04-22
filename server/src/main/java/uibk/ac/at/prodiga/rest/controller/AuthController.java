@@ -36,7 +36,9 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A raspi with the same internalId already exists");
         }
 
-        raspberryPiService.addPendingRaspberry(internalId);
+        if(!raspberryPiService.tryAddPendingRaspberry(internalId)){
+            throw new ResponseStatusException(HttpStatus.CONTINUE, "Raspi already ready added to config list");
+        }
     }
 
     /**

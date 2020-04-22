@@ -1,19 +1,22 @@
 package uibk.ac.at.prodigaclient;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.api.CubeControllerApi;
-import uibk.ac.at.prodigaclient.dtos.GenericStringDTO;
-import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
-
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 
 public class Client {
+
+    private static final Logger logger = LogManager.getLogger();
+
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Hallo, ich bims eins client!!!");
+
+        try {
+            logger.info("RaspberryPi registered with internal ID " + Constants.getInternalId());
+        } catch (Exception ex) {
+            logger.error("Error while reading MAC-Address! Aborting!", ex);
+            return;
+        }
 
         CubeControllerApi cubeControllerApi = new ApiClient().createService(CubeControllerApi.class);
 
