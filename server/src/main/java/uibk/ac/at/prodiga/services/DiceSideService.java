@@ -38,10 +38,9 @@ public class DiceSideService {
                 dbDiceSide.setBookingCategory(ds.getBookingCategory());
                 ds = dbDiceSide;
             }
+            ds.setObjectChangedDateTime(new Date());
+            ds.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        ds.setObjectChangedDateTime(new Date());
-        ds.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return diceSideRepository.save(ds);
     }

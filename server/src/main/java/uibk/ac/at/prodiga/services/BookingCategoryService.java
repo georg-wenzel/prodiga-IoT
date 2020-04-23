@@ -32,7 +32,7 @@ public class BookingCategoryService
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingCategory findById(long id)
     {
         Optional<BookingCategory> cat = bookingCategoryRepository.findById(id);
@@ -43,7 +43,7 @@ public class BookingCategoryService
      * Returns all saved booking categories
      * @return All booking categories
      */
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategories()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAll());
@@ -54,7 +54,7 @@ public class BookingCategoryService
      * @param t The team
      * @return All booking categories used by that team
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam(Team t)
     {
         if(t == null) {
@@ -68,7 +68,7 @@ public class BookingCategoryService
      * Returns all booking categories of the user's team
      * @return All booking categories of the team the user is in. This should always exist, since the user calling the method is teamleader.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
@@ -79,7 +79,7 @@ public class BookingCategoryService
      * @param t The team
      * @return All booking categories not used by that team
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesNotUsedByTeam(Team t)
     {
         if(t == null) {
@@ -93,13 +93,13 @@ public class BookingCategoryService
      * Returns all booking categories not used by the team the calling user is in
      * @return All booking categories not used by that team.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesNotUsedByTeam()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsNotContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public BookingCategory save(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
         if(cat == null) {
@@ -113,20 +113,24 @@ public class BookingCategoryService
         if(cat.isNew()) {
             cat.setObjectCreatedDateTime(new Date());
             cat.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            cat.setObjectChangedDateTime(new Date());
+            cat.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        cat.setObjectChangedDateTime(new Date());
-        cat.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return bookingCategoryRepository.save(cat);
     }
 
+<<<<<<< server/src/main/java/uibk/ac/at/prodiga/services/BookingCategoryService.java
     /**
      * Deletes given booking category
      * @param cat The booking category to delete
      * @throws ProdigaGeneralExpectedException Is thrown when category can't be deleted, i.e. because it is still in use or was in use in the past.
      */
     @PreAuthorize("hasAuthority('ADMIN')")
+=======
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+>>>>>>> server/src/main/java/uibk/ac/at/prodiga/services/BookingCategoryService.java
     public void delete(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
         if(cat == null) {

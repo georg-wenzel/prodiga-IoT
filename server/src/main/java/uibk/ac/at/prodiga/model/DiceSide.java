@@ -33,7 +33,10 @@ public class DiceSide implements Persistable<Long>, Serializable {
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     User objectCreatedUser;
 
+<<<<<<< server/src/main/java/uibk/ac/at/prodiga/model/DiceSide.java
     @Column
+=======
+>>>>>>> server/src/main/java/uibk/ac/at/prodiga/model/DiceSide.java
     private Date objectChangedDateTime;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)

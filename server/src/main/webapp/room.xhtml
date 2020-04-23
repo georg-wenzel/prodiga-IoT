@@ -40,17 +40,23 @@
                 <br></br>
 
                 <br/>
+
+
                 <div class="ui-g">
-                    <p:commandButton value="Save"
-                                     action="#{roomDetailController.doSaveRoom()}"
-                                     ajax="true"
-                                     icon="fa fa-fw fa-save"
-                                     validateClient="true"
-                                     update="growl msgs">
-                    </p:commandButton>
-                    <p:linkButton outcome="/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                    </p:linkButton>
+                    <div class="ui-g-6">
+                        <p:linkButton outcome="/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                    </div>
+                    <div class="ui-g-6" align="right">
+                        <p:commandButton value="Save"
+                                         action="#{roomDetailController.doSaveRoom()}"
+                                         ajax="true"
+                                         icon="fa fa-fw fa-save"
+                                         validateClient="true"
+                                         update="growl msgs">
+                        </p:commandButton>
+                    </div>
                 </div>
+
             </h:form></div>
 
     </ui:define>
