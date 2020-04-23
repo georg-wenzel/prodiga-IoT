@@ -19,11 +19,11 @@
                     <h1>Teams</h1>
                     <h:form id="teamForm">
                         <p:dataTable id="teamTable" var="team" scrollable="true" style="width:60%" scrollHeight="500" value="#{teamController.allTeams}">
-                            <p:column headerText="Teamname">
+                            <p:column headerText="Team name">
                                 <h:outputText value="#{team.name}"/>
                             </p:column>
 
-                            <p:column headerText="Teamleader">
+                            <p:column headerText="Team leader">
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).firstName} "/>
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).lastName}"/>
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) == null}" value="No team leader"/>
