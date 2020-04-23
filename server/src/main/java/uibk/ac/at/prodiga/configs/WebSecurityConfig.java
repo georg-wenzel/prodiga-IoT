@@ -27,8 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        // TODO(Max) Check if we need this
-        // http.csrf().disable();
+        http.csrf().disable(); //NOSONAR
 
         http.headers().frameOptions().disable(); // needed for H2 console
 
