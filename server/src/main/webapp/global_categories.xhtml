@@ -53,11 +53,13 @@
                     Please keep in mind booking categories may not be deleted if any teams are still using them, or they were used previously in any bookings.
                     <h:form id="categoriesForm">
                         <p:dataTable id="categoryTable" var="category" scrollable="true" style="width:100%; margin-top:30px;" scrollHeight="500" value="#{bookingCategoryController.allBookingCategories}">
-                            <p:column headerText="ID" style="width:50px">
+                            <p:column headerText="ID" style="width:50px" filterMatchMode="contains"
+                                      filterBy="#{category.id}" sortBy="#{category.id}">
                                 <h:outputText value="#{category.id}" />
                             </p:column>
 
-                            <p:column headerText="Name">
+                            <p:column headerText="Name" filterMatchMode="contains"
+                                      filterBy="#{category.name}" sortBy="#{category.name}">
                                 <h:outputText value="#{category.name}" rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
                                 <p:inputText id="categoryEditName"
                                              value="#{bookingCategoryController.editCategoryName}"
@@ -65,11 +67,13 @@
                                              label="Category Name" style="width:100%"/>
                             </p:column>
 
-                            <p:column headerText="Used by teams">
+                            <p:column headerText="Used by teams" filterMatchMode="contains"
+                                      filterBy="#{category.teams}" sortBy="#{category.teams}">
                                 <h:outputText value="#{category.teams}" />
                             </p:column>
 
-                            <p:column headerText="Number of Bookings" style="width:150px">
+                            <p:column headerText="Number of Bookings" style="width:150px" filterMatchMode="contains"
+                                      filterBy="#{bookingCategoryController.getUsedInBookings(category)}" sortBy="#{bookingCategoryController.getUsedInBookings(category)}">
                                 <h:outputText value="#{bookingCategoryController.getUsedInBookings(category)}" />
                             </p:column>
 

@@ -19,17 +19,20 @@
                     <h1>Teams</h1>
                     <h:form id="teamForm">
                         <p:dataTable id="teamTable" var="team" scrollable="true" style="width:60%" scrollHeight="500" value="#{teamController.allTeams}">
-                            <p:column headerText="Team name">
-                                <h:outputText value="#{team.name}"/>
+                            <p:column headerText="Team name" filterMatchMode="contains"
+                                      filterBy="#{team.name}" sortBy="#{team.name}">
+                            <h:outputText value="#{team.name}"/>
                             </p:column>
 
-                            <p:column headerText="Team leader">
+                            <p:column headerText="Team leader" filterMatchMode="contains"
+                                      filterBy="#{teamController.getTeamLeaderOf(team).firstName} #{teamController.getTeamLeaderOf(team).lastName}" sortBy="#{teamController.getTeamLeaderOf(team).firstName}">
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).firstName} "/>
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).lastName}"/>
                                 <h:outputText rendered="#{teamController.getTeamLeaderOf(team) == null}" value="No team leader"/>
                             </p:column>
 
-                            <p:column headerText="Number of users">
+                            <p:column headerText="Number of users" filterMatchMode="contains"
+                                      filterBy="#{userListController.getAllUsersInTeam(team).size()}" sortBy="#{userListController.getAllUsersInTeam(team).size()}">
                                 <h:outputText value="#{userListController.getAllUsersInTeam(team).size()}" />
                             </p:column>
 
