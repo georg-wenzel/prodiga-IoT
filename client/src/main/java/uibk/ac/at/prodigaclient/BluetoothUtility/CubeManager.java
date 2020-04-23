@@ -49,8 +49,8 @@ public class CubeManager {
     }
 
     public List<HistoryEntry> getHistory(String cubeID) {
-        List<HistoryEntry> historyEntryList;
         Cube cube = listOfCubes.get(cubeID);
+        List<HistoryEntry> historyEntryList;
 
         cube.failsafeConnect();
 
@@ -62,14 +62,28 @@ public class CubeManager {
     }
 
     public int getBattery(String cubeID) {
-        int batteryPercent;
         Cube cube = listOfCubes.get(cubeID);
+        int batteryPercent;
 
         cube.failsafeConnect();
 
         batteryPercent = cube.getBattery();
 
         cube.failsafeDisconnect();
+
         return batteryPercent;
+    }
+
+    public int getCurrentSide(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+        int currentSide;
+
+        cube.failsafeConnect();
+
+        currentSide = cube.getCurrentSide();
+
+        cube.failsafeDisconnect();
+
+        return currentSide;
     }
 }
