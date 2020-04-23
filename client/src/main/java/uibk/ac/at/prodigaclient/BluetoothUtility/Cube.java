@@ -6,7 +6,6 @@ import tinyb.BluetoothException;
 import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
 
-import javax.xml.stream.FactoryConfigurationError;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -30,7 +29,7 @@ public class Cube {
     private String name;
     private String address;
 
-    public Cube(BluetoothDevice cube) {
+    protected Cube(BluetoothDevice cube) {
         this.cube = cube;
         this.name = cube.getName();
         this.address = cube.getAddress();
@@ -189,5 +188,20 @@ public class Cube {
         }
 
         return batteryStatus;
+    }
+
+    public int getCurrentSide() {
+        int currentSide = 0;
+        BluetoothGattService facetservice = getService(FACETSERVICEUUID); // TimeFlip Service
+
+        if (facetservice != null) {
+            BluetoothGattCharacteristic currentFacet = getCharacteristic(facetservice, CURRENTFACETCHARACTERISTICUUID); // command output characteristic used to read the history
+            byte[] currentFacetHex = currentFacet.readValue();
+            currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
+        } else {
+            System.out.println("Battery service not found");
+        }
+
+        return currentSide;
     }
 }
