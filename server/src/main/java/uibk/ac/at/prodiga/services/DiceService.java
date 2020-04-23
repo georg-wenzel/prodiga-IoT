@@ -173,6 +173,18 @@ public class DiceService {
         logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
     }
 
+
+    /**
+     * Returns the number of dice of users who are in the same team as the calling user, that have the corresponding Category set as one of their sides.
+     * @param cat The category to look for
+     * @return The number of dice in the given team, who have a side corresponding to the given category.
+     */
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public int getDiceCountByCategoryAndTeam(BookingCategory cat)
+    {
+        return diceRepository.findDiceByUserTeamAndCategory(prodigaUserLoginManager.getCurrentUser().getAssignedTeam(), cat).size();
+    }
+
     /**
      * If the dice is in configuration mode sets the current side to the given side
      * and notifies all subscribers about the change

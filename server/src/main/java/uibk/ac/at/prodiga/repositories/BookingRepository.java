@@ -17,6 +17,7 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     Collection<Booking> findAllByTeam(Team team);
     Collection<Booking> findAllByDept(Department department);
     Collection<Booking> findAllByBookingCategory(BookingCategory category);
+    Collection<Booking> findAllByBookingCategoryAndTeam(BookingCategory category, Team team);
     Booking findFirstByDiceOrderByObjectCreatedDateTimeDesc(Dice d);
 
     /**
