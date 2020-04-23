@@ -121,16 +121,12 @@ public class BookingCategoryService
         return bookingCategoryRepository.save(cat);
     }
 
-<<<<<<< server/src/main/java/uibk/ac/at/prodiga/services/BookingCategoryService.java
     /**
      * Deletes given booking category
      * @param cat The booking category to delete
      * @throws ProdigaGeneralExpectedException Is thrown when category can't be deleted, i.e. because it is still in use or was in use in the past.
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-=======
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
->>>>>>> server/src/main/java/uibk/ac/at/prodiga/services/BookingCategoryService.java
     public void delete(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
         if(cat == null) {
