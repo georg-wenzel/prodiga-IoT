@@ -7,10 +7,14 @@ import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
+import uibk.ac.at.prodiga.services.DiceService;
+import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -24,14 +28,24 @@ public class TeamBookingCategoryController
     private Collection<BookingCategory> categories;
     private Collection<BookingCategory> teamHasCategories;
 
+    private Map<BookingCategory, Integer> usedInTeamBookings;
+    private Map<BookingCategory, Integer> usedInDice;
+
 
     private final ProdigaUserLoginManager userLoginManager;
     private final BookingCategoryService bookingCategoryService;
+    private final BookingService bookingService;
+    private final DiceService diceService;
 
-    public TeamBookingCategoryController(ProdigaUserLoginManager userLoginManager, BookingCategoryService bookingCategoryService)
+    public TeamBookingCategoryController(ProdigaUserLoginManager userLoginManager, BookingCategoryService bookingCategoryService, BookingService bookingService, DiceService diceService)
     {
         this.userLoginManager = userLoginManager;
         this.bookingCategoryService = bookingCategoryService;
+        this.bookingService = bookingService;
+        this.diceService = diceService;
+
+        usedInTeamBookings = new HashMap<BookingCategory, Integer>();
+        usedInDice = new HashMap<BookingCategory, Integer>();
     }
 
     /**
@@ -56,7 +70,8 @@ public class TeamBookingCategoryController
      */
     public void categoryChanged(BookingCategory category) throws ProdigaGeneralExpectedException
     {
-        //TODO: Check if booking is still in use.
+        if(getUsedInDice(category) > 0 && teamHasCategories.contains(category)) throw new ProdigaGeneralExpectedException("Attempt to remove category which is still used by dice.", MessageType.ERROR);
+
         if(teamHasCategories.contains(category))
         {
             teamHasCategories.remove(category);
@@ -90,6 +105,18 @@ public class TeamBookingCategoryController
             teamHasCategories = getCategories().stream().filter(x -> x.getTeams().contains(getTeam())).collect(Collectors.toList());
 
         return teamHasCategories;
+    }
+
+    public int getUsedInBookingsByTeam(BookingCategory category)
+    {
+        if(!usedInTeamBookings.containsKey(category)) usedInTeamBookings.put(category, bookingService.getNumberOfTeamBookingsWithCategory(category));
+        return usedInTeamBookings.get(category);
+    }
+
+    public int getUsedInDice(BookingCategory category)
+    {
+        if(!usedInDice.containsKey(category)) usedInDice.put(category, diceService.getDiceCountByCategoryAndTeam(category));
+        return usedInDice.get(category);
     }
 
 }

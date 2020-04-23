@@ -28,6 +28,7 @@ INSERT INTO booking_category_teams VALUES (3,1);
 INSERT INTO booking_category_teams VALUES (4,1);
 INSERT INTO booking_category_teams VALUES (6,1);
 INSERT INTO booking_category_teams VALUES (7,1);
+INSERT INTO booking_category_teams VALUES (9,1);
 INSERT INTO booking_category_teams VALUES (1,2);
 INSERT INTO booking_category_teams VALUES (4,2);
 INSERT INTO booking_category_teams VALUES (7,2);
@@ -39,7 +40,7 @@ INSERT INTO user (enabled, first_name, last_name, password, username, create_use
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'ADMIN');
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'TEAMLEADER');
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'EMPLOYEE');
-INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date) VALUES(TRUE, 'Max', 'Mustermann', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user2', 'admin', '2016-01-01 00:00:00');
+INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id) VALUES(TRUE, 'Max', 'Mustermann', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user2', 'admin', '2016-01-01 00:00:00',1,1);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user2', 'EMPLOYEE');
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id) VALUES(TRUE, 'John', 'Doe', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'ITS leader', 'admin', '2016-01-01 00:00:00', 1);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('ITS leader', 'DEPARTMENTLEADER');
@@ -64,6 +65,13 @@ INSERT INTO raspberry_pi (id, internal_id, object_changed_date_time, object_crea
 INSERT INTO raspberry_pi (id, internal_id, object_changed_date_time, object_created_date_time, password, object_changed_user_username, object_created_user_username, assigned_room_id) VALUES (3, 'test 3', NOW(), NOW(), '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', 'admin', 7);
 
 INSERT INTO dice(ID, internal_id, object_created_date_time, object_changed_date_time, object_created_user_username, object_changed_user_username, is_active, user_username, assigned_raspberry_id) VALUES (1, 'test1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'admin', 'admin', FALSE, 'admin', 1);
+INSERT INTO dice(ID, internal_id, object_created_date_time, object_changed_date_time, object_created_user_username, object_changed_user_username, is_active, user_username, assigned_raspberry_id) VALUES (2, 'user2dice', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'admin', 'admin', TRUE, 'user2', 1);
+
+INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (1,0,NOW(),NOW(),1,9,2,'user2','user2');
+INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (2,0,NOW(),NOW(),2,2,2,'user2','user2');
+INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (3,0,NOW(),NOW(),3,3,2,'user2','user2');
+INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (4,0,NOW(),NOW(),4,4,2,'user2','user2');
+INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (5,0,NOW(),NOW(),4,1,2,'user2','user2');
 
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (1, 'admin', DATE(NOW() - INTERVAL 2 YEAR - INTERVAL 3 DAY), DATE(NOW() - INTERVAL 2 YEAR), 'admin', NOW());
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (2, 'admin', DATE(NOW() - INTERVAL 35 DAY), DATE(NOW() - INTERVAL 33 DAY), 'admin', NOW());
@@ -72,4 +80,7 @@ INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_us
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (5, 'admin', DATE(NOW() + INTERVAL 10 DAY), DATE(NOW() + INTERVAL 12 DAY), 'admin', NOW());
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (6, 'admin', DATE(NOW() + INTERVAL 32 DAY), DATE(NOW() + INTERVAL 39 DAY), 'admin', NOW());
 
-INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (1,DATE(NOW() - INTERVAL 1 HOUR), DATE(NOW() - INTERVAL 2 HOUR), NOW(), 'admin', 9,1,1,1);
+INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (1,DATE(NOW() - INTERVAL 1 HOUR), DATE(NOW() - INTERVAL 2 HOUR), NOW(), 'user2', 9,1,2,1);
+INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (2,DATE(NOW() - INTERVAL 2 HOUR), DATE(NOW() - INTERVAL 3 HOUR), NOW(), 'user2', 3,1,2,1);
+INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (3,DATE(NOW() - INTERVAL 3 HOUR), DATE(NOW() - INTERVAL 4 HOUR), NOW(), 'user2', 2,1,2,1);
+INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (4,DATE(NOW() - INTERVAL 4 HOUR), DATE(NOW() - INTERVAL 5 HOUR), NOW(), 'user2', 3,1,2,1);

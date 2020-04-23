@@ -87,6 +87,12 @@ public class BookingService
         return bookingRepository.findAllByBookingCategory(cat).size();
     }
 
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public int getNumberOfTeamBookingsWithCategory(BookingCategory cat)
+    {
+        return bookingRepository.findAllByBookingCategoryAndTeam(cat, userLoginManager.getCurrentUser().getAssignedTeam()).size();
+    }
+
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
         return saveBooking(booking, userLoginManager.getCurrentUser());

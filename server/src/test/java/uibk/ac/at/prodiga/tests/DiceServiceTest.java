@@ -21,10 +21,7 @@ import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -50,13 +47,22 @@ public class DiceServiceTest {
     DiceSideRepository diceSideRepository;
 
     @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    DepartmentRepository departmentRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     DiceRestController diceRestController;
 
     User admin = null;
     User notAdmin = null;
 
     @BeforeEach
-    public void initEach(@Autowired UserRepository userRepository) {
+    public void initEach() {
         admin = DataHelper.createAdminUser("admin", userRepository);
         notAdmin = DataHelper.createUserWithRoles("notAdmin", Sets.newSet(UserRole.EMPLOYEE), userRepository);
     }
