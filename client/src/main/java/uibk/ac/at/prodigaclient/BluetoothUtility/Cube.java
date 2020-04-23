@@ -20,7 +20,7 @@ public class Cube {
     private static final String BATTERYSERVICEUUID = "0000180f-0000-1000-8000-00805f9b34fb";
 
     private static final String BATTERYCHARACTERISTICUUID = "00002a19-0000-1000-8000-00805f9b34fb";
-    private static final String CURRENTFACETCHARACTERISTICUUID = "f1196f52-71a4-11e6-bdf4-0800200c9a6";
+    private static final String CURRENTFACETCHARACTERISTICUUID = "f1196f52-71a4-11e6-bdf4-0800200c9a66";
     private static final String COMMANDREADCHARACTERISTICUUID = "f1196f53-71a4-11e6-bdf4-0800200c9a66";
     private static final String COMMANDWRITERCHARACTERISTICUUID = "f1196f54-71a4-11e6-bdf4-0800200c9a66";
     private static final String PASSWORDCHARACTERISTICUUID = "f1196f57-71a4-11e6-bdf4-0800200c9a66";
@@ -52,16 +52,21 @@ public class Cube {
     }
 
     private BluetoothGattService getService(String UUID) {
+        boolean found = false;
+
         BluetoothGattService specificBluetoothService = null;
-        List<BluetoothGattService> bluetoothServices = cube.getServices();
 
-        if (bluetoothServices == null) {
-            return null;
-        }
+        while (!found) {
+            List<BluetoothGattService> bluetoothServices = cube.getServices();
+            if (bluetoothServices == null) {
+                return null;
+            }
 
-        for (BluetoothGattService service : bluetoothServices) {
-            if (service.getUUID().equals(UUID)) {
-                specificBluetoothService = service;
+            for (BluetoothGattService service : bluetoothServices) {
+                if (service.getUUID().equals(UUID)) {
+                    specificBluetoothService = service;
+                    found = true;
+                }
             }
         }
 
@@ -69,16 +74,22 @@ public class Cube {
     }
 
     private BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
+        boolean found = false;
+
         BluetoothGattCharacteristic specificBluetoothCharacteristic = null;
-        List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
-        if (characteristics == null) {
-            return null;
-        }
+        while (!found) {
+            List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
 
-        for (BluetoothGattCharacteristic characteristic : characteristics) {
-            if (characteristic.getUUID().equals(UUID)) {
-                specificBluetoothCharacteristic = characteristic;
+            if (characteristics == null) {
+                return null;
+            }
+
+            for (BluetoothGattCharacteristic characteristic : characteristics) {
+                if (characteristic.getUUID().equals(UUID)) {
+                    specificBluetoothCharacteristic = characteristic;
+                    found = true;
+                }
             }
         }
 
@@ -190,16 +201,26 @@ public class Cube {
         return batteryStatus;
     }
 
-    public int getCurrentSide() {
+    public int getCurrentSide() { // TODO: Work in progress
         int currentSide = 0;
-        BluetoothGattService facetservice = getService(FACETSERVICEUUID); // TimeFlip Service
-
-        if (facetservice != null) {
-            BluetoothGattCharacteristic currentFacet = getCharacteristic(facetservice, CURRENTFACETCHARACTERISTICUUID); // command output characteristic used to read the history
-            byte[] currentFacetHex = currentFacet.readValue();
-            currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
+        BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
+        if (facetService != null) {
+            BluetoothGattCharacteristic currentFacet = getCharacteristic(facetService, CURRENTFACETCHARACTERISTICUUID);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (currentFacet != null) {
+                System.out.println(currentFacet.getUUID());
+                byte[] currentFacetHex = currentFacet.readValue();
+//                System.out.println(currentFacetHex);
+//                currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
+//                System.out.println(currentSide);
+            }
         } else {
-            System.out.println("Battery service not found");
+            // TODO: Exception ??
+            System.out.println("Facet service not found");
         }
 
         return currentSide;

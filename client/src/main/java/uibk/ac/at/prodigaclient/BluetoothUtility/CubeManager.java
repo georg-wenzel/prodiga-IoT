@@ -78,12 +78,18 @@ public class CubeManager {
         Cube cube = listOfCubes.get(cubeID);
         int currentSide;
 
-        cube.failsafeConnect();
-
         currentSide = cube.getCurrentSide();
 
-        cube.failsafeDisconnect();
-
         return currentSide;
+    }
+
+    public void connectToCube(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+        cube.failsafeConnect();
+    }
+
+    public void disconnectFromCube(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+        cube.failsafeDisconnect();
     }
 }
