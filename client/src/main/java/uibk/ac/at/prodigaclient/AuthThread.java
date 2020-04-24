@@ -11,6 +11,7 @@ import uibk.ac.at.prodigaclient.dtos.JwtRequestDTO;
 import uibk.ac.at.prodigaclient.dtos.JwtResponseDTO;
 import uibk.ac.at.prodigaclient.utils.CallLoggerHelper;
 import uibk.ac.at.prodigaclient.utils.ManualResetEventSlim;
+import uibk.ac.at.prodigaclient.utils.ProdigaCallback;
 
 public class AuthThread implements Runnable {
 
@@ -51,22 +52,17 @@ public class AuthThread implements Runnable {
         logger.info("Auth Thread finished!");
     }
 
+    public void invokeAuth() {
+        monitor.notifyAll();
+    }
+
     private void handleRegister() {
         ManualResetEventSlim mre = new ManualResetEventSlim(false);
         logger.info("Registering the raspi!");
 
-        authControllerApi.registerUsingPOST(Constants.getInternalId()).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(@NotNull Call<Void> call, @NotNull Response<Void> response) {
-                mre.set();
-            }
+        ProdigaCallback<Void> callback = new ProdigaCallback<>(mre);
 
-            @Override
-            public void onFailure(@NotNull Call<Void> call, @NotNull Throwable throwable) {
-                CallLoggerHelper.loggCallError(call, throwable, logger);
-                mre.set();
-            }
-        });
+        authControllerApi.registerUsingPOST(Constants.getInternalId()).enqueue(callback);
 
         mre.waitDefaultAndLog("Error while waiting for server request on register", logger);
 
@@ -87,23 +83,15 @@ public class AuthThread implements Runnable {
 
                 final boolean[] success = {false};
 
-                authControllerApi.createTokenUsingPOST(request).enqueue(new Callback<JwtResponseDTO>() {
-                    @Override
-                    public void onResponse(@NotNull Call<JwtResponseDTO> call, @NotNull Response<JwtResponseDTO> response) {
-                        if(response.code() == 200 && response.body() != null) {
-                            Constants.setJwt(response.body().getToken());
-                            logger.info("Got token " + Constants.getJwt());
-                            success[0] = true;
-                        }
-                        mre.set();
-                    }
-
-                    @Override
-                    public void onFailure(@NotNull Call<JwtResponseDTO> call, @NotNull Throwable throwable) {
-                        CallLoggerHelper.loggCallError(call, throwable, logger);
-                        mre.set();
+                ProdigaCallback<JwtResponseDTO> callback = new ProdigaCallback<>(mre, null, (call, response) -> {
+                    if(response.code() == 200 && response.body() != null) {
+                        Constants.setJwt(response.body().getToken());
+                        logger.info("Got token " + Constants.getJwt());
+                        success[0] = true;
                     }
                 });
+
+                authControllerApi.createTokenUsingPOST(request).enqueue(callback);
 
                 mre.waitDefaultAndLog("Error while waiting for server request on login", logger);
 

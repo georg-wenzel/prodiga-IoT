@@ -2,6 +2,8 @@
 
 package uibk.ac.at.prodigaclient;
 
+import uibk.ac.at.prodigaclient.utils.Action;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 
@@ -9,6 +11,7 @@ public class Constants {
 
     private static final Object jwtLock = new Object();
     private static volatile  String jwt = null;
+    private static Action authAction;
 
     private static String macAddress = null;
     private static String password = null;
@@ -69,5 +72,13 @@ public class Constants {
 
     public static void setPassword(String password) {
         Constants.password = password;
+    }
+
+    public static Action getAuthAction() {
+        return authAction;
+    }
+
+    public static void setAuthAction(Action authAction) {
+        Constants.authAction = authAction;
     }
 }

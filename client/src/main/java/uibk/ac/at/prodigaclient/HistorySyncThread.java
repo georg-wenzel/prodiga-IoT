@@ -1,5 +1,7 @@
 package uibk.ac.at.prodigaclient;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -7,6 +9,8 @@ import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 import uibk.ac.at.prodigaclient.api.CubeControllerApi;
 import uibk.ac.at.prodigaclient.dtos.HistoryEntryDTO;
+import uibk.ac.at.prodigaclient.utils.ManualResetEventSlim;
+import uibk.ac.at.prodigaclient.utils.ProdigaCallback;
 
 import java.util.List;
 import java.util.Set;
@@ -18,6 +22,7 @@ public class HistorySyncThread implements Runnable {
 
     private final CubeControllerApi cubeControllerApi;
     private final CubeManager cubeManager;
+    private final Logger logger = LogManager.getLogger();
 
     public HistorySyncThread(CubeControllerApi cubeControllerApi, CubeManager cubeManager) {
         this.cubeControllerApi = cubeControllerApi;
@@ -26,42 +31,48 @@ public class HistorySyncThread implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                Set<String> connectedIds = cubeManager.getCubeIDList();
-                CountDownLatch countDownLatch = new CountDownLatch(connectedIds.size());
+        logger.info("History Sync Thread started");
 
-                for(String str : connectedIds){
-                    List<HistoryEntry> historyEntry = cubeManager.getHistory(str);
-                    List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream().map(x -> {
-                        HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
-                        historyEntryDTO.setCubeInternalId(str);
-                        historyEntryDTO.setSeconds(x.getSeconds());
-                        historyEntryDTO.setSide(x.getID());
-                        return historyEntryDTO;
-                    }).collect(Collectors.toList());
+        try{
+            while (true) {
+                try {
+                    Set<String> connectedIds = cubeManager.getCubeIDList();
 
-                    cubeControllerApi.addBookingUsingPOST(historyEntryDTOS).enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            countDownLatch.countDown();
-                        }
+                    logger.info("Found " + connectedIds.size() + " cubes");
 
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable throwable) {
-                            countDownLatch.countDown();
-                        }
-                    });
+                    for(String str : connectedIds) {
+                        List<HistoryEntry> historyEntry = cubeManager.getHistory(str);
+                        List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream().map(x -> {
+                            HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
+                            historyEntryDTO.setCubeInternalId(str);
+                            historyEntryDTO.setSeconds(x.getSeconds());
+                            historyEntryDTO.setSide(x.getID());
+                            return historyEntryDTO;
+                        }).collect(Collectors.toList());
+
+                        logger.info("Syncing " + historyEntryDTOS.size() + " History Entries for Cube " + str);
+
+                        ManualResetEventSlim mre = new ManualResetEventSlim(false);
+
+                        ProdigaCallback<Void> callback = new ProdigaCallback<>(mre, Constants.getAuthAction());
+
+                        cubeControllerApi.addBookingUsingPOST(historyEntryDTOS).enqueue(callback);
+
+                        mre.waitDefaultAndLog("Error while waiting for server request on syncing history entries", logger);
+
+                        logger.info("Finished Syncing History Entries for Cube " + str);
+                    }
+
+                    // sleeps for 15 minutes
+                    Thread.sleep(900000);
+
+                } catch (Exception ex) {
+                    logger.error("Error in History Sync Thread", ex);
 
                 }
-                countDownLatch.await(1, TimeUnit.MINUTES);
-
-                // sleeps for 15 minutes
-                Thread.sleep(900000);
-
-            } catch (Exception ex) {
-                // ignore
             }
+        } catch (Exception ex) {
+            logger.error("Error in History Sync Thread, thread will quit now", ex);
         }
     }
 
