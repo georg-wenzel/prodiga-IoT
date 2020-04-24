@@ -11,10 +11,7 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -148,4 +145,33 @@ public class UserDetailController {
         freqencyTypeList.add(FrequencyType.MONTHLY);
         return freqencyTypeList;
     }
+
+    /**
+     *  Sets the Admin Role for when a new Admin is created.
+     *
+     * @param isAdmin
+     */
+    public void setIsAdmin(boolean isAdmin) {
+        if(user.isNew()){
+            if(isAdmin) {
+                Set<UserRole> userRoles = new HashSet<>();
+                userRoles.add(UserRole.ADMIN);
+                this.user.setRoles(userRoles);
+            }
+        }
+    }
+
+    /**
+     *  Is needed for isAdmin Checkbox.
+     *  Set to false if user is new.
+     *
+     * @return true if user is admin
+     */
+    public boolean getIsAdmin() {
+        if(user.isNew()){
+            return false;
+        }
+        return this.user.getRoles().contains(UserRole.ADMIN);
+    }
+
 }
