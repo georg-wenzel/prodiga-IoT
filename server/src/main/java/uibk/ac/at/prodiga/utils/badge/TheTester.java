@@ -2,20 +2,17 @@ package uibk.ac.at.prodiga.utils.badge;
 
 import uibk.ac.at.prodiga.model.BookingCategory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
 
-/**
- * Badge for person who debugged the most.
- */
-public class Bugsimilian extends AbstractCategoryBadge {
-
+public class TheTester extends AbstractCategoryBadge {
     @Override
     public String getName() {
-        return "Bugsimilian";
+        return "The Tester";
     }
 
     @Override
     public Optional<BookingCategory> getCategory(Collection<BookingCategory> bookingCategories) {
-        return bookingCategories.stream().filter(x -> x.getName().equals("Debugging")).findFirst();
+        return bookingCategories.stream().filter(x -> x.getName().equals("Testing")).findFirst();
     }
 }
