@@ -284,7 +284,7 @@ public class DiceService {
         if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
             BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
 
-            throw new ProdigaGeneralExpectedException("At leats one side must be configured with " + bc.getName(),
+            throw new ProdigaGeneralExpectedException("At least one side must be configured with " + bc.getName(),
                     MessageType.ERROR);
         }
 

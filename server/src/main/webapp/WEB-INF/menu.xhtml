@@ -42,10 +42,11 @@
                         </p:menuitem>
                         </p:submenu>
                         <p:submenu id="om_dices" label="Dices" icon="fa fa-fw fa-connectdevelop">
-                            <p:menuitem id="om_dices_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/dices" />
-                            <p:menuitem id="om_dices_add" value="Add Dice" icon="fa fa-fw fa-plus" outcome="/add_dice">
+                            <p:menuitem id="om_dices_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/dices" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" />
+                            <p:menuitem id="om_dices_add" value="Add Dice" icon="fa fa-fw fa-plus" outcome="/add_dice" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <f:param name="dice" value="" />
                             </p:menuitem>
+                            <p:menuitem id="dice_config" value="Your Dice" icon="fa fa-fw fa-dice-d20" outcome="/dice_configuration" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}" />
                         </p:submenu>
                         <p:submenu id="om_team"
                                    label="Teams"

@@ -127,7 +127,7 @@ public class BookingCategoryServiceTest {
     }
     @Test
     @DirtiesContext
-    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    @WithMockUser(username = "test_teamleader", authorities = {"EMPLOYEE", "TEAMLEADER"})
     public void bookingCategoryService_findAllByTeamTeamleader_returnCorrectAmount()
     {
         int amount = 5;
@@ -306,15 +306,6 @@ public class BookingCategoryServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void bookingCategoryService_findAllUnauthorized_throws() {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> bookingCategoryService.findAllCategories(),
-                "EMPLYOEE can access Categories");
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
     public void bookingCategoryService_findByTeamUnauthorized_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> bookingCategoryService.findAllCategoriesByTeam(null),
@@ -367,6 +358,6 @@ public class BookingCategoryServiceTest {
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
     public void bookingCategoryService_disallowForTeam_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> bookingCategoryService.disallowForTeam(null), "EMPLYOEE can diallow categories for team");
+                () -> bookingCategoryService.disallowForTeam(null), "EMPLYOEE can disallow categories for team");
     }
 }
