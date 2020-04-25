@@ -1,6 +1,9 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 import org.primefaces.PrimeFaces;
+import org.primefaces.expression.ComponentNotFoundException;
+import org.primefaces.expression.SearchExpressionFacade;
+import org.primefaces.util.LangUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
@@ -12,8 +15,11 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 import java.security.KeyPair;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * Controller for managing user dice configuration
@@ -89,14 +95,6 @@ public class DiceConfigurationController
     }
 
     /**
-     * Updates table view
-     */
-    private void updateView()
-    {
-        PrimeFaces.current().ajax().update(":diceConfigForm");
-    }
-
-    /**
      * Method used to inform the view of the current controller state
      * If 0 is returned, that means no dice is assigned to the user.
      * If 1 is returned, a dice is found for the user, but the dice is not in configuration mode.
@@ -132,7 +130,6 @@ public class DiceConfigurationController
             if(x.getValue1().getCurrentSide() == currentSide) return;
 
             currentSide = x.getValue1().getCurrentSide();
-            this.updateView();
             System.out.println("New Side: " + currentSide);
         });
         inConfiguration = true;

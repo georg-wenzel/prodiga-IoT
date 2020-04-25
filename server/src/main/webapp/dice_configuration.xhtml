@@ -29,10 +29,9 @@
                     </h:panelGroup>
 
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 1}">
-                        <h1>Current Dice Sides</h1>
                         <h1>Start Dice Configuration</h1>
                         To configure your dice, please switch to configuration mode. Click the button below to start the configuration. <br />
-                        <p:commandButton value="Enable Configuration Mode" id="btn_config" update=":infoHolder :diceConfigForm" action="#{diceConfigurationController.startConfigureDice}" style="margin-right:20px; margin-top:10px;" />
+                        <p:commandButton value="Enable Configuration Mode" id="btn_config" update=":infoHolder :diceConfigForm" ajax="true" action="#{diceConfigurationController.startConfigureDice}" style="margin-right:20px; margin-top:10px;" />
                     </h:panelGroup>
 
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 2}">
@@ -44,6 +43,7 @@
                     </h:form>
 
                     <h:form id="diceConfigForm">
+                        <p:poll interval="3" update=":diceConfigForm" />
                         <h:panelGroup rendered="#{diceConfigurationController.status == 2}">
                             <p:dataTable id="sidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}"
                                      rowStyleClass="#{(diceConfigurationController.currentSide == side.key) ? 'selectedRow': null}">
