@@ -27,7 +27,10 @@ public class BadgeDB implements Persistable<Long>, Serializable {
     private User user;
 
     @Column(nullable = false)
-    private Date date;
+    private Date from;
+
+    @Column(nullable = false)
+    private Date to;
 
     @Override
     public Long getId() {
@@ -55,12 +58,19 @@ public class BadgeDB implements Persistable<Long>, Serializable {
         this.user = user;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getFrom() {
+        return from;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setFrom(Date from) {
+        this.from = from;
     }
 
+    public Date getTo() {
+        return to;
+    }
+
+    public void setTo(Date to) {
+        this.to = to;
+    }
 }

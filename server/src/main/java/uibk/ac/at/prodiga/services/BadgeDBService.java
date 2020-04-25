@@ -7,8 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.BadgeDBRepository;
-import uibk.ac.at.prodiga.utils.badge.Badge;
-import uibk.ac.at.prodiga.utils.badge.Bugsimilian;
+import uibk.ac.at.prodiga.utils.badge.*;
 
 import java.util.*;
 
@@ -40,7 +39,11 @@ public class BadgeDBService {
         return Lists.newArrayList(badgeDBRepository.findByUser(user));
     }
 
-    @Scheduled(cron = "0 0 12 ? * L *")
+    /**
+     * creates the Badges every Week on Sunday 23:59
+     *
+     */
+    @Scheduled(cron = "0 59 23 * * SUN")
     public void createBadges(){
         for(Badge badge : availableBadges){
             User user = badge.calculateUser(bookingCategoryService.findAllCategories(), bookingService);
@@ -53,13 +56,28 @@ public class BadgeDBService {
             BadgeDB badgeDB = new BadgeDB();
             badgeDB.setBadgeName(name);
             badgeDB.setUser(user);
-            badgeDB.setDate(new Date());
+
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_WEEK, cal.getActualMinimum(Calendar.DAY_OF_WEEK));
+            Date start = cal.getTime();
+            badgeDB.setFrom(start);
+            badgeDB.setTo(new Date());
             badgeDBRepository.save(badgeDB);
         }
     }
 
     private void registerBadges() {
         availableBadges.add(new Bugsimilian());
+        availableBadges.add(new CodeRaptor());
+        availableBadges.add(new ConceptKing());
+        availableBadges.add(new DocumentationDoctor());
+        availableBadges.add(new FrontendLaura());
+        availableBadges.add(new MeetingMaster());
+        availableBadges.add(new TheDiligentStudent());
+        availableBadges.add(new TheMostHelpfulOne());
+        availableBadges.add(new TheSloth());
+        availableBadges.add(new TheTester());
+        availableBadges.add(new TheUltimateManager());
     }
 
     /**
@@ -69,6 +87,6 @@ public class BadgeDBService {
      */
     public BadgeDB getFirstByName(String name)
     {
-        return badgeDBRepository.findFirstByName(name);
+        return badgeDBRepository.findFirstByBadgeName(name);
     }
 }
