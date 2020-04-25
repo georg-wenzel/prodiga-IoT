@@ -3,6 +3,7 @@ package uibk.ac.at.prodiga.services;
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.BadgeDBRepository;
@@ -34,6 +35,7 @@ public class BadgeDBService {
      * Returns a collection of all badges for a user.
      * @return A collection of all badges for the given user.
      */
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Collection<BadgeDB> getAllBadgesByUser(User user) {
         return Lists.newArrayList(badgeDBRepository.findByUser(user));
     }
@@ -58,5 +60,15 @@ public class BadgeDBService {
 
     private void registerBadges() {
         availableBadges.add(new Bugsimilian());
+    }
+
+    /**
+     * Returns the first badge with a matching name (unique identifier)
+     * @param name The name of the badge
+     * @return The first badge with a matching name, or null if none was found
+     */
+    public BadgeDB getFirstByName(String name)
+    {
+        return badgeDBRepository.findFirstByName(name);
     }
 }

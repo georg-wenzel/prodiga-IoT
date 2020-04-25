@@ -5,6 +5,7 @@ import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.BookingService;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,16 +24,19 @@ public abstract class AbstractCategoryBadge implements Badge {
 
 
         Collection<Booking> bookings = bookingService.getBookingInRangeByCategoryForLastWeek(category.get());
-
-        Optional<Map.Entry<User, Long>> result =  bookings.stream()
-                .collect(Collectors.groupingBy(x -> x.getDice().getUser(), Collectors.counting()))
-                .entrySet().stream().max(Comparator.comparingLong(Map.Entry::getValue));
-
-        if(!result.isPresent()){
-            return null;
+        HashMap<User, Long> hashMap = new HashMap<>();
+        for(Booking b : bookings){
+            if(hashMap.containsKey(b.getDice().getUser())){
+                hashMap.put(b.getDice().getUser(), hashMap.get(b.getDice().getUser()) + b.getActivityEndDate().getTime()-b.getActivityStartDate().getTime());
+            }
+            else{
+                hashMap.put(b.getDice().getUser(), b.getActivityEndDate().getTime()-b.getActivityStartDate().getTime());
+            }
         }
 
-        return result.get().getKey();
+        User userToReturn = Collections.max(hashMap.entrySet(), Comparator.comparingLong(Map.Entry::getValue)).getKey();
+
+        return userToReturn;
     }
 
     @Override

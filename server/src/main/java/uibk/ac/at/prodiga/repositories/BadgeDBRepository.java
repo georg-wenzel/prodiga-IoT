@@ -13,7 +13,7 @@ import java.util.Collection;
 
 public interface BadgeDBRepository extends AbstractRepository<BadgeDB, String> {
 
-    BadgeDB findFirstByUsername(String badgeName);
+    BadgeDB findFirstByName(String badgeName);
 
     @Query("SELECT ALL FROM BadgeDB b WHERE :user = b.user")
     Collection<BadgeDB> findByUser(@Param("user") User user);
