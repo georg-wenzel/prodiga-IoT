@@ -24,7 +24,6 @@ public class DiceConfigurationController
 {
     private final ProdigaUserLoginManager userLoginManager;
     private final DiceService diceService;
-    private final DiceSideService diceSideService;
     private final BookingCategoryService bookingCategoryService;
 
     private Dice dice;
@@ -40,7 +39,6 @@ public class DiceConfigurationController
     {
         this.userLoginManager = userLoginManager;
         this.diceService = diceService;
-        this.diceSideService = diceSideService;
         this.bookingCategoryService = bookingCategoryService;
 
         this.dice = this.diceService.getDiceByUser(userLoginManager.getCurrentUser());
@@ -129,12 +127,13 @@ public class DiceConfigurationController
         uuid = UUID.randomUUID();
         wrapper = diceService.addDiceToConfiguration(dice);
         currentSide = wrapper.getCurrentSide();
-
         diceService.registerNewSideCallback(uuid, x -> {
-            if(x.getValue0() != uuid) return;
+            if(x.getValue0().compareTo(uuid) != 0) return;
+            if(x.getValue1().getCurrentSide() == currentSide) return;
 
             currentSide = x.getValue1().getCurrentSide();
             this.updateView();
+            System.out.println("New Side: " + currentSide);
         });
         inConfiguration = true;
     }

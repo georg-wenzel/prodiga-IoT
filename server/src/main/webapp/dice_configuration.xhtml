@@ -17,8 +17,8 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-                    <h1>Dice Configuration</h1>
-                    On this page, you may configure the individual sides of your dice.
+                    <h1>Dice Info</h1>
+                    On this page, you may view and configure the individual sides of your dice.
                     <h:form id="infoHolder">
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status gt 0}">
                         You are assigned the dice with internal ID <h:outputText value="#{diceConfigurationController.dice.internalId}" />.
@@ -29,6 +29,7 @@
                     </h:panelGroup>
 
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 1}">
+                        <h1>Current Dice Sides</h1>
                         <h1>Start Dice Configuration</h1>
                         To configure your dice, please switch to configuration mode. Click the button below to start the configuration. <br />
                         <p:commandButton value="Enable Configuration Mode" id="btn_config" update=":infoHolder :diceConfigForm" action="#{diceConfigurationController.startConfigureDice}" style="margin-right:20px; margin-top:10px;" />
