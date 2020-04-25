@@ -13,6 +13,7 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:outputStylesheet name = "booking-category.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
@@ -43,18 +44,19 @@
 
                     <h:form id="diceConfigForm">
                         <h:panelGroup rendered="#{diceConfigurationController.status == 2}">
-                            <p:dataTable id="sidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.sides}" >
+                            <p:dataTable id="sidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}"
+                                     rowStyleClass="#{(diceConfigurationController.currentSide == side.key) ? 'selectedRow': null}">
                             <p:column headerText="Side" style="width:50px">
                                 <h:outputText value="#{side.key}" />
                             </p:column>
                             <p:column headerText="Current Category">
-                                <h:outputText rendered="#{side.value != null}" value="#{side.value}" />
-                                <h:outputText rendered="#{side.value == null}" value="None" />
+                                <h:outputText rendered="#{diceConfigurationController.getSide(side.key) != null}" value="#{diceConfigurationController.getSide(side.key)}" />
+                                <h:outputText rendered="#{diceConfigurationController.getSide(side.key) == null}" value="None" />
                             </p:column>
                             <p:column headerText="New Category">
-                                <p:selectOneMenu id="category" style="width:100%;">
+                                <p:selectOneMenu id="category" style="width:100%;" value="#{diceConfigurationController.newSides[side.key]}">
                                     <f:selectItem itemLabel="None" itemValue="#{null}"/>
-                                    <f:selectItems value="#{diceConfigurationController.availableCategories}" />
+                                    <f:selectItems value="#{diceConfigurationController.availableCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.id}"/>
                                 </p:selectOneMenu>
                             </p:column>
                             </p:dataTable>
