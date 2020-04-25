@@ -1,4 +1,4 @@
-package uibk.ac.at.prodiga.rest.dtos;
+package uibk.ac.at.prodigaclient.dtos;
 
 public enum FeedAction {
     ENTER_CONFIG_MODE,

@@ -2,6 +2,10 @@
 
 package uibk.ac.at.prodigaclient;
 
+import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
+import uibk.ac.at.prodigaclient.api.AuthControllerApi;
+import uibk.ac.at.prodigaclient.api.CubeControllerApi;
+import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
 import uibk.ac.at.prodigaclient.utils.Action;
 
 import java.net.InetAddress;
@@ -15,6 +19,10 @@ public class Constants {
 
     private static String macAddress = null;
     private static String password = null;
+    private static AuthControllerApi authControllerApi = null;
+    private static IntrinsicsControllerApi intrinsicsControllerApi = null;
+    private static CubeControllerApi cubeControllerApi = null;
+    private static CubeManager cubeManager = null;
 
     public static final int DEFAULT_WAIT_TIMEOUT_MILLIS = 20000;
 
@@ -80,5 +88,33 @@ public class Constants {
 
     public static void setAuthAction(Action authAction) {
         Constants.authAction = authAction;
+    }
+
+    public static AuthControllerApi getAuthControllerApi() {
+        if(authControllerApi == null) {
+            authControllerApi = getClient().createService(AuthControllerApi.class);
+        }
+        return authControllerApi;
+    }
+
+    public static CubeControllerApi getCubeControllerApi() {
+        if(cubeControllerApi == null) {
+            cubeControllerApi = getClient().createService(CubeControllerApi.class);
+        }
+        return cubeControllerApi;
+    }
+
+    public static IntrinsicsControllerApi getIntrinsicsControllerApi() {
+        if(intrinsicsControllerApi == null) {
+            intrinsicsControllerApi = getClient().createService(IntrinsicsControllerApi.class);
+        }
+        return intrinsicsControllerApi;
+    }
+
+    public static CubeManager getCubeManager() {
+        if(cubeManager == null) {
+            cubeManager = new CubeManager();
+        }
+        return cubeManager;
     }
 }

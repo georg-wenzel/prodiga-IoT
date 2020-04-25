@@ -1,4 +1,4 @@
-package uibk.ac.at.prodiga.rest.dtos;
+package uibk.ac.at.prodigaclient.dtos;
 
 import java.util.UUID;
 

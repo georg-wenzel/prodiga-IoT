@@ -59,7 +59,7 @@ public class ProdigaCallback<T> implements Callback<T> {
             }
 
         } catch (Exception ex) {
-            CallLoggerHelper.loggCallError(call, ex, logger);
+            CallLoggerHelper.logCallError(call, ex, logger);
         } finally {
             mre.set();
         }
@@ -68,14 +68,14 @@ public class ProdigaCallback<T> implements Callback<T> {
     @Override
     public void onFailure(@NotNull Call<T> call, @NotNull Throwable throwable) {
         try{
-            CallLoggerHelper.loggCallError(call, throwable, logger);
+            CallLoggerHelper.logCallError(call, throwable, logger);
 
             if(failureAction != null) {
                 failureAction.accept(call, throwable);
             }
 
         } catch (Exception ex) {
-            CallLoggerHelper.loggCallError(call, ex, logger);
+            CallLoggerHelper.logCallError(call, ex, logger);
         } finally {
             mre.set();
         }

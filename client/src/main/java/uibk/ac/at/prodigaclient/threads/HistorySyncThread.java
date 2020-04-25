@@ -1,4 +1,4 @@
-package uibk.ac.at.prodigaclient;
+package uibk.ac.at.prodigaclient.threads;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,6 +7,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
+import uibk.ac.at.prodigaclient.Constants;
 import uibk.ac.at.prodigaclient.api.CubeControllerApi;
 import uibk.ac.at.prodigaclient.dtos.HistoryEntryDTO;
 import uibk.ac.at.prodigaclient.utils.ManualResetEventSlim;
@@ -24,15 +25,14 @@ public class HistorySyncThread implements Runnable {
     private final CubeManager cubeManager;
     private final Logger logger = LogManager.getLogger();
 
-    public HistorySyncThread(CubeControllerApi cubeControllerApi, CubeManager cubeManager) {
-        this.cubeControllerApi = cubeControllerApi;
-        this.cubeManager = cubeManager;
+    public HistorySyncThread() {
+        this.cubeControllerApi = Constants.getCubeControllerApi();
+        this.cubeManager = Constants.getCubeManager();
     }
 
     @Override
     public void run() {
         logger.info("History Sync Thread started");
-
         try{
             while (true) {
                 try {

@@ -1,4 +1,4 @@
-package uibk.ac.at.prodigaclient;
+package uibk.ac.at.prodigaclient.threads;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import uibk.ac.at.prodigaclient.Constants;
 import uibk.ac.at.prodigaclient.api.AuthControllerApi;
 import uibk.ac.at.prodigaclient.dtos.JwtRequestDTO;
 import uibk.ac.at.prodigaclient.dtos.JwtResponseDTO;
@@ -13,6 +14,9 @@ import uibk.ac.at.prodigaclient.utils.CallLoggerHelper;
 import uibk.ac.at.prodigaclient.utils.ManualResetEventSlim;
 import uibk.ac.at.prodigaclient.utils.ProdigaCallback;
 
+/**
+ * Threads which ensures the raspi is authenticated
+ */
 public class AuthThread implements Runnable {
 
     private final Logger logger = LogManager.getLogger();
@@ -21,10 +25,13 @@ public class AuthThread implements Runnable {
 
     private final AuthControllerApi authControllerApi;
 
-    public AuthThread(AuthControllerApi authControllerApi) {
-        this.authControllerApi = authControllerApi;
+    public AuthThread() {
+        this.authControllerApi = Constants.getAuthControllerApi();
     }
 
+    /**
+     * Main loop which runs all 5 minutes or when invokeAuth is called
+     */
     @Override
     public void run() {
         logger.info("Auth Thread started!");
@@ -33,7 +40,9 @@ public class AuthThread implements Runnable {
             while(true) {
                 try {
                     logger.info("Auth Thread has awoken");
+                    // First let's register the raspi
                     handleRegister();
+                    // Then we can login
                     handleLogin();
 
                     // 5 Minutes
@@ -52,6 +61,9 @@ public class AuthThread implements Runnable {
         logger.info("Auth Thread finished!");
     }
 
+    /**
+     * Invokes the auth thread from sleep - used when a calls encounter as 401 response
+     */
     public void invokeAuth() {
         monitor.notifyAll();
     }
@@ -72,6 +84,8 @@ public class AuthThread implements Runnable {
     private void handleLogin() {
         logger.info("Raspi login!");
         try {
+            // We try this a few times
+            // The raspi may be in config mode - so we get a different status code (100, 201)
             for(int i = 0; i < 10; i++) {
                 logger.info("Raspi login current loop " + i);
 
