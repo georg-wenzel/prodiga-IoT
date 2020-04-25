@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.rest.dtos.DeviceType;
+import uibk.ac.at.prodiga.rest.dtos.FeedAction;
 import uibk.ac.at.prodiga.utils.*;
 
 import java.util.*;
@@ -250,6 +252,10 @@ public class DiceService {
 
         diceConfigurationWrapperDict.put(d.getInternalId(), wrapper);
 
+        UUID feedId = FeedManager.getInstance().addToFeed(d.getInternalId(), DeviceType.CUBE, FeedAction.ENTER_CONFIG_MODE);
+
+        wrapper.setFeedId(feedId);
+
         return wrapper;
     }
 
@@ -284,7 +290,7 @@ public class DiceService {
         if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
             BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
 
-            throw new ProdigaGeneralExpectedException("At leats one side must be configured with " + bc.getName(),
+            throw new ProdigaGeneralExpectedException("At least one side must be configured with " + bc.getName(),
                     MessageType.ERROR);
         }
 
@@ -297,6 +303,10 @@ public class DiceService {
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
+
+        FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
+
+        FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
     }
 
     private void checkAccessDiceAndThrow(Dice d) throws ProdigaGeneralExpectedException {

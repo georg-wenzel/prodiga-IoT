@@ -95,7 +95,7 @@ public class RaspberryPiController {
      *
      */
     public void addPendingRaspberry() {
-        this.raspberryPiService.addPendingRaspberry(this.pendingRasPiInternalId);
+        this.raspberryPiService.tryAddPendingRaspberry(this.pendingRasPiInternalId);
     }
 
     /**

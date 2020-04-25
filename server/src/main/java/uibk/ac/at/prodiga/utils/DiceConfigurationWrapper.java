@@ -5,6 +5,7 @@ import uibk.ac.at.prodiga.model.Dice;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class DiceConfigurationWrapper {
@@ -12,6 +13,7 @@ public class DiceConfigurationWrapper {
     private Dice dice;
     private int currentSide;
     private Map<Integer, BookingCategory> completedSides;
+    private UUID feedId;
 
     public DiceConfigurationWrapper() {
         completedSides = new HashMap<>();
@@ -39,5 +41,13 @@ public class DiceConfigurationWrapper {
 
     public void setCompletedSides(Map<Integer, BookingCategory> completedSides) {
         this.completedSides = completedSides;
+    }
+
+    public UUID getFeedId() {
+        return feedId;
+    }
+
+    public void setFeedId(UUID feedId) {
+        this.feedId = feedId;
     }
 }
