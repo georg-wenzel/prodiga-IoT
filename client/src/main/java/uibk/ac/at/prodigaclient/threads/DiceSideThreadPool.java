@@ -45,7 +45,7 @@ public class DiceSideThreadPool {
                 // The we wait for the thread to exit
                 thread.getValue1().join();
             } catch (Exception ex) {
-                logger.error("Error while joining thread " + thread.second.getName(), ex);
+                logger.error("Error while joining thread " + thread.getValue1().getName(), ex);
             }
         }
 
