@@ -44,7 +44,7 @@ public class CubeManager {
             // first filter than map to Cube because of memory saves
             // second filter only for edge case. I will not use it unless someone specifically asked for it.
             listOfCubes = list.stream().filter(x -> x.getName().toLowerCase().contains("timeflip"))
-                    .map(Cube::new)/*.filter(Cube::isCube)*/.collect(Collectors.toMap(Cube::getAddress, Function.identity()));
+                    .map(Cube::new).collect(Collectors.toMap(Cube::getAddress, Function.identity()));
         }
     }
 

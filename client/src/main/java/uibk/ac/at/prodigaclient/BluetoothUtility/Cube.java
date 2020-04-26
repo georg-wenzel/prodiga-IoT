@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class is represents an internal cube.
+ */
 public class Cube {
     private static final byte[] CUBEPASSWORD = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
     private static final byte[] READHISTORYCMD = {0x01};
@@ -28,6 +31,7 @@ public class Cube {
     private BluetoothDevice cube;
     private String name;
     private String address;
+    private BluetoothGattService facetService = null;
 
     protected Cube(BluetoothDevice cube) {
         this.cube = cube;
@@ -44,11 +48,49 @@ public class Cube {
     }
 
     // check if device has the service we need to use.
-    public boolean isCube() {
-        failsafeConnect();
-        BluetoothGattService gattService = getService(FACETSERVICEUUID);
-        failsafeDisconnect();
-        return (gattService != null);
+    public boolean initializeCube() {
+        if (facetService == null) {
+            facetService = getService(FACETSERVICEUUID);
+
+            inputPW();
+
+            return (facetService != null);
+        } else {
+            return true;
+        }
+    }
+
+    protected void failsafeConnect() {
+        if (!cube.getConnected()) {
+            RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
+                    .handle(BluetoothException.class)
+                    .withDelay(Duration.ofSeconds(1))
+                    .withMaxRetries(3);
+
+            Failsafe.with(retryPolicy).run(cube::connect);
+        }
+    }
+
+    protected void failsafeDisconnect() {
+        if (cube.getConnected()) {
+            RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
+                    .handle(BluetoothException.class)
+                    .withDelay(Duration.ofSeconds(1))
+                    .withMaxRetries(3);
+
+            facetService = null;
+            Failsafe.with(retryPolicy).run(cube::connect);
+        }
+    }
+
+    private void inputPW() {
+        BluetoothGattCharacteristic passwordChar = getCharacteristic(facetService, PASSWORDCHARACTERISTICUUID);
+        if (passwordChar != null) {
+            passwordChar.writeValue(CUBEPASSWORD);
+        } else {
+            // TODO: Exception?
+            System.out.println("Password characteristic not found");
+        }
     }
 
     private BluetoothGattService getService(String UUID) {
@@ -96,88 +138,29 @@ public class Cube {
         return specificBluetoothCharacteristic;
     }
 
-    private boolean isLast(byte [] test) {
-        for (byte x : test) {
-            if (x != 0x00) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    protected void failsafeConnect() {
-        RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
-                .handle(BluetoothException.class)
-                .withDelay(Duration.ofSeconds(1))
-                .withMaxRetries(3);
-
-        if (!cube.getConnected()) {
-            Failsafe.with(retryPolicy).run(() -> cube.connect());
-        }
-    }
-
-    protected void failsafeDisconnect() {
-        RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
-                .handle(BluetoothException.class)
-                .withDelay(Duration.ofSeconds(1))
-                .withMaxRetries(3);
-
-        if (cube.getConnected()) {
-            Failsafe.with(retryPolicy).run(() -> cube.disconnect());
-        }
-    }
-
-    private void inputPW(BluetoothGattService facetService) {
-        BluetoothGattCharacteristic passwordChar = getCharacteristic(facetService, PASSWORDCHARACTERISTICUUID);
-        if (passwordChar != null) {
-            passwordChar.writeValue(CUBEPASSWORD);
-        } else {
-            // TODO: Exception?
-            System.out.println("Password characteristic not found");
-        }
-    }
-
     private void sendCommand(BluetoothGattService facetService, byte [] command) {
         BluetoothGattCharacteristic commandInputChar = getCharacteristic(facetService, COMMANDWRITERCHARACTERISTICUUID); // command input characteristic
         commandInputChar.writeValue(command);
     }
 
-    private List<HistoryEntry> getHistoryList(List<byte []> historyList) {
-        List<HistoryEntry> historyEntryList = new LinkedList<>();
-        for (byte [] historyBlock: historyList) {
-            for (int i = 0; i < 7; i++) {
-                HistoryEntry historyEntry = new HistoryEntry(Arrays.copyOfRange(historyBlock, 3 * i,
-                                                                            3 * (i + 1)));
-                if (historyEntry.getSeconds() != 0) {
-                    historyEntryList.add(historyEntry);
-                }
-            }
-        }
-
-        return historyEntryList;
-    }
-
     public List<HistoryEntry> getHistory() {
         List<HistoryEntry> historyEntryList = null;
-        BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
 
-        if (facetService != null) {
-            inputPW(facetService);
-
+        if (initializeCube()) {
             sendCommand(facetService, READHISTORYCMD);
 
             BluetoothGattCharacteristic commandOutputChar = getCharacteristic(facetService, COMMANDREADCHARACTERISTICUUID); // command output characteristic used to read the history
             List<byte[]> historyList = new LinkedList<>();
             byte[] history = commandOutputChar.readValue();
 
-            while (!isLast(history)) {
+            while (!HistoryListHelper.isLast(history)) {
                 historyList.add(history);
                 history = commandOutputChar.readValue();
             }
 
             historyList.remove(historyList.size() - 1);
 
-            historyEntryList = getHistoryList(historyList);
+            historyEntryList = HistoryListHelper.convertToHistoryList(historyList);
         } else {
             // TODO: Exception ??
             System.out.println("Facet service not found");
@@ -187,16 +170,25 @@ public class Cube {
     }
 
     public void deleteHistory() {
-        BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
-
-        if (facetService != null) {
-            inputPW(facetService);
-
+        if (initializeCube()) {
             sendCommand(facetService, DELETEHISTORYCMD);
         } else {
-            // TODO: Exception ??
             System.out.println("Facet service not found");
         }
+    }
+
+    public int getCurrentSide() {
+        int currentSide = 0;
+        if (initializeCube()) {
+            BluetoothGattCharacteristic currentFacet = getCharacteristic(facetService, CURRENTFACETCHARACTERISTICUUID);
+
+            byte[] currentFacetHex = currentFacet.readValue();
+            currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
+        } else {
+            System.out.println("Facet service not found");
+        }
+
+        return currentSide;
     }
 
     public int getBattery() {
@@ -212,22 +204,5 @@ public class Cube {
         }
 
         return batteryStatus;
-    }
-
-    public int getCurrentSide() {
-        int currentSide = 0;
-        BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
-        if (facetService != null) {
-            inputPW(facetService);
-            BluetoothGattCharacteristic currentFacet = getCharacteristic(facetService, CURRENTFACETCHARACTERISTICUUID);
-
-            byte[] currentFacetHex = currentFacet.readValue();
-            currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
-        } else {
-            // TODO: Exception ??
-            System.out.println("Facet service not found");
-        }
-
-        return currentSide;
     }
 }
