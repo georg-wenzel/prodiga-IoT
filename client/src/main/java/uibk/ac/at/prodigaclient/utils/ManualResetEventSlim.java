@@ -1,7 +1,6 @@
 package uibk.ac.at.prodigaclient.utils;
 
 import org.apache.logging.log4j.Logger;
-import org.graalvm.compiler.replacements.amd64.AMD64StringIndexOfNode;
 import uibk.ac.at.prodigaclient.Constants;
 
 /**
