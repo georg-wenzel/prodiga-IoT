@@ -2,7 +2,6 @@ package uibk.ac.at.prodiga.services;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import sun.jvm.hotspot.utilities.Interval;
 import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.User;
@@ -13,9 +12,14 @@ import java.util.HashMap;
 @Component
 @Scope("application")
 public class ProductivityAnalysisService {
-    BookingCategoryService bookingCategoryService;
-    User user;
-    BookingService bookingService;
+    private final BookingCategoryService bookingCategoryService;
+    private User user;
+    private final BookingService bookingService;
+
+    public ProductivityAnalysisService(BookingCategoryService bookingCategoryService, BookingService bookingService) {
+        this.bookingCategoryService = bookingCategoryService;
+        this.bookingService = bookingService;
+    }
 
     public HashMap<BookingCategory, Long> getWeeklyStatisticForCurrentUser(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();

@@ -33,7 +33,11 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     Collection<Booking> findUsersBookingInRange(@Param("user") User user, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
     @Query("Select b FROM Booking b WHERE " +
-            "b.dice.user = :user AND b.dice.user = :user AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
+            "b.bookingCategory = :category AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
+    Collection<Booking> findBookingWithCategoryInRange(@Param("category") BookingCategory category, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
+
+    @Query("Select b FROM Booking b WHERE " +
+            "b.dice.user = :user AND b.bookingCategory = :category AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
     Collection<Booking> findUsersBookingWithCategoryInRange(@Param("user") User user, @Param("category") BookingCategory category, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
 }
