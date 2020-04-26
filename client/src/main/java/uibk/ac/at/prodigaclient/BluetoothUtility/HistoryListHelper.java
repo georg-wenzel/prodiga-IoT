@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+
 public class HistoryListHelper {
 	protected static boolean isLast(byte [] test) {
 		for (byte x : test) {
