@@ -205,19 +205,11 @@ public class Cube {
         int currentSide = 0;
         BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
         if (facetService != null) {
+            inputPW(facetService);
             BluetoothGattCharacteristic currentFacet = getCharacteristic(facetService, CURRENTFACETCHARACTERISTICUUID);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (currentFacet != null) {
-                System.out.println(currentFacet.getUUID());
-                byte[] currentFacetHex = currentFacet.readValue();
-//                System.out.println(currentFacetHex);
-//                currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
-//                System.out.println(currentSide);
-            }
+
+            byte[] currentFacetHex = currentFacet.readValue();
+            currentSide = Byte.toUnsignedInt(currentFacetHex[0]);
         } else {
             // TODO: Exception ??
             System.out.println("Facet service not found");
