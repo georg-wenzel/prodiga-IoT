@@ -43,7 +43,7 @@ public class BookingCategoryService
      * Returns all saved booking categories
      * @return All booking categories
      */
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER') || hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<BookingCategory> findAllCategories()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAll());
@@ -68,7 +68,7 @@ public class BookingCategoryService
      * Returns all booking categories of the user's team
      * @return All booking categories of the team the user is in. This should always exist, since the user calling the method is teamleader.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
