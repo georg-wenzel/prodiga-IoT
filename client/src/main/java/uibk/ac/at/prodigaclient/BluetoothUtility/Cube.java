@@ -201,7 +201,7 @@ public class Cube {
         return batteryStatus;
     }
 
-    public int getCurrentSide() { // TODO: Work in progress
+    public int getCurrentSide() {
         int currentSide = 0;
         BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
         if (facetService != null) {
