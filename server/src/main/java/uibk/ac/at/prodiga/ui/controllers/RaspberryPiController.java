@@ -82,15 +82,6 @@ public class RaspberryPiController {
     }
 
     /**
-     * Returns the number of all configured raspberry pis.
-     * @return number of all configured raspberry pis.
-     */
-
-    public int numRaspberryPis(){
-        return this.raspberryPiService.getAllConfiguredRaspberryPis().size();
-    }
-
-    /**
      * Adds a new raspberry to the pending list
      *
      */

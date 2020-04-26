@@ -52,6 +52,16 @@ public class DepartmentService
     }
 
     /**
+     * Returns the number of departments
+     * @return The total number of departments
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public int getNumDepartments()
+    {
+        return Lists.newArrayList(departmentRepository.findAll()).size();
+    }
+
+    /**
      * Returns the first department with a matching name (unique identifier)
      * @param name The name of the department
      * @return The first (and only) department with a matching name, or null if none was found
