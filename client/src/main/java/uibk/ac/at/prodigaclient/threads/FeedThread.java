@@ -17,12 +17,10 @@ import java.util.List;
 public class FeedThread implements Runnable {
 
     private final IntrinsicsControllerApi intrinsicsControllerApi;
-    private final CubeManager cubeManager;
     private final Logger logger = LogManager.getLogger();
 
     public FeedThread() {
         this.intrinsicsControllerApi = Constants.getIntrinsicsControllerApi();
-        this.cubeManager = Constants.getCubeManager();
     }
 
     @Override
@@ -35,7 +33,7 @@ public class FeedThread implements Runnable {
 
                     List<String> allInternalIds = new ArrayList<>();
                     allInternalIds.add(Constants.getInternalId());
-                    allInternalIds.addAll(cubeManager.getCubeIDList());
+                    allInternalIds.addAll(CubeManager.getInstance().getCubeIDList());
 
                     ManualResetEventSlim mre = new ManualResetEventSlim(false);
 

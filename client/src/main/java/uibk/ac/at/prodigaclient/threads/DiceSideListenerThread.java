@@ -16,14 +16,12 @@ public class DiceSideListenerThread implements Runnable{
 
     private final Logger logger = LogManager.getLogger();
     private final CubeControllerApi cubeControllerApi;
-    private final CubeManager cubeManager;
     private final String internalId;
     private final Object lock = new Object();
     private volatile boolean running = false;
 
     public DiceSideListenerThread(String internalId) {
         cubeControllerApi = Constants.getCubeControllerApi();
-        cubeManager = Constants.getCubeManager();
         this.internalId = internalId;
     }
 
@@ -44,8 +42,7 @@ public class DiceSideListenerThread implements Runnable{
 
                     NewDiceSideRequestDTO request = new NewDiceSideRequestDTO();
                     request.setInternalId(internalId);
-                    // TODO(MAX): Get Current diceSide
-                    // request.setSide(cubeManager.getCurrentSide(internalId));
+                    request.setSide(CubeManager.getInstance().getCurrentSide(this.internalId));
 
                     cubeControllerApi.notifyNewSideUsingPOST(request).enqueue(callback);
 
@@ -71,9 +68,9 @@ public class DiceSideListenerThread implements Runnable{
     public void ensureRunning() {
         synchronized (lock) {
             running = true;
-        }
 
-        // TODO(MAX): Tell cube to connect
+            CubeManager.getInstance().connectToCube(this.internalId);
+        }
     }
 
     public void ensureStopped() {
@@ -81,6 +78,6 @@ public class DiceSideListenerThread implements Runnable{
             running = false;
         }
 
-        // TODO(MAX): Tell cube to disconnect
+        CubeManager.getInstance().disconnectFromCube(this.internalId);
     }
 }
