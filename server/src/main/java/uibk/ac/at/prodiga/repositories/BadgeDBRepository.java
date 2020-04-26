@@ -11,8 +11,9 @@ import java.util.Collection;
  * DB Repository for managing Badges
  */
 
-public interface BadgeDBRepository extends AbstractRepository<BadgeDB, String> {
+public interface BadgeDBRepository extends AbstractRepository<BadgeDB, Long> {
 
+    BadgeDB findFirstById(Long id);
     BadgeDB findFirstByBadgeName(String badgeName);
 
     @Query("SELECT b FROM BadgeDB b WHERE :user = b.user")
