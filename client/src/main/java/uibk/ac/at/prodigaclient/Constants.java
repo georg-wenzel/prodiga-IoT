@@ -113,7 +113,7 @@ public class Constants {
 
     public static CubeManager getCubeManager() {
         if(cubeManager == null) {
-            cubeManager = new CubeManager();
+            cubeManager = CubeManager.getInstance();
         }
         return cubeManager;
     }

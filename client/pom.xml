@@ -59,14 +59,12 @@
 			<artifactId>gson-fire</artifactId>
 			<version>1.8.4</version>
 		</dependency>
-<<<<<<< client/pom.xml
-
 		<!--	Fail save	-->
 		<dependency>
 			<groupId>net.jodah</groupId>
 			<artifactId>failsafe</artifactId>
 			<version>2.3.4</version>
-=======
+		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -81,7 +79,6 @@
 			<groupId>org.javatuples</groupId>
 			<artifactId>javatuples</artifactId>
 			<version>1.2</version>
->>>>>>> client/pom.xml
 		</dependency>
 	</dependencies>
 
