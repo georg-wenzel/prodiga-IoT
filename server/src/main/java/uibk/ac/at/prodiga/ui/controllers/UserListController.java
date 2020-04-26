@@ -31,15 +31,6 @@ public class UserListController {
     }
 
     /**
-     * Returns the number of all users.
-     *
-     * @return number of total users.
-     */
-    public int numUsers(){
-        return userService.getAllUsers().size();
-    }
-
-    /**
      * Returns all user in the given department
      * @param d The department
      * @return A list with users or a empty list if department is null

@@ -49,6 +49,16 @@ public class TeamService
         return Lists.newArrayList(teamRepository.findAll());
     }
 
+    /**
+     * Returns the number of existing teams
+     * @return The number of existing teams
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public int getNumTeams()
+    {
+        return Lists.newArrayList(teamRepository.findAll()).size();
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<Team> findTeamsOfDepartment(Department department) {
         return Lists.newArrayList(teamRepository.findTeamOfDepartment(department));

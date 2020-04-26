@@ -12,7 +12,7 @@
                     <div class="layout-menu-title">MAIN MENU</div>
                     <pe:menu widgetVar="me">
                         <p:menuitem id="om_homepage" value="Homepage" icon="fa fa-fw fa-home" outcome="/welcome" />
-                        <p:submenu id="om_user" label="User" icon="fa fa-fw fa-user">
+                        <p:submenu id="om_user" label="User" icon="fa fa-fw fa-user" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                             <p:menuitem id="om_user_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/user/users" />
                             <p:menuitem id="om_user_add" value="Add user" icon="fa fa-fw fa-plus" outcome="/user/add_user">
                                 <f:param name="username" value="" />
@@ -31,7 +31,7 @@
                         <p:submenu id="om_customization" label="Notifications" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
                         <p:submenu id="om_overview" label="Time overview" icon="fa fa-fw fa-dashboard" outcome="overview"/>
                         <p:submenu id="om_themes" label="Badges" icon="fa fa-fw fa-trophy" outcome="calendar"/>
-                        <p:submenu id="om_raspis" label="Raspberry Pis" icon="fa fa-fw fa-pie-chart">
+                        <p:submenu id="om_raspis" label="Raspberry Pis" icon="fa fa-fw fa-pie-chart" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                             <p:menuitem id="om_raspis_conf" value="Configured" icon="fa fa-fw fa-toggle-on" outcome="/raspberry_pis_configured" />
                             <p:menuitem id="om_raspis_pend" value="Pending" icon="fa fa-fw fa-toggle-off" outcome="/raspberry_pis_pending"/>
                         </p:submenu>

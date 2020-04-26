@@ -358,6 +358,21 @@ public class UserServiceTest {
 
     @DirtiesContext
     @Test
+    @WithMockUser(username = "notadmin", authorities = {"EMPLOYEE"})
+    public void testGetNumUsers()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        int users = userService.getNumUsers();
+
+        for(int i=0;i<5;i++) {
+            DataHelper.createRandomUser(userRepository);
+        }
+
+        Assertions.assertEquals(users + 5, userService.getNumUsers(), "Number of users was not properly updated.");
+    }
+
+    @DirtiesContext
+    @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void userService_saveNewUserWithSameUsername_throwsException() {
         DataHelper.createAdminUser("admin", userRepository);
