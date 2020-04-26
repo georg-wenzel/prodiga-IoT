@@ -14,7 +14,7 @@ import java.util.List;
 public class Cube {
     private static final byte[] CUBEPASSWORD = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
     private static final byte[] READHISTORYCMD = {0x01};
-    private static final byte[] WRITEHISTORYCMD = {0x02};
+    private static final byte[] DELETEHISTORYCMD = {0x02};
 
     private static final String FACETSERVICEUUID = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
     private static final String BATTERYSERVICEUUID = "0000180f-0000-1000-8000-00805f9b34fb";
@@ -184,6 +184,19 @@ public class Cube {
         }
 
         return historyEntryList;
+    }
+
+    public void deleteHistory() {
+        BluetoothGattService facetService = getService(FACETSERVICEUUID); // TimeFlip Service
+
+        if (facetService != null) {
+            inputPW(facetService);
+
+            sendCommand(facetService, DELETEHISTORYCMD);
+        } else {
+            // TODO: Exception ??
+            System.out.println("Facet service not found");
+        }
     }
 
     public int getBattery() {
