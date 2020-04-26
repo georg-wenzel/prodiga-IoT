@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
@@ -10,7 +11,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
-@Controller
+@Component
 @Scope("view")
 public class RoomDetailController {
     private final RoomService roomService;
@@ -22,22 +23,32 @@ public class RoomDetailController {
     }
 
     /**
-     * Saves currently selected room
-     * @throws Exception if save fails
+     * Action to delete the currently displayed user.
      */
-    public void saveRoom() throws Exception {
-        room = roomService.saveRoom(room);
-        SnackbarHelper.getInstance().showSnackBar("Room " + room.getId() + " saved!", MessageType.INFO);
+    public void doDeleteRoom() throws Exception {
+        this.roomService.deleteRoom(room);
+        SnackbarHelper.getInstance()
+                .showSnackBar("Room " + room.getName() + " deleted!", MessageType.ERROR);
     }
 
     /**
      * Saves a room in the database. If an object with this ID already exists, overwrithes the object's data at this ID
-     * @param room The room to save
      * ProdigaGeneralExpectedException Is thrown when name is not between 2 and 20 characters or does not exist
      */
-    public void saveRoom(Room room){
-        SnackbarHelper.getInstance().showSnackBar("Room " + room.getId() + " saved!", MessageType.INFO);
+    public void doSaveRoom()throws Exception{
+        room = this.roomService.saveRoom(room);
+        SnackbarHelper.getInstance().showSnackBar("Room " + room.getName() + " saved!", MessageType.INFO);
     }
+
+    public void doReloadRoom(String roomname) throws Exception {
+        if (roomname != null && !roomname.trim().isEmpty()) {
+            this.room = roomService.loadRoom(roomname);
+        } else {
+            this.room = roomService.createRoom();
+        }
+    }
+
+
 
     public Room getManagedInstance(){
         return roomService.getManagedInstance(room);
@@ -61,9 +72,6 @@ public class RoomDetailController {
         return roomService.getFirstById(id);
     }
 
-    public void deleteRoom(Room room) throws DeletionNotAllowedException {
-        roomService.deleteRoom(room);
-    }
 
     public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
         roomService.addRoomToRaspberryPi(room,raspberryPi);
@@ -73,19 +81,75 @@ public class RoomDetailController {
         roomService.removeRoomFromRaspberryPi(room,raspberryPi);
     }
 
-    public Room createRoom(){
-        return roomService.createRoom();
-    }
-
     public long getRoomCount(){
         return roomService.getRoomCount();
     }
 
     public Room getRoom() {
-        return this.room;
+        return room;
     }
 
-    public void setRoom(Room room) {
+    public void setRoom(Room room) throws Exception {
         this.room = room;
+        doReloadRoom(room.getName());
     }
+
+    public String getRoomByName() {
+        if(this.room == null) {
+            return null;
+        }
+        return room.getName();
+    }
+
+    /**
+     * Gets room by id.
+     * @return the room by id
+     */
+    public Long getRoomById(){
+        if(this.room == null){
+            return (long) -1;
+        }
+        return this.room.getId();
+    }
+
+    /**
+     * Sets current room by roomId
+     * @param roomId teamId to be set
+     */
+    public void setRoomById(Long roomId){
+        loadRoomById(roomId);
+    }
+
+
+    /**
+     * Sets currently active room by the id
+     * @param roomId when roomId could not be found
+     */
+    public void loadRoomById(Long roomId){
+        if(roomId == null){
+            this.room = roomService.createNewRoom();
+        } else {
+            this.room = roomService.loadRoom(roomId);
+        }
+    }
+
+
+    /**
+     * Sets current room by roomId
+     * @param roomname teamId to be set
+     */
+    public void setRoomByName(String roomname){
+        loadRoomByName(roomname);
+    }
+
+    public void loadRoomByName(String roomname){
+        if(roomname == null){
+            this.room = roomService.createRoom();
+        } else {
+            this.room = roomService.loadRoom(roomname);
+        }
+    }
+
+
+
 }

@@ -14,17 +14,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
-import uibk.ac.at.prodiga.rest.controller.DiceController;
+import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -50,13 +47,22 @@ public class DiceServiceTest {
     DiceSideRepository diceSideRepository;
 
     @Autowired
-    DiceController diceController;
+    TeamRepository teamRepository;
+
+    @Autowired
+    DepartmentRepository departmentRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    DiceRestController diceRestController;
 
     User admin = null;
     User notAdmin = null;
 
     @BeforeEach
-    public void initEach(@Autowired UserRepository userRepository) {
+    public void initEach() {
         admin = DataHelper.createAdminUser("admin", userRepository);
         notAdmin = DataHelper.createUserWithRoles("notAdmin", Sets.newSet(UserRole.EMPLOYEE), userRepository);
     }
@@ -193,6 +199,7 @@ public class DiceServiceTest {
     public void diceService_saveInactiveDice_diceInDB() throws ProdigaGeneralExpectedException {
         Dice d = new Dice();
         d.setActive(false);
+        d.setObjectCreatedUser(admin);
 
         diceService.save(d);
 
@@ -266,8 +273,9 @@ public class DiceServiceTest {
     @Test
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
     public void diceService_getAllWithoutRights_throws() {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> diceService.getAllDice(), "Unauthorized user can see all dice");
+        DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        Assertions.assertEquals(0, diceService.getAllDice().size());
     }
 
     @DirtiesContext
@@ -276,7 +284,7 @@ public class DiceServiceTest {
     public void diceService_saveWithoutRights_throws() {
         Dice d = new Dice();
 
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class,
                 () -> diceService.save(d), "Unauthorized user can save");
     }
 
@@ -354,11 +362,11 @@ public class DiceServiceTest {
 
         Assertions.assertTrue(diceService.diceInConfigurationMode(d.getInternalId()), "Dice not in configuration mode");
 
-        diceController.notifyNewSide(request);
+        diceRestController.notifyNewSide(request);
 
         for(int i = 0; i < 12; i++) {
             request.setSide(i + 1);
-            diceController.notifyNewSide(request);
+            diceRestController.notifyNewSide(request);
         }
 
         diceService.completeConfiguration(d);

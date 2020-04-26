@@ -4,8 +4,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import uibk.ac.at.prodiga.rest.dtos.FeedDTO;
 import uibk.ac.at.prodiga.rest.dtos.GenericStringDTO;
 import uibk.ac.at.prodiga.rest.dtos.InstrincsDTO;
+import uibk.ac.at.prodiga.utils.FeedManager;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class IntrinsicsController {
@@ -20,5 +25,15 @@ public class IntrinsicsController {
     @PostMapping("/api/instrincs")
     public void push(@RequestBody InstrincsDTO instrincs) {
 
+    }
+
+    @GetMapping("/api/feed")
+    public List<FeedDTO> getFeedForDevices(@RequestBody List<String> internalId) {
+        return FeedManager.getInstance().getFeed(internalId);
+    }
+
+    @PostMapping("/api/feed")
+    public void completeFeed(UUID feedId) {
+        FeedManager.getInstance().completeFeedItem(feedId);
     }
 }

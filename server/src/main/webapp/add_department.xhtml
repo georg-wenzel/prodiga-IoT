@@ -6,7 +6,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Add department</ui:define>
+    <ui:define name="title">Prodiga Add Department</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -41,13 +41,19 @@
                         <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
                             <p:row style="width: 100%">
                                 <p:column>
-                                    <p:commandButton value="Save"
-                                                     action="#{departmentController.doSaveDepartment}"
-                                                     ajax="true"
-                                                     icon="fa fa-fw fa-save"
-                                                     validateClient="true"
-                                                     update="growl msgs">
-                                    </p:commandButton>
+                                    <div class="ui-g-6">
+                                        <p:linkButton outcome="/departments" value="Department overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                                        </p:linkButton>
+                                    </div>
+                                    <div class="ui-g-6" align="right">
+                                        <p:commandButton value="Save"
+                                                         action="#{departmentController.doSaveDepartment}"
+                                                         ajax="true"
+                                                         icon="fa fa-fw fa-save"
+                                                         validateClient="true"
+                                                         update="growl msgs">
+                                        </p:commandButton>
+                                    </div>
                                 </p:column>
                             </p:row>
                         </p:panelGrid>

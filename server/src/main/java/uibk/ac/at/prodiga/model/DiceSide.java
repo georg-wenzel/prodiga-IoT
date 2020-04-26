@@ -18,6 +18,9 @@ public class DiceSide implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private int side;
 
+    @Column(nullable = false)
+    private int currentSeconds;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Dice.class)
     Dice dice;
 
@@ -30,11 +33,19 @@ public class DiceSide implements Persistable<Long>, Serializable {
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     User objectCreatedUser;
 
-    @Column(nullable = false)
+    @Column
     private Date objectChangedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     User objectChangedUser;
+
+    public int getCurrentSeconds() {
+        return currentSeconds;
+    }
+
+    public void setCurrentSeconds(int currentSeconds) {
+        this.currentSeconds = currentSeconds;
+    }
 
     public void setId(Long id) {
         this.id = id;

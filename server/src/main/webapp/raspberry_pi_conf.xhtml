@@ -71,15 +71,19 @@
                             </div>
                         </div>
                         <div class="ui-g">
-                            <p:commandButton value="Save"
-                                             action="#{raspberryPiController.doSaveRaspi()}"
-                                             ajax="true"
-                                             icon="fa fa-fw fa-save"
-                                             validateClient="true"
-                                             update="growl msgs">
-                            </p:commandButton>
-                            <p:linkButton outcome="/raspberry_pis_configured" value="Back to pending Raspberry Pis" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                            </p:linkButton>
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/raspberry_pis_configured" value="Back to pending Raspberry Pis" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                                </p:linkButton>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{raspberryPiController.doSaveRaspi()}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
                         </div>
                     </h:form>
 

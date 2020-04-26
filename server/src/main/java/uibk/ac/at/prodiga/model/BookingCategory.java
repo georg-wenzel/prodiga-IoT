@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -28,10 +29,10 @@ public class BookingCategory implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
+    @Column
     private Date objectChangedDateTime;
 
     public void setId(Long id) {
@@ -94,5 +95,18 @@ public class BookingCategory implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return objectCreatedDateTime == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookingCategory that = (BookingCategory) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -6,7 +6,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Prodiga users</ui:define>
+    <ui:define name="title">Prodiga Add User</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -24,62 +24,98 @@
                     <h:form id="addUserForm" prependId="false">
                         <p:messages id="msgs" for="msgs"/>
 
-                        <h:panelGrid id="userTypeGrid" columns="3" cellpadding="5">
-                            <p:outputLabel styleClass="input-form" for="roles" value="Roles: " />
-                            <p:selectManyButton id="roles"
-                                                value="#{userDetailController.user.rolesAsString}" layout="grid"
-                                                columnClasses="ui-g-1 ui-md-2 ui-lg-2 ui-xl-1, ui-g-4 ui-md-4 ui-lg-4 ui-xl-2, ui-g-3 ui-md-3 ui-lg-3">
-                                <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
-                            </p:selectManyButton>
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel styleClass="input-form" for="isAdmin" value=" Is Admin: " />
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:selectBooleanCheckbox id ="isAdmin" value="#{userDetailController.isAdmin}" />
+                                </div>
+                            </div>
+                        </div>
 
-                        </h:panelGrid>
-
-
-                        <p:panelGrid id="userCredentialCreationGrid" columns="3" cellpadding="5" layout="grid"
-                                     columnClasses="ui-g-1 ui-md-2 ui-lg-2 ui-xl-1, ui-g-4 ui-md-4 ui-lg-4 ui-xl-2, ui-g-3 ui-md-3 ui-lg-3">
-                            <p:outputLabel for="addUsername" value="Username: "/>
-                            <p:inputText id="addUsername" required="true" requiredMessage="Please add a username"
-                                         maxlength="99"
-                                         value="#{userDetailController.user.username}"/>
-                        </p:panelGrid>
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addUsername" value="Username: "/>
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:inputText id="addUsername" required="true" requiredMessage="Please add a username"
+                                                 maxlength="99"
+                                                 value="#{userDetailController.user.username}"/>
+                                </div>
+                            </div>
+                        </div>
 
                         <p:separator/>
 
-                        <p:panelGrid id="userNameGrid" columns="4" layout="grid"
-                                     columnClasses="ui-g-1 ui-md-2 ui-lg-1, ui-g-4 ui-md-10 ui-lg-4, ui-g-1 ui-md-2 ui-lg-1, ui-g-4 ui-md-10 ui-lg-4">
-
-                            <p:outputLabel for="addFirstName" value="First Name: "/>
-                            <p:inputText id="addFirstName" value="#{userDetailController.user.firstName}" required="true" requiredMessage="Please add a first name"/>
-                            <p:outputLabel for="addLastName" value="Last Name: "/>
-                            <p:inputText id="addLastName" value="#{userDetailController.user.lastName}" required="true" requiredMessage="Please add a last name"/>
-                            <p:outputLabel for="addEmail" value="E-Mail: "/>
-                            <p:inputText id="addEmail" value="#{userDetailController.user.email}"/>
-                            <p:outputLabel for="addPhone" value="Phone: "/>
-                            <p:inputMask id="addPhone" value="#{userDetailController.user.phone}"
-                                         mask="+99? 999 9999999"/>
-                        </p:panelGrid>
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addFirstName" value="First Name: "/>
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:inputText id="addFirstName" value="#{userDetailController.user.firstName}" required="true" requiredMessage="Please add a first name"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addLastName" value="Last Name: "/>
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:inputText id="addLastName" value="#{userDetailController.user.lastName}" required="true" requiredMessage="Please add a last name"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addEmail" value="Email: "/>
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:inputText id="addEmail" value="#{userDetailController.user.email}"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addPhone" value="Phone: "/>
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:inputMask id="addPhone" value="#{userDetailController.user.phone}"
+                                                 mask="+99? 999 9999999"/>
+                                </div>
+                            </div>
+                        </div>
 
                         <p:separator/>
 
                         <p:spacer/>
 
-                        <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
-                            <p:row style="width: 100%">
-                                <p:column>
-                                    <p:selectBooleanCheckbox id="addEnabled" value="#{userDetailController.user.enabled}"/>
-                                    <p:outputLabel for="addEnabled" value=" Enabled"/>
-                                </p:column>
-                                <p:column style="text-align: right">
-                                    <p:commandButton value="Save"
-                                                     action="#{userDetailController.doSaveUser()}"
-                                                     ajax="true"
-                                                     icon="fa fa-fw fa-save"
-                                                     validateClient="true"
-                                                     update="growl msgs">
-                                    </p:commandButton>
-                                </p:column>
-                            </p:row>
-                        </p:panelGrid>
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addEnabled" value=" Enabled:"/>
+                                </div>
+                                <div class="ui-g-3">
+                                <p:selectBooleanCheckbox id="addEnabled" value="#{userDetailController.user.enabled}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br></br>
+                        <div class="ui-g">
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/user/users" value="User overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{userDetailController.doSaveUser()}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
+                        </div>
                     </h:form>
 
 

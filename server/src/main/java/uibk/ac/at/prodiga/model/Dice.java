@@ -4,8 +4,7 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 public class Dice implements Persistable<Long>, Serializable {
@@ -31,10 +30,9 @@ public class Dice implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 

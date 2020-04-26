@@ -6,15 +6,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import uibk.ac.at.prodiga.model.Dice;
-import uibk.ac.at.prodiga.model.DiceSide;
-import uibk.ac.at.prodiga.model.RaspberryPi;
-import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
-import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
-import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+import uibk.ac.at.prodiga.rest.dtos.DeviceType;
+import uibk.ac.at.prodiga.rest.dtos.FeedAction;
+import uibk.ac.at.prodiga.utils.*;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -26,24 +22,38 @@ public class DiceService {
 
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
+    private final LogInformationService logInformationService;
     private final DiceSideService diceSideService;
+    private final BookingCategoryService bookingCategoryService;
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
         this.diceSideService = diceSideService;
+        this.logInformationService = logInformationService;
+        this.bookingCategoryService = bookingCategoryService;
     }
 
     /**
      * Returns all dices
      * @return A list with dices
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public List<Dice> getAllDice() {
-        return Lists.newArrayList(diceRepository.findAll());
+        User currentUser = prodigaUserLoginManager.getCurrentUser();
+        if(currentUser.getRoles().contains(UserRole.ADMIN)) {
+            return Lists.newArrayList(diceRepository.findAll());
+        } else {
+            Dice d = getDiceByUser(currentUser);
+            if(d != null) {
+                return Lists.newArrayList(d);
+            } else {
+                return new ArrayList<>();
+            }
+        }
     }
 
     /**
@@ -53,9 +63,13 @@ public class DiceService {
      * @throws ProdigaGeneralExpectedException If no dice could be found
      */
     public Dice loadDice(long diceId) throws ProdigaGeneralExpectedException {
-        return diceRepository.findById(diceId).orElseThrow(()
+        Dice d = diceRepository.findById(diceId).orElseThrow(()
                 -> new ProdigaGeneralExpectedException("No dice with Id " + diceId + " found",
-                MessageType.WARNING));
+                MessageType.ERROR));
+
+        checkAccessDiceAndThrow(d);
+
+        return d;
     }
 
     /**
@@ -63,6 +77,7 @@ public class DiceService {
      * @param internalId the internal id
      * @return The found dice
      */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Dice getDiceByInternalId(String internalId) {
         return diceRepository.findFirstByInternalId(internalId);
     }
@@ -72,12 +87,13 @@ public class DiceService {
      * @param u The user
      * @return The assigned dice
      */
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #u.username")
     public Dice getDiceByUser(User u) {
         if(u == null) {
             return null;
         }
-
         return diceRepository.findFirstByUser(u);
+
     }
 
     /**
@@ -85,6 +101,7 @@ public class DiceService {
      * @param raspi The raspi
      * @return A list with dices
      */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<Dice> getAllByRaspberryPi(RaspberryPi raspi) {
         return diceRepository.findAllByAssignedRaspberry(raspi);
     }
@@ -93,6 +110,7 @@ public class DiceService {
      * Returns all dices which are active and assigned to a user
      * @return A list of dices
      */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<Dice> getAllAvailableDices() {
         return getAllDice().stream()
                 .filter(x -> x.isActive() && x.getUser() == null)
@@ -105,15 +123,15 @@ public class DiceService {
      * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
+        checkAccessDiceAndThrow(dice);
+
+
         if(dice.isActive()) {
-            if(dice.getAssignedRaspberry() == null) {
-                throw new ProdigaGeneralExpectedException("Dice has to be assigned to a RaspberryPi", MessageType.WARNING);
-            }
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
-                throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.WARNING);
+                throw new ProdigaGeneralExpectedException("Dice needs a internal id", MessageType.ERROR);
             }
 
             // Here we check if the user already has a dice
@@ -124,7 +142,7 @@ public class DiceService {
                 // If the user already has a dice and the current dice is NOT the usersDice we also throw
                 if(userDice != null && (dice.isNew() || !dice.getId().equals(userDice.getId()))) {
                     throw new ProdigaGeneralExpectedException("User " + dice.getUser().getUsername()
-                            + " already has a assigned Dice", MessageType.WARNING);
+                            + " already has a assigned Dice", MessageType.ERROR);
                 }
             }
         }
@@ -132,12 +150,41 @@ public class DiceService {
         if(dice.isNew()) {
             dice.setObjectCreatedDateTime(new Date());
             dice.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
+            dice.setObjectChangedDateTime(new Date());
         }
 
-        dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
-        dice.setObjectChangedDateTime(new Date());
-
         return diceRepository.save(dice);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    public Dice createDice()
+    {
+        return new Dice();
+    }
+
+    /**
+     * Deletes the dice.
+     *
+     * @param dice the dice to delete
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    public void deleteDice(Dice dice) {
+        diceRepository.delete(dice);
+        logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
+    }
+
+
+    /**
+     * Returns the number of dice of users who are in the same team as the calling user, that have the corresponding Category set as one of their sides.
+     * @param cat The category to look for
+     * @return The number of dice in the given team, who have a side corresponding to the given category.
+     */
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public int getDiceCountByCategoryAndTeam(BookingCategory cat)
+    {
+        return diceRepository.findDiceByUserTeamAndCategory(prodigaUserLoginManager.getCurrentUser().getAssignedTeam(), cat).size();
     }
 
     /**
@@ -205,6 +252,10 @@ public class DiceService {
 
         diceConfigurationWrapperDict.put(d.getInternalId(), wrapper);
 
+        UUID feedId = FeedManager.getInstance().addToFeed(d.getInternalId(), DeviceType.CUBE, FeedAction.ENTER_CONFIG_MODE);
+
+        wrapper.setFeedId(feedId);
+
         return wrapper;
     }
 
@@ -236,14 +287,38 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Exactly 12 sides need to be configured", MessageType.ERROR);
         }
 
+        if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
+            BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
+
+            throw new ProdigaGeneralExpectedException("At least one side must be configured with " + bc.getName(),
+                    MessageType.ERROR);
+        }
+
         wrapper.getCompletedSides().forEach((key, value) -> {
             DiceSide ds = new DiceSide();
             ds.setBookingCategory(value);
             ds.setDice(wrapper.getDice());
             ds.setSide(key);
-            diceSideService.saveOrModify(ds);
+            diceSideService.save(ds);
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
+
+        FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
+
+        FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
+    }
+
+    private void checkAccessDiceAndThrow(Dice d) throws ProdigaGeneralExpectedException {
+        User currentUser = prodigaUserLoginManager.getCurrentUser();
+
+        if(d.getUser() == null && !currentUser.getRoles().contains(UserRole.ADMIN)) {
+            throw new ProdigaGeneralExpectedException("Only admins can edit dices without users",
+                    MessageType.ERROR);
+        } else if(d.getUser() != null
+                && !currentUser.getUsername().equals(d.getUser().getUsername())) {
+            throw new ProdigaGeneralExpectedException("You cannot save someone else's dice",
+                    MessageType.ERROR);
+        }
     }
 }

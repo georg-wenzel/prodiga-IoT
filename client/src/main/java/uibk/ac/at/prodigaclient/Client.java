@@ -1,36 +1,50 @@
 package uibk.ac.at.prodigaclient;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import uibk.ac.at.prodigaclient.dtos.GenericStringDTO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
+import uibk.ac.at.prodigaclient.api.AuthControllerApi;
+import uibk.ac.at.prodigaclient.api.CubeControllerApi;
 import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
-
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
+import uibk.ac.at.prodigaclient.threads.AuthThread;
+import uibk.ac.at.prodigaclient.threads.FeedThread;
+import uibk.ac.at.prodigaclient.threads.HistorySyncThread;
 
 public class Client {
+
+    private static final Logger logger = LogManager.getLogger();
+
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Hallo, ich bin ein client!!!");
 
-        CountDownLatch startSignal = new CountDownLatch(1);
+        // We start the client and read the MAC Address - this is the "ID" of the current client
+        try {
+            logger.info("RaspberryPi registered with internal ID " + Constants.getInternalId());
+        } catch (Exception ex) {
+            // If this fails we log it and kill the client
+            logger.error("Error while reading MAC-Address! Aborting!", ex);
+            return;
+        }
 
-        IntrinsicsControllerApi api = new ApiClient().createService(IntrinsicsControllerApi.class);
+        // Set up auth thread
+        AuthThread authThread = new AuthThread();
 
-        api.pingUsingGET().enqueue(new Callback<GenericStringDTO>() {
-            @Override
-            public void onResponse(Call<GenericStringDTO> call, Response<GenericStringDTO> response) {
-                System.out.println(response.body());
-                startSignal.countDown();
-            }
+        // Get a Function Pointer to invoke the auth thread - used by other threads to invoke the auth process
+        Constants.setAuthAction(authThread::invokeAuth);
 
-            @Override
-            public void onFailure(Call<GenericStringDTO> call, Throwable throwable) {
-                System.out.println(throwable.toString());
-                startSignal.countDown();
-            }
-        });
+        // Set aup all other threads
+        HistorySyncThread historySyncThread = new HistorySyncThread();
+        FeedThread feedThread = new FeedThread();
 
-        startSignal.await();
+        Thread authThreadThread = new Thread(authThread, "AuthThread");
+        Thread historySyncThreadThread = new Thread(historySyncThread, "HistorySyncThread");
+        Thread feedThreadThread = new Thread(feedThread, "FeedThreadThread");
+
+        // Then we start the auth thread
+        authThreadThread.start();
+        historySyncThreadThread.start();
+        feedThreadThread.start();
+        authThreadThread.join();
+        historySyncThreadThread.join();
+        feedThreadThread.join();
     }
 }

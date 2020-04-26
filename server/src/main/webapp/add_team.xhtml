@@ -6,7 +6,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Add team</ui:define>
+    <ui:define name="title">Prodiga Add Team</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -37,7 +37,7 @@
                                 </div>
 
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel for="teamLeader" value="Teamleader: "/>
+                                    <p:outputLabel for="teamLeader" value="Team leader: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:selectOneMenu id="teamLeader"
@@ -57,21 +57,22 @@
                         <p:spacer/>
                         <p:separator/>
                         <p:spacer/>
-                        <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
-                            <p:row style="width: 100%">
-                                <p:column>
-                                    <p:commandButton value="Save"
-                                                     action="#{teamController.saveTeam}"
-                                                     ajax="true"
-                                                     icon="fa fa-fw fa-save"
-                                                     validateClient="true"
-                                                     update="growl msgs">
-                                    </p:commandButton>
-                                    <p:linkButton outcome="/teams" value="Back to team overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                                    </p:linkButton>
-                                </p:column>
-                            </p:row>
-                        </p:panelGrid>
+
+                        <div class="ui-g">
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/teams" value="Back to team overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                                </p:linkButton>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{teamController.saveTeam}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
+                        </div>
                     </h:form>
                 </div>
             </div>

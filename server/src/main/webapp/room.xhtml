@@ -1,32 +1,63 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Räume</ui:define>
+    <ui:define name="title">Prodiga Room</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/room">Räume</p:link></li>
+        <li><p:link outcome="/rooms">room</p:link></li>
+        <li>/</li>
+        <li>#{roomDetailController.room.name}</li>
     </ui:define>
 
     <ui:define name="content">
-        <div class="ui-g">
-            <div class="ui-g-12">
-                <div class="card">
-                    <h1>Räume</h1>
-                    <h:form id="roomForm">
-                        <p:dataTable id="roomTable" var="room" scrollable="true" style="width:50%" scrollHeight="500" value="#{roomListController.rooms}">
-                            <p:column headerText="Raumname">
-                                <h:outputText value="#{room.name}"/>
-                            </p:column>
-
-                        </p:dataTable>
-                    </h:form>
+        <f:metadata>
+            <f:viewParam name="roomname" value="#{roomDetailController.roomByName}"/>
+        </f:metadata>
+        <div class="card">
+            <h1>#{roomDetailController.room.name}</h1>
+            <h:form id="roomForm">
+                <p:messages id="msgs" for="msgs"/>
+                <div class="ui-g">
+                    <div class="ui-g-5">
+                        <div class="ui-g-4 input-form">
+                            <p:outputLabel for="roomname" value="Room name: "/>
+                        </div>
+                        <div class="ui-g-8 input-form">
+                            <p:inputText id="roomname"
+                                         value="#{roomDetailController.room.name}"
+                                         disabled="false"
+                                         required="true"
+                                         label="Room name" style="width:100%"/>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+
+                <br></br>
+
+                <br/>
+
+
+                <div class="ui-g">
+                    <div class="ui-g-6">
+                        <p:linkButton outcome="/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                    </div>
+                    <div class="ui-g-6" align="right">
+                        <p:commandButton value="Save"
+                                         action="#{roomDetailController.doSaveRoom()}"
+                                         ajax="true"
+                                         icon="fa fa-fw fa-save"
+                                         validateClient="true"
+                                         update="growl msgs">
+                        </p:commandButton>
+                    </div>
+                </div>
+
+            </h:form></div>
 
     </ui:define>
 

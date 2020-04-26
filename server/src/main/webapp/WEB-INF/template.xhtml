@@ -39,7 +39,6 @@
 <h:body>
     <div class="layout-wrapper layout-menu-static layout-menu-dark">
         <ui:include src="./topbar.xhtml"></ui:include>
-        <ui:include src="./right_panel.xhtml"></ui:include>
         <ui:include src="./menu.xhtml"></ui:include>
 
         <div class="layout-main">
@@ -79,8 +78,6 @@
 
     <h:outputStylesheet name="css/nanoscroller.css" library="ecuador-layout" />
     <h:outputStylesheet name="css/layout-blue.css" library="ecuador-layout" />
-    <h:outputStylesheet name="css/exception.css" />
-
 </h:body>
 
 <p:ajaxExceptionHandler type="uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException" update="exceptionDialog"
@@ -88,18 +85,17 @@
 <p:ajaxExceptionHandler type="java.lang.Exception" update="exceptionDialog"
                         onexception="PF('exceptionDialog').show();" />
 <p:dialog id="exceptionDialog"
-          header="#{pfExceptionHandler.exception.severity}"
+          header="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
           widgetVar="exceptionDialog"
-          resizable="false"
-          styleClass="#{exceptionHelperBean.displayException(pfExceptionHandler.exception) ?
-              'exception-dialog' : ''}">
+          resizable="false">
     <p:staticMessage severity="#{exceptionHelperBean.getUiSeverity(pfExceptionHandler.exception)}"
-                     summary="#{pfExceptionHandler.exception.severity}"
-                     detail="#{pfExceptionHandler.message}" escape="true" />
-    <p:separator rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}" />
-    <h:outputText rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}"
-                  value="#{pfExceptionHandler.formattedStackTrace}"
-                  escape="false" />
+                     summary="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
+                     detail="#{exceptionHelperBean.getDisplayMessage(pfExceptionHandler.exception)}" escape="true" />
+    <p:separator />
+    <p:commandButton value="Report Error"
+                     icon="fa fa-fw fa-bug"
+                     action="#{exceptionHelperBean.sendException(pfExceptionHandler.exception)}"
+                     oncomplete="PF('exceptionDialog').hide();"/>
 </p:dialog>
 
 </html>

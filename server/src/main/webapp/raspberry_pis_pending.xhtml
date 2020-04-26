@@ -21,7 +21,8 @@
                         <p:messages id="msgs" for="msgs"/>
                         <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" style="width: 50%" scrollHeight="500" value="#{raspberryPiController.allPendingRaspberryPis}">
 
-                            <p:column headerText="RasPi Internal ID">
+                            <p:column headerText="RasPi Internal ID" filterMatchMode="contains"
+                                      filterBy="#{raspberry_pi.internalId}" sortBy="#{raspberry_pi.internalId}">
                                 <h:outputText value="#{raspberry_pi.internalId}"/>
                             </p:column>
 

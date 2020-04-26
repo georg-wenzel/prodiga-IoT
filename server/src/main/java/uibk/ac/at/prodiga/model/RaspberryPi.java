@@ -27,10 +27,9 @@ public class RaspberryPi implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
-    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
 

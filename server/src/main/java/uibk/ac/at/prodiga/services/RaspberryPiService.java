@@ -42,7 +42,7 @@ public class RaspberryPiService {
      * @param internalId The internal id
      * @return An Optional with the found raspberry
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Optional<RaspberryPi> findByInternalIdWithAuth(String internalId) {
         return findByInternalId(internalId);
     }
@@ -57,7 +57,7 @@ public class RaspberryPiService {
         return findByInternalIdWithAuth(internalId)
                 .orElseThrow(() -> new ProdigaGeneralExpectedException(
                         "RaspberryPi with internal id " + internalId + " not " +
-                                "found", MessageType.WARNING));
+                                "found", MessageType.ERROR));
     }
 
     /**
@@ -79,7 +79,7 @@ public class RaspberryPiService {
         return findByInternalId(internalId)
                 .orElseThrow(() -> new ProdigaGeneralExpectedException(
                         "RaspberryPi with internal id " + internalId + " not " +
-                                "found", MessageType.WARNING));
+                                "found", MessageType.ERROR));
     }
 
     public RaspberryPi findById(Long raspId) throws Exception {
@@ -92,7 +92,7 @@ public class RaspberryPiService {
      * Returns all raspberry pis which are not configured
      * @return A list of raspberry pis
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<RaspberryPi> getAllPendingRaspberryPis() {
         // Make a copy here, so the reference is not thread safe any more
         return new ArrayList<>(pendingRaspberryPis);
@@ -102,7 +102,7 @@ public class RaspberryPiService {
      * Retturns a list of all raspberry pis which are configured
      * @return A list of raspberry pis
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<RaspberryPi> getAllConfiguredRaspberryPis() {
         return Lists.newArrayList(raspberryPiRepository.findAll());
     }
@@ -111,12 +111,18 @@ public class RaspberryPiService {
      * Adds a new raspberry to the pending list
      * @param internalId The raspberry pis internal ID
      */
-    public void addPendingRaspberry(String internalId) {
+    public boolean tryAddPendingRaspberry(String internalId) {
+        if(pendingRaspberryPis.stream().anyMatch(x -> x.getInternalId().equals(internalId))) {
+            return false;
+        }
+
         RaspberryPi raspi = new RaspberryPi();
         raspi.setInternalId(internalId);
         pendingRaspberryPis.add(raspi);
         logInformationService.log("Raspberry Pi with internal ID " + internalId +
                 " added to pending Raspberrys");
+
+        return true;
     }
 
 
@@ -126,7 +132,7 @@ public class RaspberryPiService {
      * @param raspi The raspberry pi to save
      * @return The saved raspberry pi
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public RaspberryPi save(RaspberryPi raspi) throws Exception {
         if(raspi == null) {
             return null;
@@ -135,23 +141,23 @@ public class RaspberryPiService {
         if(raspi.isNew()) {
             if(raspberryPiRepository.findFirstByInternalId(raspi.getInternalId()).isPresent()) {
                 throw new ProdigaGeneralExpectedException("Raspberry Pi with internal ID "
-                        + raspi.getInternalId() + " already exists.", MessageType.WARNING);
+                        + raspi.getInternalId() + " already exists.", MessageType.ERROR);
             }
         }
 
         // First check if there is a room
         if(raspi.getAssignedRoom() == null) {
-            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi without room!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi without room!", MessageType.ERROR);
         }
 
         // Next check if the password is set
         if(StringUtils.isEmpty(raspi.getPassword())) {
-            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty password!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty password!", MessageType.ERROR);
         }
 
         // Check if internal ID is set
         if(StringUtils.isEmpty(raspi.getInternalId())) {
-            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty Internal ID", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("Cannot save Raspberry Pi with empty Internal ID", MessageType.ERROR);
         }
 
         tryDeletePendingRaspberry(raspi);
@@ -162,10 +168,10 @@ public class RaspberryPiService {
 
             raspi.setObjectCreatedDateTime(new Date());
             raspi.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            raspi.setObjectChangedDateTime(new Date());
+            raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        raspi.setObjectChangedDateTime(new Date());
-        raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return raspberryPiRepository.save(raspi);
     }
@@ -174,7 +180,7 @@ public class RaspberryPiService {
      * Deletes the given Raspberry Pi
      * @param raspi The raspi to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void delete(RaspberryPi raspi) throws Exception {
         if(raspi == null) {
             return;
@@ -184,7 +190,7 @@ public class RaspberryPiService {
         if(!assignedDices.isEmpty()) {
             throw new ProdigaGeneralExpectedException(
                     "Cannot delete Raspberry Pi because there are still cubes assigned.",
-                    MessageType.WARNING);
+                    MessageType.ERROR);
         }
 
         raspberryPiRepository.delete(raspi);

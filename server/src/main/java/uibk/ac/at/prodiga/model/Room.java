@@ -24,18 +24,22 @@ public class Room implements Persistable<Long>, Serializable {
     @Column(nullable = true)
     private byte[] picture;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectCreatedUser;
 
     @Column(nullable = true)
     private Date objectCreatedDateTime;
 
-    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectChangedUser;
 
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private Date objectChangedDateTime;
+
+    @OneToMany(fetch=FetchType.EAGER)
+    private Set<RaspberryPi> raspberryPiSet = new HashSet<RaspberryPi>();
+
 
     public void setId(Long id) {
         this.id = id;
@@ -99,8 +103,6 @@ public class Room implements Persistable<Long>, Serializable {
         return this.objectCreatedDateTime == null;
     }
 
-    @OneToMany
-    private Set<RaspberryPi> raspberryPiSet = new HashSet<>();
 
     public Set<RaspberryPi> getRaspberryPis() {
         return raspberryPiSet;
