@@ -34,7 +34,7 @@ public class BadgeDBService {
      * Returns a collection of all badges for a user.
      * @return A collection of all badges for the given user.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #user.username")
     public Collection<BadgeDB> getAllBadgesByUser(User user) {
         return Lists.newArrayList(badgeDBRepository.findByUser(user));
     }
@@ -60,24 +60,29 @@ public class BadgeDBService {
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.DAY_OF_WEEK, cal.getActualMinimum(Calendar.DAY_OF_WEEK));
             Date start = cal.getTime();
-            badgeDB.setFrom(start);
-            badgeDB.setTo(new Date());
+            badgeDB.setFromDate(start);
+            badgeDB.setToDate(new Date());
             badgeDBRepository.save(badgeDB);
         }
     }
 
-    private void registerBadges() {
+    public void registerBadges() {
         availableBadges.add(new Bugsimilian());
+        availableBadges.add(new FrontendLaura());
         availableBadges.add(new CodeRaptor());
         availableBadges.add(new ConceptKing());
         availableBadges.add(new DocumentationDoctor());
-        availableBadges.add(new FrontendLaura());
         availableBadges.add(new MeetingMaster());
+        availableBadges.add(new TheUltimateManager());
         availableBadges.add(new TheDiligentStudent());
         availableBadges.add(new TheMostHelpfulOne());
         availableBadges.add(new TheSloth());
         availableBadges.add(new TheTester());
-        availableBadges.add(new TheUltimateManager());
+
+    }
+
+    public void registerBadges(Badge badge) {
+        availableBadges.add(badge);
     }
 
     /**
@@ -85,7 +90,7 @@ public class BadgeDBService {
      * @param name The name of the badge
      * @return The first badge with a matching name, or null if none was found
      */
-    public BadgeDB getFirstByName(String name)
+    public BadgeDB getFirstByBadgeName(String name)
     {
         return badgeDBRepository.findFirstByBadgeName(name);
     }

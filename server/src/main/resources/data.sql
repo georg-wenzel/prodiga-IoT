@@ -84,3 +84,6 @@ INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (2,DATE(NOW() - INTERVAL 2 HOUR), DATE(NOW() - INTERVAL 3 HOUR), NOW(), 'user2', 3,1,2,1);
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (3,DATE(NOW() - INTERVAL 3 HOUR), DATE(NOW() - INTERVAL 4 HOUR), NOW(), 'user2', 2,1,2,1);
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (4,DATE(NOW() - INTERVAL 4 HOUR), DATE(NOW() - INTERVAL 5 HOUR), NOW(), 'user2', 3,1,2,1);
+
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(1, 'bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(2, 'bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1');
