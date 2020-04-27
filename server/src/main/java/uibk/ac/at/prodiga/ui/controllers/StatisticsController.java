@@ -17,7 +17,7 @@ import java.util.Map;
 @RequestScoped
 public class StatisticsController implements Serializable {
     private final ProductivityAnalysisService productivityAnalysisService;
-    private PieChartModel pieModel2;
+    private PieChartModel weeklyAnalysisPie;
 
     public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
         this.productivityAnalysisService = productivityAnalysisService;
@@ -28,25 +28,25 @@ public class StatisticsController implements Serializable {
         createWeeklyStatistic();
     }
 
-    public PieChartModel getPieModel2() {
-        return pieModel2;
+    public PieChartModel getWeeklyAnalysisPie() {
+        return weeklyAnalysisPie;
     }
 
     private void createWeeklyStatistic() {
-        pieModel2 = new PieChartModel();
+        weeklyAnalysisPie = new PieChartModel();
 
         Map<BookingCategory,Long> map = productivityAnalysisService.getWeeklyStatisticForCurrentUser();
-        pieModel2 = new PieChartModel();
+        weeklyAnalysisPie = new PieChartModel();
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            pieModel2.set(entry.getKey().getName(),entry.getValue());
+            weeklyAnalysisPie.set(entry.getKey().getName(),entry.getValue());
         }
 
-        pieModel2.setTitle("Weekly productivity analysis");
-        pieModel2.setLegendPosition("e");
-        pieModel2.setFill(false);
-        pieModel2.setShowDataLabels(true);
-        pieModel2.setDiameter(400);
-        pieModel2.setShadow(false);
+        weeklyAnalysisPie.setTitle("Weekly productivity analysis");
+        weeklyAnalysisPie.setLegendPosition("e");
+        weeklyAnalysisPie.setFill(false);
+        weeklyAnalysisPie.setShowDataLabels(true);
+        weeklyAnalysisPie.setDiameter(200);
+        weeklyAnalysisPie.setShadow(false);
     }
 
 }

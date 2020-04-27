@@ -24,11 +24,13 @@ public class ProductivityAnalysisService {
     public HashMap<BookingCategory, Long> getWeeklyStatisticForCurrentUser(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
-            long time = 0;
-             for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(bookingCategory)) {
-                 time += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
-             }
-             hashMap.put(bookingCategory,time);
+
+            long millisec = 0;
+            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(bookingCategory)) {
+                millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
+            }
+            long hours = millisec /(1000*60*60);
+            hashMap.put(bookingCategory,hours);
         }
         return hashMap;
     }
