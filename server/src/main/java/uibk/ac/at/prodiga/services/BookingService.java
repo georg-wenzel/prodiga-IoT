@@ -237,6 +237,26 @@ public class BookingService
         return getBookingInRangeByCategoryAndByUser(userLoginManager.getCurrentUser(),bookingCategory, start, end);
     }
 
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLast24hours(BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, -1);
+        Date start = c.getTime();
+        Date end = new Date();
+        return getBookingInRangeByCategoryAndByUser(userLoginManager.getCurrentUser(),bookingCategory, start, end);
+    }
+
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLastMonth(BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MONTH, -1);
+        Date start = c.getTime();
+        Date end = new Date();
+        return getBookingInRangeByCategoryAndByUser(userLoginManager.getCurrentUser(),bookingCategory, start, end);
+    }
+
     /**
      * Searches for a collections of bookings for a given user, booking category and period of time
      *

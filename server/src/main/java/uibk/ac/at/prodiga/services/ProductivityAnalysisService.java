@@ -35,4 +35,32 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
+    public HashMap<BookingCategory, Long> getLast24hourStatisticForCurrentUser(){
+        HashMap<BookingCategory, Long> hashMap = new HashMap<>();
+        for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
+
+            long millisec = 0;
+            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(bookingCategory)) {
+                millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
+            }
+            long hours = millisec /(1000*60*60);
+            hashMap.put(bookingCategory,hours);
+        }
+        return hashMap;
+    }
+
+    public HashMap<BookingCategory, Long> getLastMonthsStatisticForCurrentUser(){
+        HashMap<BookingCategory, Long> hashMap = new HashMap<>();
+        for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
+
+            long millisec = 0;
+            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(bookingCategory)) {
+                millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
+            }
+            long hours = millisec /(1000*60*60);
+            hashMap.put(bookingCategory,hours);
+        }
+        return hashMap;
+    }
+
 }
