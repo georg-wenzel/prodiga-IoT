@@ -263,6 +263,10 @@ public class Cube {
         return currentSide;
     }
 
+    /**
+     * get the current battery status.
+     * @return batterystatus in %
+     */
     public int getBattery() {
         int batteryStatus = 0;
         BluetoothGattService batteryService = getService(BATTERYSERVICEUUID); // TimeFlip Service
