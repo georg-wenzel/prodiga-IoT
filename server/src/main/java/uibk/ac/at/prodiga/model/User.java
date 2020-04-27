@@ -21,12 +21,12 @@ public class User implements Persistable<String>, Serializable {
     @Column(length = 100, nullable = false)
     private String username;
 
-    @ManyToOne(optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User createUser;
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
-    @ManyToOne(optional = true)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     private User updateUser;
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;
@@ -61,6 +61,9 @@ public class User implements Persistable<String>, Serializable {
     private Boolean notificationsEnabled;
 
     public FrequencyType getFrequencyType() {
+        if (frequencyType == null){
+            frequencyType = FrequencyType.WEEKLY;
+        }
         return frequencyType;
     }
 

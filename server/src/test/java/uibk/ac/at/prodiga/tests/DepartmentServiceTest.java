@@ -172,6 +172,26 @@ public class DepartmentServiceTest
     }
 
     /**
+     * Tests getting the number of deparments
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notadmin", authorities = {"EMPLOYEE"})
+    public void get_num_departments() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+
+        int numDepts = departmentService.getNumDepartments();
+
+        for(int i=0;i<5;i++) {
+            DataHelper.createRandomDepartment(admin, departmentRepository);
+        }
+
+        Assertions.assertEquals(numDepts + 5, departmentService.getNumDepartments(), "Number of departments was not updated properly.");
+    }
+
+    /**
      * Tests changing a department with lacking authentication
      */
     @Test

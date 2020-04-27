@@ -27,7 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.csrf().disable();
+        http.csrf().disable(); //NOSONAR
 
         http.headers().frameOptions().disable(); // needed for H2 console
 
@@ -60,7 +60,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         //Configure roles and passwords via datasource
-        auth.jdbcAuthentication().dataSource(dataSource)
+        // Sonar claims we use a plan text Password encoder which is not the case
+        // See below
+        auth.jdbcAuthentication().dataSource(dataSource) //NOSONAR
                 .usersByUsernameQuery("select username, password, enabled from user where username=?")
                 .authoritiesByUsernameQuery("select user_username, roles from user_user_role where user_username=?");
     }

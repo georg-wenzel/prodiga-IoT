@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
@@ -24,7 +25,7 @@ import java.util.Date;
 Anlegen, abfragen, bearbeiten und löschen von Räumen.
 Checken was passiert, wenn noch ein Raspi/Würfel in dem Raum is usw...
  */
-@Service
+@Component
 @Scope("application")
 public class RoomService {
     private final RoomRepository roomRepository;
@@ -44,27 +45,46 @@ public class RoomService {
         this.logInformationService = logInformationService;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    /**
+     * Returns a collection of all rooms
+     * @return A collection of all rooms
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<Room> getAllRooms(){
         return Lists.newArrayList(roomRepository.findAll());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    /**
+     * Gets the first room with the specified id. (Unique identifier)
+     * @param id the id of the room
+     * @return The room with this Id, or null if none exists
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room getFirstById(long id){
         return roomRepository.findFirstById(id);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    /**
+     * Gets the FIRST room with the specified room name.
+     * @param name the name of the room
+     * @return The first room in the database which has this name, or null if none exists
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room getFirstByName(String name){
         return roomRepository.findFirstByName(name);
     }
 
-    @Transactional
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Room getManagedInstance(Room room){
         return this.roomRepository.findFirstById(room.getId());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    /**
+     * Saves the current room in the database. If room with this ID already exists, overwrites data of existing room in the database.
+     * @param room The room to save
+     * @return The new state of the room after saving in the DB
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room saveRoom(Room room) throws ProdigaGeneralExpectedException{
         if(room.getName() == null || room.getName().isEmpty()){
             throw new ProdigaGeneralExpectedException("Roomname cannot be empty", MessageType.ERROR);
@@ -87,8 +107,11 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
+    /**
+     * Deletes the room with this ID from the database.
+     * @param roomToDelete The room to delete
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Transactional
     public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
     {
         Room managedRoom = this.getManagedInstance(roomToDelete);
@@ -100,22 +123,51 @@ public class RoomService {
         logInformationService.log("Room " + roomToDelete.getName() + " was deleted!");
     }
 
-    @Transactional
+    /**
+     * Adds a raspberry pi to a room
+     * @param room that gets the raspberry pi added
+     * @param raspberryPi to be add to the given room
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).addRaspberryPi(raspberryPi);
     }
 
-    @Transactional
+    /**
+     * Removes the raspberry pi from a room
+     * @param room that gets the raspberry pi removed
+     * @param raspberryPi to be removed from the given room
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname")
+    /**
+     * Loads a room by its roomname
+     * @param roomname roomname to search for
+     * @return a room with the given roomname
+     */
+    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname") //NOSONAR
     public Room loadRoom(String roomname) {
         return roomRepository.findFirstByName(roomname);
     }
 
-    @Transactional
+    /**
+     * Loads a room by its roomId
+     * @param roomId roomId to search for
+     * @return a room with the given roomId
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Room loadRoom(Long roomId){
+        return roomRepository.findFirstById(roomId);
+    }
+
+    /**
+     * Creates a new room
+     * @return a new room
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Room createRoom(){
         Room room = new Room();
         room.setObjectCreatedDateTime(new Date());
@@ -123,6 +175,14 @@ public class RoomService {
         return room;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Room createNewRoom() {
+        return new Room();
+    }
+    /**
+     * Returns the amount of rooms in the db
+     * @return the amount of rooms
+     */
     public long getRoomCount(){
         return roomRepository.count();
     }

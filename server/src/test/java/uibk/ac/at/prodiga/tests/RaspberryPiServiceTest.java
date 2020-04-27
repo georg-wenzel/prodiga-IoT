@@ -225,6 +225,21 @@ public class RaspberryPiServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void raspiService_getNumberConfiguredPis()
+    {
+        int raspis = raspberryPiService.getNumConfiguredRaspberryPis();
+
+        for(int i=0;i<5;i++)
+        {
+            DataHelper.createRaspi("1234", admin, null, raspberryPiRepository, roomRepository);
+        }
+
+        Assertions.assertEquals(raspis + 5, raspberryPiService.getNumConfiguredRaspberryPis(), "Number of Raspberry Pi's not updated properly.");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
     public void raspiService_getAllPendingRaspberryPisWithoutRights_throwsException() {
         authController.register("1234");
 

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.rest.dtos.DeviceType;
+import uibk.ac.at.prodiga.rest.dtos.FeedAction;
 import uibk.ac.at.prodiga.utils.*;
 
 import java.util.*;
@@ -39,7 +41,7 @@ public class DiceService {
      * Returns all dices
      * @return A list with dices
      */
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public List<Dice> getAllDice() {
         User currentUser = prodigaUserLoginManager.getCurrentUser();
         if(currentUser.getRoles().contains(UserRole.ADMIN)) {
@@ -75,7 +77,7 @@ public class DiceService {
      * @param internalId the internal id
      * @return The found dice
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Dice getDiceByInternalId(String internalId) {
         return diceRepository.findFirstByInternalId(internalId);
     }
@@ -99,7 +101,7 @@ public class DiceService {
      * @param raspi The raspi
      * @return A list with dices
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<Dice> getAllByRaspberryPi(RaspberryPi raspi) {
         return diceRepository.findAllByAssignedRaspberry(raspi);
     }
@@ -108,7 +110,7 @@ public class DiceService {
      * Returns all dices which are active and assigned to a user
      * @return A list of dices
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<Dice> getAllAvailableDices() {
         return getAllDice().stream()
                 .filter(x -> x.isActive() && x.getUser() == null)
@@ -121,7 +123,7 @@ public class DiceService {
      * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
-    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         checkAccessDiceAndThrow(dice);
 
@@ -148,15 +150,15 @@ public class DiceService {
         if(dice.isNew()) {
             dice.setObjectCreatedDateTime(new Date());
             dice.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
+            dice.setObjectChangedDateTime(new Date());
         }
-
-        dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
-        dice.setObjectChangedDateTime(new Date());
 
         return diceRepository.save(dice);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Dice createDice()
     {
         return new Dice();
@@ -167,10 +169,22 @@ public class DiceService {
      *
      * @param dice the dice to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteDice(Dice dice) {
         diceRepository.delete(dice);
         logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
+    }
+
+
+    /**
+     * Returns the number of dice of users who are in the same team as the calling user, that have the corresponding Category set as one of their sides.
+     * @param cat The category to look for
+     * @return The number of dice in the given team, who have a side corresponding to the given category.
+     */
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public int getDiceCountByCategoryAndTeam(BookingCategory cat)
+    {
+        return diceRepository.findDiceByUserTeamAndCategory(prodigaUserLoginManager.getCurrentUser().getAssignedTeam(), cat).size();
     }
 
     /**
@@ -238,6 +252,10 @@ public class DiceService {
 
         diceConfigurationWrapperDict.put(d.getInternalId(), wrapper);
 
+        UUID feedId = FeedManager.getInstance().addToFeed(d.getInternalId(), DeviceType.CUBE, FeedAction.ENTER_CONFIG_MODE);
+
+        wrapper.setFeedId(feedId);
+
         return wrapper;
     }
 
@@ -272,7 +290,7 @@ public class DiceService {
         if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
             BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
 
-            throw new ProdigaGeneralExpectedException("At leats one side must be configured with " + bc.getName(),
+            throw new ProdigaGeneralExpectedException("At least one side must be configured with " + bc.getName(),
                     MessageType.ERROR);
         }
 
@@ -285,6 +303,10 @@ public class DiceService {
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
+
+        FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
+
+        FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
     }
 
     private void checkAccessDiceAndThrow(Dice d) throws ProdigaGeneralExpectedException {

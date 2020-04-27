@@ -10,7 +10,6 @@ public class NewDiceSideRequestDTO {
     @NotNull
     private String internalId;
 
-    @Size(min = 1, max = 12)
     private int side;
 
     public String getInternalId() {

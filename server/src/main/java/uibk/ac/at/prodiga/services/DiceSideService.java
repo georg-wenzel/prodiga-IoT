@@ -7,6 +7,7 @@ import uibk.ac.at.prodiga.model.DiceSide;
 import uibk.ac.at.prodiga.repositories.DiceSideRepository;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.util.Collection;
 import java.util.Date;
 
 @Component
@@ -38,15 +39,19 @@ public class DiceSideService {
                 dbDiceSide.setBookingCategory(ds.getBookingCategory());
                 ds = dbDiceSide;
             }
+            ds.setObjectChangedDateTime(new Date());
+            ds.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        ds.setObjectChangedDateTime(new Date());
-        ds.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return diceSideRepository.save(ds);
     }
 
     public DiceSide findByDiceAndSide(Dice dice, Integer side){
         return diceSideRepository.findFirstByDiceAndSide(dice, side);
+    }
+
+    public Collection<DiceSide> findByDice(Dice dice)
+    {
+        return diceSideRepository.findAllByDice(dice);
     }
 }

@@ -25,7 +25,7 @@
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel for="username" value="Benutzername: "/>
+                                    <p:outputLabel for="username" value="Username: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:inputText id="username"
@@ -35,7 +35,7 @@
                                                  label="Username"  style="width:100%"/>
                                 </div>
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel for="firstname" value="Vorname: "/>
+                                    <p:outputLabel for="firstname" value="First Name: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:inputText id="firstname"
@@ -44,7 +44,7 @@
                                                  label="Firstname"  style="width:100%"/>
                                 </div>
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel for="lastname" value="Nachname: "/>
+                                    <p:outputLabel for="lastname" value="Last Name: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:inputText id="lastname"
@@ -58,7 +58,7 @@
                             <div class="ui-g-5">
 
                                 <div class="ui-g-3 input-form">
-                                    <p:outputLabel styleClass="input-form" for="email" value="E-Mail: " />
+                                    <p:outputLabel styleClass="input-form" for="email" value="Email: " />
                                 </div>
                                 <div class="ui-g-8 input-form">
                                     <p:inputText id="email" value="#{userDetailController.user.email}" required="false"
@@ -96,10 +96,22 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="ui-g">
+                            <div class="ui-g-10">
+                                <div class="ui-g-2 input-form">
+                                    <p:outputLabel styleClass="input-form" for="isAdmin" value=" Is Admin: " />
+                                </div>
+                                <div class="ui-g-10 input-form">
+                                    <p:selectBooleanCheckbox id ="isAdmin" value="#{userDetailController.isAdmin}" disabled="true"/>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="ui-g">
                             <div class="ui-g-10 input-form">
                                 <div class="ui-g-2 input-form">
-                                    <p:outputLabel for="roles" value="Rollen: " />
+                                    <p:outputLabel for="roles" value="Roles: " />
                                 </div>
                                 <div class="ui-g-10 input-form">
                                     <p:selectManyButton id="roles"
@@ -109,7 +121,28 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="ui-g">
+                            <div class="ui-g-10 input-form">
+                                <div class="ui-g-2 input-form">
+                                    <p:outputLabel for="frequencyType" value="Email frequency Type: "/>
+                                </div>
+                                <div class="ui-g-10 input-form">
+                                    <p:selectOneMenu id="frequencyType"
+                                                     value="#{userDetailController.user.frequencyType}">
+                                        <f:selectItems value="#{userDetailController.allFrequencyTypesTotal}" var="frequencyType" itemLabel="#{frequencyType}" itemValue="#{frequencyType}" />                                                        />
+                                    </p:selectOneMenu>
+                                </div>
+                            </div>
+                        </div>
+                        <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
+                            <p:row style="width: 100%">
+                                <p:column>
+                                    <p:selectBooleanCheckbox id="notificationsEnabled" value="#{userDetailController.user.notificationsEnabled}"/>
+                                    <p:outputLabel for="notificationsEnabled" value=" Enable notifications"/>
+                                </p:column>
 
+                            </p:row>
+                        </p:panelGrid>
                         <br/><br/>
                         <div class="ui-g">
                             <div class="ui-g-6">

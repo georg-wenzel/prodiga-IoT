@@ -19,13 +19,16 @@
                     <h1>Dices</h1>
                     <h:form id="dicesForm">
                         <p:dataTable id="dicesTable" var="dice" scrollable="true"  style="width:100%" scrollHeight="500" value="#{diceController.allDices}">
-                            <p:column headerText="ID" style="width: 15%; text-align: center">
+                            <p:column headerText="ID" style="width: 15%; text-align: center" filterMatchMode="contains"
+                                      filterBy="#{dice.internalId}" sortBy="#{dice.internalId}">
                                 <h:outputText value="#{dice.internalId}" />
                             </p:column>
-                            <p:column headerText="Assigend User" style="width: 15%; text-align: center">
+                            <p:column headerText="Assigend User" style="width: 15%; text-align: center" filterMatchMode="contains"
+                                      filterBy="#{dice.user.username}" sortBy="#{dice.user.username}">
                                 <h:outputText value="#{dice.user.username}" />
                             </p:column>
-                            <p:column headerText="Assigned Raspberry Pi" style="width: 15%; text-align: center">
+                            <p:column headerText="Assigned Raspberry Pi" style="width: 15%; text-align: center" filterMatchMode="contains"
+                                      filterBy="#{dice.assignedRaspberry.internalId}" sortBy="#{dice.assignedRaspberry.internalId}">
                                 <h:outputText value="#{dice.assignedRaspberry.internalId}" />
                             </p:column>
 

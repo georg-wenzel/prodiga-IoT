@@ -35,14 +35,6 @@ public class TeamController {
     }
 
     /**
-     * Returns the number of all teams.
-     * @return number of teams.
-     */
-    public int numTeams(){
-        return this.teamService.getAllTeams().size();
-    }
-
-    /**
      * Returns the first team with a matching name (unique identifier)
      * @param name The name of the team
      * @return The first (and only) team with a matching name, or null if none was found
