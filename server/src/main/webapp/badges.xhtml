@@ -1,0 +1,52 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Protiga Badges</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/badges">Badges</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>My Badges</h1>
+
+                    <h:form id="badgeForm">
+                        <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByUser}" emptyMessage="Unforunately, you don't have any Badges :-(">
+                            <p:column headerText="Name">
+                                <h:outputText value="#{badge.badgeName}"/>
+                            </p:column>
+
+                            <p:column headerText="From">
+                                <h:outputText value="#{badge.fromDate}">
+                                    <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="To">
+                                <h:outputText value="#{badge.toDate}">
+                                    <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column style="text-align: center">
+                                <p:graphicImage name="images/#{badge.badgeName}.png" library="ecuador-layout" style="width:150px;"/>
+                            </p:column>
+                        </p:dataTable>
+
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

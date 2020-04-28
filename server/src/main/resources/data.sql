@@ -92,5 +92,11 @@ INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (3,DATE(NOW() - INTERVAL 3 HOUR), DATE(NOW() - INTERVAL 4 HOUR), NOW(), 'user2', 2,1,2,1);
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (4,DATE(NOW() - INTERVAL 4 HOUR), DATE(NOW() - INTERVAL 5 HOUR), NOW(), 'user2', 3,1,2,1);
 
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(1, 'bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(2, 'bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(1, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(2, 'Code Raptor', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(3, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(4, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin');
+
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(5, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 3 DAY), 'user2');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(6, 'Code Raptor', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 3 DAY), 'user3');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(7, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 3 DAY), 'admin');

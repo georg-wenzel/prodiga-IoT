@@ -20,6 +20,8 @@ public class BadgeDBService {
     private final BookingService bookingService;
 
     private final List<Badge> availableBadges = new ArrayList<>();
+    private Date lastWeekFrom;
+    private Date lastWeekTo;
 
     public BadgeDBService(BadgeDBRepository badgeDBRepository, BookingCategoryService bookingCategoryService, BookingService bookingService) {
         this.badgeDBRepository = badgeDBRepository;
@@ -57,12 +59,15 @@ public class BadgeDBService {
             badgeDB.setBadgeName(name);
             badgeDB.setUser(user);
 
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.DAY_OF_WEEK, cal.getActualMinimum(Calendar.DAY_OF_WEEK));
-            Date start = cal.getTime();
+
+            Date start = getWeekBeginning().getTime();
+            Date end = getWeekEnd().getTime();
             badgeDB.setFromDate(start);
-            badgeDB.setToDate(new Date());
+            badgeDB.setToDate(end);
             badgeDBRepository.save(badgeDB);
+
+            lastWeekFrom = badgeDB.getFromDate();
+            lastWeekTo = badgeDB.getToDate();
         }
     }
 
@@ -93,5 +98,38 @@ public class BadgeDBService {
     public BadgeDB getFirstByBadgeName(String name)
     {
         return badgeDBRepository.findFirstByBadgeName(name);
+    }
+
+    public Collection<BadgeDB> getLastWeeksBadges(){
+        Calendar cal = getWeekBeginning();
+        cal.add(Calendar.DATE, -7);
+        Date start = cal.getTime();
+
+        Calendar cal2 = getWeekEnd();
+        cal2.add(Calendar.DATE, -7);
+        Date end = cal2.getTime();
+
+        return this.badgeDBRepository.findBadgeDBSInRange(start, end);
+    }
+
+    public Calendar getWeekBeginning(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+
+        return cal;
+    }
+
+    public Calendar getWeekEnd(){
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(Calendar.DAY_OF_WEEK, cal2.getFirstDayOfWeek());
+        cal2.set(Calendar.HOUR_OF_DAY, 23);
+        cal2.set(Calendar.MINUTE, 59);
+        cal2.set(Calendar.SECOND, 0);
+        cal2.add(Calendar.DATE, 6);
+
+        return cal2;
     }
 }
