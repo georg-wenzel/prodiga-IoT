@@ -6,6 +6,7 @@ import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.util.HashMap;
 
@@ -14,12 +15,14 @@ import java.util.HashMap;
 @Scope("application")
 public class ProductivityAnalysisService {
     private final BookingCategoryService bookingCategoryService;
-    private User user;
+    private final ProdigaUserLoginManager userLoginManager;
     private final BookingService bookingService;
     private final TeamService teamService;
     private final UserService userService;
 
-    public ProductivityAnalysisService(BookingCategoryService bookingCategoryService, BookingService bookingService, TeamService teamService, UserService userService) {
+
+    public ProductivityAnalysisService(ProdigaUserLoginManager userLoginManager,BookingCategoryService bookingCategoryService, BookingService bookingService, TeamService teamService, UserService userService) {
+        this.userLoginManager = userLoginManager;
         this.bookingCategoryService = bookingCategoryService;
         this.bookingService = bookingService;
         this.teamService = teamService;
@@ -68,8 +71,9 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
-    public HashMap<BookingCategory, Long> getWeeklyStatisticForTeam(User user){
+    public HashMap<BookingCategory, Long> getWeeklyStatisticForTeam(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
+        User user = userLoginManager.getCurrentUser();
         Team myTeam = user.getAssignedTeam();
         if(user == userService.getTeamLeaderOf(myTeam)){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
@@ -86,7 +90,8 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
-    public HashMap<BookingCategory, Long> getLast24hourStatisticForTeam(User user){
+    public HashMap<BookingCategory, Long> getLast24hourStatisticForTeam(){
+        User user = userLoginManager.getCurrentUser();
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         Team myTeam = user.getAssignedTeam();
         if(user == userService.getTeamLeaderOf(myTeam)){
@@ -104,7 +109,8 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
-    public HashMap<BookingCategory, Long> getLastMonthsStatisticForTeam(User user){
+    public HashMap<BookingCategory, Long> getLastMonthsStatisticForTeam(){
+        User user = userLoginManager.getCurrentUser();
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         Team myTeam = user.getAssignedTeam();
         if(user == userService.getTeamLeaderOf(myTeam)){
