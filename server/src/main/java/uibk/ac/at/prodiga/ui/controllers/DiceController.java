@@ -16,7 +16,10 @@ import java.util.List;
 
 @Component
 @Scope("view")
-public class DiceController {
+public class DiceController implements Serializable {
+
+    private static final long serialVersionUID = 5325687687622577315L;
+
     private final DiceService diceService;
     private Dice dice;
 

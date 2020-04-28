@@ -19,6 +19,9 @@ import java.util.Date;
 @Component
 @Scope("view")
 public class CalendarController implements Serializable {
+
+    private static final long serialVersionUID = 5325687687692577565L;
+
     private ScheduleModel eventModel;
     private ScheduleEvent event = new DefaultScheduleEvent();
     private String locale = "de";

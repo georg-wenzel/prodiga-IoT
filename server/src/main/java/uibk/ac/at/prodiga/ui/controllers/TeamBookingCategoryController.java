@@ -12,6 +12,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,8 +23,10 @@ import java.util.stream.Collectors;
  */
 @Component
 @Scope("view")
-public class TeamBookingCategoryController
+public class TeamBookingCategoryController implements Serializable
 {
+    private static final long serialVersionUID = 5325687687418577315L;
+
     private Team team;
     private Collection<BookingCategory> categories;
     private Collection<BookingCategory> teamHasCategories;

@@ -11,9 +11,14 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
+
 @Component
 @Scope("view")
-public class RoomDetailController {
+public class RoomDetailController implements Serializable {
+
+    private static final long serialVersionUID = 5325687699692577315L;
+
     private final RoomService roomService;
 
     private Room room;
