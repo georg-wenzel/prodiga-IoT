@@ -7,6 +7,7 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.utils.badge.Badge;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -123,6 +124,24 @@ public class DataHelper {
         dept.setObjectCreatedUser(createUser);
         dept.setObjectCreatedDateTime(new Date());
         return departmentRepository.save(dept);
+    }
+
+    /**
+     * Creates a random badge
+     * @param user The user who receives the batch
+     * @param badgeDBRepository The repository to save the badge.
+     * @return The randomly generated badge.
+     */
+    public static BadgeDB createRandomBadge(User user, BadgeDBRepository badgeDBRepository)
+    {
+        String name = createRandomString(30);
+
+        BadgeDB badgeDB = new BadgeDB();
+        badgeDB.setBadgeName(name);
+        badgeDB.setUser(user);
+        badgeDB.setToDate(new Date());
+        badgeDB.setFromDate(new Date());
+        return badgeDBRepository.save(badgeDB);
     }
 
     /**

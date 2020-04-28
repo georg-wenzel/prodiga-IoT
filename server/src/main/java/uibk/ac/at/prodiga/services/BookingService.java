@@ -220,4 +220,34 @@ public class BookingService
         }
         return true;
     }
+
+    /**
+     * Searches for a collections of bookings for a given booking category and period of time
+     *
+     * @param bookingCategory The category for searching bookings
+     * @param begin The beginning date
+     * @param end The ending date
+     * @return collections of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategory(BookingCategory bookingCategory, Date begin, Date end) {
+        return Lists.newArrayList(bookingRepository.findBookingWithCategoryInRange(bookingCategory, begin, end));
+    }
+
+    /**
+     * Searches for a collections of last week's bookings for a given booking category.
+     *
+     * @param bookingCategory The category for searching bookings
+     * @return collection of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategoryForLastWeek(BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        c.add(Calendar.DATE, -i - 7);
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 6);
+        Date end = c.getTime();
+        return getBookingInRangeByCategory(bookingCategory, start, end);
+    }
 }
