@@ -124,7 +124,7 @@ public class BookingService
             throw new RuntimeException("User may only modify his own activities.");
         }
         //if activity start date is before the previous week, check historic data flag
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
         }
@@ -143,7 +143,7 @@ public class BookingService
         {
             Booking db_booking = bookingRepository.findFirstById(booking.getId());
             //If the database activity started in the week before the previous one, user must have appropriate permissions to change it.
-            if(isEarlierThanLastWeek(db_booking.getActivityStartDate()) && !u.mayEditHistoricData())
+            if(isEarlierThanLastWeek(db_booking.getActivityStartDate()) && !u.getMayEditHistoricData())
             {
                 throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
             };
@@ -190,7 +190,7 @@ public class BookingService
             throw new RuntimeException("User cannot delete other user's bookings.");
         }
 
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
         }
