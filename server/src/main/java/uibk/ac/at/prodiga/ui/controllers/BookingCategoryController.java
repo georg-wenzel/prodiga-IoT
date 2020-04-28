@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -16,8 +17,10 @@ import java.util.*;
  */
 @Component
 @Scope("view")
-public class BookingCategoryController
+public class BookingCategoryController implements Serializable
 {
+    private static final long serialVersionUID = 5325687687692577565L;
+
     private final BookingCategoryService bookingCategoryService;
     private final BookingService bookingService;
     private final ProdigaUserLoginManager userLoginManager;

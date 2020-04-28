@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.springframework.context.annotation.Scope;
@@ -13,7 +14,9 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 @Component
 @Scope("view")
-public class UserListController {
+public class UserListController implements Serializable {
+
+    private static final long serialVersionUID = 5325687683192577315L;
 
     private final UserService userService;
 

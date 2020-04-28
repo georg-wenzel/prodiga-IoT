@@ -12,7 +12,9 @@ import java.util.Collection;
 
 @Component
 @Scope("view")
-public class RoomListController {
+public class RoomListController implements Serializable {
+
+    private static final long serialVersionUID = 5325687682292577315L;
 
     private final RoomService roomService;
 

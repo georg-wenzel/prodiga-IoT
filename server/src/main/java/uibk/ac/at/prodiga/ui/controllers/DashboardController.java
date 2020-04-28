@@ -7,10 +7,13 @@ import uibk.ac.at.prodiga.services.RaspberryPiService;
 import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
 
+import java.io.Serializable;
+
 @Component
 @Scope("application")
-public class DashboardController
+public class DashboardController implements Serializable
 {
+    private static final long serialVersionUID = 5325687687692577315L;
 
     private final DepartmentService departmentService;
     private final RaspberryPiService raspberryPiService;

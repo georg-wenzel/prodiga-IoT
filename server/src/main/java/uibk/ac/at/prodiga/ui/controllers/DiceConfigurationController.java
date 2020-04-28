@@ -17,6 +17,7 @@ import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import java.io.Serializable;
 import java.security.KeyPair;
 import java.util.*;
 import java.util.logging.Level;
@@ -26,8 +27,10 @@ import java.util.logging.Level;
  */
 @Component
 @Scope("view")
-public class DiceConfigurationController
+public class DiceConfigurationController implements Serializable
 {
+    private static final long serialVersionUID = 5125687687692577315L;
+
     private final ProdigaUserLoginManager userLoginManager;
     private final DiceService diceService;
     private final BookingCategoryService bookingCategoryService;
