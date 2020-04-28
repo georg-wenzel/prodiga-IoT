@@ -122,7 +122,7 @@ public class StatisticsController implements Serializable {
 
     private void createLastWeekTeamStatistic() {
         weeklyTeamAnalysisPie = new PieChartModel();
-        Map<BookingCategory,Long> map = productivityAnalysisService.getLastMonthsStatisticForTeam();
+        Map<BookingCategory,Long> map = productivityAnalysisService.getWeeklyStatisticForTeam();
         weeklyTeamAnalysisPie = new PieChartModel();
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             weeklyTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());

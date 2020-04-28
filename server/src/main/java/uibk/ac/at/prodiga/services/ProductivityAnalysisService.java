@@ -2,10 +2,7 @@ package uibk.ac.at.prodiga.services;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.Booking;
-import uibk.ac.at.prodiga.model.BookingCategory;
-import uibk.ac.at.prodiga.model.Team;
-import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.util.HashMap;
@@ -117,6 +114,62 @@ public class ProductivityAnalysisService {
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(bookingCategory)) {
+                        millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
+                    }
+                    long hours = millisec / (1000 * 60 * 60);
+                    hashMap.put(bookingCategory, hours);
+                }
+            }
+        }
+        return hashMap;
+    }
+
+    public HashMap<BookingCategory, Long> getWeeklyStatisticForDepartment(){
+        HashMap<BookingCategory, Long> hashMap = new HashMap<>();
+        User user = userLoginManager.getCurrentUser();
+        Department myDepartment = user.getAssignedDepartment();
+        if(user == userService.getDepartmentLeaderOf(myDepartment)){
+            for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
+                long millisec = 0;
+                for(User teamMember: userService.getUsersByDepartment(myDepartment)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(bookingCategory)) {
+                        millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
+                    }
+                    long hours = millisec / (1000 * 60 * 60);
+                    hashMap.put(bookingCategory, hours);
+                }
+            }
+        }
+        return hashMap;
+    }
+
+    public HashMap<BookingCategory, Long> getLast24hourStatisticForDepartment(){
+        User user = userLoginManager.getCurrentUser();
+        HashMap<BookingCategory, Long> hashMap = new HashMap<>();
+        Department myDepartment = user.getAssignedDepartment();
+        if(user == userService.getDepartmentLeaderOf(myDepartment)){
+            for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
+                long millisec = 0;
+                for(User teamMember: userService.getUsersByDepartment(myDepartment)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(bookingCategory)) {
+                        millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
+                    }
+                    long hours = millisec / (1000 * 60 * 60);
+                    hashMap.put(bookingCategory, hours);
+                }
+            }
+        }
+        return hashMap;
+    }
+    public HashMap<BookingCategory, Long> getLastMonthsStatisticForDepartment(){
+        User user = userLoginManager.getCurrentUser();
+        HashMap<BookingCategory, Long> hashMap = new HashMap<>();
+        Department myDepartment = user.getAssignedDepartment();
+        if(user == userService.getDepartmentLeaderOf(myDepartment)){
+            for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
+                long millisec = 0;
+                for(User teamMember: userService.getUsersByDepartment(myDepartment)) {
                     for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
