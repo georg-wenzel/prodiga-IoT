@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
+import uibk.ac.at.prodiga.utils.Constants;
+import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
@@ -64,8 +66,10 @@ public class BookingCategoryController implements Serializable
      * Sets the editing flag and the editing ID, as well as the default name
      * @param categoryId The ID of the category to be edited
      */
-    public void editCategory(long categoryId)
+    public void editCategory(long categoryId) throws ProdigaGeneralExpectedException
     {
+        if(categoryId == Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID) throw new ProdigaGeneralExpectedException("The category " + bookingCategoryService.findById(categoryId).getName() + " is a mandatory category and may not be edited.", MessageType.ERROR);
+
         this.isEditing = true;
         this.editCategoryId = categoryId;
         this.editCategoryName = bookingCategoryService.findById(categoryId).getName();
@@ -124,6 +128,15 @@ public class BookingCategoryController implements Serializable
 
     public BookingCategory getDeleteCategory() {
         return deleteCategory;
+    }
+
+    /**
+     * Returns the ID of the category which may not be changed or removed.
+     * @return The ID of the category which may not be changed or removed.
+     */
+    public long getMandatoryCategory()
+    {
+        return Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID;
     }
 
     public void setDeleteCategory(BookingCategory deleteCategory) {
