@@ -26,12 +26,16 @@ public class ProductivityAnalysisService {
         this.userService = userService;
     }
 
+    /**
+     * Returns a hash map of the total hours of last weeks bookings for each category for the logged in user
+     * where the booking categories are the key and the hours are the value
+     * @return the total hours of last weeks bookings for each category for the logged in user
+     */
     public HashMap<BookingCategory, Long> getWeeklyStatisticForCurrentUser(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
-
             long millisec = 0;
-            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(bookingCategory)) {
+            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(userLoginManager.getCurrentUser(),bookingCategory)) {
                 millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
             }
             long hours = millisec /(1000*60*60);
@@ -40,12 +44,17 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
+    /**
+     * Returns a hash map of the total hours of the bookings done in the last 24 hours by
+     * category for the logged in user, where the booking categories are the key
+     * and the hours are the value
+     * @return the total hours of the bookings done in the last 24 hours by category for the logged in user
+     */
     public HashMap<BookingCategory, Long> getLast24hourStatisticForCurrentUser(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
-
             long millisec = 0;
-            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(bookingCategory)) {
+            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(userLoginManager.getCurrentUser(),bookingCategory)) {
                 millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
             }
             long hours = millisec /(1000*60*60);
@@ -54,12 +63,17 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
+    /**
+     * Returns a hash map of the total hours of the bookings done in the last month by
+     * category for the logged in user, where the booking categories are the key
+     * and the hours are the value
+     * @return the total hours of the bookings done in the last month by category for the logged in user
+     */
     public HashMap<BookingCategory, Long> getLastMonthsStatisticForCurrentUser(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
-
             long millisec = 0;
-            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(bookingCategory)) {
+            for(Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(userLoginManager.getCurrentUser(),bookingCategory)) {
                 millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
             }
             long hours = millisec /(1000*60*60);
@@ -68,6 +82,13 @@ public class ProductivityAnalysisService {
         return hashMap;
     }
 
+    /**
+     * if the logged in user is a team leader the methode returns a hash map of the total hours
+     * of the bookings done by the team members in the last week by
+     * category, where the booking categories are the key
+     * and the hours are the value
+     * @return the total hours of the bookings done in the last week by category for the logged in user
+     */
     public HashMap<BookingCategory, Long> getWeeklyStatisticForTeam(){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
@@ -76,7 +97,7 @@ public class ProductivityAnalysisService {
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
-                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(bookingCategory)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(teamMember,bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
                     long hours = millisec / (1000 * 60 * 60);
@@ -95,7 +116,7 @@ public class ProductivityAnalysisService {
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
-                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(bookingCategory)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(teamMember,bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
                     long hours = millisec / (1000 * 60 * 60);
@@ -114,7 +135,7 @@ public class ProductivityAnalysisService {
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
-                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(bookingCategory)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(teamMember,bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
                     long hours = millisec / (1000 * 60 * 60);
@@ -132,8 +153,8 @@ public class ProductivityAnalysisService {
         if(user == userService.getDepartmentLeaderOf(myDepartment)){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
-                for(User teamMember: userService.getUsersByDepartment(myDepartment)) {
-                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(bookingCategory)) {
+                for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastWeek(departmentMember,bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
                     long hours = millisec / (1000 * 60 * 60);
@@ -151,8 +172,8 @@ public class ProductivityAnalysisService {
         if(user == userService.getDepartmentLeaderOf(myDepartment)){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
-                for(User teamMember: userService.getUsersByDepartment(myDepartment)) {
-                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(bookingCategory)) {
+                for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLast24hours(departmentMember,bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
                     long hours = millisec / (1000 * 60 * 60);
@@ -169,8 +190,8 @@ public class ProductivityAnalysisService {
         if(user == userService.getDepartmentLeaderOf(myDepartment)){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
-                for(User teamMember: userService.getUsersByDepartment(myDepartment)) {
-                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(bookingCategory)) {
+                for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
+                    for (Booking booking : bookingService.getUsersBookingInRangeByCategoryForLastMonth(departmentMember,bookingCategory)) {
                         millisec += booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime();
                     }
                     long hours = millisec / (1000 * 60 * 60);

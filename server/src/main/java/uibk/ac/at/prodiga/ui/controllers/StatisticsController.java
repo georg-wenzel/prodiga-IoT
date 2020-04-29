@@ -17,12 +17,16 @@ import java.util.Map;
 @RequestScoped
 public class StatisticsController implements Serializable {
     private final ProductivityAnalysisService productivityAnalysisService;
-    private PieChartModel weeklyAnalysisPie;
     private PieChartModel last24hourAnalysisPie;
+    private PieChartModel lastWeekAnalysisPie;
     private PieChartModel lastMonthAnalysisPie;
-    private PieChartModel weeklyTeamAnalysisPie;
-    private PieChartModel lastMonthTeamAnalysisPie;
     private PieChartModel last24hourTeamAnalysisPie;
+    private PieChartModel lastWeekTeamAnalysisPie;
+    private PieChartModel lastMonthTeamAnalysisPie;
+    private PieChartModel last24hourDepartmentAnalysisPie;
+    private PieChartModel lastWeekDepartmentAnalysisPie;
+    private PieChartModel lastMonthDepartmentAnalysisPie;
+    private PieChartModel test;
 
     public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
         this.productivityAnalysisService = productivityAnalysisService;
@@ -30,35 +34,29 @@ public class StatisticsController implements Serializable {
 
     @PostConstruct
     public void init() {
-        createWeeklyStatistic();
         createLast24hourStatistic();
-        createLastMonthStatistic();
-        createLastWeekTeamStatistic();
         createLast24hourTeamStatistic();
+        createLast24hourDepartmentStatistic();
+
+        createLastWeekStatistic();
+        createLastWeekTeamStatistic();
+        createLastWeekDepartmentStatistic();
+
+        createLastMonthStatistic();
         createLastMonthTeamStatistic();
+        createLastMonthDepartmentStatistic();
+
     }
 
-    public PieChartModel getWeeklyAnalysisPie() {return weeklyAnalysisPie;}
+    public PieChartModel getLastWeekAnalysisPie() {return lastWeekAnalysisPie;}
     public PieChartModel getLast24hourAnalysisPie(){return last24hourAnalysisPie;}
     public PieChartModel getLastMonthAnalysisPie(){return lastMonthAnalysisPie;}
-    public PieChartModel getWeeklyTeamAnalysisPie(){return weeklyTeamAnalysisPie;}
+    public PieChartModel getLastWeekTeamAnalysisPie(){return lastWeekTeamAnalysisPie;}
     public PieChartModel getLastMonthTeamAnalysisPie(){return lastMonthTeamAnalysisPie;}
     public PieChartModel getLast24hourTeamAnalysisPie(){return last24hourTeamAnalysisPie;}
-
-    private void createWeeklyStatistic() {
-        weeklyAnalysisPie = new PieChartModel();
-        Map<BookingCategory,Long> map = productivityAnalysisService.getWeeklyStatisticForCurrentUser();
-        weeklyAnalysisPie = new PieChartModel();
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            weeklyAnalysisPie.set(entry.getKey().getName(),entry.getValue());
-        }
-        weeklyAnalysisPie.setTitle("User: Last week productivity analysis");
-        weeklyAnalysisPie.setLegendPosition("e");
-        weeklyAnalysisPie.setFill(false);
-        weeklyAnalysisPie.setShowDataLabels(true);
-        weeklyAnalysisPie.setDiameter(200);
-        weeklyAnalysisPie.setShadow(false);
-    }
+    public PieChartModel getLast24hourDepartmentAnalysisPie(){return last24hourDepartmentAnalysisPie;}
+    public PieChartModel getLastWeekDepartmentAnalysisPie(){return lastWeekDepartmentAnalysisPie;}
+    public PieChartModel getLastMonthDepartmentAnalysisPie(){return lastMonthDepartmentAnalysisPie;}
 
     private void createLast24hourStatistic() {
         last24hourAnalysisPie = new PieChartModel();
@@ -75,6 +73,21 @@ public class StatisticsController implements Serializable {
         last24hourAnalysisPie.setShadow(false);
     }
 
+    private void createLastWeekStatistic() {
+        lastWeekAnalysisPie = new PieChartModel();
+        Map<BookingCategory,Long> map = productivityAnalysisService.getWeeklyStatisticForCurrentUser();
+        lastWeekAnalysisPie = new PieChartModel();
+        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+            lastWeekAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+        }
+        lastWeekAnalysisPie.setTitle("User: Last week productivity analysis");
+        lastWeekAnalysisPie.setLegendPosition("e");
+        lastWeekAnalysisPie.setFill(false);
+        lastWeekAnalysisPie.setShowDataLabels(true);
+        lastWeekAnalysisPie.setDiameter(200);
+        lastWeekAnalysisPie.setShadow(false);
+    }
+
     private void createLastMonthStatistic() {
         lastMonthAnalysisPie = new PieChartModel();
         Map<BookingCategory,Long> map = productivityAnalysisService.getLastMonthsStatisticForCurrentUser();
@@ -88,21 +101,6 @@ public class StatisticsController implements Serializable {
         lastMonthAnalysisPie.setShowDataLabels(true);
         lastMonthAnalysisPie.setDiameter(200);
         lastMonthAnalysisPie.setShadow(false);
-    }
-
-    private void createLastMonthTeamStatistic() {
-        lastMonthTeamAnalysisPie = new PieChartModel();
-        Map<BookingCategory,Long> map = productivityAnalysisService.getLastMonthsStatisticForTeam();
-        lastMonthTeamAnalysisPie = new PieChartModel();
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            lastMonthTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());
-        }
-        lastMonthTeamAnalysisPie.setTitle("Team: Last Months team productivity analysis");
-        lastMonthTeamAnalysisPie.setLegendPosition("e");
-        lastMonthTeamAnalysisPie.setFill(false);
-        lastMonthTeamAnalysisPie.setShowDataLabels(true);
-        lastMonthTeamAnalysisPie.setDiameter(200);
-        lastMonthTeamAnalysisPie.setShadow(false);
     }
 
     private void createLast24hourTeamStatistic() {
@@ -121,17 +119,80 @@ public class StatisticsController implements Serializable {
     }
 
     private void createLastWeekTeamStatistic() {
-        weeklyTeamAnalysisPie = new PieChartModel();
+        lastWeekTeamAnalysisPie = new PieChartModel();
         Map<BookingCategory,Long> map = productivityAnalysisService.getWeeklyStatisticForTeam();
-        weeklyTeamAnalysisPie = new PieChartModel();
+        lastWeekTeamAnalysisPie = new PieChartModel();
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            weeklyTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+            lastWeekTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());
         }
-        weeklyTeamAnalysisPie.setTitle("Team: Last weeks team productivity analysis");
-        weeklyTeamAnalysisPie.setLegendPosition("e");
-        weeklyTeamAnalysisPie.setFill(false);
-        weeklyTeamAnalysisPie.setShowDataLabels(true);
-        weeklyTeamAnalysisPie.setDiameter(200);
-        weeklyTeamAnalysisPie.setShadow(false);
+        lastWeekTeamAnalysisPie.setTitle("Team: Last weeks team productivity analysis");
+        lastWeekTeamAnalysisPie.setLegendPosition("e");
+        lastWeekTeamAnalysisPie.setFill(false);
+        lastWeekTeamAnalysisPie.setShowDataLabels(true);
+        lastWeekTeamAnalysisPie.setDiameter(200);
+        lastWeekTeamAnalysisPie.setShadow(false);
     }
+
+    private void createLastMonthTeamStatistic() {
+        lastMonthTeamAnalysisPie = new PieChartModel();
+        Map<BookingCategory,Long> map = productivityAnalysisService.getLastMonthsStatisticForTeam();
+        lastMonthTeamAnalysisPie = new PieChartModel();
+        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+            lastMonthTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+        }
+        lastMonthTeamAnalysisPie.setTitle("Team: Last Months team productivity analysis");
+        lastMonthTeamAnalysisPie.setLegendPosition("e");
+        lastMonthTeamAnalysisPie.setFill(false);
+        lastMonthTeamAnalysisPie.setShowDataLabels(true);
+        lastMonthTeamAnalysisPie.setDiameter(200);
+        lastMonthTeamAnalysisPie.setShadow(false);
+    }
+
+    private void createLast24hourDepartmentStatistic() {
+        last24hourDepartmentAnalysisPie = new PieChartModel();
+        Map<BookingCategory,Long> map = productivityAnalysisService.getLast24hourStatisticForTeam();
+        last24hourDepartmentAnalysisPie = new PieChartModel();
+        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+            last24hourDepartmentAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+        }
+        last24hourDepartmentAnalysisPie.setTitle("Department: Last 24 hour department productivity analysis");
+        last24hourDepartmentAnalysisPie.setLegendPosition("e");
+        last24hourDepartmentAnalysisPie.setFill(false);
+        last24hourDepartmentAnalysisPie.setShowDataLabels(true);
+        last24hourDepartmentAnalysisPie.setDiameter(200);
+        last24hourDepartmentAnalysisPie.setShadow(false);
+    }
+
+    private void createLastWeekDepartmentStatistic() {
+        lastWeekDepartmentAnalysisPie = new PieChartModel();
+        Map<BookingCategory,Long> map = productivityAnalysisService.getWeeklyStatisticForDepartment();
+        lastWeekDepartmentAnalysisPie = new PieChartModel();
+        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+            lastWeekDepartmentAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+        }
+        lastWeekDepartmentAnalysisPie.setTitle("Department: Last weeks department productivity analysis");
+        lastWeekDepartmentAnalysisPie.setLegendPosition("e");
+        lastWeekDepartmentAnalysisPie.setFill(false);
+        lastWeekDepartmentAnalysisPie.setShowDataLabels(true);
+        lastWeekDepartmentAnalysisPie.setDiameter(200);
+        lastWeekDepartmentAnalysisPie.setShadow(false);
+    }
+
+    private void createLastMonthDepartmentStatistic() {
+        lastMonthDepartmentAnalysisPie = new PieChartModel();
+        Map<BookingCategory,Long> map = productivityAnalysisService.getLastMonthsStatisticForDepartment();
+        lastMonthDepartmentAnalysisPie = new PieChartModel();
+        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+            lastMonthDepartmentAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+        }
+        lastMonthDepartmentAnalysisPie.setTitle("Department: Last Months department productivity analysis");
+        lastMonthDepartmentAnalysisPie.setLegendPosition("e");
+        lastMonthDepartmentAnalysisPie.setFill(false);
+        lastMonthDepartmentAnalysisPie.setShowDataLabels(true);
+        lastMonthDepartmentAnalysisPie.setDiameter(200);
+        lastMonthDepartmentAnalysisPie.setShadow(false);
+    }
+
+
+
 }

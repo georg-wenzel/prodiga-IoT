@@ -225,7 +225,7 @@ public class BookingService
      * @return collection of bookings
      */
 
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLastWeek(BookingCategory bookingCategory) {
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLastWeek(User user,BookingCategory bookingCategory) {
         Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
@@ -234,27 +234,27 @@ public class BookingService
         Date start = c.getTime();
         c.add(Calendar.DATE, 6);
         Date end = c.getTime();
-        return getBookingInRangeByCategoryAndByUser(userLoginManager.getCurrentUser(),bookingCategory, start, end);
+        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
     }
 
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLast24hours(BookingCategory bookingCategory) {
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLast24hours(User user,BookingCategory bookingCategory) {
         Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.DATE, -1);
         Date start = c.getTime();
         Date end = new Date();
-        return getBookingInRangeByCategoryAndByUser(userLoginManager.getCurrentUser(),bookingCategory, start, end);
+        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
     }
 
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLastMonth(BookingCategory bookingCategory) {
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLastMonth(User user,BookingCategory bookingCategory) {
         Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.MONTH, -1);
         Date start = c.getTime();
         Date end = new Date();
-        return getBookingInRangeByCategoryAndByUser(userLoginManager.getCurrentUser(),bookingCategory, start, end);
+        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
     }
 
     /**
