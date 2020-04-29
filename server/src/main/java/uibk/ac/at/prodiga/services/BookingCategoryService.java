@@ -110,11 +110,11 @@ public class BookingCategoryService
             return null;
         }
 
-        if(cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) throw new ProdigaGeneralExpectedException("The category " + cat.getName() + " is a mandatory category and may not be edited.", MessageType.ERROR);
-
         if(StringUtils.isEmpty(cat.getName())) {
             throw new ProdigaGeneralExpectedException("Name may not be null", MessageType.ERROR);
         }
+
+        if(cat.getId() != null && cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) throw new ProdigaGeneralExpectedException("The category " + cat.getName() + " is a mandatory category and may not be edited.", MessageType.ERROR);
 
         if(cat.isNew()) {
             cat.setObjectCreatedDateTime(new Date());
