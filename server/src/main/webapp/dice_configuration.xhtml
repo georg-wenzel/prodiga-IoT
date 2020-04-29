@@ -43,7 +43,7 @@
                     </h:form>
 
                     <h:form id="diceConfigForm">
-                        <p:poll interval="3" update=":diceConfigForm" />
+                        <p:poll interval="2" listener="#{diceConfigurationController.pollUpdate()}"/>
                         <h:panelGroup rendered="#{diceConfigurationController.status == 2}">
                             <p:dataTable id="sidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}"
                                      rowStyleClass="#{(diceConfigurationController.currentSide == side.key) ? 'selectedRow': null}">

@@ -8,6 +8,7 @@ import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -105,7 +106,7 @@ public class TeamBookingCategoryController implements Serializable
     public Collection<BookingCategory> getTeamHasCategories()
     {
         if(teamHasCategories == null)
-            teamHasCategories = getCategories().stream().filter(x -> x.getTeams().contains(getTeam())).collect(Collectors.toList());
+            teamHasCategories = bookingCategoryService.findAllCategoriesByTeam();
 
         return teamHasCategories;
     }
@@ -114,6 +115,11 @@ public class TeamBookingCategoryController implements Serializable
     {
         if(!usedInTeamBookings.containsKey(category)) usedInTeamBookings.put(category, bookingService.getNumberOfTeamBookingsWithCategory(category));
         return usedInTeamBookings.get(category);
+    }
+
+    public long getMandatoryCategory()
+    {
+        return Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID;
     }
 
     public int getUsedInDice(BookingCategory category)

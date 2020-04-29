@@ -33,11 +33,13 @@ public class DiceConfigurationController implements Serializable
 
     private final ProdigaUserLoginManager userLoginManager;
     private final DiceService diceService;
+    private final DiceSideService diceSideService;
     private final BookingCategoryService bookingCategoryService;
 
     private Dice dice;
     private UUID uuid;
     private int currentSide = -1;
+    private boolean sideChanged = false;
     private boolean inConfiguration = false;
     private DiceConfigurationWrapper wrapper;
 
@@ -48,28 +50,30 @@ public class DiceConfigurationController implements Serializable
     {
         this.userLoginManager = userLoginManager;
         this.diceService = diceService;
+        this.diceSideService = diceSideService;
         this.bookingCategoryService = bookingCategoryService;
 
         this.dice = this.diceService.getDiceByUser(userLoginManager.getCurrentUser());
         sides = new HashMap<Integer, BookingCategory>();
         newSides = new HashMap<Integer, String>();
+    }
 
-        if(dice != null) {
-            Collection<DiceSide> currSides = diceSideService.findByDice(dice);
-            for (int i = 1; i <= 12; i++)
-            {
-                //because lambda expression should be final..
-                int finalI = i;
+    private void prepareSideCollections()
+    {
+        Collection<DiceSide> currSides = diceSideService.findByDice(dice);
+        for (int i = 1; i <= 12; i++)
+        {
+            //because lambda expression should be final..
+            int finalI = i;
 
-                Optional<DiceSide> side = currSides.stream().filter(x -> x.getSide() == finalI).findFirst();
-                if (side.isPresent()) {
-                    sides.put(i, side.get().getBookingCategory());
-                    newSides.put(i, side.get().getBookingCategory().getId().toString());
-                }
-                else {
-                    sides.put(i, null);
-                    newSides.put(i, null);
-                }
+            Optional<DiceSide> side = currSides.stream().filter(x -> x.getSide() == finalI).findFirst();
+            if (side.isPresent()) {
+                sides.put(i, side.get().getBookingCategory());
+                newSides.put(i, side.get().getBookingCategory().getId().toString());
+            }
+            else {
+                sides.put(i, null);
+                newSides.put(i, null);
             }
         }
     }
@@ -125,17 +129,39 @@ public class DiceConfigurationController implements Serializable
     {
         if(dice == null) throw new ProdigaGeneralExpectedException("Dice Configuration cannot be started because no dice was found for the user.", MessageType.ERROR);
 
+        //Force an update of current dice categories
+        prepareSideCollections();
+
         uuid = UUID.randomUUID();
         wrapper = diceService.addDiceToConfiguration(dice);
         currentSide = wrapper.getCurrentSide();
         diceService.registerNewSideCallback(uuid, x -> {
             if(x.getValue0().compareTo(uuid) != 0) return;
+
+            //Confirms to the dice service that the callback is still being listened on.
+            diceService.ensureListening(uuid, x.getValue1().getDice().getInternalId());
+
+            //change nothing if the side is the same as the existing side.
             if(x.getValue1().getCurrentSide() == currentSide) return;
 
+            //Change side and request form update.
             currentSide = x.getValue1().getCurrentSide();
-            System.out.println("New Side: " + currentSide);
+            sideChanged = true;
         });
         inConfiguration = true;
+    }
+
+    /**
+     * Poll method is called every 2 seconds by the active view.
+     * If the side has changed since the last poll, force an update of the table via ajax.
+     */
+    public void pollUpdate()
+    {
+        if(sideChanged)
+        {
+            PrimeFaces.current().ajax().update(":diceConfigForm");
+            sideChanged = false;
+        }
     }
 
     public Map<Integer, BookingCategory> getSides() {

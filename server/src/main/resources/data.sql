@@ -2,18 +2,18 @@ INSERT INTO user (enabled, first_name, last_name, password, username, create_use
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('admin', 'ADMIN');
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('admin', 'EMPLOYEE');
 
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (1, 'Conceptualizing', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (2, 'Design', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (3, 'Implementation', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (4, 'Testing', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (5, 'Documentation', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (6, 'Debugging', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (7, 'Meeting', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (8, 'Customer Support', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (9, 'Education and Training', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (10, 'Project Management', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (11, 'Other', 'admin', NOW(), 'admin', NOW());
-INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (12, 'Pause / Vacation', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (1, 'Pause / Vacation', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (2, 'Conceptualizing', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (3, 'Design', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (4, 'Implementation', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (5, 'Testing', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (6, 'Documentation', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (7, 'Debugging', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (8, 'Meeting', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (9, 'Customer Support', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (10, 'Education and Training', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (11, 'Project Management', 'admin', NOW(), 'admin', NOW());
+INSERT INTO booking_category (id, name, object_created_user_username, object_created_date_time, object_changed_user_username, object_changed_date_time) VALUES (12, 'Other', 'admin', NOW(), 'admin', NOW());
 
 INSERT INTO department (ID, NAME, object_created_date_time, object_created_user_username) VALUES (1, 'IT services',CURRENT_TIMESTAMP, 'admin');
 INSERT INTO department (ID, NAME, object_created_date_time, object_created_user_username) VALUES (2, 'Development',CURRENT_TIMESTAMP, 'admin');
@@ -22,14 +22,12 @@ INSERT INTO department (ID, NAME, object_created_date_time, object_created_user_
 INSERT INTO team (ID, NAME, department_id, object_created_date_time, object_created_user_username) VALUES (1, 'Team 1', 1, CURRENT_TIMESTAMP, 'admin');
 INSERT INTO team (ID, NAME, department_id, object_created_date_time, object_created_user_username) VALUES (2, 'Team 2', 1, CURRENT_TIMESTAMP, 'admin');
 
-INSERT INTO booking_category_teams VALUES (1,1);
 INSERT INTO booking_category_teams VALUES (2,1);
 INSERT INTO booking_category_teams VALUES (3,1);
 INSERT INTO booking_category_teams VALUES (4,1);
 INSERT INTO booking_category_teams VALUES (6,1);
 INSERT INTO booking_category_teams VALUES (7,1);
 INSERT INTO booking_category_teams VALUES (9,1);
-INSERT INTO booking_category_teams VALUES (1,2);
 INSERT INTO booking_category_teams VALUES (4,2);
 INSERT INTO booking_category_teams VALUES (7,2);
 INSERT INTO booking_category_teams VALUES (8,2);
@@ -37,7 +35,6 @@ INSERT INTO booking_category_teams VALUES (10,2);
 INSERT INTO booking_category_teams VALUES (11,2);
 
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id) VALUES(TRUE, 'Susi', 'Kaufgern', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user1', 'admin', '2016-01-01 00:00:00',1,1);
-INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'ADMIN');
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'TEAMLEADER');
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'EMPLOYEE');
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id) VALUES(TRUE, 'Max', 'Mustermann', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user2', 'admin', '2016-01-01 00:00:00',1,1);
@@ -73,12 +70,10 @@ INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_chan
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (2,0,NOW(),NOW(),2,2,2,'user2','user2');
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (3,0,NOW(),NOW(),3,3,2,'user2','user2');
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (4,0,NOW(),NOW(),4,4,2,'user2','user2');
-INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (5,0,NOW(),NOW(),4,1,2,'user2','user2');
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (6,0,NOW(),NOW(),1,9,1,'admin','admin');
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (7,0,NOW(),NOW(),2,2,1,'admin','admin');
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (8,0,NOW(),NOW(),3,3,1,'admin','admin');
 INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (9,0,NOW(),NOW(),4,4,1,'admin','admin');
-INSERT INTO dice_side(ID, current_seconds, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (10,0,NOW(),NOW(),4,1,1,'admin','admin');
 
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (1, 'admin', DATE(NOW() - INTERVAL 2 YEAR - INTERVAL 3 DAY), DATE(NOW() - INTERVAL 2 YEAR), 'admin', NOW());
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (2, 'admin', DATE(NOW() - INTERVAL 35 DAY), DATE(NOW() - INTERVAL 33 DAY), 'admin', NOW());
