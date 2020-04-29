@@ -72,7 +72,7 @@ public class BookingCategoryServiceTest {
 
     @Test
     @DirtiesContext
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    @WithMockUser(username = "notadmin", authorities = {"EMPLOYEE"})
     public void bookingCategoryService_findById_returnsCorrectCategory()
     {
         BookingCategory cat = DataHelper.createBookingCategory("somename", admin, bookingCategoryRepository);
@@ -335,14 +335,6 @@ public class BookingCategoryServiceTest {
     public void bookingCategoryService_deleteUnauthorized_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> bookingCategoryService.delete(null), "EMPLYOEE can delete Categories");
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void bookingCategoryService_findById_throws() {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> bookingCategoryService.findById(0), "EMPLYOEE can find categories by id.");
     }
 
     @Test

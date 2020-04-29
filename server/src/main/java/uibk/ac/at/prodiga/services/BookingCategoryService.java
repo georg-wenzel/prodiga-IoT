@@ -32,7 +32,7 @@ public class BookingCategoryService
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public BookingCategory findById(long id)
     {
         Optional<BookingCategory> cat = bookingCategoryRepository.findById(id);
