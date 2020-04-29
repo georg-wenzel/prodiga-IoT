@@ -66,10 +66,8 @@ public class BookingCategoryController implements Serializable
      * Sets the editing flag and the editing ID, as well as the default name
      * @param categoryId The ID of the category to be edited
      */
-    public void editCategory(long categoryId) throws ProdigaGeneralExpectedException
+    public void editCategory(long categoryId)
     {
-        if(categoryId == Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID) throw new ProdigaGeneralExpectedException("The category " + bookingCategoryService.findById(categoryId).getName() + " is a mandatory category and may not be edited.", MessageType.ERROR);
-
         this.isEditing = true;
         this.editCategoryId = categoryId;
         this.editCategoryName = bookingCategoryService.findById(categoryId).getName();

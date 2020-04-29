@@ -20,14 +20,14 @@
                     <h3>Your Team: <h:outputText value="#{teamBookingCategoryController.team}"/></h3>
                     From this page, you as a teamleader can manage which booking categories your employees can assign to their dice. Check any categories that are relevant for your team.<br />
 
-
-
                     <h1>Booking Categories</h1>
-                    The global pool of booking categories is managed by your administrators. Selecting those relevant for your team ensures employees can only use these categories when assigning the sides of their dice. Please keep in mind that you may only disable those categories which <strong>are not currently assigned to any dice of your teammembers.</strong>
+                    The global pool of booking categories is managed by your administrators. Selecting those relevant for your team ensures employees can only use these categories when assigning the sides of their dice. Please keep in mind that you may only disable those categories which <strong>are not currently assigned to any dice of your teammembers.</strong> Further,
+                    categories marked with a * are mandatory and cannot be unassigned from your team.
                     <h:form id="categoriesForm">
                         <p:dataTable id="categoryTable" var="category" scrollable="true" style="margin-top:30px;" scrollHeight="500" value="#{teamBookingCategoryController.categories}">
                             <p:column headerText="Name">
                                 <h:outputText value="#{category.name}"/>
+                                <h:outputText value=" *" rendered="#{bookingCategoryController.mandatoryCategory == category.id}"/>
                             </p:column>
 
                             <p:column headerText="Bookings of this category" style="width:150px;text-align:center;">
@@ -40,7 +40,7 @@
 
                             <p:column headerText="Available to your team" style="width:150px;text-align:center;">
                                 <p:selectBooleanCheckbox value="#{teamBookingCategoryController.getCurrentlyUsedByTeam(category)}"
-                                    disabled="#{teamBookingCategoryController.getUsedInDice(category) > 0}">
+                                    disabled="#{teamBookingCategoryController.getUsedInDice(category) > 0 or teamBookingCategoryController.mandatoryCategory == category.id}">
                                     <p:ajax listener="#{teamBookingCategoryController.categoryChanged(category)}" />
                                 </p:selectBooleanCheckbox>
                             </p:column>
