@@ -203,7 +203,7 @@ public class BookingService
      * @param date The date to check
      * @return True if date is in current or last week, false otherwise.
      */
-    private boolean isEarlierThanLastWeek(Date date)
+    public boolean isEarlierThanLastWeek(Date date)
     {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);
