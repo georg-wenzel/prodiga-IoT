@@ -26,7 +26,6 @@ public class StatisticsController implements Serializable {
     private PieChartModel last24hourDepartmentAnalysisPie;
     private PieChartModel lastWeekDepartmentAnalysisPie;
     private PieChartModel lastMonthDepartmentAnalysisPie;
-    private PieChartModel test;
 
     public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
         this.productivityAnalysisService = productivityAnalysisService;
