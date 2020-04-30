@@ -15,4 +15,14 @@ public class RaspiFeedHandler implements FeedHandler{
     public void handle(FeedDTO feed) {
         //TODO (Max): What can we do here?
     }
+
+    /**
+     * Returns whether the given needs to report back to the server
+     * @param feedDTO The given feed item
+     * @return Whether to respond to the server
+     */
+    @Override
+    public boolean needsToReportToServer(FeedDTO feedDTO) {
+        return false;
+    }
 }
