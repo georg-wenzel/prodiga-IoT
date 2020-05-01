@@ -48,10 +48,12 @@
                         </p:column>
 
                         <p:column style="width:100px;text-align: center">
-                            <p:commandButton icon="fa fa-fw fa-edit"
-                                             title="Edit" action="#{bookingController.editBooking(booking)}"
-                                             update=":bookingsForm"
-                                             disabled="#{!bookingController.isBookingEditable(booking)}"/>
+                            <p:linkButton icon="fa fa-fw fa-edit"
+                                          title="Edit"
+                                          disabled="#{!bookingController.isBookingEditable(booking)}"
+                                          outcome="booking">
+                                <f:param name="booking" value="#{booking.id}" />
+                            </p:linkButton>
                             <p:commandButton action="#{bookingController.deleteBooking(booking)}" icon="fa fa-fw fa-trash" title="Delete" style="margin-left:5px;"
                                              disabled="#{!bookingController.isBookingEditable(booking)}">
                                 <p:confirm header="Confirmation" message="Are you sure that you want to delete this booking? You cannot undo this operation." icon="ui-icon-alert" />

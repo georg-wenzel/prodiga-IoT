@@ -17,6 +17,7 @@ import java.util.Collection;
 @Scope("view")
 public class BookingController implements Serializable
 {
+    private Booking booking;
     private User user;
     private BookingService bookingService;
     private DiceService diceService;
@@ -59,7 +60,7 @@ public class BookingController implements Serializable
         return (int) (Math.floorDiv(booking.getActivityEndDate().toInstant().toEpochMilli() - booking.getActivityStartDate().toInstant().toEpochMilli(), 1000 * 60) - getFullHours(booking) * 60);
     }
 
-    public void editBooking(Booking booking)
+    public void saveBooking()
     {
 
     }
@@ -78,5 +79,33 @@ public class BookingController implements Serializable
     {
         if(userBookings == null) userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
         return userBookings;
+    }
+
+    public void setBookingById(Long id)
+    {
+        this.booking = bookingService.loadBooking(id);
+        if(booking == null)
+            this.booking = new Booking();
+    }
+
+    public Long getBookingById()
+    {
+        if(this.booking == null)
+            this.booking = new Booking();
+
+        return this.booking.getId();
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void setBooking(Booking booking) {
+        this.booking = booking;
+    }
+
+    public boolean getEditing()
+    {
+        return booking != null && !booking.isNew();
     }
 }
