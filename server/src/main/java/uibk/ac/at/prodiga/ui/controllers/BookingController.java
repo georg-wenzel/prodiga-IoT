@@ -7,6 +7,7 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.services.UserService;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.io.Serializable;
@@ -38,14 +39,34 @@ public class BookingController implements Serializable
         return user.getMayEditHistoricData() || !bookingService.isEarlierThanLastWeek(booking.getActivityStartDate());
     }
 
+    /**
+     * Returns integer number of full hours this activity takes, e.g. an activity that takes 5 hours 48 minutes would return 5
+     * @param booking The booking to check the activity time for
+     * @return Number of full hours for this activity
+     */
+    public int getFullHours(Booking booking)
+    {
+        return (int) Math.floorDiv(booking.getActivityEndDate().toInstant().toEpochMilli() - booking.getActivityStartDate().toInstant().toEpochMilli(), 1000 * 60 * 60);
+    }
+
+    /**
+     * Returns integer number of remaining minutes this activity takes after subtracting full hours, e.g. an activity that takes 5 hours 48 minutes would return 48
+     * @param booking The booking to check the activity time for
+     * @return Number of remaining hours for this activity
+     */
+    public int getRemainingMinutes(Booking booking)
+    {
+        return (int) (Math.floorDiv(booking.getActivityEndDate().toInstant().toEpochMilli() - booking.getActivityStartDate().toInstant().toEpochMilli(), 1000 * 60) - getFullHours(booking) * 60);
+    }
+
     public void editBooking(Booking booking)
     {
 
     }
 
-    public void deleteBooking(Booking booking)
+    public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
-
+        bookingService.deleteBooking(booking);
     }
 
     public User getUser()
