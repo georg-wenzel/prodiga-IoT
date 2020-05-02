@@ -35,6 +35,16 @@
                                         <p:calendar id="fromDate" value="#{bookingController.booking.activityStartDate}" required="true" pattern="yyyy-MM-dd HH:mm 'UTC'" timeZone="UTC"/>
                                         <p:outputLabel for="toDate" value="End date: " />
                                         <p:calendar id="toDate" value="#{bookingController.booking.activityEndDate}" required="true" pattern="yyyy-MM-dd HH:mm 'UTC'" timeZone="UTC"/>
+                                        <p:outputLabel for="activityCategory" value="Category:" />
+                                        <p:selectOneMenu id="activityCategory" value="#{bookingController.booking.bookingCategory}" required="true">
+                                            <f:selectItems value="#{bookingController.availableCategories}" />
+                                        </p:selectOneMenu>
+                                        <p:outputLabel for="department" value="Department: " />
+                                        <h:outputText id="department" rendered="#{bookingController.getEditing()}" value="#{bookingController.booking.dept}" />
+                                        <h:outputText id="department_new" rendered="#{!bookingController.getEditing()}" value="#{bookingController.user.assignedDepartment}" />
+                                        <p:outputLabel for="team" value="Team: " />
+                                        <h:outputText id="team" rendered="#{bookingController.getEditing()}" value="#{bookingController.booking.team}" />
+                                        <h:outputText id="team_new" rendered="#{!bookingController.getEditing()}" value="#{bookingController.user.assignedTeam}" />
                                     </h:panelGrid>
                                 </div>
                             </div>

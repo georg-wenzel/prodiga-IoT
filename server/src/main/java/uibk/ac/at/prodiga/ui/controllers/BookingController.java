@@ -3,7 +3,9 @@ package uibk.ac.at.prodiga.ui.controllers;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
+import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.services.UserService;
@@ -19,14 +21,18 @@ public class BookingController implements Serializable
 {
     private Booking booking;
     private User user;
-    private BookingService bookingService;
-    private DiceService diceService;
     private Collection<Booking> userBookings;
+    private boolean updateTeam;
 
-    public BookingController(ProdigaUserLoginManager userLoginManager, BookingService bookingService, DiceService diceService)
+    private BookingService bookingService;
+    private BookingCategoryService bookingCategoryService;
+    private DiceService diceService;
+
+    public BookingController(ProdigaUserLoginManager userLoginManager, BookingService bookingService, BookingCategoryService bookingCategoryService, DiceService diceService)
     {
         this.user = userLoginManager.getCurrentUser();
         this.bookingService = bookingService;
+        this.bookingCategoryService = bookingCategoryService;
         this.diceService = diceService;
     }
 
@@ -88,6 +94,14 @@ public class BookingController implements Serializable
             this.booking = new Booking();
     }
 
+    public Collection<BookingCategory> getAvailableCategories()
+    {
+        if(user.getAssignedTeam() != null)
+            return bookingCategoryService.findAllCategoriesByTeam();
+
+        return bookingCategoryService.findAllCategories();
+    }
+
     public Long getBookingById()
     {
         if(this.booking == null)
@@ -97,6 +111,9 @@ public class BookingController implements Serializable
     }
 
     public Booking getBooking() {
+        if(this.booking == null)
+            this.booking = new Booking();
+
         return booking;
     }
 
