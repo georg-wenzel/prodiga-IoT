@@ -8,12 +8,14 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
-import uibk.ac.at.prodiga.services.UserService;
+import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 
 @Component
 @Scope("view")
@@ -22,7 +24,6 @@ public class BookingController implements Serializable
     private Booking booking;
     private User user;
     private Collection<Booking> userBookings;
-    private boolean updateTeam;
 
     private BookingService bookingService;
     private BookingCategoryService bookingCategoryService;
@@ -66,9 +67,18 @@ public class BookingController implements Serializable
         return (int) (Math.floorDiv(booking.getActivityEndDate().toInstant().toEpochMilli() - booking.getActivityStartDate().toInstant().toEpochMilli(), 1000 * 60) - getFullHours(booking) * 60);
     }
 
-    public void saveBooking()
+    public void doSaveBooking() throws ProdigaGeneralExpectedException
     {
+        //set fields if not already present
+        if(this.booking.getDice() == null)
+            this.booking.setDice(diceService.getDiceByUser(user));
+        if(this.booking.getTeam() == null)
+            this.booking.setTeam(user.getAssignedTeam());
+        if(this.booking.getDept() == null)
+            this.booking.setDept(user.getAssignedDepartment());
 
+        bookingService.saveBooking(this.booking);
+        SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
     }
 
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
@@ -121,8 +131,26 @@ public class BookingController implements Serializable
         this.booking = booking;
     }
 
+    public Date getBookingMaxDate()
+    {
+        return new Date();
+    }
+
     public boolean getEditing()
     {
         return booking != null && !booking.isNew();
+    }
+
+    public void setBookingCategory(Long id)
+    {
+        if(this.booking == null) this.booking = new Booking();
+        booking.setBookingCategory(bookingCategoryService.findById(id));
+    }
+
+    public Long getBookingCategory()
+    {
+        if(this.booking == null) this.booking = new Booking();
+        if(booking.getBookingCategory() == null) return (long) 0;
+        return booking.getBookingCategory().getId();
     }
 }
