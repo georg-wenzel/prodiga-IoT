@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -23,8 +24,10 @@ import java.util.stream.Collectors;
  */
 @Component
 @Scope("view")
-public class VacationController
+public class VacationController implements Serializable
 {
+    private static final long serialVersionUID = 5325687637192577315L;
+
     private final VacationService vacationService;
     private final ProdigaUserLoginManager userLoginManager;
     private Vacation vacation;

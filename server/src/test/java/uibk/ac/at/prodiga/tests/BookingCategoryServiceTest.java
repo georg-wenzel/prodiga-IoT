@@ -15,6 +15,7 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 @ExtendWith(SpringExtension.class)
@@ -72,7 +73,7 @@ public class BookingCategoryServiceTest {
 
     @Test
     @DirtiesContext
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    @WithMockUser(username = "notadmin", authorities = {"EMPLOYEE"})
     public void bookingCategoryService_findById_returnsCorrectCategory()
     {
         BookingCategory cat = DataHelper.createBookingCategory("somename", admin, bookingCategoryRepository);
@@ -100,9 +101,10 @@ public class BookingCategoryServiceTest {
             }
         }
 
-        Assertions.assertNotNull(bookingCategoryService.findAllCategoriesByTeam(null), "Service returns null when accessing with null");
+        int includeMandatoryCategory = (bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).isPresent() ? 1 : 0);
 
-        Assertions.assertEquals(3, bookingCategoryService.findAllCategoriesByTeam(t).size(), "Could not find correct amount of booking categories.");
+        Assertions.assertNotNull(bookingCategoryService.findAllCategoriesByTeam(null), "Service returns null when accessing with null");
+        Assertions.assertEquals(3 + includeMandatoryCategory, bookingCategoryService.findAllCategoriesByTeam(t).size(), "Could not find correct amount of booking categories.");
     }
 
     @Test
@@ -143,7 +145,9 @@ public class BookingCategoryServiceTest {
             }
         }
 
-        Assertions.assertEquals(3, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
+        int includeMandatoryCategory = (bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).isPresent() ? 1 : 0);
+
+        Assertions.assertEquals(3 + includeMandatoryCategory, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
     }
 
     @Test
@@ -178,12 +182,8 @@ public class BookingCategoryServiceTest {
 
         //create booking categories
         for(int i = 0; i < amount; i++) {
-            categories[i] = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
-
-            if(i % 2 == 0) {
-                categories[i].setTeams(Sets.newSet(t));
-                bookingCategoryRepository.save(categories[i]);
-            }
+            if (i % 2 == 0) categories[i] = DataHelper.createBookingCategory("test" + i, admin, Sets.newSet(t), bookingCategoryRepository);
+            else categories[i] = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
         }
 
         //switch which ones are allowed and disallowed
@@ -193,7 +193,7 @@ public class BookingCategoryServiceTest {
             {
                 bookingCategoryService.allowForTeam(categories[i]);
             }
-            else
+            else if(!categories[i].getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))
             {
                 bookingCategoryService.disallowForTeam(categories[i]);
             }
@@ -203,7 +203,7 @@ public class BookingCategoryServiceTest {
         for(int i = 0; i < amount; i++)
         {
             bookingCategoryRepository.findById(categories[i].getId());
-            if(i % 2 == 0)
+            if(i % 2 == 0 && !categories[i].getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))
                 Assertions.assertFalse(bookingCategoryRepository.findById(categories[i].getId()).orElse(null).getTeams().contains(t), "disallowForTeam was not properly executed.");
             else
                 Assertions.assertTrue(bookingCategoryRepository.findById(categories[i].getId()).orElse(null).getTeams().contains(t), "allowForTeam was not properly executed.");
@@ -335,14 +335,6 @@ public class BookingCategoryServiceTest {
     public void bookingCategoryService_deleteUnauthorized_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> bookingCategoryService.delete(null), "EMPLYOEE can delete Categories");
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void bookingCategoryService_findById_throws() {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> bookingCategoryService.findById(0), "EMPLYOEE can find categories by id.");
     }
 
     @Test

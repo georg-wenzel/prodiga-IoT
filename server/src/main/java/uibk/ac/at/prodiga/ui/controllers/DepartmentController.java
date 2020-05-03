@@ -13,12 +13,16 @@ import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 import uibk.ac.at.prodiga.utils.MessageType;
+
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
 @Component
 @Scope("view")
-public class DepartmentController {
+public class DepartmentController implements Serializable {
+
+    private static final long serialVersionUID = 8625687687692577315L;
 
     private final DepartmentService departmentService;
     private Department department;

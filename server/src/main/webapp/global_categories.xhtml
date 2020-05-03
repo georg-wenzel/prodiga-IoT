@@ -50,7 +50,7 @@
                     </div>
                     </h:form>
                     <h1>Current Booking Categories</h1>
-                    Please keep in mind booking categories may not be deleted if any teams are still using them, or they were used previously in any bookings.
+                    Please keep in mind booking categories may not be deleted if any teams are still using them, or they were used previously in any bookings. Categories marked with a * symbol are mandatory to be available to all employees and may not be edited or deleted.
                     <h:form id="categoriesForm">
                         <p:dataTable id="categoryTable" var="category" scrollable="true" style="width:100%; margin-top:30px;" scrollHeight="500" value="#{bookingCategoryController.allBookingCategories}">
                             <p:column headerText="ID" style="width:50px" filterMatchMode="contains"
@@ -61,6 +61,7 @@
                             <p:column headerText="Name" filterMatchMode="contains"
                                       filterBy="#{category.name}" sortBy="#{category.name}">
                                 <h:outputText value="#{category.name}" rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
+                                <h:outputText value=" *" rendered="#{(!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId) and bookingCategoryController.mandatoryCategory == category.id}"/>
                                 <p:inputText id="categoryEditName"
                                              value="#{bookingCategoryController.editCategoryName}"
                                              rendered="#{bookingCategoryController.isEditing and category.id == bookingCategoryController.editCategoryId}"
@@ -69,7 +70,8 @@
 
                             <p:column headerText="Used by teams" filterMatchMode="contains"
                                       filterBy="#{category.teams}" sortBy="#{category.teams}">
-                                <h:outputText value="#{category.teams}" />
+                                <h:outputText value="#{category.teams}" rendered="#{category.id != bookingCategoryController.mandatoryCategory}" />
+                                <h:outputText value="All" rendered="#{category.id == bookingCategoryController.mandatoryCategory}"/>
                             </p:column>
 
                             <p:column headerText="Number of Bookings" style="width:150px" filterMatchMode="contains"
@@ -81,7 +83,8 @@
                                 <p:commandButton icon="fa fa-fw fa-edit"
                                               title="Edit" action="#{bookingCategoryController.editCategory(category.id)}"
                                                 update=":categoriesForm"
-                                                rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"/>
+                                                rendered="#{!bookingCategoryController.isEditing or category.id != bookingCategoryController.editCategoryId}"
+                                                disabled="#{bookingCategoryController.mandatoryCategory == category.id}"/>
                                 <p:commandButton icon="fa fa-fw fa-check"
                                                  title="Save" action="#{bookingCategoryController.saveEditedCategory}"
                                                  update=":categoriesForm"
@@ -89,7 +92,7 @@
                                     <p:confirm header="Confirmation" message="Are you sure that you want to edit this booking category? This will change historical data. If you are not just clarifying or fixing typos, consider creating a new booking category instead." icon="ui-icon-alert" />
                                 </p:commandButton>
                                 <p:commandButton action="#{bookingCategoryController.doDeleteCategory()}" icon="fa fa-fw fa-trash" title="Delete" update=":categoriesForm:categoryTable"
-                                                 rendered="#{(category.getTeams() == null or category.getTeams().size() == 0) and bookingCategoryController.getUsedInBookings(category) == 0}">
+                                                 disabled="#{(category.getTeams() != null and category.getTeams().size() != 0) or bookingCategoryController.getUsedInBookings(category) != 0}" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{category}" target="#{bookingCategoryController.deleteCategory}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this booking category? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>

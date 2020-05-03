@@ -191,7 +191,7 @@ public class User implements Persistable<String>, Serializable {
         this.updateDate = updateDate;
     }
 
-    public boolean mayEditHistoricData() {
+    public boolean getMayEditHistoricData() {
         return mayEditHistoricData;
     }
 

@@ -11,12 +11,15 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Scope("view")
-public class UserDetailController {
+public class UserDetailController implements Serializable {
+
+    private static final long serialVersionUID = 5325687687692128315L;
 
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;

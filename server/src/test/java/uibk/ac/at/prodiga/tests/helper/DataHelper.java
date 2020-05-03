@@ -7,6 +7,7 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.utils.badge.Badge;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -37,7 +38,7 @@ public class DataHelper {
      * @return The newly created user
      */
     public static User createAdminUser(String username, UserRepository userRepository) {
-        return createUserWithRoles(username, Sets.newSet(UserRole.ADMIN), userRepository);
+        return createUserWithRoles(username, Sets.newSet(UserRole.ADMIN, UserRole.EMPLOYEE), userRepository);
     }
 
     /**
@@ -123,6 +124,24 @@ public class DataHelper {
         dept.setObjectCreatedUser(createUser);
         dept.setObjectCreatedDateTime(new Date());
         return departmentRepository.save(dept);
+    }
+
+    /**
+     * Creates a random badge
+     * @param user The user who receives the batch
+     * @param badgeDBRepository The repository to save the badge.
+     * @return The randomly generated badge.
+     */
+    public static BadgeDB createRandomBadge(User user, BadgeDBRepository badgeDBRepository)
+    {
+        String name = createRandomString(30);
+
+        BadgeDB badgeDB = new BadgeDB();
+        badgeDB.setBadgeName(name);
+        badgeDB.setUser(user);
+        badgeDB.setToDate(new Date());
+        badgeDB.setFromDate(new Date());
+        return badgeDBRepository.save(badgeDB);
     }
 
     /**
@@ -358,6 +377,19 @@ public class DataHelper {
     public static BookingCategory createBookingCategory(String name, User u,
                                                  BookingCategoryRepository bookingCategoryRepository) {
         return createBookingCategory(name, u, null, bookingCategoryRepository);
+    }
+
+    public static DiceSide createDiceSide(Dice d, BookingCategory category, int side,
+                                          User u, DiceSideRepository diceSideRepository) {
+        DiceSide ds = new DiceSide();
+        ds.setBookingCategory(category);
+        ds.setSide(side);
+        ds.setDice(d);
+        ds.setCurrentSeconds(0);
+        ds.setObjectCreatedUser(u);
+        ds.setObjectCreatedDateTime(new Date());
+
+        return diceSideRepository.save(ds);
     }
 
     private static String createRandomString(int size) {
