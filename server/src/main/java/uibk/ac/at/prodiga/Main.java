@@ -11,6 +11,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -35,9 +36,12 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableSwagger2
+@EnableScheduling
 public class Main extends SpringBootServletInitializer {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) { //NOSONAR
+        // Spring  should check the arguments internally
+        // - they are not used most of the time anyways
         SpringApplication.run(Main.class, args);
     }
 

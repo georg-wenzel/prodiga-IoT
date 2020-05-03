@@ -42,7 +42,7 @@ public class RaspberryPiService {
      * @param internalId The internal id
      * @return An Optional with the found raspberry
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Optional<RaspberryPi> findByInternalIdWithAuth(String internalId) {
         return findByInternalId(internalId);
     }
@@ -92,7 +92,7 @@ public class RaspberryPiService {
      * Returns all raspberry pis which are not configured
      * @return A list of raspberry pis
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<RaspberryPi> getAllPendingRaspberryPis() {
         // Make a copy here, so the reference is not thread safe any more
         return new ArrayList<>(pendingRaspberryPis);
@@ -102,21 +102,37 @@ public class RaspberryPiService {
      * Retturns a list of all raspberry pis which are configured
      * @return A list of raspberry pis
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public List<RaspberryPi> getAllConfiguredRaspberryPis() {
         return Lists.newArrayList(raspberryPiRepository.findAll());
     }
 
     /**
+     * Returns the number of configured raspberry Pis
+     * @return The number of configured raspberry pis
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public int getNumConfiguredRaspberryPis() {
+        return Lists.newArrayList(raspberryPiRepository.findAll()).size();
+    }
+
+
+    /**
      * Adds a new raspberry to the pending list
      * @param internalId The raspberry pis internal ID
      */
-    public void addPendingRaspberry(String internalId) {
+    public boolean tryAddPendingRaspberry(String internalId) {
+        if(pendingRaspberryPis.stream().anyMatch(x -> x.getInternalId().equals(internalId))) {
+            return false;
+        }
+
         RaspberryPi raspi = new RaspberryPi();
         raspi.setInternalId(internalId);
         pendingRaspberryPis.add(raspi);
         logInformationService.log("Raspberry Pi with internal ID " + internalId +
                 " added to pending Raspberrys");
+
+        return true;
     }
 
 
@@ -126,7 +142,7 @@ public class RaspberryPiService {
      * @param raspi The raspberry pi to save
      * @return The saved raspberry pi
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public RaspberryPi save(RaspberryPi raspi) throws Exception {
         if(raspi == null) {
             return null;
@@ -162,10 +178,10 @@ public class RaspberryPiService {
 
             raspi.setObjectCreatedDateTime(new Date());
             raspi.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+        } else {
+            raspi.setObjectChangedDateTime(new Date());
+            raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
-
-        raspi.setObjectChangedDateTime(new Date());
-        raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
 
         return raspberryPiRepository.save(raspi);
     }
@@ -174,7 +190,7 @@ public class RaspberryPiService {
      * Deletes the given Raspberry Pi
      * @param raspi The raspi to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void delete(RaspberryPi raspi) throws Exception {
         if(raspi == null) {
             return;

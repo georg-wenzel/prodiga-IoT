@@ -25,19 +25,22 @@
                     <h1>Your past vacations this year</h1>
                     <h:form id="pastVacationForm">
                         <p:dataTable id="pastVacationTable" var="vacation" scrollable="true" style="width:100%" scrollHeight="500" value="#{vacationController.pastVacations}" sortBy="#{vacation.beginDate}">
-                            <p:column headerText="From">
+                            <p:column headerText="From" filterMatchMode="contains"
+                                      filterBy="#{vacation.beginDate}" sortBy="#{vacation.beginDate}">
                                 <h:outputText value="#{vacation.beginDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd" />
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="To">
+                            <p:column headerText="To" filterMatchMode="contains"
+                                      filterBy="#{vacation.endDate}" sortBy="#{vacation.endDate}">
                                 <h:outputText value="#{vacation.endDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd" />
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="Duration">
+                            <p:column headerText="Duration" filterMatchMode="contains"
+                                      filterBy="#{vacationController.getDays(vacation)}" sortBy="#{vacationController.getDays(vacation)}">
                                 <h:outputText value="#{vacationController.getDays(vacation)}" /> days
                             </p:column>
                         </p:dataTable>
@@ -46,19 +49,22 @@
                     <h1>Your Vacations</h1>
                     <h:form id="vacationForm">
                         <p:dataTable id="vacationTable" var="vacation" scrollable="true" style="width:100%" scrollHeight="500" value="#{vacationController.currentVacations}" sortBy="#{vacation.beginDate}">
-                            <p:column headerText="From">
+                            <p:column headerText="From" filterMatchMode="contains"
+                                      filterBy="#{vacation.beginDate}" sortBy="#{vacation.beginDate}">
                                 <h:outputText value="#{vacation.beginDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd" />
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="To">
+                            <p:column headerText="To" filterMatchMode="contains"
+                                      filterBy="#{vacation.endDate}" sortBy="#{vacation.endDate}">
                                 <h:outputText value="#{vacation.endDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd"/>
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="Duration">
+                            <p:column headerText="Duration" filterMatchMode="contains"
+                                      filterBy="#{vacationController.getDays(vacation)}" sortBy="#{vacationController.getDays(vacation)}">
                                 <h:outputText value="#{vacationController.getDays(vacation)}" /> days
                             </p:column>
 

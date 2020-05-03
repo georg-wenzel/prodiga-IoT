@@ -1,0 +1,60 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Booking Category Team Configuration</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/team_categories">Booking Categories Configuration</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Team Booking Category Configuration</h1>
+                    <h3>Your Team: <h:outputText value="#{teamBookingCategoryController.team}"/></h3>
+                    From this page, you as a teamleader can manage which booking categories your employees can assign to their dice. Check any categories that are relevant for your team.<br />
+
+                    <h1>Booking Categories</h1>
+                    The global pool of booking categories is managed by your administrators. Selecting those relevant for your team ensures employees can only use these categories when assigning the sides of their dice. Please keep in mind that you may only disable those categories which <strong>are not currently assigned to any dice of your teammembers.</strong> Further,
+                    categories marked with a * are mandatory and cannot be unassigned from your team.
+                    <h:form id="categoriesForm">
+                        <p:dataTable id="categoryTable" var="category" scrollable="true" style="margin-top:30px;" scrollHeight="500" value="#{teamBookingCategoryController.categories}">
+                            <p:column headerText="Name">
+                                <h:outputText value="#{category.name}"/>
+                                <h:outputText value=" *" rendered="#{bookingCategoryController.mandatoryCategory == category.id}"/>
+                            </p:column>
+
+                            <p:column headerText="Bookings of this category" style="width:150px;text-align:center;">
+                                <h:outputText value="#{teamBookingCategoryController.getUsedInBookingsByTeam(category)}"/>
+                            </p:column>
+
+                            <p:column headerText="Dice with this category" style="width:150px;text-align:center;">
+                                <h:outputText value="#{teamBookingCategoryController.getUsedInDice(category)}"/>
+                            </p:column>
+
+                            <p:column headerText="Available to your team" style="width:150px;text-align:center;">
+                                <p:selectBooleanCheckbox value="#{teamBookingCategoryController.getCurrentlyUsedByTeam(category)}"
+                                    disabled="#{teamBookingCategoryController.getUsedInDice(category) > 0 or teamBookingCategoryController.mandatoryCategory == category.id}">
+                                    <p:ajax listener="#{teamBookingCategoryController.categoryChanged(category)}" />
+                                </p:selectBooleanCheckbox>
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="fa fa-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="fa fa-close" />
+                    </p:confirmDialog>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

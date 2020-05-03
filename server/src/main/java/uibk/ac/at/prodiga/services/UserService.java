@@ -35,29 +35,36 @@ public class UserService {
      *
      * @return collection of all users
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<User> getAllUsers() {
         return Lists.newArrayList(userRepository.findAll());
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<User> getAllUsersOfDepartment(Department department) {
         return Lists.newArrayList(userRepository.findDepartmentMemberOf(department));
     }
 
-
     /**
-     * Loads a single user identified by its username.
+     * Returns the number of users in the system
+     *
+     * @return Number of all users
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public int getNumUsers() {
+        return Lists.newArrayList(userRepository.findAll()).size();
+    }
+     /* Loads a single user identified by its username.
      *
      * @param username the username to search for
      * @return the user with the given username
      */
-    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #username")
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #username") //NOSONAR
     public User loadUser(String username) {
         return userRepository.findFirstByUsername(username);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
         if(user.getUsername() == null || user.getUsername().isEmpty())
@@ -74,11 +81,11 @@ public class UserService {
         if (user.isNew())
         {
             if(userRepository.findFirstByUsername(user.getUsername()) != null) {
-                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.ERROR);
+                throw new ProdigaGeneralExpectedException("User with same username already exists.", MessageType.WARNING);
             }
 
             if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
-                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.ERROR);
+                throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
             }
 
             user.setCreateDate(new Date());
@@ -113,7 +120,7 @@ public class UserService {
      *
      * @param user the user to delete
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteUser(User user) throws Exception {
         checkForUserDeletionOrDeactivation(user);
         userRepository.delete(user);
@@ -122,7 +129,7 @@ public class UserService {
 
     public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
         if(user.getUsername().equals(getAuthenticatedUser().getUsername())){
-            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.ERROR);
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate your own user account", MessageType.WARNING);
         }
     }
 
@@ -136,13 +143,13 @@ public class UserService {
      * @param user The user object to compare
      * @return A boolean signifying whether the user object is unchanged from the database.
      */
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public boolean isUserUnchanged(User user)
     {
         return user.equals(userRepository.findFirstByUsername(user.getUsername()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<User> getUsersByTeam(Team team)
     {
         return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
@@ -153,7 +160,7 @@ public class UserService {
      * @param d The department to look for
      * @return A list with users
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<User> getUsersByDepartment(Department d){
         return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
     }
@@ -164,7 +171,7 @@ public class UserService {
         return userRepository.findDepartmentLeaderOf(department);
     }
 
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
     public User getTeamLeaderOf(Team team)
     {
         return userRepository.findTeamLeaderOf(team);
@@ -177,7 +184,7 @@ public class UserService {
      * @return The user after he was changed in the database
      * @throws ProdigaGeneralExpectedException Is thrown when team to assign and the users department in the DB do not match up.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
     public User assignTeam(User user, Team team) throws ProdigaGeneralExpectedException
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
@@ -205,7 +212,7 @@ public class UserService {
      * @return The user after he was changed in the database
      * @throws ProdigaGeneralExpectedException Is thrown when saveUser assignemnt was unsuccessful.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public User assignDepartment(User user, Department department) throws ProdigaGeneralExpectedException
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
@@ -218,7 +225,7 @@ public class UserService {
      *
      * @return A newly created user entity
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public User createNewUser() {
         return new User();
     }

@@ -38,7 +38,7 @@ public class BookingService
      * Returns a collection of all bookings for a dice.
      * @return A collection of all bookings for the given dice.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
         if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
@@ -58,7 +58,7 @@ public class BookingService
      * Returns a collection of all bookings for a team.
      * @return A collection of all bookings for the given team.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<Booking> getAllBookingsByTeam(Team team)
     {
         if(!userLoginManager.getCurrentUser().getAssignedTeam().equals(team)) throw new RuntimeException("Illegal attempt to load dice data from other team.");
@@ -69,7 +69,7 @@ public class BookingService
      * Returns a collection of all bookings for a department.
      * @return A collection of all bookings for the given department.
      */
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<Booking> getAllBookingsByDepartment(Department department)
     {
         if(!userLoginManager.getCurrentUser().getAssignedDepartment().equals(department)) throw new RuntimeException("Illegal attempt to load dice data from other department.");
@@ -81,10 +81,16 @@ public class BookingService
      * @param cat The booking category
      * @return the number (int) of bookings using this category
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public int getNumberOfBookingsWithCategory(BookingCategory cat)
     {
         return bookingRepository.findAllByBookingCategory(cat).size();
+    }
+
+    @PreAuthorize("hasAuthority('TEAMLEADER')")
+    public int getNumberOfTeamBookingsWithCategory(BookingCategory cat)
+    {
+        return bookingRepository.findAllByBookingCategoryAndTeam(cat, userLoginManager.getCurrentUser().getAssignedTeam()).size();
     }
 
     @PreAuthorize("hasAuthority('EMPLOYEE')")
@@ -118,10 +124,10 @@ public class BookingService
             throw new RuntimeException("User may only modify his own activities.");
         }
         //if activity start date is before the previous week, check historic data flag
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
-        };
+        }
 
         //set appropriate fields
         if(booking.isNew())
@@ -137,7 +143,7 @@ public class BookingService
         {
             Booking db_booking = bookingRepository.findFirstById(booking.getId());
             //If the database activity started in the week before the previous one, user must have appropriate permissions to change it.
-            if(isEarlierThanLastWeek(db_booking.getActivityStartDate()) && !u.mayEditHistoricData())
+            if(isEarlierThanLastWeek(db_booking.getActivityStartDate()) && !u.getMayEditHistoricData())
             {
                 throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
             };
@@ -158,7 +164,7 @@ public class BookingService
      * @param id the ID
      * @return The booking with this Id
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Booking loadBooking(long id)
     {
         Booking b = bookingRepository.findFirstById(id);
@@ -171,7 +177,7 @@ public class BookingService
      * @param booking The booking to delete
      * @throws ProdigaGeneralExpectedException Thrown if the user is trying to delete a booking from longer than 2 weeks ago, but does not have permissions.
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
         User u = userLoginManager.getCurrentUser();
@@ -184,7 +190,7 @@ public class BookingService
             throw new RuntimeException("User cannot delete other user's bookings.");
         }
 
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
         }
@@ -213,5 +219,35 @@ public class BookingService
             if(calendar.get(Calendar.WEEK_OF_YEAR) == WoY) return false;
         }
         return true;
+    }
+
+    /**
+     * Searches for a collections of bookings for a given booking category and period of time
+     *
+     * @param bookingCategory The category for searching bookings
+     * @param begin The beginning date
+     * @param end The ending date
+     * @return collections of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategory(BookingCategory bookingCategory, Date begin, Date end) {
+        return Lists.newArrayList(bookingRepository.findBookingWithCategoryInRange(bookingCategory, begin, end));
+    }
+
+    /**
+     * Searches for a collections of last week's bookings for a given booking category.
+     *
+     * @param bookingCategory The category for searching bookings
+     * @return collection of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategoryForLastWeek(BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        c.add(Calendar.DATE, -i - 7);
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 6);
+        Date end = c.getTime();
+        return getBookingInRangeByCategory(bookingCategory, start, end);
     }
 }

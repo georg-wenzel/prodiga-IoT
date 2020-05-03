@@ -415,4 +415,30 @@ public class TeamServiceTest
             teamService.saveTeam(team);
         }, "Team was updated despite department being changed.");
     }
+
+    /**
+     * Tests getting the number of teams
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "notadmin", authorities = {"EMPLOYEE"})
+    public void get_num_teams() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Department dep2 = DataHelper.createRandomDepartment(admin, departmentRepository);
+        DataHelper.createRandomTeam(dept, admin, teamRepository);
+
+        int numTeams = teamService.getNumTeams();
+
+        for(int i=0;i<5;i++) {
+            DataHelper.createRandomTeam(dept, admin, teamRepository);
+        }
+
+        for(int i=0;i<5;i++) {
+            DataHelper.createRandomTeam(dept, admin, teamRepository);
+        }
+
+        Assertions.assertEquals(numTeams + 10, teamService.getNumTeams(), "Number of teams was not updated properly.");
+    }
 }

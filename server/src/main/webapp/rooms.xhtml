@@ -15,10 +15,11 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-                    <h1>Räume</h1>
+                    <h1>Rooms</h1>
                     <h:form id="roomForm">
                         <p:dataTable id="roomsTable" var="room" scrollable="true" style="width:50%" scrollHeight="500" value="#{roomListController.rooms}">
-                            <p:column headerText="Roomname">
+                            <p:column headerText="Roomname" filterMatchMode="contains"
+                                      filterBy="#{room.name}" sortBy="#{room.name}">
                                 <h:outputText value="#{room.name}"/>
                             </p:column>
 

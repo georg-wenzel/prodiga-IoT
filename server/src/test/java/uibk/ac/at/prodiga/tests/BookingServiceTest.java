@@ -22,7 +22,7 @@ import java.util.Date;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @WebAppConfiguration
-public class BookingTest
+public class BookingServiceTest
 {
     @Autowired
     BookingRepository bookingRepository;
@@ -43,7 +43,7 @@ public class BookingTest
     TeamRepository teamRepository;
 
     @Autowired
-    BookingTypeRepository bookingTypeRepository;
+    BookingCategoryRepository bookingCategoryRepository;
 
     @Autowired
     RaspberryPiRepository raspberryPiRepository;
@@ -63,14 +63,15 @@ public class BookingTest
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Dice d = DataHelper.createDice("testdice", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b = DataHelper.createBooking(bt, u1, d, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b = DataHelper.createBooking(cat, u1, d, bookingRepository);
 
         Booking booking_service = bookingService.loadBooking(b.getId());
 
         Assertions.assertEquals(b.getActivityStartDate(), booking_service.getActivityStartDate(), "Activity start date was not properly stored in DB.");
         Assertions.assertEquals(b.getActivityEndDate(), booking_service.getActivityEndDate(), "Activity end date was not stored properly in DB.");
-        Assertions.assertEquals(d, booking_service.getDice(), "Dice was not properly stored in DB");
+        Assertions.assertEquals(d, booking_service.getDice(), "Dice was not properly stored in DB.");
+        Assertions.assertEquals(cat, booking_service.getBookingCategory(), "Category was not properly stored in DB.");
         Assertions.assertNull(booking_service.getObjectChangedDateTime(), "Booking changed date time should be null, but is not");
         Assertions.assertNull(booking_service.getObjectChangedUser(), "Booking changed user should be null, but is not");
         Assertions.assertEquals(u1, booking_service.getObjectCreatedUser(), "Creation user of booking type does not match booking_test_user1.");
@@ -103,8 +104,8 @@ public class BookingTest
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Dice d = DataHelper.createDice("testdice", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b = DataHelper.createBooking(bt, u2, d, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b = DataHelper.createBooking(cat, u2, d, bookingRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.loadBooking(b.getId());
@@ -125,13 +126,13 @@ public class BookingTest
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        BookingType bt2 = DataHelper.createBookingType(5, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
 
         //Create two bookings for booking_test_user1 and one booking for booking_test_user2
-        Booking b1 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(bt2, u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(bt1, u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat2, u1, d1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat, u2, d2, bookingRepository);
 
         //Load bookings of user 1
         Collection<Booking> bookings = bookingService.getAllBookingsByDice(d1);
@@ -175,12 +176,12 @@ public class BookingTest
         User u3 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept2, null, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         Dice d2 = DataHelper.createDice("testdice2", null, admin, u3, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         //Create two bookings for user in department and one booking for user outside of department
-        Booking b1 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(bt1, u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat, u2, d2, bookingRepository);
 
         //Load bookings of dept
         Collection<Booking> bookings = bookingService.getAllBookingsByDepartment(dept);
@@ -225,12 +226,12 @@ public class BookingTest
         User u3 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team2, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         Dice d2 = DataHelper.createDice("testdice2", null, admin, u3, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         //Create two bookings for user in team and one booking for user outside of team
-        Booking b1 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(bt1, u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(bt1, u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat, u2, d2, bookingRepository);
 
         //Load bookings of team
         Collection<Booking> bookings = bookingService.getAllBookingsByTeam(team1);
@@ -271,11 +272,11 @@ public class BookingTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
         b1.setDice(d1);
-        b1.setType(bt1);
+        b1.setBookingCategory(cat);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
         b1.setActivityEndDate(endingTime);
@@ -288,7 +289,7 @@ public class BookingTest
         Assertions.assertEquals(endingTime, b1.getActivityEndDate(), "Activity end time was not returned properly.");
         Assertions.assertEquals(team, b1.getTeam(), "Team was not returned properly.");
         Assertions.assertEquals(dept, b1.getDept(), "Department was not returned properly.");
-        Assertions.assertEquals(bt1, b1.getType(), "Booking type was not returned properly.");
+        Assertions.assertEquals(cat, b1.getBookingCategory(), "Booking category was not returned properly.");
         Assertions.assertEquals(d1, b1.getDice(), "Dice was not returned properly.");
     }
 
@@ -298,18 +299,18 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void save_booking_time_inverted() throws ProdigaGeneralExpectedException
+    public void save_booking_time_inverted()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
         b1.setDice(d1);
-        b1.setType(bt1);
+        b1.setBookingCategory(cat);
         //set activity end time to 30 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*30);
         b1.setActivityEndDate(endingTime);
@@ -328,18 +329,18 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void save_booking_too_long() throws ProdigaGeneralExpectedException
+    public void save_booking_too_long()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
         b1.setDice(d1);
-        b1.setType(bt1);
+        b1.setBookingCategory(cat);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
         b1.setActivityEndDate(endingTime);
@@ -358,7 +359,7 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void save_booking_other_user() throws ProdigaGeneralExpectedException
+    public void save_booking_other_user()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
@@ -366,11 +367,11 @@ public class BookingTest
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b2 = new Booking();
         b2.setDice(d2);
-        b2.setType(bt1);
+        b2.setBookingCategory(cat);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
         b2.setActivityEndDate(endingTime);
@@ -389,18 +390,18 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void save_booking_2_weeks_ago() throws ProdigaGeneralExpectedException
+    public void save_booking_2_weeks_ago()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
         b1.setDice(d1);
-        b1.setType(bt1);
+        b1.setBookingCategory(cat);
         //set activity end time to 15 days before current time.
         Date endingTime = new Date(new Date().getTime() - 1000*60*60*24*15);
         b1.setActivityEndDate(endingTime);
@@ -419,7 +420,7 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void save_booking_2_weeks_ago_with_permissions() throws ProdigaGeneralExpectedException
+    public void save_booking_2_weeks_ago_with_permissions()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
@@ -428,11 +429,11 @@ public class BookingTest
         u1.setMayEditHistoricData(true);
         u1 = userRepository.save(u1);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
         b1.setDice(d1);
-        b1.setType(bt1);
+        b1.setBookingCategory(cat);
         //set activity end time to 15 days before current time.
         Date endingTime = new Date(new Date().getTime() - 1000*60*60*24*15);
         b1.setActivityEndDate(endingTime);
@@ -451,7 +452,7 @@ public class BookingTest
      */
     @DirtiesContext
     @Test
-    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMINISTRATOR"})
+    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
     public void add_update_booking_unauthorized() throws ProdigaGeneralExpectedException
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
@@ -474,16 +475,16 @@ public class BookingTest
         Team team2 = DataHelper.createRandomTeam(dept2, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         //Change users team and department -> should not change the team and department of the booking
         u1.setAssignedTeam(team2);
         u1.setAssignedDepartment(dept2);
         userRepository.save(u1);
 
-        b1.setType(bt2);
+        b1.setBookingCategory(cat2);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
         b1.setActivityEndDate(endingTime);
@@ -497,7 +498,7 @@ public class BookingTest
         Assertions.assertEquals(endingTime, b1.getActivityEndDate(), "Activity end time was not updated properly.");
         Assertions.assertEquals(team, b1.getTeam(), "Team was updated, but should not have been.");
         Assertions.assertEquals(dept, b1.getDept(), "Department was updated, but should not have been.");
-        Assertions.assertEquals(bt2, b1.getType(), "Booking type was not updated properly.");
+        Assertions.assertEquals(cat2, b1.getBookingCategory(), "Booking category was not updated properly.");
     }
 
     /**
@@ -513,8 +514,8 @@ public class BookingTest
             User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
             Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
             Dice d2 = DataHelper.createDice("testdice2", null, admin, null, diceRepository, raspberryPiRepository, roomRepository);
-            BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-            Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+            BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+            Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
             b1.setDice(d2);
 
@@ -535,8 +536,8 @@ public class BookingTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         //set activity end time to 15 days before current time.
         Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 15);
@@ -562,8 +563,8 @@ public class BookingTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         u1.setMayEditHistoricData(true);
         userRepository.save(u1);
@@ -593,11 +594,11 @@ public class BookingTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
 
-        b1.setType(bt2);
+        b1.setBookingCategory(cat2);
         //Changing the activity time FROM an earlier date TO an allowed date should not allow the user to save the booking, since the original booking was too long ago.
         //set activity end time to 3 days ago.
         Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3);
@@ -624,15 +625,15 @@ public class BookingTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
 
 
         u1.setMayEditHistoricData(true);
         userRepository.save(u1);
 
-        b1.setType(bt2);
+        b1.setBookingCategory(cat2);
         //set activity end time to 3 days ago.
         Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 3);
         b1.setActivityEndDate(endingTime);
@@ -659,12 +660,12 @@ public class BookingTest
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d2 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        BookingType bt2 = DataHelper.createBookingType(6, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, admin, d2, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, admin, d2, bookingRepository);
 
 
-        b1.setType(bt2);
+        b1.setBookingCategory(cat2);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.saveBooking(b1);
@@ -684,8 +685,8 @@ public class BookingTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         Assertions.assertDoesNotThrow(() -> {
             bookingService.deleteBooking(b1);
@@ -697,7 +698,7 @@ public class BookingTest
      */
     @DirtiesContext
     @Test
-    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMINISTRATOR"})
+    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
     public void delete_booking_unauthorized() throws ProdigaGeneralExpectedException
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
@@ -711,7 +712,7 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void delete_booking_other_user() throws ProdigaGeneralExpectedException
+    public void delete_booking_other_user()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
@@ -719,8 +720,8 @@ public class BookingTest
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.deleteBooking(b1);
@@ -734,15 +735,15 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void delete_booking_old() throws ProdigaGeneralExpectedException
+    public void delete_booking_old()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             bookingService.deleteBooking(b1);
@@ -755,15 +756,15 @@ public class BookingTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void delete_booking_old_with_permissions() throws ProdigaGeneralExpectedException
+    public void delete_booking_old_with_permissions()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType bt1 = DataHelper.createBookingType(4, true, admin, bookingTypeRepository);
-        Booking b1 = DataHelper.createBooking(bt1, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
 
         u1.setMayEditHistoricData(true);
         userRepository.save(u1);
@@ -771,5 +772,92 @@ public class BookingTest
         Assertions.assertDoesNotThrow(() -> {
             bookingService.deleteBooking(b1);
         }, "User was not able to delete booking from before last week despite having sufficient authorization.");
+    }
+
+    /**
+     * Tests getting number of bookings by category
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void get_number_bookings_by_category()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
+
+        for(int i=0;i<5;i++)
+            DataHelper.createBooking(cat, admin, d1, bookingRepository);
+
+        for(int i=0;i<10;i++)
+            DataHelper.createBooking(cat2, admin, d1, bookingRepository);
+
+        Assertions.assertEquals(5, bookingService.getNumberOfBookingsWithCategory(cat), "Number of bookings was not properly returned for category 1.");
+        Assertions.assertEquals(10, bookingService.getNumberOfBookingsWithCategory(cat2), "Number of bookings was not properly returned for category 2.");
+    }
+
+    /**
+     * Tests getting number of bookings by category without admin privileges
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "EMPLOYEE"})
+    public void get_number_bookings_by_category_unauthorized()
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            bookingService.getNumberOfBookingsWithCategory(new BookingCategory());
+        }, "User was able to access method to get number of bookings despite lacking authorization.");
+    }
+
+    /**
+     * Tests getting number of bookings by category and team
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"TEAMLEADER"})
+    public void get_number_bookings_by_category_and_team()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        Team team2 = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE, UserRole.TEAMLEADER),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+        User u3 = DataHelper.createUserWithRoles("booking_test_user3", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team2, userRepository);
+        Dice d3 = DataHelper.createDice("testdice3", null, admin, u3, diceRepository, raspberryPiRepository, roomRepository);
+
+
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+
+        for(int i=0;i<5;i++)
+            DataHelper.createBooking(cat, admin, d1, bookingRepository);
+
+        for(int i=0;i<10;i++)
+            DataHelper.createBooking(cat, admin, d2, bookingRepository);
+
+        for(int i=0;i<10;i++)
+            DataHelper.createBooking(cat, admin, d3, bookingRepository);
+
+        Assertions.assertEquals(15, bookingService.getNumberOfTeamBookingsWithCategory(cat), "Number of bookings was not properly returned for category.");
+    }
+
+    /**
+     * Tests getting number of bookings by category and team without TEAMLEADER privileges
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN", "DEPARTMENTLEADER", "EMPLOYEE"})
+    public void get_number_bookings_by_category_and_team_unauthorized()
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            bookingService.getNumberOfTeamBookingsWithCategory(new BookingCategory());
+        }, "User was able to access method to get number of bookings despite lacking authorization.");
     }
 }

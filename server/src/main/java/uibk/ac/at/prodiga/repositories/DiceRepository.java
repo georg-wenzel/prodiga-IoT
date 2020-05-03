@@ -1,13 +1,11 @@
 package uibk.ac.at.prodiga.repositories;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import uibk.ac.at.prodiga.model.Dice;
-import uibk.ac.at.prodiga.model.RaspberryPi;
-import uibk.ac.at.prodiga.model.User;
+        import org.springframework.data.jpa.repository.Query;
+        import org.springframework.data.repository.query.Param;
+        import uibk.ac.at.prodiga.model.*;
 
-import java.util.List;
-import java.util.Optional;
+        import java.util.Collection;
+        import java.util.List;
 
 public interface DiceRepository extends AbstractRepository<Dice, Long>
 {
@@ -34,4 +32,13 @@ public interface DiceRepository extends AbstractRepository<Dice, Long>
      * @return The found dice
      */
     Dice findFirstByInternalId(String internalId);
+
+    /**
+     * Returns all dice where the corresponding user is part of the given team
+     * @param team The team to search for
+     * @return All dice belonging to users of that team
+     */
+    @Query("Select ds.dice FROM DiceSide ds WHERE " +
+            "ds.dice.user.assignedTeam = :team AND ds.bookingCategory = :category")
+    Collection<Dice> findDiceByUserTeamAndCategory(@Param("team") Team team, @Param("category") BookingCategory category);
 }

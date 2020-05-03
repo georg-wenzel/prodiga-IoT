@@ -20,15 +20,18 @@
 
                     <h:form id="raspberryForm">
                         <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" scrollHeight="500" value="#{raspberryPiController.allConfiguredRaspberryPis}">
-                            <p:column headerText="RasPi ID">
+                            <p:column headerText="RasPi ID" filterMatchMode="contains"
+                                      filterBy="#{raspberry_pi.id}" sortBy="#{raspberry_pi.id}">
                                 <h:outputText value="#{raspberry_pi.id}"/>
                             </p:column>
 
-                            <p:column headerText="RasPi Internal ID">
+                            <p:column headerText="RasPi Internal ID" filterMatchMode="contains"
+                                      filterBy="#{raspberry_pi.internalId}" sortBy="#{raspberry_pi.internalId}">
                                 <h:outputText value="#{raspberry_pi.internalId}"/>
                             </p:column>
 
-                            <p:column headerText="RasPi Assigned Room">
+                            <p:column headerText="RasPi Assigned Room" filterMatchMode="contains"
+                                      filterBy="#{raspberry_pi.assignedRoom.name}" sortBy="#{raspberry_pi.assignedRoom.name}">
                                 <h:outputText value="#{raspberry_pi.assignedRoom.name}"/>
                             </p:column>
 

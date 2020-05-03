@@ -6,9 +6,12 @@ import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
+import uibk.ac.at.prodiga.utils.Constants;
+import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -16,8 +19,10 @@ import java.util.*;
  */
 @Component
 @Scope("view")
-public class BookingCategoryController
+public class BookingCategoryController implements Serializable
 {
+    private static final long serialVersionUID = 5325687687692577565L;
+
     private final BookingCategoryService bookingCategoryService;
     private final BookingService bookingService;
     private final ProdigaUserLoginManager userLoginManager;
@@ -121,6 +126,15 @@ public class BookingCategoryController
 
     public BookingCategory getDeleteCategory() {
         return deleteCategory;
+    }
+
+    /**
+     * Returns the ID of the category which may not be changed or removed.
+     * @return The ID of the category which may not be changed or removed.
+     */
+    public long getMandatoryCategory()
+    {
+        return Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID;
     }
 
     public void setDeleteCategory(BookingCategory deleteCategory) {

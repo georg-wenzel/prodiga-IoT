@@ -17,6 +17,7 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     Collection<Booking> findAllByTeam(Team team);
     Collection<Booking> findAllByDept(Department department);
     Collection<Booking> findAllByBookingCategory(BookingCategory category);
+    Collection<Booking> findAllByBookingCategoryAndTeam(BookingCategory category, Team team);
     Booking findFirstByDiceOrderByObjectCreatedDateTimeDesc(Dice d);
 
     /**
@@ -30,4 +31,8 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     @Query("Select b FROM Booking b WHERE " +
             "b.dice.user = :user AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
     Collection<Booking> findUsersBookingInRange(@Param("user") User user, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
+
+    @Query("Select b FROM Booking b WHERE " +
+            "b.bookingCategory = :category AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
+    Collection<Booking> findBookingWithCategoryInRange(@Param("category") BookingCategory category, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 }

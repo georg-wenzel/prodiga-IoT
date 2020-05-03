@@ -2,6 +2,7 @@ package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.FrequencyType;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.UserService;
@@ -10,15 +11,15 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Scope("view")
-public class UserDetailController {
+public class UserDetailController implements Serializable {
+
+    private static final long serialVersionUID = 5325687687692128315L;
 
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
@@ -103,6 +104,10 @@ public class UserDetailController {
         return userRoleList;
     }
 
+    /**
+     * Returns a list of all existing user roles
+     * @return list of all existing user roles
+     */
     public List<String> getAllRolesTotal() {
         List<String> userRoleList = new LinkedList<>();
         userRoleList.add(UserRole.ADMIN.getLabel());
@@ -130,6 +135,46 @@ public class UserDetailController {
      */
     public void setUserByName(String username) throws Exception {
         doReloadUser(username);
+    }
+
+    /**
+     * Returns a list of all existing frequency types
+     * @return all frequency types
+     */
+    public List<FrequencyType> getAllFrequencyTypesTotal() {
+        List<FrequencyType> freqencyTypeList = new LinkedList<>();
+        freqencyTypeList.add(FrequencyType.DAILY);
+        freqencyTypeList.add(FrequencyType.WEEKLY);
+        freqencyTypeList.add(FrequencyType.MONTHLY);
+        return freqencyTypeList;
+    }
+
+    /**
+     *  Sets the Admin Role for when a new Admin is created.
+     *
+     * @param isAdmin
+     */
+    public void setIsAdmin(boolean isAdmin) {
+        if(user.isNew()){
+            if(isAdmin) {
+                Set<UserRole> userRoles = new HashSet<>();
+                userRoles.add(UserRole.ADMIN);
+                this.user.setRoles(userRoles);
+            }
+        }
+    }
+
+    /**
+     *  Is needed for isAdmin Checkbox.
+     *  Set to false if user is new.
+     *
+     * @return true if user is admin
+     */
+    public boolean getIsAdmin() {
+        if(user.isNew()){
+            return false;
+        }
+        return this.user.getRoles().contains(UserRole.ADMIN);
     }
 
 }

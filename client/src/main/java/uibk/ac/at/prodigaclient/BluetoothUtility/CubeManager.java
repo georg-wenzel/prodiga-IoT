@@ -1,8 +1,6 @@
 package uibk.ac.at.prodigaclient.BluetoothUtility;
 
 import tinyb.*;
-import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
-import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +14,18 @@ public class CubeManager {
     private Map<String, Cube> listOfCubes;
     private boolean discoveryStarted;
 
-    public CubeManager() {
+    private CubeManager() {
         manager = BluetoothManager.getBluetoothManager();
         listOfCubes = new HashMap<>();
         discoveryStarted = manager.startDiscovery();
+    }
+
+    private static class SingletonHolder {
+        private final static CubeManager INSTANCE = new CubeManager();
+    }
+
+    public static CubeManager getInstance() {
+        return SingletonHolder.INSTANCE;
     }
 
     public void closeManager() {
@@ -35,18 +41,55 @@ public class CubeManager {
 
         if (list != null) {
             // get a list of all current Cubes in the area
-            // TODO: test if all devices are shown instantly or we have to add a delay
             // first filter than map to Cube because of memory saves
+            // second filter only for edge case. I will not use it unless someone specifically asked for it.
             listOfCubes = list.stream().filter(x -> x.getName().toLowerCase().contains("timeflip"))
-                    .map(Cube::new).collect(Collectors.toMap(Cube::getAddress, Function.identity()));
+                    .map(Cube::new)/*.filter(Cube::isCube)*/.collect(Collectors.toMap(Cube::getAddress, Function.identity()));
         }
     }
 
     public List<HistoryEntry> getHistory(String cubeID) {
-        return listOfCubes.get(cubeID).getHistory();
+        Cube cube = listOfCubes.get(cubeID);
+        List<HistoryEntry> historyEntryList;
+
+        cube.failsafeConnect();
+
+        historyEntryList = cube.getHistory();
+
+        cube.failsafeDisconnect();
+
+        return historyEntryList;
     }
 
     public int getBattery(String cubeID) {
-        return listOfCubes.get(cubeID).getBattery();
+        Cube cube = listOfCubes.get(cubeID);
+        int batteryPercent;
+
+        cube.failsafeConnect();
+
+        batteryPercent = cube.getBattery();
+
+        cube.failsafeDisconnect();
+
+        return batteryPercent;
+    }
+
+    public int getCurrentSide(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+        int currentSide;
+
+        currentSide = cube.getCurrentSide();
+
+        return currentSide;
+    }
+
+    public void connectToCube(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+        cube.failsafeConnect();
+    }
+
+    public void disconnectFromCube(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+        cube.failsafeDisconnect();
     }
 }

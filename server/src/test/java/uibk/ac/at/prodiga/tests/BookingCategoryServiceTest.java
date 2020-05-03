@@ -15,6 +15,7 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 @ExtendWith(SpringExtension.class)
@@ -36,9 +37,6 @@ public class BookingCategoryServiceTest {
 
     @Autowired
     BookingRepository bookingRepository;
-
-    @Autowired
-    BookingTypeRepository bookingTypeRepository;
 
     @Autowired
     DiceRepository diceRepository;
@@ -75,7 +73,7 @@ public class BookingCategoryServiceTest {
 
     @Test
     @DirtiesContext
-    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    @WithMockUser(username = "notadmin", authorities = {"EMPLOYEE"})
     public void bookingCategoryService_findById_returnsCorrectCategory()
     {
         BookingCategory cat = DataHelper.createBookingCategory("somename", admin, bookingCategoryRepository);
@@ -103,9 +101,10 @@ public class BookingCategoryServiceTest {
             }
         }
 
-        Assertions.assertNotNull(bookingCategoryService.findAllCategoriesByTeam(null), "Service returns null when accessing with null");
+        int includeMandatoryCategory = (bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).isPresent() ? 1 : 0);
 
-        Assertions.assertEquals(3, bookingCategoryService.findAllCategoriesByTeam(t).size(), "Could not find correct amount of booking categories.");
+        Assertions.assertNotNull(bookingCategoryService.findAllCategoriesByTeam(null), "Service returns null when accessing with null");
+        Assertions.assertEquals(3 + includeMandatoryCategory, bookingCategoryService.findAllCategoriesByTeam(t).size(), "Could not find correct amount of booking categories.");
     }
 
     @Test
@@ -130,7 +129,7 @@ public class BookingCategoryServiceTest {
     }
     @Test
     @DirtiesContext
-    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    @WithMockUser(username = "test_teamleader", authorities = {"EMPLOYEE", "TEAMLEADER"})
     public void bookingCategoryService_findAllByTeamTeamleader_returnCorrectAmount()
     {
         int amount = 5;
@@ -146,7 +145,9 @@ public class BookingCategoryServiceTest {
             }
         }
 
-        Assertions.assertEquals(3, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
+        int includeMandatoryCategory = (bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).isPresent() ? 1 : 0);
+
+        Assertions.assertEquals(3 + includeMandatoryCategory, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
     }
 
     @Test
@@ -168,8 +169,86 @@ public class BookingCategoryServiceTest {
         Assertions.assertEquals(2, bookingCategoryService.findAllCategoriesNotUsedByTeam().size(), "Could not find correct amount of booking categories.");
     }
 
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    public void bookingCategoryService_allowDisallowCategories_updatesProperly() throws ProdigaGeneralExpectedException
+    {
+        int amount = 5;
+        Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
+        DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
+        BookingCategory[] categories = new BookingCategory[amount];
+
+        //create booking categories
+        for(int i = 0; i < amount; i++) {
+            if (i % 2 == 0) categories[i] = DataHelper.createBookingCategory("test" + i, admin, Sets.newSet(t), bookingCategoryRepository);
+            else categories[i] = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
+        }
+
+        //switch which ones are allowed and disallowed
+        for(int i = 0; i < amount; i++)
+        {
+            if(i % 2 == 1)
+            {
+                bookingCategoryService.allowForTeam(categories[i]);
+            }
+            else if(!categories[i].getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))
+            {
+                bookingCategoryService.disallowForTeam(categories[i]);
+            }
+        }
+
+        //check if properly stored
+        for(int i = 0; i < amount; i++)
+        {
+            bookingCategoryRepository.findById(categories[i].getId());
+            if(i % 2 == 0 && !categories[i].getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))
+                Assertions.assertFalse(bookingCategoryRepository.findById(categories[i].getId()).orElse(null).getTeams().contains(t), "disallowForTeam was not properly executed.");
+            else
+                Assertions.assertTrue(bookingCategoryRepository.findById(categories[i].getId()).orElse(null).getTeams().contains(t), "allowForTeam was not properly executed.");
+        }
+    }
 
     @Test
+    @DirtiesContext
+    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    public void bookingCategoryService_allowDisallowCategories_warnsForName()
+    {
+        Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
+        DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
+        BookingCategory cat1 = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        cat1.setName("test123");
+        BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, Sets.newSet(t), bookingCategoryRepository);
+        cat2.setName("test124");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                bookingCategoryService.allowForTeam(cat1), "allowForTeam does not warn for changed name.");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                bookingCategoryService.disallowForTeam(cat2), "disallowForTeam does not warn for changed name.");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "test_teamleader", authorities = {"TEAMLEADER"})
+    public void bookingCategoryService_allowDisallowCategories_throwsWhenNull()
+    {
+        Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
+        DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
+        BookingCategory doesNotExist = new BookingCategory();
+        doesNotExist.setId(239520202005230L);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                bookingCategoryService.allowForTeam(doesNotExist), "allowForTeam does not throw when DB entry is not found.");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                bookingCategoryService.disallowForTeam(doesNotExist), "disallowForTeam does not throw when DB entry is not found.");
+    }
+
+        @Test
     @DirtiesContext
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void bookingCategoryService_saveWithoutName_throws() {
@@ -214,24 +293,14 @@ public class BookingCategoryServiceTest {
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void bookingCategoryService_deleteWithBooking_throws() {
         Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
-        BookingType t = DataHelper.createBookingType(1, true, admin, bookingTypeRepository);
-        Booking b = DataHelper.createBooking(t, admin, d, bookingRepository);
-        BookingCategory cat = DataHelper.createBookingCategory("test", admin, bookingCategoryRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+        Booking b = DataHelper.createBooking(cat, admin, d, bookingRepository);
 
         b.setBookingCategory(cat);
 
         bookingRepository.save(b);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> bookingCategoryService.delete(cat));
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void bookingCategoryService_findAllUnauthorized_throws() {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> bookingCategoryService.findAllCategories(),
-                "EMPLYOEE can access Categories");
     }
 
     @Test
@@ -271,8 +340,16 @@ public class BookingCategoryServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void bookingCategoryService_findById_throws() {
+    public void bookingCategoryService_allowForTeam_throws() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
-                () -> bookingCategoryService.findById(0), "EMPLYOEE can find categories by id.");
+                () -> bookingCategoryService.allowForTeam(null), "EMPLYOEE can allow categories for team");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
+    public void bookingCategoryService_disallowForTeam_throws() {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                () -> bookingCategoryService.disallowForTeam(null), "EMPLYOEE can disallow categories for team");
     }
 }

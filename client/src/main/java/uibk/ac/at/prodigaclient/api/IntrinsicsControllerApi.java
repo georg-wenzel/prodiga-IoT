@@ -1,5 +1,6 @@
 package uibk.ac.at.prodigaclient.api;
 
+import uibk.ac.at.prodigaclient.dtos.FeedDTO;
 import uibk.ac.at.prodigaclient.dtos.GenericStringDTO;
 import uibk.ac.at.prodigaclient.dtos.InstrincsDTO;
 import uibk.ac.at.prodigaclient.CollectionFormats.*;
@@ -39,4 +40,17 @@ public interface IntrinsicsControllerApi {
                     @retrofit2.http.Body InstrincsDTO body
   );
 
+  /**
+   * Gets the feed for the given devices
+   *
+   * @param internalIds Internal Ids used by this client
+   * @return Call&lt;List<FeedDTO>&gt;
+   */
+  @Headers({
+          "Content-Type:application/json"
+  })
+  @GET("api/feed")
+  Call<List<FeedDTO>> getFeedForDevicesUsingGET(
+          @retrofit2.http.Body List<String> internalIds
+  );
 }

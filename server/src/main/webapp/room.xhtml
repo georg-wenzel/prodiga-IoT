@@ -25,14 +25,14 @@
                 <div class="ui-g">
                     <div class="ui-g-5">
                         <div class="ui-g-4 input-form">
-                            <p:outputLabel for="roomname" value="Raumname: "/>
+                            <p:outputLabel for="roomname" value="Room name: "/>
                         </div>
                         <div class="ui-g-8 input-form">
                             <p:inputText id="roomname"
                                          value="#{roomDetailController.room.name}"
                                          disabled="false"
                                          required="true"
-                                         label="Raumname" style="width:100%"/>
+                                         label="Room name" style="width:100%"/>
                         </div>
                     </div>
                 </div>
@@ -40,17 +40,23 @@
                 <br></br>
 
                 <br/>
+
+
                 <div class="ui-g">
-                    <p:commandButton value="Save"
-                                     action="#{roomDetailController.doSaveRoom()}"
-                                     ajax="true"
-                                     icon="fa fa-fw fa-save"
-                                     validateClient="true"
-                                     update="growl msgs">
-                    </p:commandButton>
-                    <p:linkButton outcome="/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
-                    </p:linkButton>
+                    <div class="ui-g-6">
+                        <p:linkButton outcome="/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                    </div>
+                    <div class="ui-g-6" align="right">
+                        <p:commandButton value="Save"
+                                         action="#{roomDetailController.doSaveRoom()}"
+                                         ajax="true"
+                                         icon="fa fa-fw fa-save"
+                                         validateClient="true"
+                                         update="growl msgs">
+                        </p:commandButton>
+                    </div>
                 </div>
+
             </h:form></div>
 
     </ui:define>

@@ -18,13 +18,11 @@ import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -50,13 +48,22 @@ public class DiceServiceTest {
     DiceSideRepository diceSideRepository;
 
     @Autowired
+    TeamRepository teamRepository;
+
+    @Autowired
+    DepartmentRepository departmentRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     DiceRestController diceRestController;
 
     User admin = null;
     User notAdmin = null;
 
     @BeforeEach
-    public void initEach(@Autowired UserRepository userRepository) {
+    public void initEach() {
         admin = DataHelper.createAdminUser("admin", userRepository);
         notAdmin = DataHelper.createUserWithRoles("notAdmin", Sets.newSet(UserRole.EMPLOYEE), userRepository);
     }
@@ -193,6 +200,7 @@ public class DiceServiceTest {
     public void diceService_saveInactiveDice_diceInDB() throws ProdigaGeneralExpectedException {
         Dice d = new Dice();
         d.setActive(false);
+        d.setObjectCreatedUser(admin);
 
         diceService.save(d);
 
@@ -340,6 +348,12 @@ public class DiceServiceTest {
     public void diceService_configurationWorkflow_diceConfigured() throws ProdigaGeneralExpectedException {
         Dice d = DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
+        BookingCategory[] cats = new BookingCategory[12];
+        for(int i=0;i<12;i++)
+        {
+            cats[i] = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
+        }
+
         NewDiceSideRequestDTO request = new NewDiceSideRequestDTO();
         request.setInternalId("123");
         request.setSide(1);
@@ -348,8 +362,13 @@ public class DiceServiceTest {
 
         diceService.registerNewSideCallback(UUID.randomUUID(), x -> {
             DiceConfigurationWrapper wrapper = x.getValue1();
-            wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
-                    DataHelper.createBookingCategory("test" + wrapper.getCurrentSide(), admin, bookingCategoryRepository));
+            Optional<BookingCategory> mandatoryCat = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
+            if(wrapper.getCurrentSide() == 12 && mandatoryCat.isPresent())
+            {
+                wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
+                        mandatoryCat.get());
+            }
+            wrapper.getCompletedSides().put(wrapper.getCurrentSide(), cats[wrapper.getCurrentSide() - 1]);
         });
 
 

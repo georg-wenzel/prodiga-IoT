@@ -19,15 +19,29 @@ public interface AuthControllerApi {
   /**
    * createToken
    * 
-   * @param body request (required)
-   * @return Call&lt;JwtResponseDTO&gt;
+   * @param internalId The raspis internal Id
+   * @return Call&lt;Void&gt;
    */
   @Headers({
     "Content-Type:application/json"
   })
-  @POST("api/auth")
-  Call<JwtResponseDTO> createTokenUsingPOST(
-                    @retrofit2.http.Body JwtRequestDTO body    
+  @POST("api/register")
+  Call<Void> registerUsingPOST(
+                    @retrofit2.http.Query(value = "internalId") String internalId
   );
 
+
+  /**
+   * Registers the raspberry pi
+   *
+   * @param body request (required)
+   * @return Call&lt;JwtResponseDTO&gt;
+   */
+  @Headers({
+          "Content-Type:application/json"
+  })
+  @POST("api/auth")
+  Call<JwtResponseDTO> createTokenUsingPOST(
+          @retrofit2.http.Body JwtRequestDTO body
+  );
 }

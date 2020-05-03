@@ -11,24 +11,20 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
+
 @Component
 @Scope("view")
-public class RoomDetailController {
+public class RoomDetailController implements Serializable {
+
+    private static final long serialVersionUID = 5325687699692577315L;
+
     private final RoomService roomService;
 
     private Room room;
 
     public RoomDetailController(RoomService roomService){
         this.roomService = roomService;
-    }
-
-    /**
-     * Saves currently selected room
-     * @throws Exception if save fails
-     */
-    public void saveRoom() throws Exception {
-        room = roomService.saveRoom(room);
-        SnackbarHelper.getInstance().showSnackBar("Room " + room.getId() + " saved!", MessageType.INFO);
     }
 
     /**
@@ -81,9 +77,6 @@ public class RoomDetailController {
         return roomService.getFirstById(id);
     }
 
-    public void deleteRoom(Room room) throws DeletionNotAllowedException {
-        roomService.deleteRoom(room);
-    }
 
     public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
         roomService.addRoomToRaspberryPi(room,raspberryPi);
@@ -93,20 +86,17 @@ public class RoomDetailController {
         roomService.removeRoomFromRaspberryPi(room,raspberryPi);
     }
 
-    public Room createRoom(){
-        return roomService.createRoom();
-    }
-
     public long getRoomCount(){
         return roomService.getRoomCount();
     }
 
     public Room getRoom() {
-        return this.room;
+        return room;
     }
 
-    public void setRoom(Room room) {
+    public void setRoom(Room room) throws Exception {
         this.room = room;
+        doReloadRoom(room.getName());
     }
 
     public String getRoomByName() {
@@ -116,7 +106,55 @@ public class RoomDetailController {
         return room.getName();
     }
 
-    public void setRoomByName(String name) throws Exception {
-        doReloadRoom(name);
+    /**
+     * Gets room by id.
+     * @return the room by id
+     */
+    public Long getRoomById(){
+        if(this.room == null){
+            return (long) -1;
+        }
+        return this.room.getId();
     }
+
+    /**
+     * Sets current room by roomId
+     * @param roomId teamId to be set
+     */
+    public void setRoomById(Long roomId){
+        loadRoomById(roomId);
+    }
+
+
+    /**
+     * Sets currently active room by the id
+     * @param roomId when roomId could not be found
+     */
+    public void loadRoomById(Long roomId){
+        if(roomId == null){
+            this.room = roomService.createNewRoom();
+        } else {
+            this.room = roomService.loadRoom(roomId);
+        }
+    }
+
+
+    /**
+     * Sets current room by roomId
+     * @param roomname teamId to be set
+     */
+    public void setRoomByName(String roomname){
+        loadRoomByName(roomname);
+    }
+
+    public void loadRoomByName(String roomname){
+        if(roomname == null){
+            this.room = roomService.createRoom();
+        } else {
+            this.room = roomService.loadRoom(roomname);
+        }
+    }
+
+
+
 }
