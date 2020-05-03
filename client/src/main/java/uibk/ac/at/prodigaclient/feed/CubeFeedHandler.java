@@ -2,6 +2,7 @@ package uibk.ac.at.prodigaclient.feed;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uibk.ac.at.prodigaclient.dtos.FeedAction;
 import uibk.ac.at.prodigaclient.dtos.FeedDTO;
 import uibk.ac.at.prodigaclient.threads.DiceSideThreadPool;
 
@@ -29,5 +30,16 @@ public class CubeFeedHandler implements FeedHandler {
             default:
                 logger.warn("Feed action " + feed.getFeedAction() + " not implemented for Cube");
         }
+    }
+
+    /**
+     * Returns whether the given needs to report back to the server
+     * @param feedDTO The given feed item
+     * @return Whether to respond to the server
+     */
+    @Override
+    public boolean needsToReportToServer(FeedDTO feedDTO) {
+        return feedDTO.getFeedAction() == FeedAction.LEAVE_CONFIG_MODE
+                || feedDTO.getFeedAction() == FeedAction.ENTER_CONFIG_MODE;
     }
 }
