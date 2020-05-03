@@ -12,6 +12,11 @@ public class FrontendLaura extends AbstractCategoryBadge {
     }
 
     @Override
+    public String getExplanation() {
+        return "Most hours design";
+    }
+
+    @Override
     public Optional<BookingCategory> getCategory(Collection<BookingCategory> bookingCategories) {
         return bookingCategories.stream().filter(x -> x.getName().equals("Design")).findFirst();
     }

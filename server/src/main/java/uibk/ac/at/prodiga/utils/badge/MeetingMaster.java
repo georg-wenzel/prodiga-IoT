@@ -12,6 +12,11 @@ public class MeetingMaster extends AbstractCategoryBadge {
     }
 
     @Override
+    public String getExplanation() {
+        return "Most hours meeting";
+    }
+
+    @Override
     public Optional<BookingCategory> getCategory(Collection<BookingCategory> bookingCategories) {
         return bookingCategories.stream().filter(x -> x.getName().equals("Meeting")).findFirst();
     }

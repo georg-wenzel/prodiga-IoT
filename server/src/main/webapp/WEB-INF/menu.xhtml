@@ -18,6 +18,10 @@
                                 <f:param name="username" value="" />
                             </p:menuitem>
                         </p:submenu>
+                        <p:submenu id="om_bookings" label="Bookings" icon="fa fa-fw fa-calendar" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}">
+                            <p:menuitem id="om_booking_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/bookings" />
+                            <p:menuitem id="om_booking_add" value="Add booking" icon="fa fa-fw fa-plus" outcome="/booking" />
+                        </p:submenu>
                         <p:submenu id="om_vacation" label="Vacation" icon="fa fa-fw fa-plane" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}">
                             <p:menuitem id="om_vacation_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/vacations" />
                             <p:menuitem id="om_vacation_add" value="Add vacation" icon="fa fa-fw fa-plus" outcome="/vacation" />
@@ -30,7 +34,7 @@
                         </p:submenu>
                         <p:submenu id="om_customization" label="Notifications" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
                         <p:submenu id="om_overview" label="Time overview" icon="fa fa-fw fa-dashboard" outcome="overview"/>
-                        <p:submenu id="om_themes" label="Badges" icon="fa fa-fw fa-trophy" outcome="calendar"/>
+                        <p:menuitem id="om_themes" value="Badges" icon="fa fa-fw fa-trophy" outcome="/badges"/>
                         <p:submenu id="om_raspis" label="Raspberry Pis" icon="fa fa-fw fa-pie-chart" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                             <p:menuitem id="om_raspis_conf" value="Configured" icon="fa fa-fw fa-toggle-on" outcome="/raspberry_pis_configured" />
                             <p:menuitem id="om_raspis_pend" value="Pending" icon="fa fa-fw fa-toggle-off" outcome="/raspberry_pis_pending"/>
@@ -46,7 +50,7 @@
                             <p:menuitem id="om_dices_add" value="Add Dice" icon="fa fa-fw fa-plus" outcome="/add_dice" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <f:param name="dice" value="" />
                             </p:menuitem>
-                            <p:menuitem id="dice_config" value="Your Dice" icon="fa fa-fw fa-list-ol" outcome="/dice_configuration" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}" />
+                            <p:menuitem id="dice_config" value="Your Dice" icon="fa fa-fw fa-connectdevelop" outcome="/dice_configuration" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}" />
                         </p:submenu>
                         <p:submenu id="om_team"
                                    label="Teams"

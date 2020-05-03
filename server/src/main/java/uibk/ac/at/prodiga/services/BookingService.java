@@ -11,6 +11,8 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -24,14 +26,16 @@ import java.util.GregorianCalendar;
 public class BookingService
 {
     private final BookingRepository bookingRepository;
+    private final VacationService vacationService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository)
+    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService)
     {
         this.bookingRepository = bookingRepository;
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
+        this.vacationService = vacationService;
     }
 
     /**
@@ -123,6 +127,13 @@ public class BookingService
         {
             throw new RuntimeException("User may only modify his own activities.");
         }
+
+        Vacation vacationCoveringBooking = vacationService.vacationCoversBooking(booking);
+        if(vacationCoveringBooking != null)
+        {
+            Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+            throw new ProdigaGeneralExpectedException("Cannot store this booking because it is covered by a vacation from " + formatter.format(vacationCoveringBooking.getBeginDate()) + " to " + formatter.format(vacationCoveringBooking.getEndDate()), MessageType.ERROR);
+        }
         //if activity start date is before the previous week, check historic data flag
         if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
@@ -203,7 +214,7 @@ public class BookingService
      * @param date The date to check
      * @return True if date is in current or last week, false otherwise.
      */
-    private boolean isEarlierThanLastWeek(Date date)
+    public boolean isEarlierThanLastWeek(Date date)
     {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);

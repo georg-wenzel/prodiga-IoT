@@ -16,7 +16,7 @@ import java.util.Objects;
 public class Booking implements Persistable<Long>, Serializable
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Dice.class)

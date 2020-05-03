@@ -12,6 +12,11 @@ public class TheMostHelpfulOne extends AbstractCategoryBadge{
     }
 
     @Override
+    public String getExplanation() {
+        return "Most hours customer support";
+    }
+
+    @Override
     public Optional<BookingCategory> getCategory(Collection<BookingCategory> bookingCategories) {
         return bookingCategories.stream().filter(x -> x.getName().equals("Customer Support")).findFirst();
     }

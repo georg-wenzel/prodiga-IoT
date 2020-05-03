@@ -429,6 +429,62 @@ public class VacationServiceTest
     }
 
     /**
+     * Tests if vacations that block booking dates are properly returned.
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void check_booking_covers_vacation_day()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+
+        Vacation v1 = DataHelper.createVacation(-4, -1, u1, vacationRepository);
+        Vacation v2 = DataHelper.createVacation( -7, -7, u1, vacationRepository);
+
+        Booking b1 = new Booking();
+        long currentEpoch = new Date().toInstant().toEpochMilli();
+
+        //5 days ago, not covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 5)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 30)));
+        Assertions.assertNull(vacationService.vacationCoversBooking(b1));
+
+        //4 days ago, covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 4)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 30)));
+        Assertions.assertEquals(v1, vacationService.vacationCoversBooking(b1));
+
+        //1 day ago, covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 + 1000 * 60 * 30)));
+        Assertions.assertEquals(v1, vacationService.vacationCoversBooking(b1));
+
+        //now, not covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch + 1000 * 60 * 30)));
+        Assertions.assertNull(vacationService.vacationCoversBooking(b1));
+
+        //starts 8 days ago, ends 7 days ago, covered by v2 by end date
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch  - 1000 * 60 * 60 * 24 * 8)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch  - 1000 * 60 * 60 * 24 * 7)));
+        Assertions.assertEquals(v2, vacationService.vacationCoversBooking(b1));
+    }
+
+    /**
+     * Tests if check booking method can be called without EMPLOYEE authorization.
+     */
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
+    public void check_booking_covers_vacation_day_unauthorized()
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            vacationService.vacationCoversBooking(new Booking());
+        }, "Vacations for user checked despite lacking authorization of EMPLOYEE");
+    }
+
+
+    /**
      * Tests creating a vacation for another user
      */
     @Test
