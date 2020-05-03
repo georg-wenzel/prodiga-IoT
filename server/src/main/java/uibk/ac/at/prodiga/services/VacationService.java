@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.Vacation;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
@@ -162,6 +163,23 @@ public class VacationService
     {
         User u = userLoginManager.getCurrentUser();
         return 25 - vacationRepository.findUsersYearlyVacations(u,year).stream().mapToInt(v -> getVacationDaysInYear(v, year)).sum();
+    }
+
+    /**
+     * Checks if any vacation by logged in user covers the day of start or end of the given booking
+     * @param booking The booking to check
+     * @return A vacation that blocks this booking if exists, otherwise null
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public Vacation vacationCoversBooking(Booking booking)
+    {
+        LocalDate beginDate = toLocalDate(booking.getActivityStartDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
+        LocalDate endDate = toLocalDate(booking.getActivityEndDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
+
+        Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), userLoginManager.getCurrentUser());
+        if (v != null) return v;
+
+        return vacationRepository.findVacationCoveringDate(toDate(endDate), userLoginManager.getCurrentUser());
     }
 
     /**

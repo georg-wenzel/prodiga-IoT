@@ -54,4 +54,16 @@ public interface VacationRepository extends AbstractRepository<Vacation, Long>
             ")")
     Collection<Vacation> findUsersVacationInRange(@Param ("user") User user, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
+
+    /**
+     * Gets a vacation (if one exists) which covers the day specified by date.
+     * @param date date must be the START OF A DAY
+     * @param user The users vacations to check
+     * @return Returns a vacation where the date is either the begin date or end date, or inbetween the two. Returns null otherwise.
+     */
+    @Query("Select v FROM Vacation v WHERE " +
+            "v.user = :user AND " +
+            "v.beginDate <= :date AND " +
+            "v.endDate >= :date")
+    Vacation findVacationCoveringDate(@Param("date") Date date, @Param("user") User user);
 }
