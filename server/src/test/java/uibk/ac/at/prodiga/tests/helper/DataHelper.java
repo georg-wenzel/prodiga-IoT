@@ -38,7 +38,7 @@ public class DataHelper {
      * @return The newly created user
      */
     public static User createAdminUser(String username, UserRepository userRepository) {
-        return createUserWithRoles(username, Sets.newSet(UserRole.ADMIN), userRepository);
+        return createUserWithRoles(username, Sets.newSet(UserRole.ADMIN, UserRole.EMPLOYEE), userRepository);
     }
 
     /**
@@ -377,6 +377,19 @@ public class DataHelper {
     public static BookingCategory createBookingCategory(String name, User u,
                                                  BookingCategoryRepository bookingCategoryRepository) {
         return createBookingCategory(name, u, null, bookingCategoryRepository);
+    }
+
+    public static DiceSide createDiceSide(Dice d, BookingCategory category, int side,
+                                          User u, DiceSideRepository diceSideRepository) {
+        DiceSide ds = new DiceSide();
+        ds.setBookingCategory(category);
+        ds.setSide(side);
+        ds.setDice(d);
+        ds.setCurrentSeconds(0);
+        ds.setObjectCreatedUser(u);
+        ds.setObjectCreatedDateTime(new Date());
+
+        return diceSideRepository.save(ds);
     }
 
     private static String createRandomString(int size) {

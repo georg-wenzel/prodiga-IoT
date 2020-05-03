@@ -299,11 +299,7 @@ public class DiceService {
         }
 
         wrapper.getCompletedSides().forEach((key, value) -> {
-            DiceSide ds = new DiceSide();
-            ds.setBookingCategory(value);
-            ds.setDice(wrapper.getDice());
-            ds.setSide(key);
-            diceSideService.save(ds);
+            diceSideService.onNewConfiguredDiceSide(key, value, wrapper.getDice());
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
