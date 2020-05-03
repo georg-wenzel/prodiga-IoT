@@ -88,5 +88,23 @@ INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (4,NOW() - INTERVAL 4 HOUR, NOW() - INTERVAL 5 HOUR, NOW(), 'user2', 3,1,2,1);
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (5,NOW() - INTERVAL 13 DAY, NOW() - INTERVAL 13 DAY - INTERVAL 3 HOUR, NOW(), 'user2', 3,1,2,1);
 
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(1, 'bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username) values(2, 'bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(1, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(2, 'Code Raptor Georg', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(3, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(4, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1', 'Most hours frontend');
+
+
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(5, 'Bugsimilian', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'user2', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(7, 'Code Raptor Georg', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'user3', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(8, 'Frontend Laura', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours frontend');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(6, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours managing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(9, 'Educated Gabbo', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours training and testing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(10, 'The Sloth', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours pause/vacation');
+
+
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'user2', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'user3', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours frontend');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours managing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(15, 'Educated Gabbo', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours training and testing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(16, 'The Sloth', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours pause/vacation');

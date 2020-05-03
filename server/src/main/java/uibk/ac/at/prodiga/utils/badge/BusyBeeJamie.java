@@ -5,10 +5,15 @@ import uibk.ac.at.prodiga.model.BookingCategory;
 import java.util.Collection;
 import java.util.Optional;
 
-public class TheUltimateManager extends AbstractCategoryBadge {
+public class BusyBeeJamie extends AbstractCategoryBadge {
     @Override
     public String getName() {
-        return "The ultimate Manager";
+        return "Busy Bee Jamie";
+    }
+
+    @Override
+    public String getExplanation() {
+        return "Most hours project management";
     }
 
     @Override

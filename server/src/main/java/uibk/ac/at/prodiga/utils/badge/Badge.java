@@ -13,4 +13,5 @@ import java.util.Collection;
 public interface Badge {
     User calculateUser(Collection<BookingCategory> bookingCategories, BookingService bookingService);
     String getName();
+    String getExplanation();
 }

@@ -5,10 +5,15 @@ import uibk.ac.at.prodiga.model.BookingCategory;
 import java.util.Collection;
 import java.util.Optional;
 
-public class TheDiligentStudent extends AbstractCategoryBadge{
+public class EducatedGabbo extends AbstractCategoryBadge{
     @Override
     public String getName() {
-        return "The diligent Student";
+        return "Educated Gabbo";
+    }
+
+    @Override
+    public String getExplanation() {
+        return "Most hours education and training";
     }
 
     @Override
