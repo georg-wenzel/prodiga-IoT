@@ -135,6 +135,11 @@ public class BadgeDbServiceTest {
             public String getName() {
                 return "testBadge1";
             }
+
+            @Override
+            public String getExplanation() {
+                return null;
+            }
         };
 
         Badge badge2 = new Badge() {
@@ -146,6 +151,11 @@ public class BadgeDbServiceTest {
             @Override
             public String getName() {
                 return "testBadge2";
+            }
+
+            @Override
+            public String getExplanation() {
+                return null;
             }
         };
 
