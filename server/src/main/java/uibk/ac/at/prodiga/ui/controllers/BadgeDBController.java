@@ -30,6 +30,10 @@ public class BadgeDBController {
         return this.badgeDBService.getAllBadgesByUser(prodigaUserLoginManager.getCurrentUser());
     }
 
+    public int getBadgesByUserNum(){
+        return getBadgesByUser().size();
+    }
+
     public Collection<BadgeDB> getLastWeeksBadges(){
         return this.badgeDBService.getLastWeeksBadges();
     }

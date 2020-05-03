@@ -55,8 +55,10 @@ public class BadgeDBService {
             }
 
             String name = badge.getName();
+            String explanation = badge.getExplanation();
             BadgeDB badgeDB = new BadgeDB();
             badgeDB.setBadgeName(name);
+            badgeDB.setExplanation(explanation);
             badgeDB.setUser(user);
 
 
@@ -74,16 +76,11 @@ public class BadgeDBService {
     public void registerBadges() {
         availableBadges.add(new Bugsimilian());
         availableBadges.add(new FrontendLaura());
-        availableBadges.add(new CodeRaptor());
-        availableBadges.add(new ConceptKing());
-        availableBadges.add(new DocumentationDoctor());
-        availableBadges.add(new MeetingMaster());
-        availableBadges.add(new TheUltimateManager());
-        availableBadges.add(new TheDiligentStudent());
-        availableBadges.add(new TheMostHelpfulOne());
+        availableBadges.add(new CodeRaptorGeorg());
+        availableBadges.add(new BusyBeeJamie());
+        availableBadges.add(new EducatedGabbo());
         availableBadges.add(new TheSloth());
-        availableBadges.add(new TheTester());
-
+        availableBadges.add(new MostWorkingHours());
     }
 
     public void registerBadges(Badge badge) {

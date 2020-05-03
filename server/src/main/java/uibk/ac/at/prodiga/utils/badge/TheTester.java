@@ -12,6 +12,11 @@ public class TheTester extends AbstractCategoryBadge {
     }
 
     @Override
+    public String getExplanation() {
+        return "Most hours testing";
+    }
+
+    @Override
     public Optional<BookingCategory> getCategory(Collection<BookingCategory> bookingCategories) {
         return bookingCategories.stream().filter(x -> x.getName().equals("Testing")).findFirst();
     }

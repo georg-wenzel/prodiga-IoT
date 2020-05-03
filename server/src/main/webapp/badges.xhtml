@@ -18,10 +18,17 @@
                 <div class="card">
                     <h1>My Badges</h1>
 
+                    <h3>Total number of badges: <h:outputText value="#{badgeDBController.badgesByUserNum}" style="font-weight: bold;"/></h3>
+                    <br/>
+
                     <h:form id="badgeForm">
                         <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByUser}" emptyMessage="Unforunately, you don't have any Badges :-(">
                             <p:column headerText="Name">
-                                <h:outputText value="#{badge.badgeName}"/>
+                                <h:outputText value="#{badge.badgeName}" style="font-weight: bold; text-transform: uppercase"/>
+                            </p:column>
+
+                            <p:column headerText="Explanation">
+                                <h:outputText value="#{badge.explanation}"/>
                             </p:column>
 
                             <p:column headerText="From">

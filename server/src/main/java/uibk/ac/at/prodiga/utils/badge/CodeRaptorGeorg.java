@@ -5,10 +5,15 @@ import uibk.ac.at.prodiga.model.BookingCategory;
 import java.util.Collection;
 import java.util.Optional;
 
-public class CodeRaptor extends AbstractCategoryBadge {
+public class CodeRaptorGeorg extends AbstractCategoryBadge {
     @Override
     public String getName() {
-        return "Code Raptor";
+        return "Code Raptor Georg";
+    }
+
+    @Override
+    public String getExplanation() {
+        return "Most hours implementation";
     }
 
     @Override
