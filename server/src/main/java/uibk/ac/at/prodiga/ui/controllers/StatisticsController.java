@@ -75,7 +75,7 @@ public class StatisticsController implements Serializable {
         weeklyAnalysisPie.setFill(false);
         weeklyAnalysisPie.setShowDataLabels(true);
         weeklyAnalysisPie.setDiameter(200);
-        weeklyAnalysisPie.setShadow(false);
+        weeklyAnalysisPie.setExtender("skinPie");
     }
 
     private void createDailyAnalysisPie() {
@@ -89,7 +89,7 @@ public class StatisticsController implements Serializable {
         dailyAnalysisPie.setFill(false);
         dailyAnalysisPie.setShowDataLabels(true);
         dailyAnalysisPie.setDiameter(200);
-        dailyAnalysisPie.setShadow(false);
+        dailyAnalysisPie.setExtender("skinPie");
     }
 
     private void createMonthlyAnalysisPie() {
@@ -103,7 +103,7 @@ public class StatisticsController implements Serializable {
         monthlyAnalysisPie.setFill(false);
         monthlyAnalysisPie.setShowDataLabels(true);
         monthlyAnalysisPie.setDiameter(200);
-        monthlyAnalysisPie.setShadow(false);
+        monthlyAnalysisPie.setExtender("skinPie");
     }
 
     private void createWeeklyTeamAnalysisPie() {
@@ -117,7 +117,7 @@ public class StatisticsController implements Serializable {
         weeklyTeamAnalysisPie.setFill(false);
         weeklyTeamAnalysisPie.setShowDataLabels(true);
         weeklyTeamAnalysisPie.setDiameter(200);
-        weeklyTeamAnalysisPie.setShadow(false);
+        weeklyTeamAnalysisPie.setExtender("skinPie");
     }
 
     private void createMonthlyTeamAnalysisPie() {
@@ -131,7 +131,7 @@ public class StatisticsController implements Serializable {
         monthlyTeamAnalysisPie.setFill(false);
         monthlyTeamAnalysisPie.setShowDataLabels(true);
         monthlyTeamAnalysisPie.setDiameter(200);
-        monthlyTeamAnalysisPie.setShadow(false);
+        monthlyTeamAnalysisPie.setExtender("skinPie");
     }
 
     private void createMonthlyDepartmentAnalysisPie() {
@@ -145,7 +145,7 @@ public class StatisticsController implements Serializable {
         monthlyDepartmentAnalysisPie.setFill(false);
         monthlyDepartmentAnalysisPie.setShowDataLabels(true);
         monthlyDepartmentAnalysisPie.setDiameter(200);
-        monthlyDepartmentAnalysisPie.setShadow(false);
+        monthlyDepartmentAnalysisPie.setExtender("skinPie");
     }
 
 
