@@ -287,10 +287,6 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Cannot complete configuration without completed sides", MessageType.ERROR);
         }
 
-        if(wrapper.getCompletedSides().size() != 12) {
-            throw new ProdigaGeneralExpectedException("Exactly 12 sides need to be configured", MessageType.ERROR);
-        }
-
         if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
             BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
 
