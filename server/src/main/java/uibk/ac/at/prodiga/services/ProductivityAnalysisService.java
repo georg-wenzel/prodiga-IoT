@@ -93,7 +93,7 @@ public class ProductivityAnalysisService {
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
         Team myTeam = user.getAssignedTeam();
-        if(user == userService.getTeamLeaderOf(myTeam)){
+        if(user.equals(userService.getTeamLeaderOf(myTeam))){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
@@ -112,7 +112,7 @@ public class ProductivityAnalysisService {
         User user = userLoginManager.getCurrentUser();
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         Team myTeam = user.getAssignedTeam();
-        if(user == userService.getTeamLeaderOf(myTeam)){
+        if(user.equals(userService.getTeamLeaderOf(myTeam))){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
@@ -131,7 +131,7 @@ public class ProductivityAnalysisService {
         User user = userLoginManager.getCurrentUser();
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         Team myTeam = user.getAssignedTeam();
-        if(user == userService.getTeamLeaderOf(myTeam)){
+        if(user.equals(userService.getTeamLeaderOf(myTeam))){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User teamMember: userService.getUsersByTeam(myTeam)) {
@@ -150,7 +150,7 @@ public class ProductivityAnalysisService {
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
         Department myDepartment = user.getAssignedDepartment();
-        if(user == userService.getDepartmentLeaderOf(myDepartment)){
+        if(user.equals(userService.getDepartmentLeaderOf(myDepartment))){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
@@ -169,7 +169,7 @@ public class ProductivityAnalysisService {
         User user = userLoginManager.getCurrentUser();
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         Department myDepartment = user.getAssignedDepartment();
-        if(user == userService.getDepartmentLeaderOf(myDepartment)){
+        if(user.equals(userService.getDepartmentLeaderOf(myDepartment))){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
@@ -187,7 +187,7 @@ public class ProductivityAnalysisService {
         User user = userLoginManager.getCurrentUser();
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         Department myDepartment = user.getAssignedDepartment();
-        if(user == userService.getDepartmentLeaderOf(myDepartment)){
+        if(user.equals(userService.getDepartmentLeaderOf(myDepartment))){
             for(BookingCategory bookingCategory : bookingCategoryService.findAllCategories()){
                 long millisec = 0;
                 for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
