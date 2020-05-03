@@ -7,7 +7,6 @@ import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -226,6 +225,8 @@ public class Cube {
             historyList.remove(historyList.size() - 1);
 
             historyEntryList = HistoryListHelper.convertToHistoryList(historyList);
+
+            deleteHistory();
         } else {
             System.out.println("Facet service not found");
         }
