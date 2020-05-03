@@ -174,7 +174,7 @@
                     lineWidth: 1,
                     markerOptions: {
                         shadow: false,
-                        size: 7,
+                        size: 30,
                         style: 'circle'
                     }
                 }
@@ -295,29 +295,43 @@
     </ui:define>
 
     <ui:define name="content">
-        <div class="card">
-            <h1 class="centerText">Daily pie Chart User</h1>
-            <p:chart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
-        </div>
-        <div class="card">
-            <h1 class="centerText">Weekly pie Chart User</h1>
-            <p:chart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
-        </div>
-        <div class="card">
-            <h1 class="centerText">Monthly pie Chart User</h1>
-            <p:chart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
-        </div>
-        <div class="card">
-            <h1 class="centerText">Weekly pie Chart Team</h1>
-            <p:chart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
-        </div>
-        <div class="card">
-            <h1 class="centerText">Monthly pie Chart Team</h1>
-            <p:chart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
-        </div>
-        <div class="card">
-            <h1 class="centerText">Monthly pie Chart Department</h1>
-            <p:chart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+        <div class="ui-g">
+            <div class="ui-g-5">
+                <div class="card">
+                    <h1 class="centerText">Daily Pie Chart User</h1>
+                    <p:chart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="card">
+                    <h1 class="centerText">Weekly Pie Chart User</h1>
+                    <p:chart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="card">
+                    <h1 class="centerText">Monthly Pie Chart User</h1>
+                    <p:chart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="card">
+                    <h1 class="centerText">Weekly Pie Chart Team</h1>
+                    <p:chart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="card">
+                    <h1 class="centerText">Monthly Pie Chart Team</h1>
+                    <p:chart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
+                </div>
+            </div>
+            <div class="ui-g-5">
+                <div class="card">
+                    <h1 class="centerText">Monthly Pie Chart Department</h1>
+                    <p:chart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                </div>
+            </div>
         </div>
     </ui:define>
 
