@@ -141,6 +141,7 @@ public class DataHelper {
         badgeDB.setUser(user);
         badgeDB.setToDate(new Date());
         badgeDB.setFromDate(new Date());
+        badgeDB.setExplanation("Test");
         return badgeDBRepository.save(badgeDB);
     }
 

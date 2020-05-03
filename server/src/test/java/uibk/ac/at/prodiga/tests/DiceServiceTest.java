@@ -292,9 +292,10 @@ public class DiceServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void diceService_completeConfigurationWithoutSides_throws() {
+    public void diceService_completeConfigurationWithoutSides_() {
+        DataHelper.createBookingCategory("test", admin, bookingCategoryRepository);
         Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
-        DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
+        diceService.addDiceToConfiguration(d);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> diceService.completeConfiguration(d), "Can complete without sides");
     }
@@ -310,6 +311,8 @@ public class DiceServiceTest {
         for(int i = 0; i < 5; i++) {
             sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
         }
+
+        sides.remove(0);
 
         wrapper.setCompletedSides(sides);
 
