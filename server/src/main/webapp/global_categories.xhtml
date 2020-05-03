@@ -92,7 +92,7 @@
                                     <p:confirm header="Confirmation" message="Are you sure that you want to edit this booking category? This will change historical data. If you are not just clarifying or fixing typos, consider creating a new booking category instead." icon="ui-icon-alert" />
                                 </p:commandButton>
                                 <p:commandButton action="#{bookingCategoryController.doDeleteCategory()}" icon="fa fa-fw fa-trash" title="Delete" update=":categoriesForm:categoryTable"
-                                                 disabled="#{(category.getTeams() != null and category.getTeams().size() != 0) or bookingCategoryController.getUsedInBookings(category) != 0}" style="margin-left:5px;">
+                                                 disabled="#{(category.getTeams() != null and category.getTeams().size() != 0) or bookingCategoryController.getUsedInBookings(category) != 0 or bookingCategoryController.mandatoryCategory == category.id}" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{category}" target="#{bookingCategoryController.deleteCategory}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this booking category? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>
