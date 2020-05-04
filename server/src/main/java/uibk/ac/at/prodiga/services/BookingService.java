@@ -99,7 +99,7 @@ public class BookingService
 
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
-        return saveBooking(booking, userLoginManager.getCurrentUser());
+        return saveBooking(booking, userLoginManager.getCurrentUser(), true);
     }
 
     /**
@@ -108,7 +108,7 @@ public class BookingService
      * @return The booking after storing it in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when users are trying to modify the bookings of others, or modify old bookings without appropriate permissions.
      */
-    public Booking saveBooking(Booking booking, User u) throws ProdigaGeneralExpectedException
+    public Booking saveBooking(Booking booking, User u, boolean useAuth) throws ProdigaGeneralExpectedException
     {
         //check fields
         if(booking.getActivityEndDate().before(booking.getActivityStartDate()))
@@ -128,7 +128,8 @@ public class BookingService
             throw new RuntimeException("User may only modify his own activities.");
         }
 
-        Vacation vacationCoveringBooking = vacationService.vacationCoversBooking(booking);
+        Vacation vacationCoveringBooking = useAuth ? vacationService.vacationCoversBooking(booking)
+                : vacationService.vacationCoversBooking(booking, u);
         if(vacationCoveringBooking != null)
         {
             Format formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -148,7 +149,7 @@ public class BookingService
             booking.setTeam(u.getAssignedTeam());
 
             booking.setObjectCreatedDateTime(new Date());
-            booking.setObjectCreatedUser(userLoginManager.getCurrentUser());
+            booking.setObjectCreatedUser(u);
         }
         else
         {
@@ -164,7 +165,7 @@ public class BookingService
             }
 
             booking.setObjectChangedDateTime(new Date());
-            booking.setObjectChangedUser(userLoginManager.getCurrentUser());
+            booking.setObjectChangedUser(u);
         }
 
         return bookingRepository.save(booking);

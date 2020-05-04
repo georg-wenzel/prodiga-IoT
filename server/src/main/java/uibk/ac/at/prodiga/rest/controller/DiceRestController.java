@@ -98,14 +98,12 @@ public class DiceRestController {
 
             Booking b = new Booking();
             b.setDice(dice);
-            b.setDept(user.getAssignedDepartment());
             b.setActivityEndDate(Date.from(newEndDate));
             b.setActivityStartDate(Date.from(newStartDate));
             b.setBookingCategory(bookingCategory);
-            b.setTeam(user.getAssignedTeam());
 
             try {
-                bookingService.saveBooking(b, user);
+                bookingService.saveBooking(b, user, false);
             } catch (Exception ex) {
                 // Ignore - can't do anything against it anyways
             }
