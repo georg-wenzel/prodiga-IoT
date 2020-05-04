@@ -86,7 +86,7 @@ public class DiceServiceTest {
     public void diceService_loadExisitingDiceByInternalId_DiceFound() {
         DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
-        Dice found = diceService.getDiceByInternalId("123");
+        Dice found = diceService.getDiceByInternalIdWithAuth("123");
 
         Assertions.assertNotNull(found, "Saved dice not found");
     }
@@ -108,7 +108,7 @@ public class DiceServiceTest {
     public void diceService_loadNotExisitingDiceByInternalId_DiceNotFound() {
         DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
-        Dice found = diceService.getDiceByInternalId("1234");
+        Dice found = diceService.getDiceByInternalIdWithAuth("1234");
 
         Assertions.assertNull(found, "Not saved dice found");
     }

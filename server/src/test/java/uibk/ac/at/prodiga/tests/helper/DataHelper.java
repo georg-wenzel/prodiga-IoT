@@ -386,7 +386,6 @@ public class DataHelper {
         ds.setBookingCategory(category);
         ds.setSide(side);
         ds.setDice(d);
-        ds.setCurrentSeconds(0);
         ds.setObjectCreatedUser(u);
         ds.setObjectCreatedDateTime(new Date());
 
