@@ -30,7 +30,6 @@ public class DiceSideService {
      */
     public DiceSide save(DiceSide ds) {
         if(ds.isNew()) {
-            ds.setCurrentSeconds(0);
             ds.setObjectCreatedDateTime(new Date());
             ds.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
         } else {

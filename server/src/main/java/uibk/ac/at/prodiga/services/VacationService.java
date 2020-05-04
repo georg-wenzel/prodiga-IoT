@@ -173,13 +173,17 @@ public class VacationService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Vacation vacationCoversBooking(Booking booking)
     {
+        return vacationCoversBooking(booking, userLoginManager.getCurrentUser());
+    }
+
+    public Vacation vacationCoversBooking(Booking booking, User u) {
         LocalDate beginDate = toLocalDate(booking.getActivityStartDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = toLocalDate(booking.getActivityEndDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
 
         Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), userLoginManager.getCurrentUser());
         if (v != null) return v;
 
-        return vacationRepository.findVacationCoveringDate(toDate(endDate), userLoginManager.getCurrentUser());
+        return vacationRepository.findVacationCoveringDate(toDate(endDate), u);
     }
 
     /**
