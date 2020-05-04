@@ -138,7 +138,7 @@ public class BadgeDbServiceTest {
 
             @Override
             public String getExplanation() {
-                return null;
+                return "test";
             }
         };
 
@@ -155,7 +155,7 @@ public class BadgeDbServiceTest {
 
             @Override
             public String getExplanation() {
-                return null;
+                return "test";
             }
         };
 
