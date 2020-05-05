@@ -126,6 +126,12 @@ public class RaspberryPiService {
             return false;
         }
 
+        if(findByInternalId(internalId).isPresent()){
+            logInformationService.log("Raspberry Pi with internal ID " + internalId +
+                    " already exists");
+            return false;
+        }
+
         RaspberryPi raspi = new RaspberryPi();
         raspi.setInternalId(internalId);
         pendingRaspberryPis.add(raspi);
