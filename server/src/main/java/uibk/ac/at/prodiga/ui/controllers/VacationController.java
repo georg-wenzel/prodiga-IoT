@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
+import de.jollyday.Holiday;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Vacation;
@@ -34,6 +35,7 @@ public class VacationController implements Serializable
 
     private List<Vacation> pastVacations;
     private List<Vacation> currentVacations;
+    private List<Holiday> holidays;
 
     public VacationController(VacationService vacationService, ProdigaUserLoginManager userLoginManager)
     {
@@ -194,5 +196,14 @@ public class VacationController implements Serializable
     public boolean getEditing()
     {
         return vacation != null && vacation.getObjectCreatedDateTime() != null;
+    }
+
+    /**
+     * Gets the holidays of the current year
+     * @return a list of holidays from the current year
+     */
+    public Collection<Holiday> getHolidays() {
+        if(holidays == null) holidays = new ArrayList<>(vacationService.getHolidays());
+        return holidays;
     }
 }

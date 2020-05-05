@@ -38,7 +38,7 @@
                                 </h:panelGrid>
                             </div>
                         </div>
-                    </div><br/>
+                    </div>
                     <div class="ui-g">
                         <div class="ui-g-6">
                             <p:linkButton outcome="/vacations" value="Vacation overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
@@ -54,6 +54,18 @@
                             </p:commandButton>
                         </div>
                     </div>
+                    <h1>National Holidays</h1>
+                    The following days are national holidays and do not count towards your yearly vacation limit. Further, you are not allowed to create vacations which only cover holidays.
+
+                    <p:dataTable id="holidayTable" var="holiday" style="width:100%; margin-top:20px;" value="#{vacationController.holidays}" sortBy="#{holiday.date}">
+                        <p:column headerText="Date">
+                            <h:outputText value="#{holiday.date}" />
+                        </p:column>
+
+                        <p:column headerText="Description">
+                            <h:outputText value="#{holiday.description}" />
+                        </p:column>
+                    </p:dataTable>
                 </h:form>
             </div>
         </div>

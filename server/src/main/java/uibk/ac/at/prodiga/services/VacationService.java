@@ -1,10 +1,7 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
-import de.jollyday.HolidayCalendar;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameter;
-import de.jollyday.ManagerParameters;
+import de.jollyday.*;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -314,6 +311,19 @@ public class VacationService
 
         return vacationDays;
     }
+
+    /**
+     * Gets a collection of holidays from the current year and next year
+     * @return A collection of Jollyday Holiday objects from the current year and next year
+     */
+    public Collection<Holiday> getHolidays()
+    {
+        HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
+        Collection<Holiday> holidays = m.getHolidays(LocalDate.now().getYear());
+        holidays.addAll(m.getHolidays(LocalDate.now().getYear() + 1));
+        return holidays;
+    }
+
 
     /**
      * Converts a java.util.Date to a LocalDate
