@@ -289,11 +289,11 @@ public class BookingService
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
         int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-        c.add(Calendar.DATE, -i - 7*backstepWeek);
+        c.add(Calendar.DATE, -(7*backstepWeek));
         Date start = c.getTime();
         c.add(Calendar.DATE, 6);
         Date end = c.getTime();
-        return getBookingInRangeForUser(user,start, end);
+        return getBookingInRangeForUser(user, start, end);
     }
 
     public Collection<Booking> getUsersBookingInRangeByMonth(User user,int backstepMonth){

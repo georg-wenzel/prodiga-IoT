@@ -155,7 +155,7 @@ public class ProductivityAnalysisServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
-    public void statistic_user_backstepDay2_booking(){
+    public void statistic_user_backstepDays(){
         //Data setup
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("statistic_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
@@ -192,11 +192,43 @@ public class ProductivityAnalysisServiceTest {
         } catch (ProdigaGeneralExpectedException e) {
             e.printStackTrace();
         }
+        HashMap<BookingCategory,Long> backstep1Statistic = new HashMap<>();
+        backstep1Statistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) / (1000*60*60));
+        HashMap<BookingCategory,Long> backstep2Statistic = new HashMap<>();
+        backstep2Statistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
 
-        HashMap<BookingCategory,Long> dailyStatistic = new HashMap<>();
-        dailyStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
-        Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisicForCurrentUserByDay(2));
+        Assertions.assertEquals(backstep1Statistic,productivityAnalysisService.getStatisicForCurrentUserByDay(1));
+        Assertions.assertEquals(backstep2Statistic, productivityAnalysisService.getStatisicForCurrentUserByDay(2));
+    }
 
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
+    public void statistic_user_backstepWeek(){
+        //Data setup
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("statistic_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d = DataHelper.createDice("testdice", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat1 = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d);
+        b1.setBookingCategory(cat1);
+        //set activity end time to 3 days 22 hours days before current time.
+        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
+        b1.setActivityEndDate(endingTime1);
+        //set activity start time to 4 days ago
+        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
+        b1.setActivityStartDate(startingTime1);
+        try {
+            b1 = bookingService.saveBooking(b1);
+        } catch (ProdigaGeneralExpectedException e) {
+            e.printStackTrace();
+        }
+
+        HashMap<BookingCategory,Long> thisWeekStatistic = new HashMap<>();
+        thisWeekStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        Assertions.assertEquals(thisWeekStatistic, productivityAnalysisService.getStatisicForCurrentUserByWeek(1));
     }
 
 }
