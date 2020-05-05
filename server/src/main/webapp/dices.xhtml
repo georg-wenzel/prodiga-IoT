@@ -41,7 +41,7 @@
                                               outcome="dice">
                                     <f:param name="dice" value="#{dice.id}" />
                                 </p:linkButton>
-                               <p:commandButton action="#{diceController.deleteDice(dice)}" icon="fa fa-fw fa-trash" title="Delete" update=":dicesForm:dicesTable">
+                               <p:commandButton action="#{diceController.deleteDice(dice)}" icon="fa fa-fw fa-trash" title="Delete" update=":dicesForm:dicesTable" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{dice}" target="#{diceController.dice}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this dice? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>
