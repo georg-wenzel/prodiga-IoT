@@ -314,9 +314,10 @@
                     <p:chart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
                 </div>
             </div>
-            <div class="ui-g-5">
+            <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}">
+            <div class="ui-g-5" >
                 <div class="card">
-                    <h1 class="centerText">Weekly Pie Chart Team</h1>
+                    <h1 class="centerText" >Weekly Pie Chart Team</h1>
                     <p:chart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
                 </div>
             </div>
@@ -326,12 +327,15 @@
                     <p:chart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
                 </div>
             </div>
+            </h:panelGroup>
+            <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart Department</h1>
                     <p:chart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
                 </div>
             </div>
+            </h:panelGroup>
         </div>
     </ui:define>
 
