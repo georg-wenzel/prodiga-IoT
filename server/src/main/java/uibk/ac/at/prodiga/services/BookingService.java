@@ -323,7 +323,7 @@ public class BookingService
         return getBookingInRangeForUser(user, start, end);
     }
 
-     * Searches for a collections of bookings for a given booking category and period of time
+     /* Searches for a collections of bookings for a given booking category and period of time
      *
      * @param bookingCategory The category for searching bookings
      * @param begin The beginning date
