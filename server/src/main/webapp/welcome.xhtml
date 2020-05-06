@@ -24,7 +24,7 @@
                     <p:graphicImage name="images/user_white.png" library="ecuador-layout"  styleClass="image-icon" />
                     <div class="overview-title">USERS</div>
                     <div class="overview-numbers">
-                        #{userListController.numUsers()}
+                        #{dashboardController.numUsers()}
                     </div>
                     <br></br>
                 </div>
@@ -34,7 +34,7 @@
                     <p:graphicImage name="images/department_white.png" library="ecuador-layout" styleClass="image-icon"/>
                     <div class="overview-title">DEPARTMENTS</div>
                     <div class="overview-numbers">
-                        #{departmentController.numDepartments()}
+                        #{dashboardController.numDepartments()}
                     </div>
                     <br></br>
                 </div>
@@ -44,7 +44,7 @@
                     <p:graphicImage name="images/team_white.png" library="ecuador-layout" styleClass="image-icon"/>
                     <div class="overview-title">TEAMS</div>
                     <div class="overview-numbers">
-                        #{teamController.numTeams()}
+                        #{dashboardController.numTeams()}
                     </div>
                     <br></br>
                 </div>
@@ -54,14 +54,39 @@
                     <p:graphicImage name="images/raspi_white.png" library="ecuador-layout"  styleClass="image-icon" />
                     <div class="overview-title">RASPBERRY PIS</div>
                     <div class="overview-numbers">
-                        #{raspberryPiController.numRaspberryPis()}
+                        #{dashboardController.numRaspberryPis()}
                     </div>
                     <br></br>
                 </div>
             </div>
 
-        </div></div>
+        </div></div><br></br>
+            <h1>Last Week's Badges</h1><br/>
+            <h:form id="badgeForm">
+                <p:carousel value="#{badgeDBController.lastWeeksBadges}" headerText="" var="badge" itemStyle="text-align:center" responsive="true">
+                    <p:panelGrid columns="2" style="width:100%;margin:10px 0px" columnClasses="label,value" layout="grid" styleClass="ui-panelgrid-blank">
+                        <f:facet name="header">
+                            <p:graphicImage name="images/#{badge.badgeName}.png" library="ecuador-layout" style="width:200px;"/>
+                        </f:facet>
 
+                        <h:outputText value="User:" />
+                        <h:outputText value="#{badge.user.username}" />
+
+                        <h:outputText value="From:" />
+                        <h:outputText value="#{badge.fromDate}">
+                            <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                        </h:outputText>
+
+
+                        <h:outputText value="To:" />
+                        <h:outputText value="#{badge.toDate}">
+                            <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                        </h:outputText>
+                    </p:panelGrid>
+
+                </p:carousel>
+                <br></br><br></br>
+            </h:form>
         </div>
     </ui:define>
 </ui:composition>

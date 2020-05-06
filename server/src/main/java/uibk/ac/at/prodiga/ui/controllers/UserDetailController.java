@@ -11,12 +11,15 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Scope("view")
-public class UserDetailController {
+public class UserDetailController implements Serializable {
+
+    private static final long serialVersionUID = 5325687687692128315L;
 
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
@@ -107,11 +110,24 @@ public class UserDetailController {
      */
     public List<String> getAllRolesTotal() {
         List<String> userRoleList = new LinkedList<>();
-        userRoleList.add(UserRole.ADMIN.getLabel());
         userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
         userRoleList.add(UserRole.TEAMLEADER.getLabel());
         userRoleList.add(UserRole.EMPLOYEE.getLabel());
         return userRoleList;
+    }
+
+    public void setUserRolesAsString(Set<String> roleList){
+        if(user.getRoles().contains(UserRole.ADMIN)){
+            roleList.add(UserRole.ADMIN.getLabel());
+        }
+        else{
+            roleList.remove(UserRole.ADMIN.getLabel());
+        }
+        user.setRolesAsString(roleList);
+    }
+
+    public Set<String> getUserRolesAsString(){
+        return this.user.getRolesAsString();
     }
 
     /**
@@ -152,13 +168,18 @@ public class UserDetailController {
      * @param isAdmin
      */
     public void setIsAdmin(boolean isAdmin) {
-        if(user.isNew()){
-            if(isAdmin) {
-                Set<UserRole> userRoles = new HashSet<>();
-                userRoles.add(UserRole.ADMIN);
-                this.user.setRoles(userRoles);
+        Set<String> userRoles = user.getRolesAsString();
+        if(isAdmin) {
+            if(!userRoles.contains(UserRole.ADMIN.getLabel())) {
+                userRoles.add(UserRole.ADMIN.getLabel());
             }
         }
+        else{
+            if(userRoles.contains(UserRole.ADMIN.getLabel())){
+                userRoles.remove(UserRole.ADMIN.getLabel());
+            }
+        }
+        user.setRolesAsString(userRoles);
     }
 
     /**

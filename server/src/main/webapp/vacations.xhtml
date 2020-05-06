@@ -75,7 +75,7 @@
                                               outcome="vacation">
                                     <f:param name="vacation" value="#{vacation.id}" />
                                 </p:linkButton>
-                                <p:commandButton action="#{vacationController.doDeleteVacation()}" icon="fa fa-fw fa-trash" title="Delete" rendered="#{vacationController.hasStarted(vacation)}" update=":vacationForm:vacationTable vacationInfoForm">
+                                <p:commandButton action="#{vacationController.doDeleteVacation()}" icon="fa fa-fw fa-trash" title="Delete" rendered="#{vacationController.hasStarted(vacation)}" update=":vacationForm:vacationTable vacationInfoForm" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{vacation}" target="#{vacationController.vacation}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this vacation? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>

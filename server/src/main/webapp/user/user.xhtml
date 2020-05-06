@@ -103,7 +103,18 @@
                                     <p:outputLabel styleClass="input-form" for="isAdmin" value=" Is Admin: " />
                                 </div>
                                 <div class="ui-g-10 input-form">
-                                    <p:selectBooleanCheckbox id ="isAdmin" value="#{userDetailController.isAdmin}" disabled="true"/>
+                                    <p:selectBooleanCheckbox id ="isAdmin" value="#{userDetailController.isAdmin}"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ui-g">
+                            <div class="ui-g-10">
+                                <div class="ui-g-2 input-form">
+                                    <p:outputLabel styleClass="input-form" for="mayEditBookings" value=" May edit bookings: " />
+                                </div>
+                                <div class="ui-g-10 input-form">
+                                    <p:selectBooleanCheckbox id ="mayEditBookings" value="#{userDetailController.user.mayEditHistoricData}"/>
                                 </div>
                             </div>
                         </div>
@@ -115,7 +126,7 @@
                                 </div>
                                 <div class="ui-g-10 input-form">
                                     <p:selectManyButton id="roles"
-                                                        value="#{userDetailController.user.rolesAsString}">
+                                                        value="#{userDetailController.userRolesAsString}">
                                         <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
                                     </p:selectManyButton>
                                 </div>

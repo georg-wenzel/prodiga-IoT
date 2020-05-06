@@ -18,6 +18,7 @@ import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.DiceConfigurationWrapper;
 
@@ -85,7 +86,7 @@ public class DiceServiceTest {
     public void diceService_loadExisitingDiceByInternalId_DiceFound() {
         DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
-        Dice found = diceService.getDiceByInternalId("123");
+        Dice found = diceService.getDiceByInternalIdWithAuth("123");
 
         Assertions.assertNotNull(found, "Saved dice not found");
     }
@@ -107,7 +108,7 @@ public class DiceServiceTest {
     public void diceService_loadNotExisitingDiceByInternalId_DiceNotFound() {
         DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
-        Dice found = diceService.getDiceByInternalId("1234");
+        Dice found = diceService.getDiceByInternalIdWithAuth("1234");
 
         Assertions.assertNull(found, "Not saved dice found");
     }
@@ -291,9 +292,10 @@ public class DiceServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "notAdmin", authorities = {"EMPLOYEE"})
-    public void diceService_completeConfigurationWithoutSides_throws() {
+    public void diceService_completeConfigurationWithoutSides_() {
+        DataHelper.createBookingCategory("test", admin, bookingCategoryRepository);
         Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
-        DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
+        diceService.addDiceToConfiguration(d);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> diceService.completeConfiguration(d), "Can complete without sides");
     }
@@ -309,6 +311,8 @@ public class DiceServiceTest {
         for(int i = 0; i < 5; i++) {
             sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
         }
+
+        sides.remove(0);
 
         wrapper.setCompletedSides(sides);
 
@@ -347,6 +351,12 @@ public class DiceServiceTest {
     public void diceService_configurationWorkflow_diceConfigured() throws ProdigaGeneralExpectedException {
         Dice d = DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
+        BookingCategory[] cats = new BookingCategory[12];
+        for(int i=0;i<12;i++)
+        {
+            cats[i] = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
+        }
+
         NewDiceSideRequestDTO request = new NewDiceSideRequestDTO();
         request.setInternalId("123");
         request.setSide(1);
@@ -355,8 +365,13 @@ public class DiceServiceTest {
 
         diceService.registerNewSideCallback(UUID.randomUUID(), x -> {
             DiceConfigurationWrapper wrapper = x.getValue1();
-            wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
-                    DataHelper.createBookingCategory("test" + wrapper.getCurrentSide(), admin, bookingCategoryRepository));
+            Optional<BookingCategory> mandatoryCat = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
+            if(wrapper.getCurrentSide() == 12 && mandatoryCat.isPresent())
+            {
+                wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
+                        mandatoryCat.get());
+            }
+            wrapper.getCompletedSides().put(wrapper.getCurrentSide(), cats[wrapper.getCurrentSide() - 1]);
         });
 
 

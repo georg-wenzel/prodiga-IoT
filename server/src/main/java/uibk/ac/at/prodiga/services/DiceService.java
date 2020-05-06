@@ -3,6 +3,7 @@ package uibk.ac.at.prodiga.services;
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -12,6 +13,8 @@ import uibk.ac.at.prodiga.rest.dtos.DeviceType;
 import uibk.ac.at.prodiga.rest.dtos.FeedAction;
 import uibk.ac.at.prodiga.utils.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ public class DiceService {
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
+    private final Map<Pair<UUID, String>, Instant> survivingTimerMap = new HashMap<>();
 
     public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService) {
         this.diceRepository = diceRepository;
@@ -78,6 +82,15 @@ public class DiceService {
      * @return The found dice
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    public Dice getDiceByInternalIdWithAuth(String internalId) {
+        return getDiceByInternalId(internalId);
+    }
+
+    /**
+     * Returns the dice with the given internal id
+     * @param internalId the internal id
+     * @return The found dice
+     */
     public Dice getDiceByInternalId(String internalId) {
         return diceRepository.findFirstByInternalId(internalId);
     }
@@ -283,10 +296,6 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Cannot complete configuration without completed sides", MessageType.ERROR);
         }
 
-        if(wrapper.getCompletedSides().size() != 12) {
-            throw new ProdigaGeneralExpectedException("Exactly 12 sides need to be configured", MessageType.ERROR);
-        }
-
         if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
             BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
 
@@ -295,13 +304,59 @@ public class DiceService {
         }
 
         wrapper.getCompletedSides().forEach((key, value) -> {
-            DiceSide ds = new DiceSide();
-            ds.setBookingCategory(value);
-            ds.setDice(wrapper.getDice());
-            ds.setSide(key);
-            diceSideService.save(ds);
+            diceSideService.onNewConfiguredDiceSide(key, value, wrapper.getDice());
         });
 
+        diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
+
+        FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
+
+        FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
+    }
+
+    /**
+     * Ensures that the callback with the given id is still beeing executed
+     * and the dice with the given internalId still in config mode
+     * @param id The callbacks id
+     * @param diceInternalId The dices internal Id
+     */
+    public void ensureListening(UUID id, String diceInternalId) {
+        Pair<UUID, String> pair = new Pair<>(id, diceInternalId);
+
+        Instant lastSurvivalTime = Instant.now();
+
+        if(survivingTimerMap.containsKey(pair)) {
+            survivingTimerMap.replace(pair, lastSurvivalTime);
+        } else {
+            survivingTimerMap.put(pair, lastSurvivalTime);
+        }
+    }
+
+    /**
+     * Runs all 5 minutes and removes all not listening callbacks and dices
+     */
+    @Scheduled(fixedDelayString = "${removeNonListeningDelay}",
+            initialDelayString = "${removeNonListeningDelay}")
+    public void removeNonListening() {
+        List<Map.Entry<Pair<UUID, String>, Instant>> notSurviving = survivingTimerMap.entrySet().stream()
+                .filter(x -> x.getValue().isBefore(Instant.now().minus(Duration.ofMinutes(5))))
+                .collect(Collectors.toList());
+
+        for (Map.Entry<Pair<UUID, String>, Instant> entry: notSurviving) {
+            survivingTimerMap.remove(entry.getKey());
+
+            unregisterNewSideCallback(entry.getKey().getValue0());
+
+            DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict
+                    .getOrDefault(entry.getKey().getValue1(), null);
+
+            if(wrapper != null) {
+                removeDiceInConfigMode(wrapper);
+            }
+        }
+    }
+
+    private void removeDiceInConfigMode(DiceConfigurationWrapper wrapper) {
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
 
         FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());

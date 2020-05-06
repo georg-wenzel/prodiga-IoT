@@ -11,11 +11,15 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 @Component
 @Scope("view")
-public class TeamController {
+public class TeamController implements Serializable {
+
+    private static final long serialVersionUID = 5327384987692577315L;
+
     private final TeamService teamService;
     private Team team;
     private final UserService userService;
@@ -32,14 +36,6 @@ public class TeamController {
      */
     public Collection<Team> getAllTeams(){
         return teamService.getAllTeams();
-    }
-
-    /**
-     * Returns the number of all teams.
-     * @return number of teams.
-     */
-    public int numTeams(){
-        return this.teamService.getAllTeams().size();
     }
 
     /**

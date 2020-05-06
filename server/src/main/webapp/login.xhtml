@@ -65,18 +65,22 @@
     <h:outputStylesheet name = "css/login.css" library="ecuador-layout"/>
 </h:body>
 
-<p:ajaxExceptionHandler type="uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException"
-                        update="exceptionDialog"
+<p:ajaxExceptionHandler type="uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException" update="exceptionDialog"
                         onexception="PF('exceptionDialog').show();" />
-
-<p:dialog id="exceptionDialog" header="'#{pfExceptionHandler.severity}'!" widgetVar="exceptionDialog"
-          height="500px" resizable="false">
-    Message: #{pfExceptionHandler.message}
-    <p:separator rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}" />
-    <h:outputText rendered="#{exceptionHelperBean.displayException(pfExceptionHandler.exception)}"
-                  value="#{pfExceptionHandler.formattedStackTrace}"
-                  escape="false" />
-    eption'}" />
+<p:ajaxExceptionHandler type="java.lang.Exception" update="exceptionDialog"
+                        onexception="PF('exceptionDialog').show();" />
+<p:dialog id="exceptionDialog"
+          header="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
+          widgetVar="exceptionDialog"
+          resizable="false">
+    <p:staticMessage severity="#{exceptionHelperBean.getUiSeverity(pfExceptionHandler.exception)}"
+                     summary="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
+                     detail="#{exceptionHelperBean.getDisplayMessage(pfExceptionHandler.exception)}" escape="true" />
+    <p:separator />
+    <p:commandButton value="Report Error"
+                     icon="fa fa-fw fa-bug"
+                     action="#{exceptionHelperBean.sendException(pfExceptionHandler.exception)}"
+                     oncomplete="PF('exceptionDialog').hide();"/>
 </p:dialog>
 
 </html>

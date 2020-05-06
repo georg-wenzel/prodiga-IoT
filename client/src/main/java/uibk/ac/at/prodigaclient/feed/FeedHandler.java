@@ -6,4 +6,5 @@ public interface FeedHandler {
 
     void handle(FeedDTO feed);
 
+    boolean needsToReportToServer(FeedDTO feedDTO);
 }

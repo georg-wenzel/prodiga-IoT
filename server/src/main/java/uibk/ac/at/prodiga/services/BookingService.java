@@ -12,6 +12,12 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.util.*;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Service for accessing and manipulating bookings.
@@ -21,14 +27,16 @@ import java.util.*;
 public class BookingService
 {
     private final BookingRepository bookingRepository;
+    private final VacationService vacationService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository)
+    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService)
     {
         this.bookingRepository = bookingRepository;
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
+        this.vacationService = vacationService;
     }
 
     /**
@@ -92,7 +100,7 @@ public class BookingService
 
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
-        return saveBooking(booking, userLoginManager.getCurrentUser());
+        return saveBooking(booking, userLoginManager.getCurrentUser(), true);
     }
 
     /**
@@ -101,7 +109,7 @@ public class BookingService
      * @return The booking after storing it in the database.
      * @throws ProdigaGeneralExpectedException Is thrown when users are trying to modify the bookings of others, or modify old bookings without appropriate permissions.
      */
-    public Booking saveBooking(Booking booking, User u) throws ProdigaGeneralExpectedException
+    public Booking saveBooking(Booking booking, User u, boolean useAuth) throws ProdigaGeneralExpectedException
     {
         //check fields
         if(booking.getActivityEndDate().before(booking.getActivityStartDate()))
@@ -120,8 +128,16 @@ public class BookingService
         {
             throw new RuntimeException("User may only modify his own activities.");
         }
+
+        Vacation vacationCoveringBooking = useAuth ? vacationService.vacationCoversBooking(booking)
+                : vacationService.vacationCoversBooking(booking, u);
+        if(vacationCoveringBooking != null)
+        {
+            Format formatter = new SimpleDateFormat("yyyy-MM-dd");
+            throw new ProdigaGeneralExpectedException("Cannot store this booking because it is covered by a vacation from " + formatter.format(vacationCoveringBooking.getBeginDate()) + " to " + formatter.format(vacationCoveringBooking.getEndDate()), MessageType.ERROR);
+        }
         //if activity start date is before the previous week, check historic data flag
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
         }
@@ -134,13 +150,13 @@ public class BookingService
             booking.setTeam(u.getAssignedTeam());
 
             booking.setObjectCreatedDateTime(new Date());
-            booking.setObjectCreatedUser(userLoginManager.getCurrentUser());
+            booking.setObjectCreatedUser(u);
         }
         else
         {
             Booking db_booking = bookingRepository.findFirstById(booking.getId());
             //If the database activity started in the week before the previous one, user must have appropriate permissions to change it.
-            if(isEarlierThanLastWeek(db_booking.getActivityStartDate()) && !u.mayEditHistoricData())
+            if(isEarlierThanLastWeek(db_booking.getActivityStartDate()) && !u.getMayEditHistoricData())
             {
                 throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
             };
@@ -150,7 +166,7 @@ public class BookingService
             }
 
             booking.setObjectChangedDateTime(new Date());
-            booking.setObjectChangedUser(userLoginManager.getCurrentUser());
+            booking.setObjectChangedUser(u);
         }
 
         return bookingRepository.save(booking);
@@ -187,7 +203,7 @@ public class BookingService
             throw new RuntimeException("User cannot delete other user's bookings.");
         }
 
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.mayEditHistoricData())
+        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
         }
@@ -200,7 +216,7 @@ public class BookingService
      * @param date The date to check
      * @return True if date is in current or last week, false otherwise.
      */
-    private boolean isEarlierThanLastWeek(Date date)
+    public boolean isEarlierThanLastWeek(Date date)
     {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);
@@ -307,5 +323,32 @@ public class BookingService
         return getBookingInRangeForUser(user, start, end);
     }
 
+     * Searches for a collections of bookings for a given booking category and period of time
+     *
+     * @param bookingCategory The category for searching bookings
+     * @param begin The beginning date
+     * @param end The ending date
+     * @return collections of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategory(BookingCategory bookingCategory, Date begin, Date end) {
+        return Lists.newArrayList(bookingRepository.findBookingWithCategoryInRange(bookingCategory, begin, end));
+    }
 
+    /**
+     * Searches for a collections of last week's bookings for a given booking category.
+     *
+     * @param bookingCategory The category for searching bookings
+     * @return collection of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategoryForLastWeek(BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        c.add(Calendar.DATE, -i - 7);
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 6);
+        Date end = c.getTime();
+        return getBookingInRangeByCategory(bookingCategory, start, end);
+    }
 }

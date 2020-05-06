@@ -33,7 +33,7 @@ public class IntrinsicsController {
     }
 
     @PostMapping("/api/feed")
-    public void completeFeed(UUID feedId) {
+    public void completeFeed(@RequestBody UUID feedId) {
         FeedManager.getInstance().completeFeedItem(feedId);
     }
 }

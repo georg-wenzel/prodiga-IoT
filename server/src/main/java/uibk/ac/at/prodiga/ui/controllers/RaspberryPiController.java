@@ -8,12 +8,15 @@ import uibk.ac.at.prodiga.services.RaspberryPiService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 @Scope("view")
-public class RaspberryPiController {
+public class RaspberryPiController implements Serializable {
+
+    private static final long serialVersionUID = 5325690687692577315L;
 
     private final RaspberryPiService raspberryPiService;
 
@@ -79,15 +82,6 @@ public class RaspberryPiController {
      */
     public List<RaspberryPi> getAllConfiguredRaspberryPis() {
         return this.raspberryPiService.getAllConfiguredRaspberryPis();
-    }
-
-    /**
-     * Returns the number of all configured raspberry pis.
-     * @return number of all configured raspberry pis.
-     */
-
-    public int numRaspberryPis(){
-        return this.raspberryPiService.getAllConfiguredRaspberryPis().size();
     }
 
     /**

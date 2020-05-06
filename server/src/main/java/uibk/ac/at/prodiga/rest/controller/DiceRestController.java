@@ -5,10 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import uibk.ac.at.prodiga.model.Booking;
-import uibk.ac.at.prodiga.model.BookingCategory;
-import uibk.ac.at.prodiga.model.Dice;
-import uibk.ac.at.prodiga.model.DiceSide;
+import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.rest.dtos.HistoryEntryDTO;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.services.BookingService;
@@ -17,10 +14,11 @@ import uibk.ac.at.prodiga.services.DiceSideService;
 import uibk.ac.at.prodiga.utils.Constants;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class DiceRestController {
@@ -41,10 +39,13 @@ public class DiceRestController {
      */
     @PostMapping("api/newSide")
     public void notifyNewSide(@Valid @RequestBody NewDiceSideRequestDTO request) {
+        if(diceService.getDiceByInternalId(request.getInternalId()) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Dice with internalId "+ request.getInternalId() + " not found!");
+        }
+
         if(diceService.diceInConfigurationMode(request.getInternalId())) {
             diceService.onNewDiceSide(request.getInternalId(), request.getSide());
-        } else {
-            //TODO Max: Booking stuff
         }
     }
 
@@ -55,93 +56,113 @@ public class DiceRestController {
      */
     @PostMapping("api/booking")
     public void addBooking(@Valid @RequestBody List<HistoryEntryDTO> historyEntries) {
-        // Iterate over all entries we got from the client
-        for(HistoryEntryDTO entry: historyEntries){
-            // First lets get the dice
-            Dice dice =  diceService.getDiceByInternalId(entry.getCubeInternalId());
+        // First we create a list with rappers which filter all invalid entries
+        List<HistoryEntryWrapper> realEntries = historyEntries.stream()
+                .map(x -> new HistoryEntryWrapper(x, diceService, diceSideService))
+                .filter(x -> x.handleEntry).collect(Collectors.toList()) ;
 
-            // Return 404 in case we didn't find anything
-            if(dice == null){
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Dice not found");
+        // Iterate over all filtered entries and create booking - here we know all data is valid
+        for(HistoryEntryWrapper entry : realEntries){
+            Dice dice = entry.dice;
+            BookingCategory bookingCategory = entry.bookingCategory;
+            User user = entry.user;
+            int seconds = entry.entry.getSeconds();
+
+            // First we check the last users booking
+            Booking lastBooking = bookingService.getLastBookingForDice(dice);
+
+            Instant newStartDate = null;
+
+            // Depending on if there is already a booking we set the start date
+
+            // If there is already a booking we have to get the endDate and add the current seconds
+            // in order to get the new Start date
+            if(lastBooking != null) {
+                newStartDate = lastBooking.getActivityEndDate().toInstant();
+            } else {
+                // If there is no booking we have to get all current history entries for the given dice
+                // Sum up the seconds to get the real start date
+
+                int sumSeconds = realEntries.stream().
+                        filter(x -> x.dice.getInternalId().equals(dice.getInternalId()))
+                        .mapToInt(x -> x.entry.getSeconds())
+                        .sum();
+
+                // Now we have to subtract the summed seconds from the current time
+                newStartDate = Instant.now().minus(Duration.ofMinutes(sumSeconds));
             }
 
-            // Get the dice side next
-            DiceSide diceSide = diceSideService.findByDiceAndSide(dice, entry.getSide());
+            // The end Date stays the same (independent of existing or non existing bookings)
+            // It's just the start date + the seconds
+            Instant newEndDate = newStartDate.plus(Duration.ofSeconds(seconds));
 
-            // If there is no side configured on this cube we can't do anything here
-            // Side needs configuration first
-            if(diceSide == null){
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "DiceSide not found");
-            }
+            Booking b = new Booking();
+            b.setDice(dice);
+            b.setActivityEndDate(Date.from(newEndDate));
+            b.setActivityStartDate(Date.from(newStartDate));
+            b.setBookingCategory(bookingCategory);
 
-            // Now we get the last booking which was made for the given dice
-            Booking existingBooking = bookingService.getLastBookingForDice(dice);
-
-            BookingCategory bookingCategory = diceSide.getBookingCategory();
-
-            // If we found a booking and the last booking was the same category
-            // (the same side on the dice) we can update the end date
-            if(existingBooking != null
-                    && existingBooking.getBookingCategory().getId().equals(bookingCategory.getId())) {
-                Instant endDate = existingBooking.getActivityEndDate().toInstant();
-                // We add the different between the total seconds on the dice
-                // and the last saved seconds to the existing end Time
-                // So we get a new end Time
-                Instant newEnd = endDate.plus(Duration.ofSeconds((long)entry.getSeconds() - diceSide.getCurrentSeconds()));
-
-                // Update update the currentSeconds on the diceSide first - in case that fails
-                // We do not modify the the booking and next them this method gets called
-                // Everything is still the same
-
-                // This right here btw is the most annoying fact about getter/setter
-                // Get your properties java
-                diceSide.setCurrentSeconds(diceSide.getCurrentSeconds() + entry.getSeconds());
-
-                diceSideService.save(diceSide);
-
-                // If we get so far we can update the booking and gtfo
-                existingBooking.setActivityEndDate(Date.from(newEnd));
-
-                saveBookingAndThrow(existingBooking);
-
-                return;
-            }
-
-            // He we are when this is the first booking or if the last booking was a different type
-            // In both cases we create a new booking
-            // Unless we know its the special do not book category - where we just idle
-            if (!bookingCategory.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) {
-                Booking booking = new Booking();
-
-                // Set dice and category
-                booking.setBookingCategory(bookingCategory);
-                booking.setDice(dice);
-
-                // Create the start date
-                // The start date is 15 minutes ago, this method gets called every 15 minutes
-                // So we assume the last call was the moment when the user has turned his dice
-                Instant startDate = new Date().toInstant().minus(Duration.ofMinutes(15));
-                booking.setActivityStartDate(Date.from(startDate));
-                
-                // End Date is always now - so every booking has at least 15 minutes
-                booking.setActivityEndDate(new Date());
-                
-                // Again, as above, we first update the dice side seconds
-                diceSide.setCurrentSeconds(diceSide.getCurrentSeconds() + entry.getSeconds());
-
-                diceSideService.save(diceSide);
-
-                // Now we can save the booking - remember order is important here
-                saveBookingAndThrow(booking);
+            try {
+                bookingService.saveBooking(b, user, false);
+            } catch (Exception ex) {
+                // Ignore - can't do anything against it anyways
             }
         }
     }
 
-    private void saveBookingAndThrow(Booking b) {
-        try {
-            bookingService.saveBooking(b);
-        } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.toString());
+    private static class HistoryEntryWrapper {
+
+        private final HistoryEntryDTO entry;
+        private final DiceService diceService;
+        private final DiceSideService diceSideService;
+
+        private Dice dice;
+        private BookingCategory bookingCategory;
+        private User user;
+        private boolean handleEntry = false;
+
+        private HistoryEntryWrapper(HistoryEntryDTO entry,
+                                    DiceService diceService,
+                                    DiceSideService diceSideService) {
+            this.entry = entry;
+            this.diceService = diceService;
+            this.diceSideService = diceSideService;
+            this.handleEntry = getHandleEntry();
+        }
+
+        private boolean getHandleEntry() {
+            dice = diceService.getDiceByInternalId(entry.getCubeInternalId());
+
+            if(dice == null) {
+                // Dice seems not to be registered here - so ignore this entry
+                return false;
+            }
+
+            user = dice.getUser();
+
+            if(user == null) {
+                // Seems like the dice doesn't have a user assigned - ignore
+                return false;
+            }
+
+            DiceSide diceSide = diceSideService.findByDiceAndSide(dice, entry.getSide());
+
+            if(diceSide == null) {
+                // The given side is not configured on the given dice - so ignore this entry
+                return false;
+            }
+
+            bookingCategory = diceSide.getBookingCategory();
+
+            if(bookingCategory == null) {
+                // In theory this should never happen - dice side without BookingCategory is not valid.
+                // We don't want any exceptions here so ignore this entry
+                return false;
+            }
+
+            // If so the dice was on side vacation our out of office or something
+            // Ignore this entry
+            return !bookingCategory.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
         }
     }
 

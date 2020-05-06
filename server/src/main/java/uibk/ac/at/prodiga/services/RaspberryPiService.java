@@ -108,6 +108,16 @@ public class RaspberryPiService {
     }
 
     /**
+     * Returns the number of configured raspberry Pis
+     * @return The number of configured raspberry pis
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public int getNumConfiguredRaspberryPis() {
+        return Lists.newArrayList(raspberryPiRepository.findAll()).size();
+    }
+
+
+    /**
      * Adds a new raspberry to the pending list
      * @param internalId The raspberry pis internal ID
      */

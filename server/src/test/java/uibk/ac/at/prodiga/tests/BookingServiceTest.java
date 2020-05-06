@@ -3,6 +3,7 @@ package uibk.ac.at.prodiga.tests;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +17,7 @@ import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 
@@ -38,6 +40,9 @@ public class BookingServiceTest
 
     @Autowired
     DepartmentRepository departmentRepository;
+
+    @Autowired
+    VacationRepository vacationRepository;
 
     @Autowired
     TeamRepository teamRepository;
@@ -444,6 +449,50 @@ public class BookingServiceTest
         Assertions.assertDoesNotThrow(() -> {
             bookingService.saveBooking(b1);
         }, "Exception was thrown despite user having permissions to save historic data.");
+    }
+
+    /**
+     * Tests if exceptions are properly thrown when trying to save bookings over vacations
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_over_vacation() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+
+        Vacation v1 = DataHelper.createVacation(-4, -1, u1, vacationRepository);
+        Vacation v2 = DataHelper.createVacation( -7, -7, u1, vacationRepository);
+
+        Booking b1 = new Booking();
+        b1.setBookingCategory(cat);
+        b1.setDice(d1);
+        long currentEpoch = new Date().toInstant().toEpochMilli();
+
+        //4 days ago, covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 4)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 4 + 1000 * 60 * 30)));
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> bookingService.saveBooking(b1));
+
+        //1 day ago, covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 + 1000 * 60 * 30)));
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> bookingService.saveBooking(b1));
+
+        //starts 8 days ago, ends 7 days ago, covered by v2 by end date
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch  - 1000 * 60 * 60 * 24 * 8)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch  - 1000 * 60 * 60 * 24 * 7)));
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> bookingService.saveBooking(b1));
+
+        //5 days ago, not covered by vacation
+        b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 5)));
+        b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 30)));
+        Assertions.assertDoesNotThrow(() -> bookingService.saveBooking(b1));
+
+
     }
 
 

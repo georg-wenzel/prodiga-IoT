@@ -1,8 +1,8 @@
 package uibk.ac.at.prodigaclient.threads;
 
-import jdk.internal.net.http.common.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.javatuples.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +28,8 @@ public class DiceSideThreadPool {
         }
         // First make sure the thread impl runs and the start the thread
         Pair<DiceSideListenerThread, Thread> thread = threadPool.get(internalId);
-        thread.first.ensureRunning();
-        thread.second.start();
+        thread.getValue0().ensureRunning();
+        thread.getValue1().start();
     }
 
     /**
@@ -40,12 +40,12 @@ public class DiceSideThreadPool {
         if(threadPool.containsKey(internalId)) {
             Pair<DiceSideListenerThread, Thread> thread = threadPool.get(internalId);
             // First stop it
-            thread.first.ensureStopped();
+            thread.getValue0().ensureStopped();
             try {
                 // The we wait for the thread to exit
-                thread.second.join();
+                thread.getValue1().join();
             } catch (Exception ex) {
-                logger.error("Error while joining thread " + thread.second.getName(), ex);
+                logger.error("Error while joining thread " + thread.getValue1().getName(), ex);
             }
         }
 

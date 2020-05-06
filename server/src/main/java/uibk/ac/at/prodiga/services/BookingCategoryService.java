@@ -10,6 +10,7 @@ import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -32,7 +33,7 @@ public class BookingCategoryService
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public BookingCategory findById(long id)
     {
         Optional<BookingCategory> cat = bookingCategoryRepository.findById(id);
@@ -43,7 +44,7 @@ public class BookingCategoryService
      * Returns all saved booking categories
      * @return All booking categories
      */
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER') || hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<BookingCategory> findAllCategories()
     {
         return Lists.newArrayList(bookingCategoryRepository.findAll());
@@ -60,18 +61,21 @@ public class BookingCategoryService
         if(t == null) {
             return new ArrayList<>();
         }
-
-        return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(t));
+        List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(t));
+        bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).ifPresent(teamCategories::add);
+        return teamCategories;
     }
 
     /**
      * Returns all booking categories of the user's team
      * @return All booking categories of the team the user is in. This should always exist, since the user calling the method is teamleader.
      */
-    @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam()
     {
-        return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
+        List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
+        bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).ifPresent(teamCategories::add);
+        return teamCategories;
     }
 
     /**
@@ -109,6 +113,8 @@ public class BookingCategoryService
         if(StringUtils.isEmpty(cat.getName())) {
             throw new ProdigaGeneralExpectedException("Name may not be null", MessageType.ERROR);
         }
+
+        if(cat.getId() != null && cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) throw new ProdigaGeneralExpectedException("The category " + cat.getName() + " is a mandatory category and may not be edited.", MessageType.ERROR);
 
         if(cat.isNew()) {
             cat.setObjectCreatedDateTime(new Date());
@@ -168,6 +174,7 @@ public class BookingCategoryService
     public void disallowForTeam(BookingCategory cat) throws ProdigaGeneralExpectedException
     {
         if(cat == null || cat.getId() == null) return;
+        if(cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) throw new ProdigaGeneralExpectedException("The category " + cat.getName() + " is a mandatory category and may not be unassigned from a team.", MessageType.ERROR);
         User teamleader = prodigaUserLoginManager.getCurrentUser();
         BookingCategory db_cat = bookingCategoryRepository.findById(cat.getId()).orElse(null);
 

@@ -2,7 +2,6 @@ package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.User;
@@ -16,7 +15,10 @@ import java.util.List;
 
 @Component
 @Scope("view")
-public class DiceController {
+public class DiceController implements Serializable {
+
+    private static final long serialVersionUID = 5325687687622577315L;
+
     private final DiceService diceService;
     private Dice dice;
 
@@ -57,7 +59,7 @@ public class DiceController {
      * @return The found dice
      */
     public Dice getDiceByInternalId(String internalId) {
-        return this.diceService.getDiceByInternalId(internalId);
+        return this.diceService.getDiceByInternalIdWithAuth(internalId);
     }
 
     /**

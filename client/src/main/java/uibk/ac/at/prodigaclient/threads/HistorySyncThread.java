@@ -22,12 +22,10 @@ import java.util.stream.Collectors;
 public class HistorySyncThread implements Runnable {
 
     private final CubeControllerApi cubeControllerApi;
-    private final CubeManager cubeManager;
     private final Logger logger = LogManager.getLogger();
 
     public HistorySyncThread() {
         this.cubeControllerApi = Constants.getCubeControllerApi();
-        this.cubeManager = Constants.getCubeManager();
     }
 
     @Override
@@ -36,12 +34,12 @@ public class HistorySyncThread implements Runnable {
         try{
             while (true) {
                 try {
-                    Set<String> connectedIds = cubeManager.getCubeIDList();
+                    Set<String> connectedIds = CubeManager.getInstance().getCubeIDList();
 
                     logger.info("Found " + connectedIds.size() + " cubes");
 
                     for(String str : connectedIds) {
-                        List<HistoryEntry> historyEntry = cubeManager.getHistory(str);
+                        List<HistoryEntry> historyEntry = CubeManager.getInstance().getHistory(str);
                         List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream().map(x -> {
                             HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
                             historyEntryDTO.setCubeInternalId(str);

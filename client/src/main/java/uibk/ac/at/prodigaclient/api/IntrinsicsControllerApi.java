@@ -11,10 +11,7 @@ import retrofit2.http.*;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface IntrinsicsControllerApi {
   /**
@@ -53,4 +50,18 @@ public interface IntrinsicsControllerApi {
   Call<List<FeedDTO>> getFeedForDevicesUsingGET(
           @retrofit2.http.Body List<String> internalIds
   );
+
+  /**
+   * Completes the given feed item on the server
+   *
+   * @param feedId The feeds id
+   * @return Call&lt;Void&gt;
+   */
+  @Headers({
+          "Content-Type:application/json"
+  })
+  @POST("api/feed")
+  Call<Void> completeFeedUsingPOST(
+          @retrofit2.http.Body UUID feedId
+          );
 }

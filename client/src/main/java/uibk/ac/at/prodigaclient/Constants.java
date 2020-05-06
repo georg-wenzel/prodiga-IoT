@@ -2,7 +2,6 @@
 
 package uibk.ac.at.prodigaclient;
 
-import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.api.AuthControllerApi;
 import uibk.ac.at.prodigaclient.api.CubeControllerApi;
 import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
@@ -22,7 +21,6 @@ public class Constants {
     private static AuthControllerApi authControllerApi = null;
     private static IntrinsicsControllerApi intrinsicsControllerApi = null;
     private static CubeControllerApi cubeControllerApi = null;
-    private static CubeManager cubeManager = null;
 
     public static final int DEFAULT_WAIT_TIMEOUT_MILLIS = 20000;
 
@@ -109,12 +107,5 @@ public class Constants {
             intrinsicsControllerApi = getClient().createService(IntrinsicsControllerApi.class);
         }
         return intrinsicsControllerApi;
-    }
-
-    public static CubeManager getCubeManager() {
-        if(cubeManager == null) {
-            cubeManager = new CubeManager();
-        }
-        return cubeManager;
     }
 }

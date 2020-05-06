@@ -45,6 +45,15 @@ public class UserService {
         return Lists.newArrayList(userRepository.findDepartmentMemberOf(department));
     }
 
+    /**
+     * Returns the number of users in the system
+     *
+     * @return Number of all users
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public int getNumUsers() {
+        return Lists.newArrayList(userRepository.findAll()).size();
+    }
      /* Loads a single user identified by its username.
      *
      * @param username the username to search for
