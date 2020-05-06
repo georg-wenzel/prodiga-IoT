@@ -156,7 +156,7 @@ public class UserService {
         return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
     public User getDepartmentLeaderOf(Department department)
     {
         return userRepository.findDepartmentLeaderOf(department);

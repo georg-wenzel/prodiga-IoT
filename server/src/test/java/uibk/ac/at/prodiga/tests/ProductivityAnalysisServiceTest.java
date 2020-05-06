@@ -233,5 +233,61 @@ public class ProductivityAnalysisServiceTest {
         Assertions.assertEquals(teamMonthstatistic, productivityAnalysisService.getStatisicForTeamByWeek(1));
     }
 
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "statistic_test_user1", authorities = {"TEAMLEADER"})
+    public void statistic_team_backstepMonth(){
+        //set activity end time to 3 days 22 hours before current time.
+        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
+        //set activity start time to 4 days ago
+        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
+        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
 
+        //set activity end time to 20 days before current time.
+        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*20);
+        //set activity start time to 25 days ago
+        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*25);
+        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u2,d2,bookingRepository);
+
+        //set activity end time to 29 days before current time.
+        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*29);
+        //set activity start time to 30 days ago
+        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*30);
+        Booking booking3 = DataHelper.createBooking(cat1,startingTime3,endingTime3,u1,d1,bookingRepository);
+
+        HashMap<BookingCategory,Long> thisMonthStatistic = new HashMap<>();
+        thisMonthStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForCurrentUserByMonth(1));
+        thisMonthStatistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) /(1000*60*60));
+        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForTeamByMonth(1));
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "statistic_test_user2", authorities = {"DEPARTMENTLEADER"})
+    public void statistic_department_backstepMonth(){
+        //set activity end time to 3 days 22 hours before current time.
+        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
+        //set activity start time to 4 days ago
+        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
+        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+
+        //set activity end time to 20 days before current time.
+        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*20);
+        //set activity start time to 24 days ago
+        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*24);
+        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u2,d2,bookingRepository);
+
+        //set activity end time to 20 days before current time.
+        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*20);
+        //set activity start time to 21 days ago
+        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*21);
+        Booking booking3 = DataHelper.createBooking(cat2,startingTime3,endingTime3,u3,d3,bookingRepository);
+
+        HashMap<BookingCategory,Long> backstep1MonthStatistic = new HashMap<>();
+        backstep1MonthStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        backstep1MonthStatistic.put(cat2, ((endingTime2.getTime()-startingTime2.getTime()) + (endingTime3.getTime()-startingTime3.getTime())) /(1000*60*60));
+        Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisicForDepartmenByMonth(1));
+
+    }
 }

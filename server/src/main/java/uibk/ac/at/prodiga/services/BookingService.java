@@ -302,7 +302,8 @@ public class BookingService
         c.setTime(date);
         c.add(Calendar.MONTH, -backstepMonth);
         Date start = c.getTime();
-        Date end = new Date();
+        c.add(Calendar.MONTH, 1);
+        Date end = c.getTime();
         return getBookingInRangeForUser(user, start, end);
     }
 
