@@ -11,6 +11,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.util.*;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -234,6 +235,94 @@ public class BookingService
     }
 
     /**
+     * Searches for a collections of the current user's last week's bookings for a given booking category.
+     *
+     * @param bookingCategory The category for searching bookings
+     * @return collection of bookings
+     */
+
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLastWeek(User user,BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        c.add(Calendar.DATE, -i - 7);
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 6);
+        Date end = c.getTime();
+        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
+    }
+
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLast24hours(User user,BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, -1);
+        Date start = c.getTime();
+        Date end = new Date();
+        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
+    }
+
+    public Collection<Booking> getUsersBookingInRangeByCategoryForLastMonth(User user,BookingCategory bookingCategory) {
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MONTH, -1);
+        Date start = c.getTime();
+        Date end = new Date();
+        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
+    }
+
+    /**
+     * Searches for a collections of bookings for a given user, booking category and period of time
+     *
+     * @param user The user that has done the booking
+     * @param bookingCategory The category for searching bookings
+     * @param begin The beginning date
+     * @param end The ending date
+     * @return collections of bookings
+     */
+    public Collection<Booking> getBookingInRangeByCategoryAndByUser(User user, BookingCategory bookingCategory, Date begin, Date end) {
+        return Lists.newArrayList(bookingRepository.findUsersBookingWithCategoryInRange(user,bookingCategory,begin,end));
+    }
+
+    public Collection<Booking> getBookingInRangeForUser(User user, Date begin, Date end) {
+        return Lists.newArrayList(bookingRepository.findUsersBookingInRange(user,begin,end));
+    }
+
+    public Collection<Booking> getUsersBookingInRangeByDay(User user, int backstepDay){
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, -backstepDay);
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 1);
+        Date end = c.getTime();
+        return getBookingInRangeForUser(user, start, end);
+    }
+
+    public Collection<Booking> getUsersBookingInRangeByWeek(User user, int backstepWeek){
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        c.add(Calendar.DATE, -(7*backstepWeek));
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 6);
+        Date end = c.getTime();
+        return getBookingInRangeForUser(user, start, end);
+    }
+
+    public Collection<Booking> getUsersBookingInRangeByMonth(User user,int backstepMonth){
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MONTH, -backstepMonth);
+        Date start = c.getTime();
+        c.add(Calendar.MONTH, 1);
+        Date end = c.getTime();
+        return getBookingInRangeForUser(user, start, end);
+    }
+
      * Searches for a collections of bookings for a given booking category and period of time
      *
      * @param bookingCategory The category for searching bookings

@@ -165,13 +165,13 @@ public class UserService {
         return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
     public User getDepartmentLeaderOf(Department department)
     {
         return userRepository.findDepartmentLeaderOf(department);
     }
 
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
     public User getTeamLeaderOf(Team team)
     {
         return userRepository.findTeamLeaderOf(team);
