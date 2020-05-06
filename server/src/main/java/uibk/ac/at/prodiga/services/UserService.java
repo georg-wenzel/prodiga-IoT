@@ -162,7 +162,7 @@ public class UserService {
         return userRepository.findDepartmentLeaderOf(department);
     }
 
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
     public User getTeamLeaderOf(Team team)
     {
         return userRepository.findTeamLeaderOf(team);
