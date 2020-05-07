@@ -24,7 +24,8 @@ services:
         restart: always
         volumes:
             - m2data:/home/prodiga_user/.m2/repository
-            - "${PWD}/server:/home/prodiga_user/app"
+            - ${PWD}/server:/home/prodiga_user/app
 
 volumes:
-    m2data: {}
+    m2data:
+        external: false
