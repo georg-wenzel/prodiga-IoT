@@ -369,7 +369,7 @@
                 </p:carousel>
                 <br></br><br></br>
             </h:form></ui:fragment>
-            <ui:fragment rendered="#{(prodigaUserLoginManager.hasRole('TEAMLEADER') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}">
+        <ui:fragment rendered="#{(prodigaUserLoginManager.getCurrentUser().assignedTeam != null and prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')) or (prodigaUserLoginManager.getCurrentUser().assignedTeam != null and prodigaUserLoginManager.hasRole('TEAMLEADER'))}">
             <h2>Statistic Overview</h2>
             </ui:fragment>
             <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}">
