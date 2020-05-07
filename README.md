@@ -1,4 +1,3 @@
-
 # Prodiga
 
 Made with :beers: in Innsbruck!
@@ -48,7 +47,7 @@ Follwoing Problems might occur:
   However sometimes the script generated is a bit weird. So try to drop and create the DB manully.
 
 ### Setup with Docker
-### #Docker-Compose
+#### Docker-Compose
 A docker-compose file is provided for you. Run `docker-compose up` to start the mysql client and webapp server. Alternatively, you can follow the steps below to start individiual pieces of the web application.
 
 #### Alternative: Manual setup
@@ -81,7 +80,7 @@ The MYSQL_HOST environment variable is used by spring and must point to the name
 
 The database must be running before running the server.
 
-##### Potential Problems:
+#### Potential Problems:
 
 On Windows Home, directories can not be simply mounted using Docker Toolbox.  The following [StackOverflow question](https://stackoverflow.com/questions/57756835/docker-toolbox-volume-mounting-not-working-on-windows-10) explains in detail how to add a directory to the VirtualBox shared directories, in order to properly mount the directory. 
 > 1.  In Virtual Box under 'Settings' -> 'Shared Folders' added 'projects' and pointed it to the location I want to mount. In my case
