@@ -51,7 +51,7 @@ This means our history entry lied on facet `6` for `13` seconds.
 
 
 ## Battery outage
-If the battery is removed or is empty the TimeFlip resets his configuration, such as the Password or the Facet ID's.
+If the battery is removed or is empty the TimeFlip resets his configuration, such as the Password and the Facet ID's.
 This is a big problem because in our server we have assigned facet ID's to activities.
 
 Therefore we examined how the facets get the new ID's:
