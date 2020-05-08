@@ -183,81 +183,202 @@ public class ProductivityAnalysisService {
                 "\t<script src=\"https://cdn.jsdelivr.net/npm/chart.js@2.8.0\"></script>\n" +
                 "\t<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js\" type=\"text/javascript\"></script>\n" +
                 "\n" +
-                "\t<canvas id=\"myChart\" style=\"position: center; height:50vh; width:100vw\"></canvas>\n" +
+                "\t<div style=\"position: center; height:60vh; width:100vw\">\n" +
+                "\t<canvas id=\"chart\"></canvas>\n" +
+                "\t</div>\n" +
+                "\t\n" +
+                "\t<div style=\"width: 45vw; float:left; height:40vh; margin:10px\">\n" +
+                "\t<canvas id=\"chart2\"></canvas>\n" +
+                "\t</div>\n" +
+                "\t<div style=\"width: 45vw; float:left; height:40vh;margin:10px\">\n" +
+                "\t<canvas id=\"chart3\"></canvas>\n" +
+                "\t</div>\n" +
                 "\n" +
-                "<script>\n");
+                "\t<script>");
 
         stringBuilder.append("var json = " + jsonString + ";");
         stringBuilder.append("\n" +
-                "\tvar labels = Object.keys(json);\n" +
-                "\tvar data = Object.values(json);\n" +
-                "\tvar ctx = document.getElementById('myChart').getContext('2d');\n" +
-                "\tvar myChart = new Chart(ctx, {\n" +
-                "\t\ttype: 'bar',\n" +
-                "\t\tdata: {\n" +
-                "\t\t\tlabels: labels,\n" +
-                "\t\t\tdatasets: [{\n" +
-                "\t\t\t\tlabels: ['asdf', 'sadf'],\n" +
-                "\t\t\t\tdata: data,\n" +
-                "\t\t\t\tbackgroundColor: [\n" +
-                "\t\t\t\t\t'rgba(255, 99, 132, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(54, 162, 235, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(255, 206, 86, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(75, 192, 192, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(153, 102, 255, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(255, 159, 64, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(225, 61, 61, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(189, 61, 225, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(110, 225, 61, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(61, 225, 200, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(192, 225, 61, 0.2)',\n" +
-                "\t\t\t\t\t'rgba(61, 102, 225, 0.2)'\n" +
-                "\t\t\t\t],\n" +
-                "\t\t\t\tborderColor: [\n" +
-                "\t\t\t\t\t'rgba(255, 99, 132, 1)',\n" +
-                "\t\t\t\t\t'rgba(54, 162, 235, 1)',\n" +
-                "\t\t\t\t\t'rgba(255, 206, 86, 1)',\n" +
-                "\t\t\t\t\t'rgba(75, 192, 192, 1)',\n" +
-                "\t\t\t\t\t'rgba(153, 102, 255, 1)',\n" +
-                "\t\t\t\t\t'rgba(255, 159, 64, 1)',\n" +
-                "\t\t\t\t\t'rgba(225, 61, 61, 1)',\n" +
-                "\t\t\t\t\t'rgba(189, 61, 225, 1)',\n" +
-                "\t\t\t\t\t'rgba(110, 225, 61, 1)',\n" +
-                "\t\t\t\t\t'rgba(61, 225, 200, 1)',\n" +
-                "\t\t\t\t\t'rgba(192, 225, 61, 1)',\n" +
-                "\t\t\t\t\t'rgba(61, 102, 225, 1)'\n" +
-                "\t\t\t\t],\n" +
-                "\t\t\t\tborderWidth: 1\n" +
-                "\t\t\t}]\n" +
-                "\t\t},\n" +
-                "\t\toptions: {\n" +
-                "\t\t\tresponsive: false,\n" +
-                "\t\t  legend: { display: false },\n" +
-                "\t\t   title: {\n" +
-                "            display: true,\n");
+                "\t\tvar labels = Object.keys(json);\n" +
+                        "\t\tvar data = Object.values(json);\n" +
+                        "\t\tvar chart = document.getElementById('chart').getContext('2d');\n" +
+                        "\t\tvar chart2 = document.getElementById('chart2').getContext('2d');\n" +
+                        "\t\tvar chart3 = document.getElementById('chart3').getContext('2d');\n" +
+                        "\t\tvar chart = new Chart(chart, {\n" +
+                        "\t\t\ttype: 'bar',\n" +
+                        "\t\t\tdata: {\n" +
+                        "\t\t\t\tlabels: labels,\n" +
+                        "\t\t\t\tdatasets: [{\n" +
+                        "\t\t\t\t\tlabels: ['asdf', 'sadf'],\n" +
+                        "\t\t\t\t\tdata: data,\n" +
+                        "\t\t\t\t\tbackgroundColor: [\n" +
+                        "\t\t\t\t\t\t'rgba(255, 99, 132, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(54, 162, 235, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(255, 206, 86, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(75, 192, 192, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(153, 102, 255, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(255, 159, 64, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(225, 61, 61, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(189, 61, 225, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(110, 225, 61, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(61, 225, 200, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(192, 225, 61, 0.2)',\n" +
+                        "\t\t\t\t\t\t'rgba(61, 102, 225, 0.2)'\n" +
+                        "\t\t\t\t\t],\n" +
+                        "\t\t\t\t\tborderColor: [\n" +
+                        "\t\t\t\t\t\t'rgba(255, 99, 132, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(54, 162, 235, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(255, 206, 86, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(75, 192, 192, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(153, 102, 255, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(255, 159, 64, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(225, 61, 61, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(189, 61, 225, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(110, 225, 61, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(61, 225, 200, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(192, 225, 61, 1)',\n" +
+                        "\t\t\t\t\t\t'rgba(61, 102, 225, 1)'\n" +
+                        "\t\t\t\t\t],\n" +
+                        "\t\t\t\t\tborderWidth: 1\n" +
+                        "\t\t\t\t}]\n" +
+                        "\t\t\t},\n" +
+                        "\t\t\toptions: {\n" +
+                        "\t\t\t\tmaintainAspectRatio: false,\n" +
+                        "\t\t\t  legend: { display: false },\n" +
+                        "\t\t\t   title: {\n" +
+                        "\t\t\t\tdisplay: true,\n");
 
-        stringBuilder.append("text: 'Time spent on categories. " + frequencyType.getLabel() + " overview.',");
+        stringBuilder.append("text: 'Time spent on categories - " + frequencyType.getLabel() + " overview',");
         stringBuilder.append("\n" +
-                "\t\t\t},\n" +
-                "\t\t\tscales: {\n" +
-                "\t\t\t\tyAxes: [{\n" +
-                "\t\t\t\t\tticks: {\n" +
-                "\t\t\t\t\t\tbeginAtZero: true\n" +
-                "\t\t\t\t\t}\n" +
+                "\t\t\t\tfontSize: 20,\n" +
+                "\t\t\t\tpadding: 30\n" +
+                "\t\t\t\t},\n" +
+                "\t\t\t\tscales: {\n" +
+                "\t\t\t\t\tyAxes: [{\n" +
+                "\t\t\t\t\t\tticks: {\n" +
+                "\t\t\t\t\t\t\tbeginAtZero: true\n" +
+                "\t\t\t\t\t\t}\n" +
+                "\t\t\t\t\t}]\n" +
+                "\t\t\t\t},\n" +
+                "\t\t\t\tlayout: {\n" +
+                "\t\t\t\tpadding: {\n" +
+                "\t\t\t\t\tleft: 50,\n" +
+                "\t\t\t\t\tright: 50,\n" +
+                "\t\t\t\t\ttop: 50,\n" +
+                "\t\t\t\t\tbottom: 50\n" +
+                "\t\t\t\t}\n" +
+                "\t\t\t}\n" +
+                "\t\t\t}\n" +
+                "\t\t});\n" +
+                "\t\t\n" +
+                "\t\tvar chart2 = new Chart(chart2, {\n" +
+                "\t\t\ttype: 'pie',\n" +
+                "\t\t\tdata: {\n" +
+                "\t\t\t\tlabels: labels,\n" +
+                "\t\t\t\tdatasets: [{\n" +
+                "\t\t\t\t\tlabels: ['asdf', 'sadf'],\n" +
+                "\t\t\t\t\tdata: data,\n" +
+                "\t\t\t\t\tbackgroundColor: [\n" +
+                "\t\t\t\t\t\t'rgba(255, 99, 132, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(54, 162, 235, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 206, 86, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(75, 192, 192, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(153, 102, 255, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 159, 64, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(225, 61, 61, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(189, 61, 225, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(110, 225, 61, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 225, 200, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(192, 225, 61, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 102, 225, 0.2)'\n" +
+                "\t\t\t\t\t],\n" +
+                "\t\t\t\t\tborderColor: [\n" +
+                "\t\t\t\t\t\t'rgba(255, 99, 132, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(54, 162, 235, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 206, 86, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(75, 192, 192, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(153, 102, 255, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 159, 64, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(225, 61, 61, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(189, 61, 225, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(110, 225, 61, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 225, 200, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(192, 225, 61, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 102, 225, 1)'\n" +
+                "\t\t\t\t\t],\n" +
+                "\t\t\t\t\tborderWidth: 1\n" +
                 "\t\t\t\t}]\n" +
                 "\t\t\t},\n" +
-                "\t\t\tlayout: {\n" +
-                "            padding: {\n" +
-                "                left: 50,\n" +
-                "                right: 50,\n" +
-                "                top: 50,\n" +
-                "                bottom: 50\n" +
-                "            }\n" +
-                "        }\n" +
-                "\t\t}\n" +
-                "\t});\n" +
-                "\t\n" +
-                "</script>\n" +
+                "\t\t\toptions: {\n" +
+                "\t\t\t\tmaintainAspectRatio: false,\n" +
+                "\t\t\t  legend: { position: 'bottom'},\n" +
+                "\t\t\t   \n" +
+                "\t\t\t\t\n" +
+                "\t\t\t\tlayout: {\n" +
+                "\t\t\t\tpadding: {\n" +
+                "\t\t\t\t\tleft: 50,\n" +
+                "\t\t\t\t\tright: 50,\n" +
+                "\t\t\t\t\ttop: 50,\n" +
+                "\t\t\t\t\tbottom: 50\n" +
+                "\t\t\t\t}\n" +
+                "\t\t\t}\n" +
+                "\t\t\t}\n" +
+                "\t\t});\n" +
+                "\t\t\n" +
+                "\t\tvar chart3 = new Chart(chart3, {\n" +
+                "\t\t\ttype: 'polarArea',\n" +
+                "\t\t\tdata: {\n" +
+                "\t\t\t\tlabels: labels,\n" +
+                "\t\t\t\tdatasets: [{\n" +
+                "\t\t\t\t\tlabels: ['asdf', 'sadf'],\n" +
+                "\t\t\t\t\tdata: data,\n" +
+                "\t\t\t\t\tbackgroundColor: [\n" +
+                "\t\t\t\t\t\t'rgba(255, 99, 132, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(54, 162, 235, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 206, 86, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(75, 192, 192, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(153, 102, 255, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 159, 64, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(225, 61, 61, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(189, 61, 225, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(110, 225, 61, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 225, 200, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(192, 225, 61, 0.2)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 102, 225, 0.2)'\n" +
+                "\t\t\t\t\t],\n" +
+                "\t\t\t\t\tborderColor: [\n" +
+                "\t\t\t\t\t\t'rgba(255, 99, 132, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(54, 162, 235, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 206, 86, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(75, 192, 192, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(153, 102, 255, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(255, 159, 64, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(225, 61, 61, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(189, 61, 225, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(110, 225, 61, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 225, 200, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(192, 225, 61, 1)',\n" +
+                "\t\t\t\t\t\t'rgba(61, 102, 225, 1)'\n" +
+                "\t\t\t\t\t],\n" +
+                "\t\t\t\t\tborderWidth: 1\n" +
+                "\t\t\t\t}]\n" +
+                "\t\t\t},\n" +
+                "\t\t\toptions: {\n" +
+                "\t\t\t\tmaintainAspectRatio: false,\n" +
+                "\t\t\t  legend: { position: 'bottom'},\n" +
+                "\t\t\t   \n" +
+                "\t\t\t\tlayout: {\n" +
+                "\t\t\t\tpadding: {\n" +
+                "\t\t\t\t\tleft: 50,\n" +
+                "\t\t\t\t\tright: 50,\n" +
+                "\t\t\t\t\ttop: 50,\n" +
+                "\t\t\t\t\tbottom: 50\n" +
+                "\t\t\t\t}\n" +
+                "\t\t\t}\n" +
+                "\t\t\t}\n" +
+                "\t\t});\n" +
+                "\t\t\n" +
+                "\t\t\n" +
+                "\t</script>\n" +
                 "</body>\n" +
                 "</html>\t");
 

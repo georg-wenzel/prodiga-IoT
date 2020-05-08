@@ -55,7 +55,7 @@ public class MailFrequencyService {
     public void sendDailyNotification(){
         for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.DAILY)) {
             productivityAnalysisService.createJSON(FrequencyType.DAILY, user);
-            mailService.sendEmailTo(user, "Your daily Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your daily productivity statistic can be found in the appendix.\n\n" + "Best Regards\nThe Prodiga System Managers", FrequencyType.DAILY);
+            mailService.sendEmailTo(user, "Your daily Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your daily productivity statistic can be found in the appendix.\n\n" + "Best Regards,\nThe Prodiga System Managers", FrequencyType.DAILY);
         }
     }
 
