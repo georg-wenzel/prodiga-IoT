@@ -120,7 +120,7 @@ public class ExceptionHelperBean {
             builder.append("No exception Information!");
         }
 
-        mailService.sendMail(Constants.DEFAULT_EMAIL_RECEIVER, "New Error Report!", builder.toString());
+        mailService.sendMail(Constants.DEFAULT_EMAIL_RECEIVER, "New Error Report!", builder.toString(), null, null);
     }
 
 }
