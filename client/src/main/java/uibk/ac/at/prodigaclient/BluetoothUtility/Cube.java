@@ -225,8 +225,6 @@ public class Cube {
             historyList.remove(historyList.size() - 1);
 
             historyEntryList = HistoryListHelper.convertToHistoryList(historyList);
-
-            deleteHistory();
         } else {
             System.out.println("Facet service not found");
         }
