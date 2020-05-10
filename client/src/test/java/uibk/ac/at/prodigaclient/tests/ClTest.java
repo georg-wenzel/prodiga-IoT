@@ -5,6 +5,7 @@ import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// this class was here to test if everything works for testing the client.
 public class ClTest {
     @Test
     void test_tests() {
