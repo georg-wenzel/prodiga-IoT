@@ -78,22 +78,27 @@
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel styleClass="input-form" for="teams" value="Team: " rendered="#{userDetailController.user.assignedTeam != null}"/>
                                 </div>
-                                <div class="ui-g-8 input-form">
+                                <p:outputPanel styleClass="ui-g-8 input-form"  rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
                                     <p:selectOneMenu id="teams" value="#{userDetailController.user.assignedTeam.name}" style="width:250px" rendered="#{userDetailController.user.assignedTeam != null}">
                                         <f:selectItem itemLabel="#{userDetailController.user.assignedTeam.name}" itemValue="#{userDetailController.user.assignedTeam}" />
                                         <f:selectItems value="#{teamController.allTeams}" var="team" itemLabel="#{team.name}" itemValue="#{team}"/>
                                     </p:selectOneMenu>
-                                </div>
+                                </p:outputPanel>
+                                <p:outputPanel  class="ui-g-8 input-form"  rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <h:outputText value="#{userDetailController.user.assignedTeam.name}" />
+                                </p:outputPanel>
 
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel styleClass="input-form" for="departments" value="Department: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
                                 </div>
-                                <div class="ui-g-8 input-form">
+                                <p:outputPanel class="ui-g-8 input-form" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" >
                                     <p:selectOneMenu id="departments" value="#{userDetailController.user.assignedDepartment.id}" style="width:100%" rendered="#{userDetailController.user.assignedDepartment != null}">
                                         <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department.id}"/>
                                     </p:selectOneMenu>
-
-                                </div>
+                                </p:outputPanel>
+                                <p:outputPanel  class="ui-g-8 input-form" rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <h:outputText value="#{userDetailController.user.assignedDepartment}" />
+                                </p:outputPanel>
                             </div>
                         </div>
 
@@ -103,7 +108,7 @@
                                     <p:outputLabel styleClass="input-form" for="isAdmin" value=" Is Admin: " />
                                 </div>
                                 <div class="ui-g-10 input-form">
-                                    <p:selectBooleanCheckbox id ="isAdmin" value="#{userDetailController.isAdmin}" disabled="true"/>
+                                    <p:selectBooleanCheckbox id ="isAdmin" value="#{userDetailController.isAdmin}" disabled="#{!prodigaUserLoginManager.hasRole('ADMIN')}"/>
                                 </div>
                             </div>
                         </div>
@@ -114,7 +119,7 @@
                                     <p:outputLabel styleClass="input-form" for="mayEditBookings" value=" May edit bookings: " />
                                 </div>
                                 <div class="ui-g-10 input-form">
-                                    <p:selectBooleanCheckbox id ="mayEditBookings" value="#{userDetailController.user.mayEditHistoricData}"/>
+                                    <p:selectBooleanCheckbox id ="mayEditBookings" value="#{userDetailController.user.mayEditHistoricData}" disabled="#{!prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}"/>
                                 </div>
                             </div>
                         </div>
@@ -125,8 +130,8 @@
                                     <p:outputLabel for="roles" value="Roles: " />
                                 </div>
                                 <div class="ui-g-10 input-form">
-                                    <p:selectManyButton id="roles"
-                                                        value="#{userDetailController.user.rolesAsString}">
+                                    <p:selectManyButton id="roles" disabled="#{!prodigaUserLoginManager.hasRole('ADMIN')}"
+                                                        value="#{userDetailController.userRolesAsString}">
                                         <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
                                     </p:selectManyButton>
                                 </div>

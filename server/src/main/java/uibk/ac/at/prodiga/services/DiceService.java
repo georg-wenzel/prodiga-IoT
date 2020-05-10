@@ -82,6 +82,15 @@ public class DiceService {
      * @return The found dice
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    public Dice getDiceByInternalIdWithAuth(String internalId) {
+        return getDiceByInternalId(internalId);
+    }
+
+    /**
+     * Returns the dice with the given internal id
+     * @param internalId the internal id
+     * @return The found dice
+     */
     public Dice getDiceByInternalId(String internalId) {
         return diceRepository.findFirstByInternalId(internalId);
     }

@@ -1,27 +1,31 @@
 version: '3'
 
-networks: 
-    main:
-
 services:
     db:
         image: mysql
         command: --default-authentication-plugin=mysql_native_password
-        restart: always
         environment:
-            MYSQL_USER: prodiga
-            MYSQL_PASSWORD: SuperGeheimesPassword123NacktNiemand!!
-            MYSQL_DATABASE: prodiga
-            MYSQL_ROOT_PASSWORD: root
-        networks: 
-            - main
-    backend:
-        build:
-            context: .
-            dockerfile: Dockerfile
+            - MYSQL_USER=prodiga
+            - 'MYSQL_PASSWORD=SuperGeheimesPassword123NacktNiemand!!'
+            - MYSQL_DATABASE=prodiga
+            - MYSQL_ROOT_PASSWORD=root
         ports:
-            - "8080:8080"
-        depends_on: 
-            - "db"
-        networks: 
-            - main
+            - 3306:3306
+            
+    server: 
+        build: .
+        image: prodiga_server:1.0
+        ports:
+            - 8080:8080
+        depends_on:
+            - db
+        environment:
+            - MYSQL_HOST=db
+        restart: always
+        volumes:
+            - m2data:/home/prodiga_user/.m2/repository
+            - ${PWD}/server:/home/prodiga_user/app
+
+volumes:
+    m2data:
+        external: false

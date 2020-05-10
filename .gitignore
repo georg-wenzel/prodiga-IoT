@@ -24,3 +24,6 @@ build
 *.iml
 /src/main/webapp/WEB-INF/classes/
 .DS_Store
+/.vs/Prodiga
+/Prodiga.SQLFileGenerator/bin/Debug/netcoreapp3.1
+/Prodiga.SQLFileGenerator/obj

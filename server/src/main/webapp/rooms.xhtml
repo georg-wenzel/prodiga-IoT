@@ -30,7 +30,7 @@
                                               outcome="room">
                                     <f:param name="roomname" value="#{room.name}"/>
                                 </p:linkButton>
-                                <p:commandButton action="#{roomDetailController.doDeleteRoom}" icon="fa fa-fw fa-trash" title="Delete" update=":roomForm:roomsTable">
+                                <p:commandButton action="#{roomDetailController.doDeleteRoom}" icon="fa fa-fw fa-trash" title="Delete" update=":roomForm:roomsTable" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{room}" target="#{roomDetailController.room}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this room? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>

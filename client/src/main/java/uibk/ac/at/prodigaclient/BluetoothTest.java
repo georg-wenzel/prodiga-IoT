@@ -238,7 +238,6 @@ public class BluetoothTest {
              */
             System.out.println("Facet ID (in int) = { " + (facet[0] & 0xff) + " }");
 
-            running = false;
             lock.lock();
             try {
                 cv.await(1, TimeUnit.SECONDS);
