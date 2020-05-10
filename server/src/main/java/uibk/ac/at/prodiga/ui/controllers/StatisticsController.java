@@ -10,6 +10,7 @@ import uibk.ac.at.prodiga.services.ProductivityAnalysisService;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -31,6 +32,26 @@ public class StatisticsController implements Serializable {
     private BarChartModel weeklyTeamAnalysisBar;
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
+
+    private HashMap<BookingCategory,String> colorByCategory;
+    private String aktualColor;
+    private BookingCategory aktualBookingCategory;
+
+    public String saveColorByCategory(){
+        return colorByCategory.put(aktualBookingCategory,aktualColor);
+    }
+    public String getAktualColor() {
+        return aktualColor;
+    }
+    public void setAktualColor(String aktualColor) {
+        this.aktualColor = aktualColor;
+    }
+    public BookingCategory getAktualBookingCategory() {
+        return aktualBookingCategory;
+    }
+    public void setAktualBookingCategory(BookingCategory aktualBookingCategory) {
+        this.aktualBookingCategory = aktualBookingCategory;
+    }
 
     public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
         this.productivityAnalysisService = productivityAnalysisService;

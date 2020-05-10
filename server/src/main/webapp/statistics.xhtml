@@ -295,11 +295,44 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:form id="colorForm">
+        <div class="ui-g">
+            <h:panelGrid columns="6" cellpadding="5" style="margin-left: 40px">
+            <div class="ui-g-10 input-form">
+                <div class="ui-g-2 input-form">
+                    <p:outputLabel for="categoryColor" value="Choose a color for each category: "/>
+                </div>
+
+                <div class="ui-g-10 input-form">
+                    <p:selectOneMenu id="categoryColor"
+                                     value="#{bookingCategoryController.allBookingCategories}">
+                        <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="bookingCategory" itemLabel="#{bookingCategory}" itemValue="#{bookingCategory}" />
+
+                    </p:selectOneMenu>
+                    <p:colorPicker value="#{statisticsController.aktualColor}" />
+                </div>
+            </div>
+            </h:panelGrid>
+            <div class="ui-g-6">
+                <p:commandButton value="Save"
+                                 action="#{statisticsController.saveColorByCategory()}"
+                                 ajax="true"
+                                 icon="fa fa-fw fa-save"
+                                 validateClient="true"
+                                 update="growl">
+                </p:commandButton>
+
+            </div>
+        </div>
+        </h:form>
+
+
         <div class="ui-g">
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Daily Pie Chart User</h1>
                     <p:chart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
+
                 </div>
             </div>
             <div class="ui-g-5">
@@ -337,6 +370,7 @@
             </div>
             </h:panelGroup>
         </div>
+
     </ui:define>
 
 </ui:composition>
