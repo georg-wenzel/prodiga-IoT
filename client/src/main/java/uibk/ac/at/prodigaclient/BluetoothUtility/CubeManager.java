@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * Cube Managing class
  * This is an easy interface to the cube class and keeps track of all the cubes in the near surrounding.
  */
-public class CubeManager {
+public class CubeManager implements Manager {
     /**
      * The interface to the bluetooth module on raspberry pi
      */
@@ -123,6 +123,21 @@ public class CubeManager {
         cube.failsafeDisconnect();
 
         return batteryPercent;
+    }
+
+    /**
+     * An interface function to the cubes deleteHistory function.
+     * deletes the history of a given cube.
+     * @param cubeID Cubes identifier from which the current side should be read
+     */
+    public void deleteHistory(String cubeID) {
+        Cube cube = listOfCubes.get(cubeID);
+
+        cube.failsafeConnect();
+
+        cube.deleteHistory();
+
+        cube.failsafeDisconnect();
     }
 
     /**
