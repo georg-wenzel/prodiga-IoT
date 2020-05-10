@@ -59,7 +59,7 @@ public class HistoryEntry {
      * @return facet id
      */
     private int getFacet(byte [] byteArray) {
-        return byteArray[2] >> 2;
+        return Byte.toUnsignedInt(byteArray[2]) >> 2;
     }
 
     /**
