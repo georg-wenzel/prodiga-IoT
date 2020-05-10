@@ -16,15 +16,16 @@ import uibk.ac.at.prodiga.services.VacationService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.Collection;
 import java.util.Date;
 
 /**
  * Test class for the Vacation Service
+ *
+ * IMPORTANT:
+ * Due to the ever changing semantics of weekends, holidays and date of test execution, these tests are not written as deterministically and strict as other service tests.
+ * They should provide a good guideline on if a fundamental function broke, but testing the web app to make sure intended behavior is still complete is a good idea.
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -153,7 +154,7 @@ public class VacationServiceTest
     }
 
     /**
-     * Tests creating a vacation which will always overstep 25 days
+     * Tests creating a vacation which will always overstep 25 yearly days
      */
     @DirtiesContext
     @Test
@@ -170,19 +171,21 @@ public class VacationServiceTest
         {
             //create test case in following year
             //20 vacation days
-            DataHelper.createVacation(100,120, u1, vacationRepository);
-            //6 vacation days
+            Vacation v1 = DataHelper.createVacation(100,120, u1, vacationRepository);
+            int totalDays = vacationService.getVacationDays(v1);
+            //30 - totalDays to cover for potential holidays and weekends
             fromDate = Date.from(LocalDate.now().plusDays(40).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(LocalDate.now().plusDays(46).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(LocalDate.now().plusDays(40 + (30 - totalDays)).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
         else
         {
             //create test case in current year
             //20 vacation days
-            DataHelper.createVacation(0,20, u1, vacationRepository);
-            //6 vacation days
+            Vacation v1 = DataHelper.createVacation(0,20, u1, vacationRepository);
+            int totalDays = vacationService.getVacationDays(v1);
+            //30 - totalDays to cover for potential holidays and weekends
             fromDate = Date.from(LocalDate.now().plusDays(21).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(LocalDate.now().plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(LocalDate.now().plusDays(21 + (30 - totalDays)).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
 
 
@@ -245,6 +248,36 @@ public class VacationServiceTest
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             vacationService.saveVacation(v3);
         }, "Vacation saved despite being too far in the future.");
+
+        //find next saturday, create weekend vacation
+        LocalDate beginDate = LocalDate.now();
+        while(beginDate.getDayOfWeek() != DayOfWeek.SATURDAY)
+            beginDate = beginDate.plusDays(1);
+
+        fromDate = Date.from(beginDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        toDate = Date.from(beginDate.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Vacation v4 = new Vacation();
+        v4.setBeginDate(fromDate);
+        v4.setEndDate(toDate);
+        v4.setUser(u1);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            vacationService.saveVacation(v4);
+        }, "Vacation saved despite being only weekend days.");
+
+        //vacation on new years holiday (xxxx-01-01)
+        fromDate = Date.from(LocalDate.of(LocalDate.now().getYear() + 1,1,1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        toDate = Date.from(LocalDate.of(LocalDate.now().getYear() + 1,1,1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        Vacation v5 = new Vacation();
+        v5.setBeginDate(fromDate);
+        v5.setEndDate(toDate);
+        v5.setUser(u1);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            vacationService.saveVacation(v5);
+        }, "Vacation saved despite being on new years holiday.");
     }
 
     /**
@@ -286,14 +319,14 @@ public class VacationServiceTest
             DataHelper.createVacation(0,19, u1, vacationRepository);
             //start date is 27th dec
             fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            toDate = Date.from(startDate.plusDays(40).atStartOfDay(ZoneId.systemDefault()).toInstant());
         }
         v1.setBeginDate(fromDate);
         v1.setEndDate(toDate);
         v1.setUser(u1);
 
-        //user has 5 vacation days in this year remaining
-        //new vacation lasts for 27 days, and starts at the latest at the 27th, so it should pass.
+        //user has min 5 vacation days in this year, might be more depending on holidays, but should not have more than 15
+        //new vacation lasts for 40 days, and starts at the latest at the 27th, so it should pass.
         vacationService.saveVacation(v1);
 
         //asserts that dates still match
@@ -317,9 +350,9 @@ public class VacationServiceTest
         LocalDate endDate = startDate.plusDays(20);
         DataHelper.createVacation(startDate, endDate, u1, vacationRepository);
 
-        //7 day vacation, with 6 in the new year, but user only has 5 left
+        //20 day vacation, with 19 in the new year, but user should have less than that left in the next year, even factoring in weekends
         startDate = LocalDate.of(LocalDate.now().getYear(), 12, 31);
-        endDate = startDate.plusDays(7);
+        endDate = startDate.plusDays(20);
 
 
         Date fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -346,11 +379,11 @@ public class VacationServiceTest
 
         //vacation that overlaps with beginning date of v1
         Date fromDate1 = Date.from(LocalDate.now().plusDays(4).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toDate1 = Date.from(LocalDate.now().plusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date toDate1 = Date.from(LocalDate.now().plusDays(8).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         //vacation that overlaps with ending date of v1
         Date fromDate2 = Date.from(LocalDate.now().plusDays(9).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toDate2 = Date.from(LocalDate.now().plusDays(11).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date toDate2 = Date.from(LocalDate.now().plusDays(13).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         //vacation that completely covers v1
         Date fromDate3 = Date.from(LocalDate.now().plusDays(4).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -358,7 +391,7 @@ public class VacationServiceTest
 
         //vacation that is completely covered by v1
         Date fromDate4 = Date.from(LocalDate.now().plusDays(6).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toDate4 = Date.from(LocalDate.now().plusDays(8).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date toDate4 = Date.from(LocalDate.now().plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
 
         //None of these should pass
@@ -401,7 +434,7 @@ public class VacationServiceTest
     }
 
     /**
-     * Tests validation on the date input with respect to existing vaations
+     * Tests validation on the date input with respect to existing vacations
      */
     @DirtiesContext
     @Test
@@ -416,7 +449,7 @@ public class VacationServiceTest
 
         //vacation that overlaps with the booking
         Date fromDate1 = Date.from(LocalDate.now().plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toDate1 = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date toDate1 = Date.from(LocalDate.now().plusDays(6).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Vacation v1 = new Vacation();
         v1.setBeginDate(fromDate1);
@@ -556,7 +589,7 @@ public class VacationServiceTest
         Vacation v1 = DataHelper.createVacation(-6, -3, u1, vacationRepository);
 
         Date newStartDate = Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date newEndDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date newEndDate = Date.from(LocalDate.now().plusDays(7).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         v1.setBeginDate(newStartDate);
         v1.setEndDate(newEndDate);
@@ -675,15 +708,17 @@ public class VacationServiceTest
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         //7 days in current year, 10 days in next year
-        DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 12, 25), LocalDate.of(LocalDate.now().getYear() + 1, 1, 10), u1, vacationRepository);;
+        Vacation v1 = DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 12, 25), LocalDate.of(LocalDate.now().getYear() + 1, 1, 10), u1, vacationRepository);;
         //3 days in next year
-        DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear() + 1, 3, 5), LocalDate.of(LocalDate.now().getYear() + 1, 3, 7), u1, vacationRepository);;
+        Vacation v2 = DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear() + 1, 3, 5), LocalDate.of(LocalDate.now().getYear() + 1, 3, 7), u1, vacationRepository);;
         //11 days in current year
-        DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 6, 10), LocalDate.of(LocalDate.now().getYear() , 6, 20), u1, vacationRepository);
+        Vacation v3 = DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 6, 10), LocalDate.of(LocalDate.now().getYear() , 6, 20), u1, vacationRepository);
 
-        //remaining should be: 25 - 18 = 7 in current year, 25 - 13 = 12 in next yaer
-        Assertions.assertEquals(7, vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()), "Vacation days for the current year were not calculated properly.");
-        Assertions.assertEquals(12, vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1), "Vacation days for the next year were not calculated properly.");
+        //remaining vacation days depend on weekend composition at the given date, but should be within these boundaries
+        //7 (no weekends or holidays) - 17 (2 holidays = 25. and 26., 8 weekend days) for current year
+        //12 (no weekends or holidays) - 19 (6 weekend days, 1 holiday = new year)
+        Assertions.assertTrue(7 <= vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()) &&  vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()) <= 17, "Vacation days for the current year were not calculated properly.");
+        Assertions.assertTrue(12 <= vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1) && vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1) <= 19, "Vacation days for the next year were not calculated properly.");
     }
 
     /**
