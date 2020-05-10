@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 
+// test History Entry
 public class HistoryEntryTest {
 
     @Test
