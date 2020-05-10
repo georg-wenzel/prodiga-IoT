@@ -2318,4 +2318,22 @@ body .ui-selectonemenu.ui-state-error {
   .ui-menuitem-icon.raspberry-icon {
     background: url("#{resource['ecuador-layout:images/raspi_grey.png']}")  no-repeat !important;
   }
+
+
+
+  body .ui-tabs.ui-tabs-bottom .ui-tabs-nav {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  body .ui-tabs.ui-tabs-nav li{
+    float: none !important;
+    display: inline-block;
+  }
+
+  body .ui-tabs .ui-tabs-bottom .ui-tabs-panels{
+    border: none;
+  }
+
+  ui-tabs-panel ui-widget-content ui-corner-bottom
 }

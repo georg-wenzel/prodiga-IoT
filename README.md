@@ -103,5 +103,3 @@ On Windows Home, directories can not be simply mounted using Docker Toolbox.  Th
 
 
 On Windows Home, there can also be problems using named volumes, so when using docker-compose, make sure your VM user has permission to access the directory of the created named volume.
-  
-## Setup - Client

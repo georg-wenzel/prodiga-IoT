@@ -49,7 +49,7 @@
                                               outcome="user">
                                     <f:param name="username" value="#{user.username}"/>
                                 </p:linkButton>
-                                <p:commandButton action="#{userDetailController.doDeleteUser}" icon="fa fa-fw fa-trash" title="Delete" update=":userForm:usersTable">
+                                <p:commandButton action="#{userDetailController.doDeleteUser}" icon="fa fa-fw fa-trash" title="Delete" update=":userForm:usersTable" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{user}" target="#{userDetailController.user}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this user? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>

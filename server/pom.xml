@@ -178,6 +178,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
             <version>2.1.2.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
