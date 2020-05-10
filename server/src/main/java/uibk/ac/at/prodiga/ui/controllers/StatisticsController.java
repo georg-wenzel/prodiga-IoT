@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
+import org.mapstruct.Named;
 import org.primefaces.model.chart.*;
 import org.primefaces.model.chart.PieChartModel;
 import org.springframework.context.annotation.Scope;
@@ -34,23 +35,26 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyDepartmentAnalysisBar;
 
     private HashMap<BookingCategory,String> colorByCategory;
-    private String aktualColor;
-    private BookingCategory aktualBookingCategory;
+    private String actualColor;
+    private BookingCategory actualBookingCategory;
 
     public String saveColorByCategory(){
-        return colorByCategory.put(aktualBookingCategory,aktualColor);
+        return colorByCategory.put(actualBookingCategory,actualColor);
     }
-    public String getAktualColor() {
-        return aktualColor;
+    public String getActualColor() {
+        return this.actualColor;
     }
-    public void setAktualColor(String aktualColor) {
-        this.aktualColor = aktualColor;
+    public void setActualColor(String actualColor) {
+        if(actualColor.isEmpty()){
+            actualColor = "#e02365";
+        }
+        this.actualColor = actualColor;
     }
-    public BookingCategory getAktualBookingCategory() {
-        return aktualBookingCategory;
+    public BookingCategory getActualBookingCategory() {
+        return actualBookingCategory;
     }
-    public void setAktualBookingCategory(BookingCategory aktualBookingCategory) {
-        this.aktualBookingCategory = aktualBookingCategory;
+    public void setActualBookingCategory(BookingCategory actualBookingCategory) {
+        this.actualBookingCategory = actualBookingCategory;
     }
 
     public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
