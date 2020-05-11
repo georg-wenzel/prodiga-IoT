@@ -14,19 +14,19 @@ namespace Prodiga.SQLFileGenerator
 
             generateAdminUser(builder);
 
-            genateDataTable("booking_category", model.AllData["booking_category"].Values, builder);
-            genateDataTable("department", model.AllData["department"].Values, builder);
-            genateDataTable("team", model.AllData["team"].Values, builder);
-            genateDataTable("booking_category_teams", model.AllData["booking_category_teams"].Values, builder);
-            genateDataTable("user", model.UserData.Values, builder);
-            genateDataTable("user_user_role", model.AllData["user_user_role"].Values, builder);
-            genateDataTable("room", model.AllData["room"].Values, builder);
-            genateDataTable("raspberry_pi", model.AllData["raspberry_pi"].Values, builder);
-            genateDataTable("dice", model.AllData["dice"].Values, builder);
-            genateDataTable("dice_side", model.AllData["dice_side"].Values, builder);
-            genateDataTable("vacation", model.AllData["vacation"].Values, builder);
-            genateDataTable("booking", model.AllData["booking"].Values, builder);
-            genateDataTable("badgedb", model.AllData["badgedb"].Values, builder);
+            genateDataTable("booking_category", model.AllData, builder);
+            genateDataTable("department", model.AllData, builder);
+            genateDataTable("team", model.AllData, builder);
+            genateDataTable("booking_category_teams", model.AllData, builder);
+            generateTable("user", model.UserData.Values, builder);
+            genateDataTable("user_user_role", model.AllData, builder);
+            genateDataTable("room", model.AllData, builder);
+            genateDataTable("raspberry_pi", model.AllData, builder);
+            genateDataTable("dice", model.AllData, builder);
+            genateDataTable("dice_side", model.AllData, builder);
+            genateDataTable("vacation", model.AllData, builder);
+            genateDataTable("booking", model.AllData, builder);
+            genateDataTable("badgedb", model.AllData, builder);
 
 
             File.WriteAllText(targetFile.FullName, builder.ToString());
@@ -40,7 +40,12 @@ namespace Prodiga.SQLFileGenerator
                 $" '{DefaultData.ADMIN_USERNAME}', 'admin', '2016-01-01 00:00:00');");
         }
 
-        private static void genateDataTable(string tableName, IEnumerable<Dictionary<string, object>> entries, StringBuilder builder)
+        private static void genateDataTable(string tableName, Dictionary<string, Dictionary<int, Dictionary<string, object>>> entries, StringBuilder builder)
+        {
+            generateTable(tableName, entries[tableName].Values, builder);
+        }
+
+        private static void generateTable(string tableName, IEnumerable<Dictionary<string, object>> entries, StringBuilder builder)
         {
             foreach (Dictionary<string, object> data in entries)
             {
@@ -52,6 +57,7 @@ namespace Prodiga.SQLFileGenerator
                 builder.Append(string.Join(", ", data.Values.Select(escapeObject)));
                 builder.AppendLine(");");
             }
+
         }
 
         private static string escapeObject(object value)
