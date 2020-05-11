@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -34,27 +35,24 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
 
-    private HashMap<BookingCategory,String> colorByCategory;
+    private List<String> colorByCategory;
     private String actualColor;
-    private BookingCategory actualBookingCategory;
+    private String bookingName;
 
-    public String saveColorByCategory(){
-        return colorByCategory.put(actualBookingCategory,actualColor);
+    public void saveColorByCategory(){
+        colorByCategory.add(actualColor);
     }
     public String getActualColor() {
         return this.actualColor;
     }
     public void setActualColor(String actualColor) {
-        if(actualColor.isEmpty()){
-            actualColor = "#e02365";
-        }
         this.actualColor = actualColor;
     }
-    public BookingCategory getActualBookingCategory() {
-        return actualBookingCategory;
+    public String getBookingName() {
+        return bookingName;
     }
-    public void setActualBookingCategory(BookingCategory actualBookingCategory) {
-        this.actualBookingCategory = actualBookingCategory;
+    public void setBookingName(String bookingName) {
+        this.bookingName = bookingName;
     }
 
     public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
@@ -71,6 +69,7 @@ public class StatisticsController implements Serializable {
         createMonthlyTeamAnalysisPie();
 
         createMonthlyDepartmentAnalysisPie();
+
     }
 
     public PieChartModel getDailyAnalysisPie() {

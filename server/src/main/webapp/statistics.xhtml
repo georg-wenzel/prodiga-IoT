@@ -296,43 +296,31 @@
 
     <ui:define name="content">
         <h:form id="colorForm">
-        <div class="ui-g">
-            <h:panelGrid columns="6" cellpadding="5" style="margin-left: 40px">
-            <div class="ui-g-10 input-form">
-                <div class="ui-g-2 input-form">
-                    <p:outputLabel for="categoryColor" value="Choose a color for each category: "/>
-                </div>
-
-                <div class="ui-g-10 input-form">
-                    <p:selectOneMenu id="categoryColor"
-                                     value="#{statisticsController.actualBookingCategory}">
-                        <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="bookingCategory" itemLabel="#{bookingCategory}" itemValue="#{bookingCategory}" />
-
-                    </p:selectOneMenu>
-                </div>
-            </div>
-            </h:panelGrid>
-            <h:panelGrid columns="2" cellpadding="5" style="margin-left: 20px">
-                <h:outputText value="Color: " />
+            <h:panelGrid columns="3" cellpadding="5" style="margin-left: 20px">
+                <h:outputText value="Popup: " />
                 <p:colorPicker value="#{statisticsController.actualColor}" />
             </h:panelGrid>
-            <p:commandButton value="Save"
-                             action="#{statisticsController.saveColorByCategory()}"
-                             ajax="true"
-                             oncomplete="PF('dlg').show();"
-                             icon="fa fa-fw fa-save"
-                             validateClient="true"
-                             update="grid">
-            </p:commandButton>
-            <p:dialog modal="true" widgetVar="dlg" showEffect="fade" hideEffect="fade" header="Selected Color" resizable="false">
-                <h:panelGrid id="grid" columns="2" cellpadding="5">
-                    <h:outputText value="Chosen color: " />
-                    <h:outputText value="#{statisticsController.actualColor}" style="background-color: ##{statisticsController.actualColor}" />
+            <p:outputLabel for="bookingName" value="Category:" />
+            <p:selectOneMenu id="bookingName" value="#{statisticsController.bookingName}">
+                <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.name}"/>
+            </p:selectOneMenu>
 
+            <p:commandButton value="Save" action="saveColorByCategory()" oncomplete="PF('dlg1').show();" update="grid" style="margin-left: 20px" />
+            <p:commandButton value="Color" action="init()" update="grid" style="margin-left: 20px" />
+
+            <p:dialog modal="true" widgetVar="dlg1" showEffect="fade" hideEffect="fade" header="Selected Colors" resizable="false">
+                <h:panelGrid id="grid" columns="2" cellpadding="5">
+                    <h:outputText value="Selected color: " />
+                    <h:outputText value="#{statisticsController.actualColor}" style="background-color: ##{statisticsController.actualColor}" />
+                    <h:outputText value="Selected booking: " />
+                    <h:outputText value="#{statisticsController.bookingName}" />
                 </h:panelGrid>
             </p:dialog>
-        </div>
+
         </h:form>
+
+        <p:separator />
+
 
 
         <div class="ui-g">
