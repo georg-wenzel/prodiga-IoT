@@ -156,7 +156,7 @@
             function skinPie() {
                 this.cfg.shadow = false;
                 this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210', '#AB44BC', '#2162b0', '#FFD000', '#ff2c00', '#00d0ff', '#b9ff00', '#ffb900', '#1a8f0a'];
+                //this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210', '#AB44BC', '#2162b0', '#FFD000', '#ff2c00', '#00d0ff', '#b9ff00', '#ffb900', '#1a8f0a'];
                 this.cfg.grid = {
                     background: '#ffffff',
                     borderColor: '#ffffff',
@@ -327,33 +327,33 @@
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Daily Pie Chart User</h1>
-                    <p:chart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
 
                 </div>
             </div>
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Weekly Pie Chart User</h1>
-                    <p:chart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
                 </div>
             </div>
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart User</h1>
-                    <p:chart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
                 </div>
             </div>
             <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}">
             <div class="ui-g-5" >
                 <div class="card">
                     <h1 class="centerText" >Weekly Pie Chart Team</h1>
-                    <p:chart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
                 </div>
             </div>
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart Team</h1>
-                    <p:chart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
                 </div>
             </div>
             </h:panelGroup>
@@ -361,7 +361,7 @@
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart Department</h1>
-                    <p:chart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
                 </div>
             </div>
             </h:panelGroup>

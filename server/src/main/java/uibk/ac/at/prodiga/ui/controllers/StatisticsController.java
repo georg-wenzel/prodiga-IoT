@@ -1,8 +1,12 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
-import org.mapstruct.Named;
-import org.primefaces.model.chart.*;
-import org.primefaces.model.chart.PieChartModel;
+import org.primefaces.model.chart.BarChartModel;
+import org.primefaces.model.chart.Axis;
+import org.primefaces.model.chart.ChartSeries;
+import org.primefaces.model.chart.AxisType;
+import org.primefaces.model.charts.pie.PieChartModel;
+import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.pie.PieChartDataSet;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BookingCategory;
@@ -11,6 +15,7 @@ import uibk.ac.at.prodiga.services.ProductivityAnalysisService;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +26,7 @@ import java.util.Map;
 @SuppressWarnings("Duplicates")
 public class StatisticsController implements Serializable {
     private final ProductivityAnalysisService productivityAnalysisService;
+    private final BookingCategoryController bookingCategoryController;
     private PieChartModel dailyAnalysisPie;
     private PieChartModel weeklyAnalysisPie;
     private PieChartModel monthlyAnalysisPie;
@@ -35,12 +41,29 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
 
-    private List<String> colorByCategory;
+    private org.primefaces.model.charts.pie.PieChartModel pieModel;
+
+    private HashMap<String,String> colorByCategory;
+    private HashMap<String,String> defaultColor = new HashMap<String,String>(){{
+        put("Pause/Vacation","#e02365");
+        put("Conceptualizing","#2D8EE3");
+        put("Design","#44be2c");
+        put("Implementation","#eeb210");
+        put("Testing","#AB44BC");
+        put("Documentation","#2162b0");
+        put("Debugging","#FFD000");
+        put("Meeting","#ff2c00");
+        put("Customer Support","#00d0ff");
+        put("Education and Training","#b9ff00");
+        put("Project Management","#eb07c5");
+        put("Other","#1a8f0a");
+    }};
+
     private String actualColor;
     private String bookingName;
 
     public void saveColorByCategory(){
-        colorByCategory.add(actualColor);
+        colorByCategory.put(bookingName,actualColor);
     }
     public String getActualColor() {
         return this.actualColor;
@@ -55,8 +78,14 @@ public class StatisticsController implements Serializable {
         this.bookingName = bookingName;
     }
 
-    public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
+    public StatisticsController(ProductivityAnalysisService productivityAnalysisService, BookingCategoryController bookingCategoryController, HashMap<String, String> colorByCategory) {
         this.productivityAnalysisService = productivityAnalysisService;
+        this.bookingCategoryController = bookingCategoryController;
+        this.colorByCategory = new HashMap<>();
+        for(BookingCategory category : bookingCategoryController.getAllBookingCategories()){
+            colorByCategory.put(category.getName(),"ffff");
+        }
+
     }
 
     @PostConstruct
@@ -78,6 +107,10 @@ public class StatisticsController implements Serializable {
 
     public PieChartModel getWeeklyAnalysisPie() {
         return weeklyAnalysisPie;
+    }
+
+    public org.primefaces.model.charts.pie.PieChartModel getPieModel() {
+        return pieModel;
     }
 
     public PieChartModel getMonthlyAnalysisPie() {
@@ -120,21 +153,64 @@ public class StatisticsController implements Serializable {
         return monthlyDepartmentAnalysisBar;
     }
 
+    private void createTestPie(){
+        pieModel = new org.primefaces.model.charts.pie.PieChartModel();
+        ChartData data = new ChartData();
+
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<Number> values = new ArrayList<>();
+        values.add(300);
+        values.add(50);
+        values.add(100);
+        dataSet.setData(values);
+
+        List<String> bgColors = new ArrayList<>();
+        bgColors.add("rgb(255, 99, 132)");
+        bgColors.add("rgb(54, 162, 235)");
+        bgColors.add("rgb(255, 205, 86)");
+        dataSet.setBackgroundColor(bgColors);
+
+        data.addChartDataSet(dataSet);
+        List<String> labels = new ArrayList<>();
+        labels.add("Red");
+        labels.add("Blue");
+        labels.add("Yellow");
+        data.setLabels(labels);
+
+        pieModel.setData(data);
+    }
+
     private void createWeeklyAnalysisPie() {
         weeklyAnalysisPie = new PieChartModel();
+        ChartData data = new ChartData();
+
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<String> mycolors = new ArrayList<>();
+        List<Number> hours = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
         weeklyAnalysisBar = new BarChartModel();
         ChartSeries categories = new ChartSeries();
         Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByWeek(1);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            weeklyAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+            hours.add(entry.getValue());
+            labels.add(entry.getKey().getName());
+            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+                mycolors.add(colorByCategory.get(entry.getKey().getName()));
+            }
+            else {
+                mycolors.add(defaultColor.get(entry.getKey().getName()));
+            }
+
             categories.set(entry.getKey().getName(), entry.getValue());
         }
-        weeklyAnalysisPie.setTitle("User: Last week productivity analysis");
-        weeklyAnalysisPie.setLegendPosition("e");
-        weeklyAnalysisPie.setFill(false);
-        weeklyAnalysisPie.setShowDataLabels(true);
-        weeklyAnalysisPie.setDiameter(200);
-        weeklyAnalysisPie.setExtender("skinPie");
+        dataSet.setData(hours);
+
+        dataSet.setBackgroundColor(mycolors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+        weeklyAnalysisPie.setData(data);
+        //weeklyAnalysisPie.setExtender("skinPie");
 
         weeklyAnalysisBar.addSeries(categories);
         weeklyAnalysisBar.setTitle("Bar Chart");
@@ -151,18 +227,31 @@ public class StatisticsController implements Serializable {
     private void createDailyAnalysisPie() {
         dailyAnalysisPie = new PieChartModel();
         dailyAnalysisBar = new BarChartModel();
+        ChartData data = new ChartData();
+
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<String> mycolors = new ArrayList<>();
+        List<Number> hours = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
         ChartSeries categories = new ChartSeries();
         Map<BookingCategory, Long> map = productivityAnalysisService.getStatisicForCurrentUserByDay(1);
         for (Map.Entry<BookingCategory, Long> entry : map.entrySet()) {
-            dailyAnalysisPie.set(entry.getKey().getName(), entry.getValue());
+            hours.add(entry.getValue());
+            labels.add(entry.getKey().getName());
+            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+                mycolors.add(colorByCategory.get(entry.getKey().getName()));
+            }
+            else {
+                mycolors.add(defaultColor.get(entry.getKey().getName()));
+            }
             categories.set(entry.getKey().getName(), entry.getValue());
         }
-        dailyAnalysisPie.setTitle("User: Last day productivity analysis");
-        dailyAnalysisPie.setLegendPosition("e");
-        dailyAnalysisPie.setFill(false);
-        dailyAnalysisPie.setShowDataLabels(true);
-        dailyAnalysisPie.setDiameter(200);
-        dailyAnalysisPie.setExtender("skinPie");
+        dataSet.setData(hours);
+        dataSet.setBackgroundColor(mycolors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+        dailyAnalysisPie.setData(data);
+        //dailyAnalysisPie.setExtender("skinPie");
 
         dailyAnalysisBar.addSeries(categories);
         dailyAnalysisBar.setTitle("Bar Chart");
@@ -180,17 +269,31 @@ public class StatisticsController implements Serializable {
         monthlyAnalysisPie = new PieChartModel();
         monthlyAnalysisBar = new BarChartModel();
         ChartSeries categories = new ChartSeries();
+
+        ChartData data = new ChartData();
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<String> mycolors = new ArrayList<>();
+        List<Number> hours = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
         Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByMonth(1);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            monthlyAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+            hours.add(entry.getValue());
+            labels.add(entry.getKey().getName());
+            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+                mycolors.add(colorByCategory.get(entry.getKey().getName()));
+            }
+            else {
+                mycolors.add(defaultColor.get(entry.getKey().getName()));
+            }
             categories.set(entry.getKey().getName(), entry.getValue());
         }
-        monthlyAnalysisPie.setTitle("User: Last Months productivity analysis");
-        monthlyAnalysisPie.setLegendPosition("e");
-        monthlyAnalysisPie.setFill(false);
-        monthlyAnalysisPie.setShowDataLabels(true);
-        monthlyAnalysisPie.setDiameter(200);
-        monthlyAnalysisPie.setExtender("skinPie");
+        dataSet.setData(hours);
+        dataSet.setBackgroundColor(mycolors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+        monthlyAnalysisPie.setData(data);
+        //monthlyAnalysisPie.setExtender("skinPie");
 
         monthlyAnalysisBar.addSeries(categories);
         monthlyAnalysisBar.setTitle("Bar Chart");
@@ -208,17 +311,31 @@ public class StatisticsController implements Serializable {
         weeklyTeamAnalysisPie = new PieChartModel();
         weeklyTeamAnalysisBar = new BarChartModel();
         ChartSeries categories = new ChartSeries();
+
+        ChartData data = new ChartData();
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<String> mycolors = new ArrayList<>();
+        List<Number> hours = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
         Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByWeek(1);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            weeklyTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+            hours.add(entry.getValue());
+            labels.add(entry.getKey().getName());
+            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+                mycolors.add(colorByCategory.get(entry.getKey().getName()));
+            }
+            else {
+                mycolors.add(defaultColor.get(entry.getKey().getName()));
+            }
             categories.set(entry.getKey().getName(), entry.getValue());
         }
-        weeklyTeamAnalysisPie.setTitle("Team: Last weeks team productivity analysis");
-        weeklyTeamAnalysisPie.setLegendPosition("e");
-        weeklyTeamAnalysisPie.setFill(false);
-        weeklyTeamAnalysisPie.setShowDataLabels(true);
-        weeklyTeamAnalysisPie.setDiameter(200);
-        weeklyTeamAnalysisPie.setExtender("skinPie");
+        dataSet.setData(hours);
+        dataSet.setBackgroundColor(mycolors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+        weeklyTeamAnalysisPie.setData(data);
+        //weeklyTeamAnalysisPie.setExtender("skinPie");
 
         weeklyTeamAnalysisBar.addSeries(categories);
         weeklyTeamAnalysisBar.setTitle("Bar Chart");
@@ -236,17 +353,31 @@ public class StatisticsController implements Serializable {
         monthlyTeamAnalysisPie = new PieChartModel();
         monthlyTeamAnalysisBar = new BarChartModel();
         ChartSeries categories = new ChartSeries();
+
+        ChartData data = new ChartData();
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<String> mycolors = new ArrayList<>();
+        List<Number> hours = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
         Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByMonth(1);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            monthlyTeamAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+            hours.add(entry.getValue());
+            labels.add(entry.getKey().getName());
+            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+                mycolors.add(colorByCategory.get(entry.getKey().getName()));
+            }
+            else {
+                mycolors.add(defaultColor.get(entry.getKey().getName()));
+            }
             categories.set(entry.getKey().getName(), entry.getValue());
         }
-        monthlyTeamAnalysisPie.setTitle("Team: Last Months team productivity analysis");
-        monthlyTeamAnalysisPie.setLegendPosition("e");
-        monthlyTeamAnalysisPie.setFill(false);
-        monthlyTeamAnalysisPie.setShowDataLabels(true);
-        monthlyTeamAnalysisPie.setDiameter(200);
-        monthlyTeamAnalysisPie.setExtender("skinPie");
+        dataSet.setData(hours);
+        dataSet.setBackgroundColor(mycolors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+        monthlyTeamAnalysisPie.setData(data);
+        //monthlyTeamAnalysisPie.setExtender("skinPie");
 
         monthlyTeamAnalysisBar.addSeries(categories);
         monthlyTeamAnalysisBar.setTitle("Bar Chart");
@@ -264,17 +395,31 @@ public class StatisticsController implements Serializable {
         monthlyDepartmentAnalysisPie = new PieChartModel();
         monthlyDepartmentAnalysisBar = new BarChartModel();
         ChartSeries categories = new ChartSeries();
+
+        ChartData data = new ChartData();
+        PieChartDataSet dataSet = new PieChartDataSet();
+        List<String> mycolors = new ArrayList<>();
+        List<Number> hours = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
         Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForDepartmenByMonth(1);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
-            monthlyDepartmentAnalysisPie.set(entry.getKey().getName(),entry.getValue());
+            hours.add(entry.getValue());
+            labels.add(entry.getKey().getName());
+            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+                mycolors.add(colorByCategory.get(entry.getKey().getName()));
+            }
+            else {
+                mycolors.add(defaultColor.get(entry.getKey().getName()));
+            }
             categories.set(entry.getKey().getName(), entry.getValue());
         }
-        monthlyDepartmentAnalysisPie.setTitle("Department: Last Months department productivity analysis");
-        monthlyDepartmentAnalysisPie.setLegendPosition("e");
-        monthlyDepartmentAnalysisPie.setFill(false);
-        monthlyDepartmentAnalysisPie.setShowDataLabels(true);
-        monthlyDepartmentAnalysisPie.setDiameter(200);
-        monthlyDepartmentAnalysisPie.setExtender("skinPie");
+        dataSet.setData(hours);
+        dataSet.setBackgroundColor(mycolors);
+        data.addChartDataSet(dataSet);
+        data.setLabels(labels);
+        monthlyDepartmentAnalysisPie.setData(data);
+        //monthlyDepartmentAnalysisPie.setExtender("skinPie");
 
         monthlyDepartmentAnalysisBar.addSeries(categories);
         monthlyDepartmentAnalysisBar.setTitle("Bar Chart");
