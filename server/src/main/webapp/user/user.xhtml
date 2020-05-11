@@ -84,7 +84,7 @@
                                         <f:selectItems value="#{teamController.allTeams}" var="team" itemLabel="#{team.name}" itemValue="#{team}"/>
                                     </p:selectOneMenu>
                                 </p:outputPanel>
-                                <p:outputPanel  class="ui-g-8 input-form"  rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}">
+                                <p:outputPanel  class="ui-g-8 input-form"  rendered="#{!prodigaUserLoginManager.hasRole('ADMIN') and !prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
                                     <h:outputText value="#{userDetailController.user.assignedTeam.name}" />
                                 </p:outputPanel>
 
