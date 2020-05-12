@@ -80,6 +80,12 @@ public class CubeTest {
 
         when(bluetoothBatteryService.getCharacteristics()).thenReturn(characteristicListTwo);
 
+        when(bluetoothCommandReadCharacteristics.getUUID()).thenReturn(COMMANDREADCHARACTERISTICUUID);
+        when(bluetoothCommandWriteCharacteristics.getUUID()).thenReturn(COMMANDWRITERCHARACTERISTICUUID);
+        when(bluetoothCurrentFacetCharacteristics.getUUID()).thenReturn(CURRENTFACETCHARACTERISTICUUID);
+        when(bluetoothPasswordCharacteristic.getUUID()).thenReturn(PASSWORDCHARACTERISTICUUID);
+        when(bluetoothBatteryCharacteristic.getUUID()).thenReturn(BATTERYCHARACTERISTICUUID);
+
         when(bluetoothBatteryCharacteristic.readValue()).thenReturn(new byte[]{0x45});
 
         when(bluetoothPasswordCharacteristic.writeValue(CUBEPASSWORD)).thenReturn(true);
@@ -123,8 +129,17 @@ public class CubeTest {
     }
 
     @Test
-    public void myMockTest() {
-        System.out.println(cube.getName());
+    public void getCubeNameTest() {
         Assertions.assertEquals(DEVICE_NAME, cube.getName());
+    }
+
+    @Test
+    public void getCubeAddress() {
+        Assertions.assertEquals(DEVICE_MAC, cube.getAddress());
+    }
+
+    @Test
+    public void getCurrentSideTest() {
+        Assertions.assertEquals(1, cube.getCurrentSide());
     }
 }
