@@ -17,6 +17,7 @@ import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 @Component
 @Scope("application")
@@ -24,9 +25,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final LogInformationService logInformationService;
+    private final ProdigaUserLoginManager userLoginManager;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService, ProdigaUserLoginManager userLoginManager) {
         this.userRepository = userRepository;
+        this.userLoginManager = userLoginManager;
         this.logInformationService = logInformationService;
     }
 
@@ -163,6 +166,26 @@ public class UserService {
     @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<User> getUsersByDepartment(Department d){
         return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
+    }
+
+    /**
+     * Get all users in the same department as the calling user
+     * @return A list of users
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
+    public Collection<User> getUsersByDepartment()
+    {
+        return Lists.newArrayList(userRepository.findAllByAssignedDepartment(userLoginManager.getCurrentUser().getAssignedDepartment()));
+    }
+
+    /**
+     * Get all users in the same team as the calling user
+     * @return A list of users
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
+    public Collection<User> getUsersByTeam()
+    {
+        return Lists.newArrayList(userRepository.findAllByAssignedTeam(userLoginManager.getCurrentUser().getAssignedTeam()));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
