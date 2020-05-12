@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
@@ -21,10 +22,12 @@ public class UserListController implements Serializable
     private static final long serialVersionUID = 5325687683192577315L;
 
     private final UserService userService;
+    private final TeamService teamService;
     private final ProdigaUserLoginManager userLoginManager;
 
-    public UserListController(UserService userService, ProdigaUserLoginManager userLoginManager) {
+    public UserListController(UserService userService, TeamService teamService, ProdigaUserLoginManager userLoginManager) {
         this.userService = userService;
+        this.teamService = teamService;
         this.userLoginManager = userLoginManager;
     }
 
@@ -73,5 +76,19 @@ public class UserListController implements Serializable
             return new ArrayList<>();
         }
         return userService.getUsersByTeam(t);
+    }
+
+    /**
+     * Returns all teams of the same department as the calling user
+     * @return A collection of teams.
+     */
+    public Collection<Team> getDepartmentTeams()
+    {
+        User u = userLoginManager.getCurrentUser();
+        if(u.getRoles().contains(UserRole.DEPARTMENTLEADER))
+        {
+            return teamService.findTeamsOfDepartment();
+        }
+        return null;
     }
 }

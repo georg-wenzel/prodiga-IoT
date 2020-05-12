@@ -65,6 +65,15 @@ public class TeamService
     }
 
     /**
+     * Find teams with the same department as the calling user
+     * @return All teams of the same department as the calling user
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public Collection<Team> findTeamsOfDepartment(){
+        return Lists.newArrayList(teamRepository.findTeamOfDepartment(userLoginManager.getCurrentUser().getAssignedDepartment()));
+}
+
+    /**
      * Gets the FIRST team with the specified team name.
      * This may NOT return a unique result, as teams can have the same name across departments.
      * @param name The name of the team
