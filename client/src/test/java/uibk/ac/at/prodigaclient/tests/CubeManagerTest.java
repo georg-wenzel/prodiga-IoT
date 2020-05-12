@@ -12,12 +12,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CubeManagerTest {
 
-    @Mock
-    private CubeManager cubeManagerMock;
+    private CubeManager cubeManagerMock = mock(CubeManager.class);
 
     @BeforeEach
     public void setUp() {
