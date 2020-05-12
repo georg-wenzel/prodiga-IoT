@@ -94,7 +94,8 @@ public class ProductivityAnalysisService {
         Team myTeam = user.getAssignedTeam();
         long hours = 0;
         long before = 0;
-        if(user.equals(userService.getTeamLeaderOf(myTeam))){
+        if(user.getRoles().contains(UserRole.TEAMLEADER))
+        {
             for(User teamMember: userService.getUsersByTeam(myTeam)) {
                 for (Booking booking : bookingService.getUsersBookingInRangeByWeek(teamMember, backstepWeek)) {
                     hours = (booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (1000 * 60 * 60);
@@ -115,7 +116,7 @@ public class ProductivityAnalysisService {
         Team myTeam = user.getAssignedTeam();
         long hours = 0;
         long before = 0;
-        if(user.equals(userService.getTeamLeaderOf(myTeam))){
+        if(user.getRoles().contains(UserRole.TEAMLEADER)){
             for(User teamMember: userService.getUsersByTeam(myTeam)) {
                 for (Booking booking : bookingService.getUsersBookingInRangeByMonth(teamMember, backstepMonth)) {
                     hours = (booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (1000 * 60 * 60);
@@ -137,7 +138,7 @@ public class ProductivityAnalysisService {
         Department myDepartment = user.getAssignedDepartment();
         long hours = 0;
         long before = 0;
-        if(user.equals(userService.getDepartmentLeaderOf(myDepartment))){
+        if(user.getRoles().contains(UserRole.DEPARTMENTLEADER)){
             for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
                 for (Booking booking : bookingService.getUsersBookingInRangeByMonth(departmentMember, backstepMonth)) {
                     hours = (booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (1000 * 60 * 60);

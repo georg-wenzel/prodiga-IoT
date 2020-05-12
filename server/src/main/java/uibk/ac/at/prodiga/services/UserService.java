@@ -165,17 +165,18 @@ public class UserService {
         return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public User getDepartmentLeaderOf(Department department)
     {
         return userRepository.findDepartmentLeaderOf(department);
     }
 
-    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
     public User getTeamLeaderOf(Team team)
     {
         return userRepository.findTeamLeaderOf(team);
     }
+
 
     /**
      * Assigns a team to a user
