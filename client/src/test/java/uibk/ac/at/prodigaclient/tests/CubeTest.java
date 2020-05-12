@@ -20,7 +20,7 @@ public class CubeTest {
     }
 
     @Test
-    public void getCubeAddress() {
+    public void getCubeAddressTest() {
         Assertions.assertEquals("12:34:56:78:90:12", cube.getAddress());
     }
 

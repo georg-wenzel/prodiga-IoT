@@ -1,5 +1,7 @@
 package uibk.ac.at.prodigaclient.tests;
 
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import tinyb.BluetoothDevice;
 import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
@@ -80,17 +82,49 @@ public class BluetoothDeviceMockingHelper {
         when(bluetoothCommandWriteCharacteristics.writeValue(READHISTORYCMD)).thenReturn(true);
         when(bluetoothCommandWriteCharacteristics.writeValue(DELETEHISTORYCMD)).thenReturn(true);
 
-        when(bluetoothCommandReadCharacteristics.readValue()).thenReturn(flipBetweenHistory());
+        when(bluetoothCommandReadCharacteristics.readValue()).thenAnswer(new Answer<byte []>() {
+            private int count = 0;
+
+            public byte[] answer(InvocationOnMock invocation) {
+
+                byte[] returnValue;
+
+                if(hasInseartedPW) {
+                    switch (count) {
+                        case 0:
+                            count = 1;
+                            returnValue = new byte[]{0x0d, 0x00, 0x18, 0x3c, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x08,
+                                    0x16, 0x00, 0x0c, 0x32, 0x00, 0x10, 0x0d, 0x00, 0x14};
+                            break;
+                        case 1:
+                            count = 2;
+                            returnValue = new byte[]{0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                            break;
+                        case 2:
+                            count = 0;
+                            returnValue = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                            break;
+                        default:
+                            returnValue = new byte[]{};
+                            break;
+                    }
+                } else {
+                    returnValue = new byte[]{};
+                }
+
+                return returnValue;
+            }
+        });
         when(bluetoothCurrentFacetCharacteristics.readValue()).thenReturn(getCurrentFacet());
         return bluetoothDevice;
     }
 
-    private static int historyRead = -1;
     private static boolean hasInseartedPW = false;
     private static boolean connected = false;
 
     private static boolean insertPassword() {
-        historyRead = 0;
         hasInseartedPW = true;
         return true;
     }
@@ -112,37 +146,6 @@ public class BluetoothDeviceMockingHelper {
 
         if (hasInseartedPW) {
             returnValue = new byte[]{0x01};
-        } else {
-            returnValue = new byte[]{};
-        }
-
-        return returnValue;
-    }
-
-    private static byte[] flipBetweenHistory() {
-        byte[] returnValue;
-
-        if(hasInseartedPW) {
-            switch (historyRead) {
-                case 0:
-                    historyRead = 1;
-                    returnValue = new byte[]{0x0d, 0x00, 0x18, 0x3c, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x08,
-                            0x16, 0x00, 0x0c, 0x32, 0x00, 0x10, 0x0d, 0x00, 0x14};
-                    break;
-                case 1:
-                    historyRead = 2;
-                    returnValue = new byte[]{0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                    break;
-                case 2:
-                    historyRead = 0;
-                    returnValue = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                    break;
-                default:
-                    returnValue = new byte[]{};
-                    break;
-            }
         } else {
             returnValue = new byte[]{};
         }
