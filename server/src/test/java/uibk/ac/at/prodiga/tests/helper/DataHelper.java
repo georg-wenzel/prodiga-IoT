@@ -1,5 +1,10 @@
 package uibk.ac.at.prodiga.tests.helper;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
+import org.assertj.core.util.Arrays;
 import org.mockito.internal.util.collections.Sets;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
@@ -9,6 +14,7 @@ import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.utils.badge.Badge;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.Temporal;
@@ -251,6 +257,66 @@ public class DataHelper {
         return vacationRepository.save(vacation);
     }
 
+    /**
+     * Returns a vacation which has a true duration of trueDuration days, i.e. has that many days that are not weekend days nor holidays.
+     * @param startDate The start date (LocalDate) of the vacation
+     * @param trueDuration The true duration in days the vacation should last
+     * @param forUser The user that should have the vacation
+     * @return The vacation which satisfies the trueDuration requirement.
+     * @throws InvalidArgumentException Thrown when trueDuration is <= 0
+     */
+    public static Vacation returnTrueVacation(LocalDate startDate, int trueDuration, User forUser) throws InvalidArgumentException
+    {
+        if(trueDuration <= 0) throw new InvalidArgumentException(Arrays.array("trueDuration must be greater than 0."));
+
+        HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
+        LocalDate endDate = startDate.minusDays(1);
+        int vacationDays = 0;
+
+        while(vacationDays < trueDuration)
+        {
+            //increase end date by one day
+            endDate = endDate.plusDays(1);
+
+            //check if date is weekend day
+            if(endDate.getDayOfWeek() != DayOfWeek.SATURDAY && endDate.getDayOfWeek() != DayOfWeek.SUNDAY)
+            {
+                //convert to joda date
+                org.joda.time.LocalDate jodaDate = org.joda.time.LocalDate.fromDateFields(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                //check if date is a holiday in holiday manager
+                if(!m.isHoliday(jodaDate))
+                {
+                    //if neither weekend day nor holiday, it counts as a proper vacation day
+                    vacationDays++;
+                }
+            }
+        }
+
+        //create vacation for user and return
+        Vacation vacation = new Vacation();
+        vacation.setBeginDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setEndDate(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setUser(forUser);
+        return vacation;
+    }
+
+    /**
+     * Creates a vacation which has a true duration of trueDuration days, i.e. has that many days that are not weekend days nor holidays, and stores it in the database.
+     * @param startDate The start date (LocalDate) of the vacation
+     * @param trueDuration The true duration in days the vacation should last
+     * @param forUser The user that should have the vacation
+     * @param vacationRepository The vacation repository
+     * @return The vacation stored in the database.
+     * @throws InvalidArgumentException Thrown when trueDuration is <= 0
+     */
+    public static Vacation createTrueVacation(LocalDate startDate, int trueDuration, User forUser, VacationRepository vacationRepository) throws InvalidArgumentException
+    {
+        Vacation v = returnTrueVacation(startDate, trueDuration, forUser);
+        v.setObjectCreatedDateTime(new Date());
+        v.setObjectCreatedUser(forUser);
+        return vacationRepository.save(v);
+    }
+
      /**
       * Creates a given dice with the given data
      * @param internalId The internal Id used by the dice (and the raspi if not exists)
@@ -408,5 +474,4 @@ public class DataHelper {
 
         return sb.toString();
     }
-
 }
