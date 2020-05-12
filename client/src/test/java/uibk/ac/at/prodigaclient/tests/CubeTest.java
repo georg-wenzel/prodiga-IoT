@@ -64,6 +64,8 @@ public class CubeTest {
         serviceList.add(bluetoothBatteryService);
         serviceList.add(bluetoothFacetService);
 
+        when(bluetoothDevice.getServices()).thenReturn(serviceList);
+
         when(bluetoothBatteryService.getUUID()).thenReturn(BATTERYSERVICEUUID);
         when(bluetoothFacetService.getUUID()).thenReturn(FACETSERVICEUUID);
 
