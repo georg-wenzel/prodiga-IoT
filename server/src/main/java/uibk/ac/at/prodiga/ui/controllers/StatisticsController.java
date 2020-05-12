@@ -41,12 +41,12 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
 
-    private org.primefaces.model.charts.pie.PieChartModel pieModel;
+    private HashMap<String,String> colorByCategory = new HashMap<String, String>(){{
 
-    private HashMap<String,String> colorByCategory;
+    }};
     private HashMap<String,String> defaultColor = new HashMap<String,String>(){{
-        put("Pause/Vacation","#e02365");
-        put("Conceptualizing","#2D8EE3");
+        put("Pause / Vacation","#e02365");
+        //put("Conceptualizing","#2D8EE3");
         put("Design","#44be2c");
         put("Implementation","#eeb210");
         put("Testing","#AB44BC");
@@ -62,8 +62,13 @@ public class StatisticsController implements Serializable {
     private String actualColor;
     private String bookingName;
 
-    public void saveColorByCategory(){
+    public void doSaveColorByCategory(String bookingName, String actualColor){
+        this.bookingName = bookingName;
+        String pref = "#";
+        actualColor = pref.concat(actualColor);
+        this.actualColor = actualColor;
         colorByCategory.put(bookingName,actualColor);
+        init();
     }
     public String getActualColor() {
         return this.actualColor;
@@ -78,13 +83,9 @@ public class StatisticsController implements Serializable {
         this.bookingName = bookingName;
     }
 
-    public StatisticsController(ProductivityAnalysisService productivityAnalysisService, BookingCategoryController bookingCategoryController, HashMap<String, String> colorByCategory) {
+    public StatisticsController(ProductivityAnalysisService productivityAnalysisService, BookingCategoryController bookingCategoryController) {
         this.productivityAnalysisService = productivityAnalysisService;
         this.bookingCategoryController = bookingCategoryController;
-        this.colorByCategory = new HashMap<>();
-        for(BookingCategory category : bookingCategoryController.getAllBookingCategories()){
-            colorByCategory.put(category.getName(),"ffff");
-        }
 
     }
 
@@ -93,12 +94,9 @@ public class StatisticsController implements Serializable {
         createDailyAnalysisPie();
         createWeeklyAnalysisPie();
         createMonthlyAnalysisPie();
-
         createWeeklyTeamAnalysisPie();
         createMonthlyTeamAnalysisPie();
-
         createMonthlyDepartmentAnalysisPie();
-
     }
 
     public PieChartModel getDailyAnalysisPie() {
@@ -107,10 +105,6 @@ public class StatisticsController implements Serializable {
 
     public PieChartModel getWeeklyAnalysisPie() {
         return weeklyAnalysisPie;
-    }
-
-    public org.primefaces.model.charts.pie.PieChartModel getPieModel() {
-        return pieModel;
     }
 
     public PieChartModel getMonthlyAnalysisPie() {
@@ -153,33 +147,6 @@ public class StatisticsController implements Serializable {
         return monthlyDepartmentAnalysisBar;
     }
 
-    private void createTestPie(){
-        pieModel = new org.primefaces.model.charts.pie.PieChartModel();
-        ChartData data = new ChartData();
-
-        PieChartDataSet dataSet = new PieChartDataSet();
-        List<Number> values = new ArrayList<>();
-        values.add(300);
-        values.add(50);
-        values.add(100);
-        dataSet.setData(values);
-
-        List<String> bgColors = new ArrayList<>();
-        bgColors.add("rgb(255, 99, 132)");
-        bgColors.add("rgb(54, 162, 235)");
-        bgColors.add("rgb(255, 205, 86)");
-        dataSet.setBackgroundColor(bgColors);
-
-        data.addChartDataSet(dataSet);
-        List<String> labels = new ArrayList<>();
-        labels.add("Red");
-        labels.add("Blue");
-        labels.add("Yellow");
-        data.setLabels(labels);
-
-        pieModel.setData(data);
-    }
-
     private void createWeeklyAnalysisPie() {
         weeklyAnalysisPie = new PieChartModel();
         ChartData data = new ChartData();
@@ -195,7 +162,7 @@ public class StatisticsController implements Serializable {
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
-            if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
+            if(colorByCategory.containsKey(entry.getKey().getName())){
                 mycolors.add(colorByCategory.get(entry.getKey().getName()));
             }
             else {

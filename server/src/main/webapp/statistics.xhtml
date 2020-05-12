@@ -305,8 +305,12 @@
                 <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.name}"/>
             </p:selectOneMenu>
 
-            <p:commandButton value="Save" action="saveColorByCategory()" oncomplete="PF('dlg1').show();" update="grid" style="margin-left: 20px" />
-            <p:commandButton value="Color" action="init()" update="grid" style="margin-left: 20px" />
+            <p:commandButton value="Save an Reload"
+                             action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
+                             ajax="true"
+                             icon="fa fa-fw fa-refresh"
+                             update="growl colorForm">
+            </p:commandButton>
 
             <p:dialog modal="true" widgetVar="dlg1" showEffect="fade" hideEffect="fade" header="Selected Colors" resizable="false">
                 <h:panelGrid id="grid" columns="2" cellpadding="5">
@@ -317,15 +321,14 @@
                 </h:panelGrid>
             </p:dialog>
 
-        </h:form>
+
 
         <p:separator />
-
-
 
         <div class="ui-g">
             <div class="ui-g-5">
                 <div class="card">
+
                     <h1 class="centerText">Daily Pie Chart User</h1>
                     <p:pieChart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
 
@@ -366,6 +369,7 @@
             </div>
             </h:panelGroup>
         </div>
+        </h:form>
 
     </ui:define>
 
