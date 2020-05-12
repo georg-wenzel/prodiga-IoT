@@ -17,10 +17,12 @@ import static org.mockito.Mockito.when;
 
 public class CubeManagerTest {
 
-    private CubeManager cubeManagerMock = mock(CubeManager.class);
+    @Mock
+    private CubeManager cubeManagerMock;
 
     @BeforeEach
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         Set<String> set = new HashSet<>();
         set.add("0C:61:CF:C7:8F:D5");
         set.add("0C:61:CF:C7:8F:D6");
