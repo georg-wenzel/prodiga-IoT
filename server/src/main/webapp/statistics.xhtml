@@ -296,32 +296,29 @@
 
     <ui:define name="content">
         <h:form id="colorForm">
-            <h:panelGrid columns="3" cellpadding="5" style="margin-left: 20px">
-                <h:outputText value="Popup: " />
-                <p:colorPicker value="#{statisticsController.actualColor}" />
-            </h:panelGrid>
-            <p:outputLabel for="bookingName" value="Category:" />
-            <p:selectOneMenu id="bookingName" value="#{statisticsController.bookingName}">
-                <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.name}"/>
-            </p:selectOneMenu>
+            <div class="ui-g">
+            <div class="ui-g-5">
+                <h:panelGrid columns="2" cellpadding="5">
+                    <h3>Choose a color: </h3>
+                    <p:colorPicker value="#{statisticsController.actualColor}" />
 
-            <p:commandButton value="Save an Reload"
-                             action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
-                             ajax="true"
-                             icon="fa fa-fw fa-refresh"
-                             update="growl colorForm">
-            </p:commandButton>
-
-            <p:dialog modal="true" widgetVar="dlg1" showEffect="fade" hideEffect="fade" header="Selected Colors" resizable="false">
-                <h:panelGrid id="grid" columns="2" cellpadding="5">
-                    <h:outputText value="Selected color: " />
-                    <h:outputText value="#{statisticsController.actualColor}" style="background-color: ##{statisticsController.actualColor}" />
-                    <h:outputText value="Selected booking: " />
-                    <h:outputText value="#{statisticsController.bookingName}" />
+                    <h3>Choose a category: </h3>
+                <p:selectOneMenu id="bookingName" value="#{statisticsController.bookingName}">
+                    <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.name}"/>
+                </p:selectOneMenu>
                 </h:panelGrid>
-            </p:dialog>
-
-
+            </div>
+            </div>
+            <div class="ui-g">
+            <div class="ui-g-10" align="right">
+                <p:commandButton value="Save and Reload"
+                                 action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
+                                 ajax="true"
+                                 icon="fa fa-fw fa-refresh"
+                                 update="growl colorForm">
+                </p:commandButton>
+            </div>
+            </div>
 
         <p:separator />
 

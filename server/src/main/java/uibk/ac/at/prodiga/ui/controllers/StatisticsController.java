@@ -46,7 +46,7 @@ public class StatisticsController implements Serializable {
     }};
     private HashMap<String,String> defaultColor = new HashMap<String,String>(){{
         put("Pause / Vacation","#e02365");
-        //put("Conceptualizing","#2D8EE3");
+        put("Conceptualizing","#2D8EE3");
         put("Design","#44be2c");
         put("Implementation","#eeb210");
         put("Testing","#AB44BC");
