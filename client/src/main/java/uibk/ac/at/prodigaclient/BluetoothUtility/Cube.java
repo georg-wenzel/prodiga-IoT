@@ -56,7 +56,7 @@ public class Cube {
      * It initializes name, address and cube
      * @param cube the BluetoothDevice which this Cube class represents
      */
-    protected Cube(BluetoothDevice cube) {
+    public Cube(BluetoothDevice cube) {
         this.cube = cube;
         this.name = cube.getName();
         this.address = cube.getAddress();
@@ -119,7 +119,7 @@ public class Cube {
                     .withMaxRetries(3);
 
             facetService = null;
-            Failsafe.with(retryPolicy).run(cube::connect);
+            Failsafe.with(retryPolicy).run(cube::disconnect);
         }
     }
 
