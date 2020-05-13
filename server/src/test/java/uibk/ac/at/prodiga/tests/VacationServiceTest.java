@@ -1,7 +1,5 @@
 package uibk.ac.at.prodiga.tests;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import org.hibernate.validator.internal.util.privilegedactions.LoadClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -161,7 +159,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_too_many_days() throws InvalidArgumentException
+    public void create_vacation_too_many_days()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
@@ -277,7 +275,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_new_year() throws ProdigaGeneralExpectedException, InvalidArgumentException
+    public void create_vacation_new_year() throws ProdigaGeneralExpectedException
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
@@ -301,7 +299,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_new_year_invalid() throws InvalidArgumentException
+    public void create_vacation_new_year_invalid()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
@@ -654,7 +652,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void get_remaining_vacation_days() throws InvalidArgumentException
+    public void get_remaining_vacation_days()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         //4 days in current year (27., 28., 29., 30.), 10 days in next year
