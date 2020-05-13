@@ -19,6 +19,10 @@ public class MailService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private LogInformationService logInformationService;
+
     public void sendMail(String toAddress, String subject, String text, User user, FrequencyType frequencyType) {
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -37,6 +41,8 @@ public class MailService {
             throw new MailParseException(e);
         }
         mailSender.send(message);
+
+        logInformationService.logForCurrentUser("Mail sent to " + toAddress);
     }
 
     /**

@@ -25,12 +25,14 @@ public class BookingCategoryService
     private final BookingCategoryRepository bookingCategoryRepository;
     private final BookingRepository bookingRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
+    private final LogInformationService logInformationService;
 
-    public BookingCategoryService(BookingCategoryRepository bookingCategoryRepository, BookingRepository bookingRepository, ProdigaUserLoginManager prodigaUserLoginManager)
+    public BookingCategoryService(BookingCategoryRepository bookingCategoryRepository, BookingRepository bookingRepository, ProdigaUserLoginManager prodigaUserLoginManager, LogInformationService logInformationService)
     {
         this.bookingCategoryRepository = bookingCategoryRepository;
         this.bookingRepository = bookingRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
+        this.logInformationService = logInformationService;
     }
 
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
@@ -124,7 +126,11 @@ public class BookingCategoryService
             cat.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
 
-        return bookingCategoryRepository.save(cat);
+        BookingCategory result = bookingCategoryRepository.save(cat);
+
+        logInformationService.logForCurrentUser("Saved Booking Category " + result.getName());
+
+        return result;
     }
 
     /**
@@ -149,6 +155,8 @@ public class BookingCategoryService
         }
 
         bookingCategoryRepository.delete(cat);
+
+        logInformationService.logForCurrentUser("Deleted Booking Category " + cat.getName());
     }
 
     @PreAuthorize("hasAuthority('TEAMLEADER')")

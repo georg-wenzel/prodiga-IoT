@@ -123,19 +123,19 @@ public class RaspberryPiService {
      */
     public boolean tryAddPendingRaspberry(String internalId) {
         if(pendingRaspberryPis.stream().anyMatch(x -> x.getInternalId().equals(internalId))) {
+            logInformationService.logForCurrentUser("Raspberry Pi cannot be added to pending because there already exits one with the same InternalID");
             return false;
         }
 
         if(findByInternalId(internalId).isPresent()){
-            logInformationService.log("Raspberry Pi with internal ID " + internalId +
-                    " already exists");
+            logInformationService.logForCurrentUser("Raspberry Pi cannot be added to pending because it already exists");
             return false;
         }
 
         RaspberryPi raspi = new RaspberryPi();
         raspi.setInternalId(internalId);
         pendingRaspberryPis.add(raspi);
-        logInformationService.log("Raspberry Pi with internal ID " + internalId +
+        logInformationService.logForCurrentUser("Raspberry Pi with internal ID " + internalId +
                 " added to pending Raspberrys");
 
         return true;
@@ -189,7 +189,11 @@ public class RaspberryPiService {
             raspi.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
 
-        return raspberryPiRepository.save(raspi);
+        RaspberryPi result = raspberryPiRepository.save(raspi);
+
+        logInformationService.logForCurrentUser("Raspberry Pi " + result.getInternalId() + " saved");
+
+        return result;
     }
 
     /**
@@ -210,7 +214,7 @@ public class RaspberryPiService {
         }
 
         raspberryPiRepository.delete(raspi);
-        logInformationService.log("Raspberry Pi " + raspi.getInternalId() + " deleted!");
+        logInformationService.logForCurrentUser("Raspberry Pi " + raspi.getInternalId() + " deleted!");
     }
 
     public RaspberryPi createRaspi(String internalId) {
@@ -231,8 +235,8 @@ public class RaspberryPiService {
             .filter(x -> x.getInternalId().equals(raspi.getInternalId()))
             .findFirst().ifPresent(raspiInList -> {
                 pendingRaspberryPis.remove(raspiInList);
-                logInformationService.log("Raspberry Pi with internal ID " + raspi.getInternalId() +
-                    " deleted from pending Raspberrys");
+                logInformationService.logForCurrentUser("Raspberry Pi with internal ID " + raspi.getInternalId() +
+                    " deleted from pending Raspberry Pis");
         });
     }
 }

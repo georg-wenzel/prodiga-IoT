@@ -168,7 +168,13 @@ public class DiceService {
             dice.setObjectChangedDateTime(new Date());
         }
 
-        return diceRepository.save(dice);
+
+
+        Dice result =  diceRepository.save(dice);
+
+        logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was saved");
+
+        return result;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
@@ -185,7 +191,7 @@ public class DiceService {
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteDice(Dice dice) {
         diceRepository.delete(dice);
-        logInformationService.log("Dice " + dice.getInternalId() + " was deleted!");
+        logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
     }
 
 
@@ -213,6 +219,8 @@ public class DiceService {
             wrapper.setCurrentSide(side);
 
             onNewDiceSideCallBackDict.forEach((key, value) -> value.accept(Pair.with(key, wrapper)));
+
+            logInformationService.logForCurrentUser("Notified " + onNewDiceSideCallBackDict.size() + " listeners about new Dice Side " + side);
         }
     }
 
@@ -236,6 +244,8 @@ public class DiceService {
         }
 
         onNewDiceSideCallBackDict.put(id, action);
+
+        logInformationService.logForCurrentUser("Registered " + id.toString() + " as new Dice Side Listener");
     }
 
     /**
@@ -248,6 +258,8 @@ public class DiceService {
         }
 
         onNewDiceSideCallBackDict.remove(id);
+
+        logInformationService.logForCurrentUser("Unregistered " + id.toString() + " from Dice Side Listener");
     }
 
     /**
@@ -268,6 +280,8 @@ public class DiceService {
         UUID feedId = FeedManager.getInstance().addToFeed(d.getInternalId(), DeviceType.CUBE, FeedAction.ENTER_CONFIG_MODE);
 
         wrapper.setFeedId(feedId);
+
+        logInformationService.logForCurrentUser("Dice " + d.getInternalId() + " now in configuration mode");
 
         return wrapper;
     }
@@ -312,6 +326,8 @@ public class DiceService {
         FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
 
         FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
+
+        logInformationService.logForCurrentUser("Dice " + d.getInternalId() + " left configuration mode");
     }
 
     /**
@@ -330,6 +346,8 @@ public class DiceService {
         } else {
             survivingTimerMap.put(pair, lastSurvivalTime);
         }
+
+        logInformationService.logForCurrentUser("Listener " + id.toString() + " still listening");
     }
 
     /**
@@ -342,6 +360,8 @@ public class DiceService {
                 .filter(x -> x.getValue().isBefore(Instant.now().minus(Duration.ofMinutes(5))))
                 .collect(Collectors.toList());
 
+        logInformationService.logForCurrentUser("Found " + notSurviving.size() + " listeners which are not listening any more");
+
         for (Map.Entry<Pair<UUID, String>, Instant> entry: notSurviving) {
             survivingTimerMap.remove(entry.getKey());
 
@@ -353,6 +373,8 @@ public class DiceService {
             if(wrapper != null) {
                 removeDiceInConfigMode(wrapper);
             }
+
+            logInformationService.logForCurrentUser("Removed " + entry.getKey().getValue0().toString() + " from listeners");
         }
     }
 

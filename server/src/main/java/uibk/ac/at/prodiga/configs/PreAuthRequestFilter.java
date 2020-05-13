@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uibk.ac.at.prodiga.model.RaspberryPi;
+import uibk.ac.at.prodiga.services.LogInformationService;
 import uibk.ac.at.prodiga.services.RaspberryPiService;
 import uibk.ac.at.prodiga.utils.JwtTokenUtil;
 
@@ -29,6 +30,9 @@ public class PreAuthRequestFilter extends OncePerRequestFilter {
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    LogInformationService logInformationService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -53,7 +57,7 @@ public class PreAuthRequestFilter extends OncePerRequestFilter {
                     System.out.println("JWT Token has expired");
                 }
             } else {
-                // TODO Max: Log here?!?
+                logInformationService.logForRaspi("Request Token invalid, token was: " + requestTokenHeader, null);
             }
             // Once we get the token validate it.
 
@@ -66,7 +70,7 @@ public class PreAuthRequestFilter extends OncePerRequestFilter {
                 try {
                     raspberryPi = raspberryPiService.findByInternalIdAndThrow(internalId);
                 } catch (Exception e) {
-                    // TODO Max: Definetly Log here!!
+                    logInformationService.logForRaspi("Request Token contains InternalID " + internalId + " but no RaspberryPi was found", null);
                 }
 
                 // if token is valid configure Spring Security to manually set
