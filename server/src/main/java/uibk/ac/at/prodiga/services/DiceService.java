@@ -218,7 +218,15 @@ public class DiceService {
             DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict.get(internalId);
             wrapper.setCurrentSide(side);
 
-            onNewDiceSideCallBackDict.forEach((key, value) -> value.accept(Pair.with(key, wrapper)));
+            Pair<Integer, BookingCategory> value = wrapper.getCompletedSides().getOrDefault(side, null);
+
+            if(value != null) {
+                wrapper.setCurrentSideFriendlyName(value.getValue0());
+            } else {
+                wrapper.setCurrentSideFriendlyName(wrapper.getCurrentSide() + 1);
+            }
+
+            onNewDiceSideCallBackDict.forEach((key, v) -> v.accept(Pair.with(key, wrapper)));
 
             logInformationService.logForCurrentUser("Notified " + onNewDiceSideCallBackDict.size() + " listeners about new Dice Side " + side);
         }
@@ -310,7 +318,7 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Cannot complete configuration without completed sides", MessageType.ERROR);
         }
 
-        if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
+        if(wrapper.getCompletedSides().values().stream().noneMatch(x -> x.getValue1().getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))) {
             BookingCategory bc = bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
 
             throw new ProdigaGeneralExpectedException("At least one side must be configured with " + bc.getName(),
@@ -318,7 +326,7 @@ public class DiceService {
         }
 
         wrapper.getCompletedSides().forEach((key, value) -> {
-            diceSideService.onNewConfiguredDiceSide(key, value, wrapper.getDice());
+            diceSideService.onNewConfiguredDiceSide(key, value.getValue0(), value.getValue1(), wrapper.getDice());
         });
 
         diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
