@@ -18,15 +18,17 @@ public class BadgeDBService {
     private final BadgeDBRepository badgeDBRepository;
     private final BookingCategoryService bookingCategoryService;
     private final BookingService bookingService;
+    private final LogInformationService logInformationService;
 
     private final List<Badge> availableBadges = new ArrayList<>();
     private Date lastWeekFrom;
     private Date lastWeekTo;
 
-    public BadgeDBService(BadgeDBRepository badgeDBRepository, BookingCategoryService bookingCategoryService, BookingService bookingService) {
+    public BadgeDBService(BadgeDBRepository badgeDBRepository, BookingCategoryService bookingCategoryService, BookingService bookingService, LogInformationService logInformationService) {
         this.badgeDBRepository = badgeDBRepository;
         this.bookingCategoryService = bookingCategoryService;
         this.bookingService = bookingService;
+        this.logInformationService = logInformationService;
 
         registerBadges();
     }
@@ -48,11 +50,16 @@ public class BadgeDBService {
     @Scheduled(cron = "0 59 23 * * SUN")
     public void createBadges(){
         for(Badge badge : availableBadges){
+            logInformationService.logForCurrentUser("Started calculating user for badge " + badge.getName());
             User user = badge.calculateUser(bookingCategoryService.findAllCategories(), bookingService);
 
             if(user == null) {
+                logInformationService.logForCurrentUser("No user found for badge " + badge.getName());
                 continue;
             }
+
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " found for badge " + badge.getName());
+
 
             String name = badge.getName();
             String explanation = badge.getExplanation();

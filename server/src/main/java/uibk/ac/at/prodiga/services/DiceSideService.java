@@ -17,10 +17,12 @@ public class DiceSideService {
 
     private final DiceSideRepository diceSideRepository;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
+    private final LogInformationService logInformationService;
 
-    public DiceSideService(DiceSideRepository diceSideRepository, ProdigaUserLoginManager prodigaUserLoginManager) {
+    public DiceSideService(DiceSideRepository diceSideRepository, ProdigaUserLoginManager prodigaUserLoginManager, LogInformationService logInformationService) {
         this.diceSideRepository = diceSideRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -43,7 +45,11 @@ public class DiceSideService {
             ds.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
         }
 
-        return diceSideRepository.save(ds);
+        DiceSide result = diceSideRepository.save(ds);
+
+        logInformationService.logForCurrentUser("DiceSide " + result.getId() + " saved");
+
+        return result;
     }
 
     /**
@@ -52,6 +58,7 @@ public class DiceSideService {
      */
     public void delete(DiceSide ds) {
         diceSideRepository.delete(ds);
+        logInformationService.logForCurrentUser("DiceSide " + ds.getId() + " deleted");
     }
 
     /**
@@ -62,6 +69,8 @@ public class DiceSideService {
      */
     public void onNewConfiguredDiceSide(int side, BookingCategory category, Dice d) {
         DiceSide exiting = findByDiceAndSide(d, side);
+
+        logInformationService.logForCurrentUser("New Dice Side " + side + " for dice " + d.getInternalId());
 
         // If no existing dice side and we got a category -> create new one
         if(exiting == null && category != null) {
