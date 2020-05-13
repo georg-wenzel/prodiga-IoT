@@ -31,8 +31,13 @@ public class BluetoothDeviceMockCreator {
 
     private List<byte[]> historyEntries;
     private byte[] facetId;
+    private byte[] noPass = new byte[] {};
 
-    public BluetoothDeviceMockCreator(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId) {
+    private boolean hasInseartedPW = false;
+    private boolean connected = false;
+    private int historyStatus = 0;
+
+    public BluetoothDeviceMockCreator (String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId) {
         this.deviceMac = deviceMac;
         this.deviceName = deviceName;
         this.historyEntries = historyEntries;
@@ -92,47 +97,30 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothCommandWriteCharacteristics.writeValue(READHISTORYCMD)).thenReturn(true);
         when(bluetoothCommandWriteCharacteristics.writeValue(DELETEHISTORYCMD)).thenReturn(true);
 
-        when(bluetoothCommandReadCharacteristics.readValue()).thenAnswer(new Answer<byte []>() {
-            private int count = 0;
-
-            public byte[] answer(InvocationOnMock invocation) {
-
-                byte[] returnValue;
-
-                if(hasInseartedPW) {
-                    switch (count) {
-                        case 0:
-                            count = 1;
-                            returnValue = new byte[]{0x0d, 0x00, 0x18, 0x3c, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x08,
-                                    0x16, 0x00, 0x0c, 0x32, 0x00, 0x10, 0x0d, 0x00, 0x14};
-                            break;
-                        case 1:
-                            count = 2;
-                            returnValue = new byte[]{0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                            break;
-                        case 2:
-                            count = 0;
-                            returnValue = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                            break;
-                        default:
-                            returnValue = new byte[]{};
-                            break;
-                    }
-                } else {
-                    returnValue = new byte[]{};
-                }
-
-                return returnValue;
-            }
-        });
+        when(bluetoothCommandReadCharacteristics.readValue()).thenReturn(getHistory());
+//        when(bluetoothCommandReadCharacteristics.readValue()).thenAnswer(new Answer<byte[]>() {
+//            @Override
+//            public byte[] answer(InvocationOnMock invocationOnMock) throws Throwable {
+//
+//            }
+//        });
         when(bluetoothCurrentFacetCharacteristics.readValue()).thenReturn(getCurrentFacet());
         return bluetoothDevice;
     }
 
-    private boolean hasInseartedPW = false;
-    private boolean connected = false;
+
+    private byte[] getHistory() {
+        byte[] returnValue;
+
+        if(hasInseartedPW) {
+            returnValue = historyEntries.get(historyStatus % historyEntries.size());
+            historyStatus = historyStatus + 1;
+        } else {
+            returnValue = noPass;
+        }
+
+        return returnValue;
+    }
 
     private boolean insertPassword() {
         hasInseartedPW = true;
@@ -155,9 +143,9 @@ public class BluetoothDeviceMockCreator {
         byte[] returnValue;
 
         if (hasInseartedPW) {
-            returnValue = new byte[]{0x01};
+            returnValue = facetId;
         } else {
-            returnValue = new byte[]{};
+            returnValue = noPass;
         }
 
         return returnValue;
