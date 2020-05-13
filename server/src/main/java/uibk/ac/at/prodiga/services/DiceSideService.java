@@ -67,7 +67,7 @@ public class DiceSideService {
      * @param category The assigned category
      * @param d The dice
      */
-    public void onNewConfiguredDiceSide(int side, BookingCategory category, Dice d) {
+    public void onNewConfiguredDiceSide(int side, int sideFriendlyName, BookingCategory category, Dice d) {
         DiceSide exiting = findByDiceAndSide(d, side);
 
         logInformationService.logForCurrentUser("New Dice Side " + side + " for dice " + d.getInternalId());
@@ -78,11 +78,13 @@ public class DiceSideService {
             newDiceSide.setSide(side);
             newDiceSide.setBookingCategory(category);
             newDiceSide.setDice(d);
+            newDiceSide.setSideFriendlyName(sideFriendlyName);
 
             save(newDiceSide);
         } else if(exiting != null && category != null) {
-            // We got a dice side and a category - set the category to this side
+            // We got a dice side and a category - set the category and the new friendly name to this side
             exiting.setBookingCategory(category);
+            exiting.setSideFriendlyName(sideFriendlyName);
             save(exiting);
         } else if(exiting != null){
             // He the category is not set - but we have an existing side - so delete this side
