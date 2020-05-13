@@ -12,10 +12,7 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BluetoothDeviceMockingHelper {
-    private static final String DEVICE_MAC = "12:34:56:78:90:12";
-    private static final String DEVICE_NAME = "TimeFlip";
-
+public class BluetoothDeviceMockCreator {
     private static final String FACETSERVICEUUID = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
     private static final String BATTERYSERVICEUUID = "0000180f-0000-1000-8000-00805f9b34fb";
 
@@ -29,7 +26,20 @@ public class BluetoothDeviceMockingHelper {
     private static final byte[] READHISTORYCMD = {0x01};
     private static final byte[] DELETEHISTORYCMD = {0x02};
 
-    public static BluetoothDevice mockBluetoothDevice() {
+    private String deviceMac;
+    private String deviceName;
+
+    private List<byte[]> historyEntries;
+    private byte[] facetId;
+
+    public BluetoothDeviceMockCreator(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId) {
+        this.deviceMac = deviceMac;
+        this.deviceName = deviceName;
+        this.historyEntries = historyEntries;
+        this.facetId = facetId;
+    }
+
+    public BluetoothDevice mockBluetoothDevice() {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
         BluetoothGattService bluetoothBatteryService = mock(BluetoothGattService.class);
         BluetoothGattService bluetoothFacetService = mock(BluetoothGattService.class);
@@ -40,8 +50,8 @@ public class BluetoothDeviceMockingHelper {
         BluetoothGattCharacteristic bluetoothCommandReadCharacteristics = mock(BluetoothGattCharacteristic.class);
         BluetoothGattCharacteristic bluetoothPasswordCharacteristic = mock(BluetoothGattCharacteristic.class);
 
-        when(bluetoothDevice.getName()).thenReturn(DEVICE_NAME);
-        when(bluetoothDevice.getAddress()).thenReturn(DEVICE_MAC);
+        when(bluetoothDevice.getName()).thenReturn(deviceName);
+        when(bluetoothDevice.getAddress()).thenReturn(deviceMac);
 
         when(bluetoothDevice.connect()).thenReturn(connectToCube());
         when(bluetoothDevice.getConnected()).thenReturn(connected);
@@ -121,27 +131,27 @@ public class BluetoothDeviceMockingHelper {
         return bluetoothDevice;
     }
 
-    private static boolean hasInseartedPW = false;
-    private static boolean connected = false;
+    private boolean hasInseartedPW = false;
+    private boolean connected = false;
 
-    private static boolean insertPassword() {
+    private boolean insertPassword() {
         hasInseartedPW = true;
         return true;
     }
 
-    private static boolean connectToCube() {
+    private boolean connectToCube() {
         hasInseartedPW = false;
         connected = true;
         return true;
     }
 
-    private static boolean disconnectFromCube() {
+    private boolean disconnectFromCube() {
         hasInseartedPW = false;
         connected = false;
         return true;
     }
 
-    private static byte[] getCurrentFacet() {
+    private byte[] getCurrentFacet() {
         byte[] returnValue;
 
         if (hasInseartedPW) {
