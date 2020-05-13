@@ -8,7 +8,9 @@ import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -19,13 +21,15 @@ public class ProductivityAnalysisService {
     private final ProdigaUserLoginManager userLoginManager;
     private final BookingService bookingService;
     private final UserService userService;
+    private final DepartmentService departmentService;
 
 
-    public ProductivityAnalysisService(ProdigaUserLoginManager userLoginManager,BookingCategoryService bookingCategoryService, BookingService bookingService, UserService userService) {
+    public ProductivityAnalysisService(ProdigaUserLoginManager userLoginManager, BookingCategoryService bookingCategoryService, BookingService bookingService, UserService userService, DepartmentService departmentService) {
         this.userLoginManager = userLoginManager;
         this.bookingCategoryService = bookingCategoryService;
         this.bookingService = bookingService;
         this.userService = userService;
+        this.departmentService = departmentService;
     }
 
     public HashMap<BookingCategory,Long> getStatisicForCurrentUserByDay(int backstepDay){
@@ -135,19 +139,34 @@ public class ProductivityAnalysisService {
     public HashMap<BookingCategory,Long> getStatisicForDepartmenByMonth(int backstepMonth){
         HashMap<BookingCategory, Long> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
-        Department myDepartment = user.getAssignedDepartment();
         long hours = 0;
         long before = 0;
-        if(user.getRoles().contains(UserRole.DEPARTMENTLEADER)){
-            for(User departmentMember: userService.getUsersByDepartment(myDepartment)) {
-                for (Booking booking : bookingService.getUsersBookingInRangeByMonth(departmentMember, backstepMonth)) {
-                    hours = (booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (1000 * 60 * 60);
-                    if (hashMap.containsKey(booking.getBookingCategory())) {
-                        before = hashMap.get(booking.getBookingCategory());
-                        hashMap.put(booking.getBookingCategory(), before + hours);
-                    } else {
-                        hashMap.put(booking.getBookingCategory(), hours);
-                    }
+
+        Map<String, User> userPerName = new HashMap<>();
+
+        if(user.getRoles().contains(UserRole.ADMIN)) {
+            departmentService.getAllDepartments().forEach(x -> {
+                userService.getUsersByDepartment(x).forEach(y -> {
+                    userPerName.put(y.getUsername(), y);
+                });
+            });
+
+
+        } else if(user.getRoles().contains(UserRole.DEPARTMENTLEADER)) {
+            Department myDepartment = user.getAssignedDepartment();
+            userService.getUsersByDepartment(myDepartment).forEach(x -> {
+                userPerName.put(x.getUsername(), x);
+            });
+        }
+
+        for(User departmentMember: userPerName.values()) {
+            for (Booking booking : bookingService.getUsersBookingInRangeByMonth(departmentMember, backstepMonth)) {
+                hours = (booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (1000 * 60 * 60);
+                if (hashMap.containsKey(booking.getBookingCategory())) {
+                    before = hashMap.get(booking.getBookingCategory());
+                    hashMap.put(booking.getBookingCategory(), before + hours);
+                } else {
+                    hashMap.put(booking.getBookingCategory(), hours);
                 }
             }
         }
