@@ -357,7 +357,7 @@
                 </div>
             </div>
             </h:panelGroup>
-            <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
+            <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') or prodigaUserLoginManager.hasRole('ADMIN')}">
             <div class="ui-g-5">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart Department</h1>
