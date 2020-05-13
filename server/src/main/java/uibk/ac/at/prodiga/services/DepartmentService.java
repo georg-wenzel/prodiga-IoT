@@ -98,7 +98,12 @@ public class DepartmentService
             department.setObjectChangedDateTime(new Date());
             department.setObjectChangedUser(userLoginManager.getCurrentUser());
         }
-        return departmentRepository.save(department);
+
+        Department result = departmentRepository.save(department);
+
+        logInformationService.logForCurrentUser("Department " + result.getName() + " saved");
+
+        return result;
     }
 
     /**
@@ -134,12 +139,16 @@ public class DepartmentService
             roles.remove(UserRole.DEPARTMENTLEADER);
             oldLeader.setRoles(roles);
             userRepository.save(oldLeader);
+
+            logInformationService.logForCurrentUser("User " + oldLeader.getUsername() + " demoted from Department Leader Role");
         }
         //Set new leader role to departmentleader
         Set<UserRole> roles = newLeader.getRoles();
         roles.add(UserRole.DEPARTMENTLEADER);
         newLeader.setRoles(roles);
         userRepository.save(newLeader);
+
+        logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Department Leader Role");
     }
 
 
@@ -179,7 +188,8 @@ public class DepartmentService
     public void deleteDepartment(Department department) throws Exception {
         checkForDepartmentDeletionOrDeactivation(department);
         departmentRepository.delete(department);
-        logInformationService.log("Department " + department.getName() + " was deleted!");
+
+        logInformationService.logForCurrentUser("Department " + department.getName() + " was deleted");
     }
 
     public void checkForDepartmentDeletionOrDeactivation(Department department) throws ProdigaGeneralExpectedException {

@@ -1,6 +1,5 @@
 package uibk.ac.at.prodiga.tests.helper;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
 import de.jollyday.ManagerParameters;
@@ -12,12 +11,10 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
-import uibk.ac.at.prodiga.utils.badge.Badge;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Random;
 import java.util.Set;
@@ -263,11 +260,11 @@ public class DataHelper {
      * @param trueDuration The true duration in days the vacation should last
      * @param forUser The user that should have the vacation
      * @return The vacation which satisfies the trueDuration requirement.
-     * @throws InvalidArgumentException Thrown when trueDuration is <= 0
+     * @throws IllegalArgumentException Thrown when trueDuration is <= 0
      */
-    public static Vacation returnTrueVacation(LocalDate startDate, int trueDuration, User forUser) throws InvalidArgumentException
+    public static Vacation returnTrueVacation(LocalDate startDate, int trueDuration, User forUser) throws IllegalArgumentException
     {
-        if(trueDuration <= 0) throw new InvalidArgumentException(Arrays.array("trueDuration must be greater than 0."));
+        if(trueDuration <= 0) throw new IllegalArgumentException("trueDuration must be greater than 0.");
 
         HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
         LocalDate endDate = startDate.minusDays(1);
@@ -307,9 +304,8 @@ public class DataHelper {
      * @param forUser The user that should have the vacation
      * @param vacationRepository The vacation repository
      * @return The vacation stored in the database.
-     * @throws InvalidArgumentException Thrown when trueDuration is <= 0
      */
-    public static Vacation createTrueVacation(LocalDate startDate, int trueDuration, User forUser, VacationRepository vacationRepository) throws InvalidArgumentException
+    public static Vacation createTrueVacation(LocalDate startDate, int trueDuration, User forUser, VacationRepository vacationRepository)
     {
         Vacation v = returnTrueVacation(startDate, trueDuration, forUser);
         v.setObjectCreatedDateTime(new Date());

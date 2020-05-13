@@ -115,7 +115,12 @@ public class UserService {
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
         }
-        return userRepository.save(user);
+
+        User result = userRepository.save(user);
+
+        logInformationService.logForCurrentUser("User " + user.getUsername() + " was saved");
+
+        return result;
     }
 
     /**
@@ -127,7 +132,7 @@ public class UserService {
     public void deleteUser(User user) throws Exception {
         checkForUserDeletionOrDeactivation(user);
         userRepository.delete(user);
-        logInformationService.log("User " + user.getUsername() + " was deleted!");
+        logInformationService.logForCurrentUser("User " + user.getUsername() + " was deleted!");
     }
 
     public void checkForUserDeletionOrDeactivation(User user) throws ProdigaGeneralExpectedException {
@@ -221,7 +226,11 @@ public class UserService {
             roles.remove(UserRole.TEAMLEADER);
             roles.add(UserRole.EMPLOYEE);
             dbUser.setRoles(roles);
-            return userRepository.save(dbUser);
+            User result = userRepository.save(dbUser);
+
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Team " + team.getName());
+
+            return result;
         }
         else
         {
@@ -241,7 +250,11 @@ public class UserService {
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
         dbUser.setAssignedDepartment(department);
-        return this.saveUser(dbUser);
+        User result = this.saveUser(dbUser);
+
+        logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Department " + department.getName());
+
+        return result;
     }
 
     /**

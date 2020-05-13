@@ -30,13 +30,15 @@ public class TeamService
     private final UserRepository userRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
+    private final LogInformationService logInformationService;
 
-    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository)
+    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository, LogInformationService logInformationService)
     {
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -133,7 +135,12 @@ public class TeamService
                 throw new ProdigaGeneralExpectedException("A team's department cannot be changed.", MessageType.ERROR);
             }
         }
-        return teamRepository.save(team);
+
+        Team result = teamRepository.save(team);
+
+        logInformationService.logForCurrentUser("Team " + team.getName() + " was saved");
+
+        return result;
     }
 
     /**
@@ -158,6 +165,8 @@ public class TeamService
 
         //delete team
         teamRepository.delete(team);
+
+        logInformationService.logForCurrentUser("Team " + team.getName() + " was deleted");
     }
 
     /**
@@ -193,12 +202,16 @@ public class TeamService
             roles.remove(UserRole.TEAMLEADER);
             oldLeader.setRoles(roles);
             userRepository.save(oldLeader);
+
+            logInformationService.logForCurrentUser("User " + oldLeader.getUsername() + " demoted from Team Leader Role");
         }
         //Set new leader role to teamleader
         Set<UserRole> roles = newLeader.getRoles();
         roles.add(UserRole.TEAMLEADER);
         newLeader.setRoles(roles);
         userRepository.save(newLeader);
+
+        logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Team Leader Role");
     }
 
 
