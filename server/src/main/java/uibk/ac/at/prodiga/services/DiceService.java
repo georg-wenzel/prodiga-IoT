@@ -282,6 +282,7 @@ public class DiceService {
         DiceConfigurationWrapper wrapper = new DiceConfigurationWrapper();
         wrapper.setCurrentSide(-1);
         wrapper.setDice(d);
+        wrapper.setCurrentSideFriendlyName(1);
 
         diceConfigurationWrapperDict.put(d.getInternalId(), wrapper);
 
