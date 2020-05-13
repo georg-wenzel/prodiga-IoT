@@ -2,10 +2,6 @@ package uibk.ac.at.prodigaclient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
-import uibk.ac.at.prodigaclient.api.AuthControllerApi;
-import uibk.ac.at.prodigaclient.api.CubeControllerApi;
-import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
 import uibk.ac.at.prodigaclient.threads.AuthThread;
 import uibk.ac.at.prodigaclient.threads.FeedThread;
 import uibk.ac.at.prodigaclient.threads.HistorySyncThread;
@@ -15,6 +11,22 @@ public class Client {
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws InterruptedException {
+
+        if(args.length != 2) {
+            logger.error("Usage: <server-address> <password>");
+            return;
+        }
+
+        String serverAddress = args[0];
+        String password = args[1];
+
+        if(!password.startsWith("http://") || !password.endsWith("/")) {
+            logger.error("Server Address needs to have form http://<ip-address>:<port>/");
+            return;
+        }
+
+        Constants.setPassword(password);
+        Constants.setServerAddress(serverAddress);
 
         // We start the client and read the MAC Address - this is the "ID" of the current client
         try {
