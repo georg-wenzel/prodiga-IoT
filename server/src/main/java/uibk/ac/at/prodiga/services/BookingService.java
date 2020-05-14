@@ -13,6 +13,7 @@ import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -352,13 +353,21 @@ public class BookingService
     }
 
     public Boolean isBookingLongerThan2DaysAgo(User user){
+        int i = 2;
+        LocalDate endDate = LocalDate.now();
+        while(true) {
+            LocalDate startDate = endDate.minusDays(i);
+            if (vacationService.getCountVacationDays(startDate, endDate) >= 2) {
+                break;
+            }
+            i += 1;
+        }
         Date date = new Date();
+        Date end = date;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        c.add(Calendar.DATE, -2);
+        c.add(Calendar.DATE, -i);
         Date start = c.getTime();
-        c.add(Calendar.DATE, 2);
-        Date end = c.getTime();
         if(getBookingInRangeForUser(user, start, end).isEmpty()){
             return true;
         }

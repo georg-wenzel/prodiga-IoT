@@ -1,13 +1,16 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
-import de.jollyday.*;
+import de.jollyday.Holiday;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
-import uibk.ac.at.prodiga.model.Vacation;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.Vacation;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.VacationRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -15,12 +18,10 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * Service for accessing and manipulating vacations.
@@ -288,7 +289,7 @@ public class VacationService
      * @param endDate The end date of the vacation.
      * @return The vacation days excluding weekends and national holidays.
      */
-    private int getCountVacationDays(LocalDate beginDate, LocalDate endDate)
+    public int getCountVacationDays(LocalDate beginDate, LocalDate endDate)
     {
         HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
 

@@ -11,14 +11,14 @@ import uibk.ac.at.prodiga.repositories.MailRepository;
 public class MailFrequencyService {
 
     @Autowired
-    private final MailRepository mailRepoitory;
+    private final MailRepository mailRepository;
     @Autowired
     private final MailService mailService;
     @Autowired
     private final ProductivityAnalysisService productivityAnalysisService;
 
-    public MailFrequencyService(MailRepository mailRepoitory, MailService mailService, ProductivityAnalysisService productivityAnalysisService) {
-        this.mailRepoitory = mailRepoitory;
+    public MailFrequencyService(MailRepository mailRepository, MailService mailService, ProductivityAnalysisService productivityAnalysisService) {
+        this.mailRepository = mailRepository;
         this.mailService = mailService;
         this.productivityAnalysisService = productivityAnalysisService;
     }
@@ -29,7 +29,7 @@ public class MailFrequencyService {
      */
     @Scheduled(cron = "0 0 12 1 * ?")
     public void sendMonthlyNotification(){
-        for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.MONTHLY)){
+        for(User user : mailRepository.findUserByFrequencyType(FrequencyType.MONTHLY)){
             productivityAnalysisService.createJSON(FrequencyType.MONTHLY, user);
             mailService.sendEmailTo(user, "Your monthly Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your monthly productivity statistic can be found in the appendix.\n\n" + "Best Regards\nThe Prodiga System Managers", FrequencyType.MONTHLY);
         }
@@ -41,7 +41,7 @@ public class MailFrequencyService {
      */
     @Scheduled(cron = "0 0 12 * * MON")
     public void sendWeeklyNotification(){
-        for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.WEEKLY)) {
+        for(User user : mailRepository.findUserByFrequencyType(FrequencyType.WEEKLY)) {
             productivityAnalysisService.createJSON(FrequencyType.WEEKLY, user);
             mailService.sendEmailTo(user, "Your weekly Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your weekly productivity statistic can be found in the appendix.\n\n" + "Best Regards\nThe Prodiga System Managers", FrequencyType.WEEKLY);
         }
@@ -53,7 +53,7 @@ public class MailFrequencyService {
      */
     @Scheduled(cron = "0 0 12 * * MON-FRI")
     public void sendDailyNotification(){
-        for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.DAILY)) {
+        for(User user : mailRepository.findUserByFrequencyType(FrequencyType.DAILY)) {
             productivityAnalysisService.createJSON(FrequencyType.DAILY, user);
             mailService.sendEmailTo(user, "Your daily Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your daily productivity statistic can be found in the appendix.\n\n" + "Best Regards,\nThe Prodiga System Managers", FrequencyType.DAILY);
         }
