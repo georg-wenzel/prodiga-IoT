@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,18 +47,18 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothDevice.getConnected()).thenReturn(true);
         when(bluetoothDevice.disconnect()).thenReturn(true);
 
-        when(bluetoothDevice.find(BATTERYSERVICEUUID, any(Duration.class))).thenReturn(bluetoothBatteryService);
-        when(bluetoothDevice.find(FACETSERVICEUUID, any(Duration.class))).thenReturn(bluetoothFacetService);
+        when(bluetoothDevice.find(eq(BATTERYSERVICEUUID), any(Duration.class))).thenReturn(bluetoothBatteryService);
+        when(bluetoothDevice.find(eq(FACETSERVICEUUID), any(Duration.class))).thenReturn(bluetoothFacetService);
 
         when(bluetoothBatteryService.getUUID()).thenReturn(BATTERYSERVICEUUID);
         when(bluetoothFacetService.getUUID()).thenReturn(FACETSERVICEUUID);
 
-        when(bluetoothFacetService.find(COMMANDREADCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothCommandReadCharacteristics);
-        when(bluetoothFacetService.find(COMMANDWRITERCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothCommandWriteCharacteristics);
-        when(bluetoothFacetService.find(CURRENTFACETCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothCurrentFacetCharacteristics);
-        when(bluetoothFacetService.find(PASSWORDCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothPasswordCharacteristic);
+        when(bluetoothFacetService.find(eq(COMMANDREADCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCommandReadCharacteristics);
+        when(bluetoothFacetService.find(eq(COMMANDWRITERCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCommandWriteCharacteristics);
+        when(bluetoothFacetService.find(eq(CURRENTFACETCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCurrentFacetCharacteristics);
+        when(bluetoothFacetService.find(eq(PASSWORDCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothPasswordCharacteristic);
 
-        when(bluetoothBatteryService.find(BATTERYCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothBatteryCharacteristic);
+        when(bluetoothBatteryService.find(eq(BATTERYCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothBatteryCharacteristic);
 
         when(bluetoothCommandReadCharacteristics.getUUID()).thenReturn(COMMANDREADCHARACTERISTICUUID);
         when(bluetoothCommandWriteCharacteristics.getUUID()).thenReturn(COMMANDWRITERCHARACTERISTICUUID);

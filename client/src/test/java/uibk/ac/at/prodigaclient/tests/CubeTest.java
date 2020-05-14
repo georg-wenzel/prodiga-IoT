@@ -22,6 +22,7 @@ public class CubeTest {
     // 4 Stunden Dienstag
     // 2 Stunden Mittwoch
     // 1 Stunden Donnerstag
+    // 2 Stunden Donnerstag
     @BeforeEach
     public void setUp() {
         List<byte[]> historyList = new LinkedList<>();
