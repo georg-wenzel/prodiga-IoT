@@ -69,14 +69,14 @@ INSERT INTO dice(ID, internal_id, object_created_date_time, object_changed_date_
 INSERT INTO dice(ID, internal_id, object_created_date_time, object_changed_date_time, object_created_user_username, object_changed_user_username, is_active, user_username, assigned_raspberry_id) VALUES (3, 'user1dice', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'admin', 'admin', TRUE, 'user1', 1);
 INSERT INTO dice(ID, internal_id, object_created_date_time, object_changed_date_time, object_created_user_username, object_changed_user_username, is_active, user_username, assigned_raspberry_id) VALUES (4, 'user3dice', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'admin', 'admin', TRUE, 'user3', 1);
 
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (1,NOW(),NOW(),1,9,2,'user2','user2');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (2,NOW(),NOW(),2,2,2,'user2','user2');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (3,NOW(),NOW(),3,3,2,'user2','user2');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (4,NOW(),NOW(),4,4,2,'user2','user2');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (6,NOW(),NOW(),1,9,1,'admin','admin');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (7,NOW(),NOW(),2,2,1,'admin','admin');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (8,NOW(),NOW(),3,3,1,'admin','admin');
-INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username) VALUES (9,NOW(),NOW(),4,4,1,'admin','admin');
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (1,NOW(),NOW(),1,9,2,'user2','user2', 1);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (2,NOW(),NOW(),2,2,2,'user2','user2', 2);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (3,NOW(),NOW(),3,3,2,'user2','user2', 3);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (4,NOW(),NOW(),4,4,2,'user2','user2', 4);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (6,NOW(),NOW(),1,9,1,'admin','admin', 5);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (7,NOW(),NOW(),2,2,1,'admin','admin', 6);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (8,NOW(),NOW(),3,3,1,'admin','admin', 7);
+INSERT INTO dice_side(ID, object_created_date_time, object_changed_date_time, side, booking_category_id, dice_id, object_changed_user_username, object_created_user_username, side_friendly_name) VALUES (9,NOW(),NOW(),4,4,1,'admin','admin', 8);
 
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (1, 'admin', DATE(NOW() - INTERVAL 2 YEAR - INTERVAL 3 DAY), DATE(NOW() - INTERVAL 2 YEAR), 'admin', NOW());
 INSERT INTO vacation (ID, user_username, begin_date, end_date, object_created_user_username, object_created_date_time) VALUES (2, 'admin', DATE(NOW() - INTERVAL 35 DAY), DATE(NOW() - INTERVAL 33 DAY), 'admin', NOW());
@@ -125,9 +125,9 @@ INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanat
 INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(10, 'The Sloth', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours pause/vacation');
 
 
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'user2', 'Most hours debugging');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'user3', 'Most hours implementation');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours frontend');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours managing');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(15, 'Educated Gabbo', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours training and testing');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(16, 'The Sloth', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours pause/vacation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user2', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user3', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours frontend');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours managing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(15, 'Educated Gabbo', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours training and testing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(16, 'The Sloth', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours pause/vacation');
