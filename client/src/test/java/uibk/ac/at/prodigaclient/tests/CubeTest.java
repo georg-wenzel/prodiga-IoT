@@ -32,7 +32,7 @@ public class CubeTest {
         historyList.add(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
 
-        bluetoothDevice = BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:12", "TimeFlip", historyList, new byte[] {0x01}, new byte[]{0x17});
+        bluetoothDevice = BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:12", "TimeFlip", historyList, new byte[] {0x01}, new byte[]{0x17}, true);
         cube = new Cube(bluetoothDevice);
     }
 

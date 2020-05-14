@@ -27,9 +27,9 @@ public class BluetoothManagerMockCreator {
         historyList.add(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
 
-        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:00", "TimeFlipOne", historyList, new byte[]{0x01}, new byte[] {0x14}));
-        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:01", "TimeFlipTwo", historyList, new byte[]{0x02}, new byte[] {0x25}));
-        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:03", "notACube", null, null, null));
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:00", "TimeFlipOne", historyList, new byte[]{0x01}, new byte[] {0x14}, false));
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:01", "TimeFlipTwo", historyList, new byte[]{0x02}, new byte[] {0x25}, false));
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:02", "notACube", null, null, null, false));
 
         when(bluetoothManager.getDevices()).thenReturn(bluetoothDeviceList);
 

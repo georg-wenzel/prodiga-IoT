@@ -29,7 +29,7 @@ public class BluetoothDeviceMockCreator {
     private static final byte[] READHISTORYCMD = {0x01};
     private static final byte[] DELETEHISTORYCMD = {0x02};
 
-    public static BluetoothDevice mockFullBluetoothDevice(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId, byte[] batteryStatus) {
+    public static BluetoothDevice mockFullBluetoothDevice(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId, byte[] batteryStatus, boolean connected) {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
         BluetoothGattService bluetoothBatteryService = mock(BluetoothGattService.class);
         BluetoothGattService bluetoothFacetService = mock(BluetoothGattService.class);
@@ -44,7 +44,7 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothDevice.getAddress()).thenReturn(deviceMac);
 
         when(bluetoothDevice.connect()).thenReturn(true);
-        when(bluetoothDevice.getConnected()).thenReturn(true);
+        when(bluetoothDevice.getConnected()).thenReturn(connected);
         when(bluetoothDevice.disconnect()).thenReturn(true);
 
         when(bluetoothDevice.find(eq(BATTERYSERVICEUUID), any(Duration.class))).thenReturn(bluetoothBatteryService);
