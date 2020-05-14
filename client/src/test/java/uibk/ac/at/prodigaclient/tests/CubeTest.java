@@ -1,5 +1,6 @@
 package uibk.ac.at.prodigaclient.tests;
 
+import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import tinyb.BluetoothDevice;
 import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,6 +39,13 @@ public class CubeTest {
         cube = new Cube(bluetoothDevice);
     }
 
+    public void verifyPasswordEntered() {
+        verify(bluetoothDevice.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1))
+                              .find("f1196f57-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1)),
+                              times(1)
+              ).writeValue(new byte[]{0x30, 0x30, 0x30, 0x30, 0x30, 0x30});
+    }
+
     @Test
     public void getCubeNameTest() {
         Assertions.assertEquals("TimeFlip", cube.getName());
@@ -50,13 +59,14 @@ public class CubeTest {
     @Test
     public void getCurrentSideTest() {
         Assertions.assertEquals(1, cube.getCurrentSide());
+        verifyPasswordEntered();
     }
 
     @Test
     public void getHistoryTest() {
         List<HistoryEntry> historyEntryList = cube.getHistory();
-        System.out.println(historyEntryList);
         Assertions.assertEquals(7, historyEntryList.size());
+        verifyPasswordEntered();
     }
 
     @Test
