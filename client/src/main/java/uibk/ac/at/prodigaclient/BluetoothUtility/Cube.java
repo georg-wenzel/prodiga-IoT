@@ -56,7 +56,7 @@ public class Cube {
      * It initializes name, address and cube
      * @param cube the BluetoothDevice which this Cube class represents
      */
-    protected Cube(BluetoothDevice cube) {
+    public Cube(BluetoothDevice cube) {
         this.cube = cube;
         this.name = cube.getName();
         this.address = cube.getAddress();
@@ -82,7 +82,7 @@ public class Cube {
      * Initialisation of the cube. This includes to get the facet service and input the password
      * @return Successfully initialised?
      */
-    public boolean initializeCube() {
+    private boolean initializeCube() {
         if (facetService == null) {
             facetService = getService(FACETSERVICEUUID);
 
@@ -97,12 +97,12 @@ public class Cube {
     /**
      * Make a failsafe connection to the bluetooth Device
      */
-    protected void failsafeConnect() {
+    public void failsafeConnect() {
         if (!cube.getConnected()) {
             RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
                     .handle(BluetoothException.class)
                     .withDelay(Duration.ofSeconds(1))
-                    .withMaxRetries(3);
+                    .withMaxRetries(10);
 
             Failsafe.with(retryPolicy).run(cube::connect);
         }
@@ -111,15 +111,15 @@ public class Cube {
     /**
      * Make a failsafe disconnection from the bluetooth Device
      */
-    protected void failsafeDisconnect() {
+    public void failsafeDisconnect() {
         if (cube.getConnected()) {
             RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
                     .handle(BluetoothException.class)
                     .withDelay(Duration.ofSeconds(1))
-                    .withMaxRetries(3);
+                    .withMaxRetries(10);
 
             facetService = null;
-            Failsafe.with(retryPolicy).run(cube::connect);
+            Failsafe.with(retryPolicy).run(cube::disconnect);
         }
     }
 
@@ -142,25 +142,7 @@ public class Cube {
      * @return Specific service
      */
     private BluetoothGattService getService(String UUID) {
-        boolean found = false;
-
-        BluetoothGattService specificBluetoothService = null;
-
-        while (!found) {
-            List<BluetoothGattService> bluetoothServices = cube.getServices();
-            if (bluetoothServices == null) {
-                return null;
-            }
-
-            for (BluetoothGattService service : bluetoothServices) {
-                if (service.getUUID().equals(UUID)) {
-                    specificBluetoothService = service;
-                    found = true;
-                }
-            }
-        }
-
-        return specificBluetoothService;
+        return cube.find(UUID, Duration.ofSeconds(10));
     }
 
     /**
@@ -170,26 +152,7 @@ public class Cube {
      * @return Specific characteristic
      */
     private BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
-        boolean found = false;
-
-        BluetoothGattCharacteristic specificBluetoothCharacteristic = null;
-
-        while (!found) {
-            List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
-
-            if (characteristics == null) {
-                return null;
-            }
-
-            for (BluetoothGattCharacteristic characteristic : characteristics) {
-                if (characteristic.getUUID().equals(UUID)) {
-                    specificBluetoothCharacteristic = characteristic;
-                    found = true;
-                }
-            }
-        }
-
-        return specificBluetoothCharacteristic;
+        return service.find(UUID, Duration.ofSeconds(10));
     }
 
     /**

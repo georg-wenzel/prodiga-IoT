@@ -1,7 +1,6 @@
 package uibk.ac.at.prodigaclient.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
@@ -13,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class CubeManagerTest {
@@ -22,6 +22,7 @@ public class CubeManagerTest {
 
     @BeforeEach
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         Set<String> set = new HashSet<>();
         set.add("0C:61:CF:C7:8F:D5");
         set.add("0C:61:CF:C7:8F:D6");
@@ -49,6 +50,6 @@ public class CubeManagerTest {
 
     @Test
     void testCubeManagerMock() {
-        assertEquals(1, cubeManagerMock.getCurrentSide("0C:61:CF:C7:8F:D5"));
+        Assertions.assertEquals(1, cubeManagerMock.getCurrentSide("0C:61:CF:C7:8F:D5"));
     }
 }

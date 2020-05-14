@@ -67,3 +67,8 @@ Some strange behaviours:
 * Sometimes the characteristics or the services aren't available. 
 * Sometimes the TimeFlip disconnects without any reason. 
 * The distance from the TimeFlip to the Raspberry PI varies. If you need a somewhat reliable connection you should stay under 2 Meters.
+
+## Some more Things
+* We can read out Services and Characteristics of the cube even if we don't are connected to it.
+* The function `.find()` would have been helpful for the Services and characteristics. 
+
