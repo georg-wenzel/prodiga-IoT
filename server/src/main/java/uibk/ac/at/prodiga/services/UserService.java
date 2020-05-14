@@ -258,6 +258,45 @@ public class UserService {
     }
 
     /**
+     * Sets the historic data editing flag of the user provided
+     * @param user The username of the user
+     * @param allowedToEdit Whether or not he is allowed to edit historic data
+     */
+    @PreAuthorize("hasAuthority('TEAMLEADER') || hasAuthority('DEPARTMENTLEADER')")
+    public void setEditAllowed(String user, boolean allowedToEdit) throws ProdigaGeneralExpectedException
+    {
+        User currentUser = userLoginManager.getCurrentUser();
+        User dbUser = userRepository.findFirstByUsername(user);
+        if(dbUser == null) throw new ProdigaGeneralExpectedException("Could not find user to set flag for.", MessageType.ERROR);
+
+        if(currentUser.getRoles().contains(UserRole.DEPARTMENTLEADER))
+        {
+            if(dbUser.getAssignedDepartment().equals(currentUser.getAssignedDepartment()))
+            {
+                dbUser.setMayEditHistoricData(allowedToEdit);
+                userRepository.save(dbUser);
+            }
+            else
+            {
+                throw new RuntimeException("Illegal attempt to set flag of user that is out of authorization scope.");
+            }
+        }
+
+        else if(currentUser.getRoles().contains(UserRole.TEAMLEADER))
+        {
+            if(dbUser.getAssignedTeam().equals(currentUser.getAssignedTeam()))
+            {
+                dbUser.setMayEditHistoricData(allowedToEdit);
+                userRepository.save(dbUser);
+            }
+            else
+            {
+                throw new RuntimeException("Illegal attempt to set flag of user that is out of authorization scope.");
+            }
+        }
+    }
+
+    /**
      * Returns a newly created user
      *
      * @return A newly created user entity

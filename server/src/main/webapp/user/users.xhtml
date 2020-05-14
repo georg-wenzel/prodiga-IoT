@@ -41,7 +41,10 @@
                                 <h:outputText value="#{user.roles}" />
                             </p:column>
                             <p:column headerText="Edit historic data" rendered="#{(prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
-                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}" />
+                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}">
+                                    <f:attribute name="userToEdit" value="#{user.username}" />
+                                    <f:ajax listener="#{userListController.editBoxChanged}" />
+                                </p:selectBooleanCheckbox>
                             </p:column>
                             <p:column headerText="Team" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
                                 <p:selectOneMenu value="#{user.assignedTeam}">

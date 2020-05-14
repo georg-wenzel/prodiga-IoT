@@ -3,6 +3,8 @@ package uibk.ac.at.prodiga.ui.controllers;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
@@ -15,11 +17,20 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import javax.faces.component.html.HtmlSelectBooleanCheckbox;
+import javax.faces.event.AjaxBehaviorEvent;
+
 @Component
 @Scope("view")
 public class UserListController implements Serializable
 {
     private static final long serialVersionUID = 5325687683192577315L;
+
+    private String userToEdit;
+    private boolean historicFlagToSet;
+    private Long teamIdToSet;
+
+    private Collection<User> users;
 
     private final UserService userService;
     private final TeamService teamService;
@@ -38,20 +49,17 @@ public class UserListController implements Serializable
      */
     public Collection<User> getUsers()
     {
-        User u = userLoginManager.getCurrentUser();
-        if(u.getRoles().contains(UserRole.ADMIN))
-        {
-            return userService.getAllUsers();
+        if(users == null) {
+            User u = userLoginManager.getCurrentUser();
+            if (u.getRoles().contains(UserRole.ADMIN)) {
+                users = userService.getAllUsers();
+            } else if (u.getRoles().contains(UserRole.DEPARTMENTLEADER)) {
+                users = userService.getUsersByDepartment();
+            } else if (u.getRoles().contains(UserRole.TEAMLEADER)) {
+                users = userService.getUsersByTeam();
+            }
         }
-        else if(u.getRoles().contains(UserRole.DEPARTMENTLEADER))
-        {
-            return userService.getUsersByDepartment();
-        }
-        else if(u.getRoles().contains(UserRole.TEAMLEADER))
-        {
-            return userService.getUsersByTeam();
-        }
-        return null;
+        return users;
     }
 
     /**
@@ -90,5 +98,24 @@ public class UserListController implements Serializable
             return teamService.findTeamsOfDepartment();
         }
         return null;
+    }
+
+    public void setUserToEdit(String userToEdit) {
+        this.userToEdit = userToEdit;
+    }
+
+    public void setHistoricFlagToSet(boolean historicFlagToSet) {
+        this.historicFlagToSet = historicFlagToSet;
+    }
+
+    public void setTeamIdToSet(Long teamIdToSet) {
+        this.teamIdToSet = teamIdToSet;
+    }
+
+    public void editBoxChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    {
+        SelectBooleanCheckbox source = (SelectBooleanCheckbox) e.getSource();
+        Object value = source.getValue();
+        userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)value);
     }
 }
