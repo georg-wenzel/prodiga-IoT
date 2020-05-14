@@ -1,14 +1,13 @@
 package uibk.ac.at.prodigaclient.tests;
 
-import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.mockito.Mockito;
 import tinyb.BluetoothDevice;
 import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
+import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
 
 import java.time.Duration;
 import java.util.Arrays;

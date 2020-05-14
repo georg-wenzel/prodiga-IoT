@@ -1,4 +1,4 @@
-package uibk.ac.at.prodigaclient.tests;
+package uibk.ac.at.prodigaclient.tests.MockCreators;
 
 import org.mockito.MockitoAnnotations;
 import tinyb.BluetoothDevice;

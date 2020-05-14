@@ -41,6 +41,17 @@ public class CubeManager implements Manager {
     }
 
     /**
+     * Special consturctor for testing
+     * This is testable using reflection
+     * Not the nicest way but its possible XD
+     */
+    private CubeManager(BluetoothManager bluetoothManager) {
+        manager = bluetoothManager;
+        listOfCubes = new HashMap<>();
+        discoveryStarted = manager.startDiscovery();
+    }
+
+    /**
      * Cube manager should only exists once
      * This is the private Singelton class which takes care of it
      */

@@ -1,4 +1,4 @@
-package uibk.ac.at.prodigaclient.tests;
+package uibk.ac.at.prodigaclient.tests.MockCreators;
 
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -8,7 +8,6 @@ import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
 
 import java.time.Duration;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
