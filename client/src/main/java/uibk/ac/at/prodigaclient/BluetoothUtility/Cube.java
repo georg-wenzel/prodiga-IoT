@@ -82,7 +82,7 @@ public class Cube {
      * Initialisation of the cube. This includes to get the facet service and input the password
      * @return Successfully initialised?
      */
-    public boolean initializeCube() {
+    private boolean initializeCube() {
         if (facetService == null) {
             facetService = getService(FACETSERVICEUUID);
 
