@@ -9,6 +9,7 @@ import tinyb.BluetoothGattService;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,25 +27,7 @@ public class BluetoothDeviceMockCreator {
     private static final byte[] READHISTORYCMD = {0x01};
     private static final byte[] DELETEHISTORYCMD = {0x02};
 
-    private String deviceMac;
-    private String deviceName;
-
-    private List<byte[]> historyEntries;
-    private byte[] facetId;
-    private byte[] noPass = new byte[] {};
-
-    private boolean hasInseartedPW = false;
-    private boolean connected = false;
-    private int historyStatus = 0;
-
-    public BluetoothDeviceMockCreator (String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId) {
-        this.deviceMac = deviceMac;
-        this.deviceName = deviceName;
-        this.historyEntries = historyEntries;
-        this.facetId = facetId;
-    }
-
-    public BluetoothDevice mockBluetoothDevice() {
+    public static BluetoothDevice mockFullBluetoothDevice(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId, byte[] batteryStatus) {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
         BluetoothGattService bluetoothBatteryService = mock(BluetoothGattService.class);
         BluetoothGattService bluetoothFacetService = mock(BluetoothGattService.class);
@@ -58,9 +41,9 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothDevice.getName()).thenReturn(deviceName);
         when(bluetoothDevice.getAddress()).thenReturn(deviceMac);
 
-        when(bluetoothDevice.connect()).thenReturn(connectToCube());
-        when(bluetoothDevice.getConnected()).thenReturn(connected);
-        when(bluetoothDevice.disconnect()).thenReturn(disconnectFromCube());
+        when(bluetoothDevice.connect()).thenReturn(true);
+        when(bluetoothDevice.getConnected()).thenReturn(true);
+        when(bluetoothDevice.disconnect()).thenReturn(true);
 
         List<BluetoothGattService> serviceList = new LinkedList<>();
         serviceList.add(bluetoothBatteryService);
@@ -90,64 +73,46 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothPasswordCharacteristic.getUUID()).thenReturn(PASSWORDCHARACTERISTICUUID);
         when(bluetoothBatteryCharacteristic.getUUID()).thenReturn(BATTERYCHARACTERISTICUUID);
 
-        when(bluetoothBatteryCharacteristic.readValue()).thenReturn(new byte[]{0x45}); // you can always get the Bluetooth percentage
+        when(bluetoothBatteryCharacteristic.readValue()).thenReturn(batteryStatus);
 
-        when(bluetoothPasswordCharacteristic.writeValue(CUBEPASSWORD)).thenReturn(insertPassword());
+        when(bluetoothPasswordCharacteristic.writeValue(any(byte[].class))).thenAnswer(
+                (Answer<Boolean>) invocationOnMock -> invocationOnMock.getArgument(0).equals(BluetoothDeviceMockCreator.CUBEPASSWORD)
+        );
 
         when(bluetoothCommandWriteCharacteristics.writeValue(READHISTORYCMD)).thenReturn(true);
         when(bluetoothCommandWriteCharacteristics.writeValue(DELETEHISTORYCMD)).thenReturn(true);
 
-        when(bluetoothCommandReadCharacteristics.readValue()).thenReturn(getHistory());
-//        when(bluetoothCommandReadCharacteristics.readValue()).thenAnswer(new Answer<byte[]>() {
-//            @Override
-//            public byte[] answer(InvocationOnMock invocationOnMock) throws Throwable {
-//
-//            }
-//        });
-        when(bluetoothCurrentFacetCharacteristics.readValue()).thenReturn(getCurrentFacet());
+        when(bluetoothCommandReadCharacteristics.readValue()).thenAnswer(new Answer<byte[]>() {
+            int historyStatus = 0;
+            final List<byte[]> historyEntryList = historyEntries;
+
+            @Override
+            public byte[] answer(InvocationOnMock invocationOnMock) {
+                byte[] returnValue;
+                returnValue = historyEntryList.get(historyStatus % historyEntryList.size());
+                historyStatus = historyStatus + 1;
+
+                return returnValue;
+            }
+        });
+
+
+
+        when(bluetoothCurrentFacetCharacteristics.readValue()).thenReturn(facetId);
         return bluetoothDevice;
     }
 
 
-    private byte[] getHistory() {
-        byte[] returnValue;
+    public static BluetoothDevice mockConnectionTestBluetoothDevice(boolean connectionStatus) {
+        BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
 
-        if(hasInseartedPW) {
-            returnValue = historyEntries.get(historyStatus % historyEntries.size());
-            historyStatus = historyStatus + 1;
-        } else {
-            returnValue = noPass;
-        }
+        when(bluetoothDevice.getName()).thenReturn("Dummy Name");
+        when(bluetoothDevice.getAddress()).thenReturn("Dummy Address");
 
-        return returnValue;
-    }
+        when(bluetoothDevice.connect()).thenReturn(true);
+        when(bluetoothDevice.getConnected()).thenReturn(connectionStatus);
+        when(bluetoothDevice.disconnect()).thenReturn(true);
 
-    private boolean insertPassword() {
-        hasInseartedPW = true;
-        return true;
-    }
-
-    private boolean connectToCube() {
-        hasInseartedPW = false;
-        connected = true;
-        return true;
-    }
-
-    private boolean disconnectFromCube() {
-        hasInseartedPW = false;
-        connected = false;
-        return true;
-    }
-
-    private byte[] getCurrentFacet() {
-        byte[] returnValue;
-
-        if (hasInseartedPW) {
-            returnValue = facetId;
-        } else {
-            returnValue = noPass;
-        }
-
-        return returnValue;
+        return bluetoothDevice;
     }
 }

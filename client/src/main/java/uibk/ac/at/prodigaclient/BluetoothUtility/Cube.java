@@ -97,7 +97,7 @@ public class Cube {
     /**
      * Make a failsafe connection to the bluetooth Device
      */
-    protected void failsafeConnect() {
+    public void failsafeConnect() {
         if (!cube.getConnected()) {
             RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
                     .handle(BluetoothException.class)
@@ -111,7 +111,7 @@ public class Cube {
     /**
      * Make a failsafe disconnection from the bluetooth Device
      */
-    protected void failsafeDisconnect() {
+    public void failsafeDisconnect() {
         if (cube.getConnected()) {
             RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
                     .handle(BluetoothException.class)

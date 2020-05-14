@@ -4,16 +4,24 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.mockito.Mockito;
+import tinyb.BluetoothDevice;
 import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 public class CubeTest {
     private Cube cube;
+    BluetoothDevice bluetoothDevice;
 
-    // 4 Stunden
+    // 4 Stunden Dienstag
+    // 2 Stunden Mittwoch
+    // 1 Stunden Donnerstag
     @BeforeEach
     public void setUp() {
         List<byte[]> historyList = new LinkedList<>();
@@ -24,9 +32,8 @@ public class CubeTest {
         historyList.add(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
 
-        BluetoothDeviceMockCreator bdmc = new BluetoothDeviceMockCreator("12:34:56:78:90:12", "TimeFlip", historyList, new byte[] {0x01});
-
-        cube = new Cube(bdmc.mockBluetoothDevice());
+        bluetoothDevice = BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:12", "TimeFlip", historyList, new byte[] {0x01}, new byte[]{0x17});
+        cube = new Cube(bluetoothDevice);
     }
 
     @Test
@@ -49,5 +56,24 @@ public class CubeTest {
         List<HistoryEntry> historyEntryList = cube.getHistory();
         System.out.println(historyEntryList);
         Assertions.assertEquals(7, historyEntryList.size());
+    }
+
+    @Test
+    public void connectToCubeTest() {
+        bluetoothDevice = BluetoothDeviceMockCreator.mockConnectionTestBluetoothDevice(false);
+        cube = new Cube(bluetoothDevice);
+        cube.failsafeConnect();
+        verify(bluetoothDevice, times(1)).getConnected();
+        verify(bluetoothDevice, times(1)).connect();
+    }
+
+    @Test
+    public void diconnectFromCubeTest() {
+        bluetoothDevice = BluetoothDeviceMockCreator.mockConnectionTestBluetoothDevice(true);
+        cube = new Cube(bluetoothDevice);
+
+        cube.failsafeDisconnect();
+        verify(bluetoothDevice, times(1)).getConnected();
+        verify(bluetoothDevice, times(1)).disconnect();
     }
 }
