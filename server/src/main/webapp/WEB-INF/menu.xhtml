@@ -33,7 +33,11 @@
                             </p:menuitem>
                         </p:submenu>
                         <p:submenu id="om_customization" label="Notifications" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
-                        <p:submenu id="om_overview" label="Time overview" icon="fa fa-fw fa-dashboard" outcome="overview"/>
+                        <p:submenu id="om_statistics" label="Statistics" icon="fa fa-fw fa-dashboard">
+                            <p:menuitem id="om_statistics_dep" value="Department" icon="fa fa-fw fa-area-chart" outcome="/statistics_department" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and prodigaUserLoginManager.getCurrentUser().assignedDepartment != null}"/>
+                            <p:menuitem id="om_statistics_team" value="Team" icon="fa fa-fw fa fa-area-chart" outcome="/statistics_team" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER') and prodigaUserLoginManager.getCurrentUser().assignedTeam != null}"/>
+                            <p:menuitem id="om_my_statistics" value="My overview" icon="fa fa-fw fa fa-area-chart" outcome="/statistics"/>
+                        </p:submenu>
                         <p:menuitem id="om_themes" value="Badges" icon="fa fa-fw fa-trophy" outcome="/badges"/>
                         <p:submenu id="om_raspis" label="Raspberry Pis" icon="fa fa-fw fa-pie-chart" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                             <p:menuitem id="om_raspis_conf" value="Configured" icon="fa fa-fw fa-toggle-on" outcome="/raspberry_pis_configured" />
@@ -79,7 +83,6 @@
                                         rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}"
                                         outcome="/team_categories"/>
                         </p:submenu>
-                        <p:menuitem id="om_statistics" value="Statistics" icon="fa fa-fw fa-home" outcome="/statistics"/>
                         <p:menuitem id="om_log" value="Logs" icon="fa fa-fw fa-database" outcome="/log" />
                         <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
                     </pe:menu>

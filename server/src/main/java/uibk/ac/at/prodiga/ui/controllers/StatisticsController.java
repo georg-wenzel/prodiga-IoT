@@ -1,10 +1,11 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
-import org.primefaces.model.chart.BarChartModel;
-import org.primefaces.model.chart.Axis;
-import org.primefaces.model.chart.ChartSeries;
-import org.primefaces.model.chart.AxisType;
+
+import org.primefaces.model.charts.bar.BarChartDataSet;
+import org.primefaces.model.charts.bar.BarChartOptions;
+import org.primefaces.model.charts.optionconfig.legend.Legend;
 import org.primefaces.model.charts.pie.PieChartModel;
+import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.pie.PieChartDataSet;
 import org.springframework.context.annotation.Scope;
@@ -157,7 +158,12 @@ public class StatisticsController implements Serializable {
         List<String> labels = new ArrayList<>();
 
         weeklyAnalysisBar = new BarChartModel();
-        ChartSeries categories = new ChartSeries();
+
+        ChartData dataBar = new ChartData();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        barDataSet.setLabel("My First Dataset");
+        List<Number> values = new ArrayList<>();
+        List<String> labelsBar = new ArrayList<>();
         Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByWeek(1);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
@@ -169,7 +175,8 @@ public class StatisticsController implements Serializable {
                 mycolors.add(defaultColor.get(entry.getKey().getName()));
             }
 
-            categories.set(entry.getKey().getName(), entry.getValue());
+            values.add(entry.getValue());
+            labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
 
@@ -177,18 +184,14 @@ public class StatisticsController implements Serializable {
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         weeklyAnalysisPie.setData(data);
-        //weeklyAnalysisPie.setExtender("skinPie");
 
-        weeklyAnalysisBar.addSeries(categories);
-        weeklyAnalysisBar.setTitle("Bar Chart");
-
-        Axis xAxis = weeklyAnalysisBar.getAxis(AxisType.X);
-        xAxis.setLabel("Category");
-
-        Axis yAxis = weeklyAnalysisBar.getAxis(AxisType.Y);
-        yAxis.setLabel("Time");
-
-        weeklyAnalysisBar.setExtender("skinBar");
+        barDataSet.setData(values);
+        barDataSet.setBackgroundColor(mycolors);
+        barDataSet.setBorderColor(mycolors);
+        dataBar.addChartDataSet(barDataSet);
+        dataBar.setLabels(labelsBar);
+        weeklyAnalysisBar.setData(dataBar);
+        barDataSet.setLabel("Categories");
     }
 
     private void createDailyAnalysisPie() {
@@ -196,11 +199,16 @@ public class StatisticsController implements Serializable {
         dailyAnalysisBar = new BarChartModel();
         ChartData data = new ChartData();
 
+        ChartData dataBar = new ChartData();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        barDataSet.setLabel("My First Dataset");
+        List<Number> values = new ArrayList<>();
+        List<String> labelsBar = new ArrayList<>();
+
         PieChartDataSet dataSet = new PieChartDataSet();
         List<String> mycolors = new ArrayList<>();
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        ChartSeries categories = new ChartSeries();
         Map<BookingCategory, Long> map = productivityAnalysisService.getStatisicForCurrentUserByDay(1);
         for (Map.Entry<BookingCategory, Long> entry : map.entrySet()) {
             hours.add(entry.getValue());
@@ -211,31 +219,32 @@ public class StatisticsController implements Serializable {
             else {
                 mycolors.add(defaultColor.get(entry.getKey().getName()));
             }
-            categories.set(entry.getKey().getName(), entry.getValue());
+            values.add(entry.getValue());
+            labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         dailyAnalysisPie.setData(data);
-        //dailyAnalysisPie.setExtender("skinPie");
 
-        dailyAnalysisBar.addSeries(categories);
-        dailyAnalysisBar.setTitle("Bar Chart");
-
-        Axis xAxis = dailyAnalysisBar.getAxis(AxisType.X);
-        xAxis.setLabel("Category");
-
-        Axis yAxis = dailyAnalysisBar.getAxis(AxisType.Y);
-        yAxis.setLabel("Time");
-
-        dailyAnalysisBar.setExtender("skinBar");
+        barDataSet.setData(values);
+        barDataSet.setBackgroundColor(mycolors);
+        barDataSet.setBorderColor(mycolors);
+        dataBar.addChartDataSet(barDataSet);
+        dataBar.setLabels(labelsBar);
+        dailyAnalysisBar.setData(dataBar);
+        barDataSet.setLabel("Categories");
     }
 
     private void createMonthlyAnalysisPie() {
         monthlyAnalysisPie = new PieChartModel();
         monthlyAnalysisBar = new BarChartModel();
-        ChartSeries categories = new ChartSeries();
+        ChartData dataBar = new ChartData();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        barDataSet.setLabel("My First Dataset");
+        List<Number> values = new ArrayList<>();
+        List<String> labelsBar = new ArrayList<>();
 
         ChartData data = new ChartData();
         PieChartDataSet dataSet = new PieChartDataSet();
@@ -253,31 +262,31 @@ public class StatisticsController implements Serializable {
             else {
                 mycolors.add(defaultColor.get(entry.getKey().getName()));
             }
-            categories.set(entry.getKey().getName(), entry.getValue());
+            values.add(entry.getValue());
+            labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         monthlyAnalysisPie.setData(data);
-        //monthlyAnalysisPie.setExtender("skinPie");
 
-        monthlyAnalysisBar.addSeries(categories);
-        monthlyAnalysisBar.setTitle("Bar Chart");
-
-        Axis xAxis = monthlyAnalysisBar.getAxis(AxisType.X);
-        xAxis.setLabel("Category");
-
-        Axis yAxis = monthlyAnalysisBar.getAxis(AxisType.Y);
-        yAxis.setLabel("Time");
-
-        monthlyAnalysisBar.setExtender("skinBar");
+        barDataSet.setData(values);
+        barDataSet.setBackgroundColor(mycolors);
+        barDataSet.setBorderColor(mycolors);
+        dataBar.addChartDataSet(barDataSet);
+        dataBar.setLabels(labelsBar);
+        monthlyAnalysisBar.setData(dataBar);
+        barDataSet.setLabel("Categories");
     }
 
     private void createWeeklyTeamAnalysisPie() {
         weeklyTeamAnalysisPie = new PieChartModel();
         weeklyTeamAnalysisBar = new BarChartModel();
-        ChartSeries categories = new ChartSeries();
+        ChartData dataBar = new ChartData();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        List<Number> values = new ArrayList<>();
+        List<String> labelsBar = new ArrayList<>();
 
         ChartData data = new ChartData();
         PieChartDataSet dataSet = new PieChartDataSet();
@@ -295,31 +304,33 @@ public class StatisticsController implements Serializable {
             else {
                 mycolors.add(defaultColor.get(entry.getKey().getName()));
             }
-            categories.set(entry.getKey().getName(), entry.getValue());
+            values.add(entry.getValue());
+            labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         weeklyTeamAnalysisPie.setData(data);
-        //weeklyTeamAnalysisPie.setExtender("skinPie");
 
-        weeklyTeamAnalysisBar.addSeries(categories);
-        weeklyTeamAnalysisBar.setTitle("Bar Chart");
-
-        Axis xAxis = weeklyTeamAnalysisBar.getAxis(AxisType.X);
-        xAxis.setLabel("Category");
-
-        Axis yAxis = weeklyTeamAnalysisBar.getAxis(AxisType.Y);
-        yAxis.setLabel("Time");
-
-        weeklyTeamAnalysisBar.setExtender("skinBar");
+        barDataSet.setData(values);
+        barDataSet.setBackgroundColor(mycolors);
+        barDataSet.setBorderColor(mycolors);
+        dataBar.addChartDataSet(barDataSet);
+        dataBar.setLabels(labelsBar);
+        weeklyTeamAnalysisBar.setData(dataBar);
+        barDataSet.setLabel("Categories");
+        barDataSet.setLabel("Categories");
     }
 
     private void createMonthlyTeamAnalysisPie() {
         monthlyTeamAnalysisPie = new PieChartModel();
         monthlyTeamAnalysisBar = new BarChartModel();
-        ChartSeries categories = new ChartSeries();
+        ChartData dataBar = new ChartData();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        List<Number> values = new ArrayList<>();
+        List<String> labelsBar = new ArrayList<>();
+
 
         ChartData data = new ChartData();
         PieChartDataSet dataSet = new PieChartDataSet();
@@ -337,31 +348,31 @@ public class StatisticsController implements Serializable {
             else {
                 mycolors.add(defaultColor.get(entry.getKey().getName()));
             }
-            categories.set(entry.getKey().getName(), entry.getValue());
+            values.add(entry.getValue());
+            labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         monthlyTeamAnalysisPie.setData(data);
-        //monthlyTeamAnalysisPie.setExtender("skinPie");
 
-        monthlyTeamAnalysisBar.addSeries(categories);
-        monthlyTeamAnalysisBar.setTitle("Bar Chart");
-
-        Axis xAxis = monthlyTeamAnalysisBar.getAxis(AxisType.X);
-        xAxis.setLabel("Category");
-
-        Axis yAxis = monthlyTeamAnalysisBar.getAxis(AxisType.Y);
-        yAxis.setLabel("Time");
-
-        monthlyTeamAnalysisBar.setExtender("skinBar");
+        barDataSet.setData(values);
+        barDataSet.setBackgroundColor(mycolors);
+        barDataSet.setBorderColor(mycolors);
+        dataBar.addChartDataSet(barDataSet);
+        dataBar.setLabels(labelsBar);
+        monthlyTeamAnalysisBar.setData(dataBar);
+        barDataSet.setLabel("Categories");
     }
 
     private void createMonthlyDepartmentAnalysisPie() {
         monthlyDepartmentAnalysisPie = new PieChartModel();
         monthlyDepartmentAnalysisBar = new BarChartModel();
-        ChartSeries categories = new ChartSeries();
+        ChartData dataBar = new ChartData();
+        BarChartDataSet barDataSet = new BarChartDataSet();
+        List<Number> values = new ArrayList<>();
+        List<String> labelsBar = new ArrayList<>();
 
         ChartData data = new ChartData();
         PieChartDataSet dataSet = new PieChartDataSet();
@@ -379,25 +390,22 @@ public class StatisticsController implements Serializable {
             else {
                 mycolors.add(defaultColor.get(entry.getKey().getName()));
             }
-            categories.set(entry.getKey().getName(), entry.getValue());
+            values.add(entry.getValue());
+            labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         monthlyDepartmentAnalysisPie.setData(data);
-        //monthlyDepartmentAnalysisPie.setExtender("skinPie");
 
-        monthlyDepartmentAnalysisBar.addSeries(categories);
-        monthlyDepartmentAnalysisBar.setTitle("Bar Chart");
-
-        Axis xAxis = monthlyDepartmentAnalysisBar.getAxis(AxisType.X);
-        xAxis.setLabel("Category");
-
-        Axis yAxis = monthlyDepartmentAnalysisBar.getAxis(AxisType.Y);
-        yAxis.setLabel("Time");
-
-        monthlyDepartmentAnalysisBar.setExtender("skinBar");
+        barDataSet.setData(values);
+        barDataSet.setBackgroundColor(mycolors);
+        barDataSet.setBorderColor(mycolors);
+        dataBar.addChartDataSet(barDataSet);
+        dataBar.setLabels(labelsBar);
+        monthlyDepartmentAnalysisBar.setData(dataBar);
+        barDataSet.setLabel("Categories");
     }
 
 
