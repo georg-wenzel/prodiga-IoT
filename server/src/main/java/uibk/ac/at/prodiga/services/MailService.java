@@ -39,6 +39,14 @@ public class MailService {
         mailSender.send(message);
     }
 
+    public void sendMail(String toAddress, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toAddress);
+        message.setSubject(subject);
+        message.setText(text);
+        mailSender.send(message);
+    }
+
     /**
      * sends an email to a given user iff the notifications are enabled and if
      * the user has a valid email adress
@@ -51,6 +59,12 @@ public class MailService {
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
                 sendMail(user.getEmail(), subject, text, user, frequencyType);
             }
+        }
+    }
+
+    public void sendEmailTo(User user, String subject, String text) {
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            sendMail(user.getEmail(), subject, text);
         }
     }
 
