@@ -3,6 +3,7 @@ package uibk.ac.at.prodigaclient.tests;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import tinyb.BluetoothDevice;
+import tinyb.BluetoothException;
 import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
 
@@ -105,6 +106,19 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothDevice.connect()).thenReturn(true);
         when(bluetoothDevice.getConnected()).thenReturn(connectionStatus);
         when(bluetoothDevice.disconnect()).thenReturn(true);
+
+        return bluetoothDevice;
+    }
+
+    public static BluetoothDevice mockBrokenConnectionTestBluetoothDevice(boolean connectionStatus) {
+        BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
+
+        when(bluetoothDevice.getName()).thenReturn("Dummy Name");
+        when(bluetoothDevice.getAddress()).thenReturn("Dummy Address");
+
+        when(bluetoothDevice.connect()).thenThrow(BluetoothException.class).thenThrow(BluetoothException.class).thenReturn(true);
+        when(bluetoothDevice.getConnected()).thenReturn(connectionStatus);
+        when(bluetoothDevice.disconnect()).thenThrow(BluetoothException.class).thenThrow(BluetoothException.class).thenReturn(true);
 
         return bluetoothDevice;
     }

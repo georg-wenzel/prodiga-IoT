@@ -88,4 +88,24 @@ public class CubeTest {
         verify(bluetoothDevice, times(1)).getConnected();
         verify(bluetoothDevice, times(1)).disconnect();
     }
+
+    @Test
+    public void brokenConnectToCubeTest() {
+        bluetoothDevice = BluetoothDeviceMockCreator.mockBrokenConnectionTestBluetoothDevice(false);
+        cube = new Cube(bluetoothDevice);
+
+        cube.failsafeConnect();
+        verify(bluetoothDevice, times(1)).getConnected();
+        verify(bluetoothDevice, times(3)).connect();
+    }
+
+    @Test
+    public void brokenDisconnectFromCubeTest() {
+        bluetoothDevice = BluetoothDeviceMockCreator.mockBrokenConnectionTestBluetoothDevice(true);
+        cube = new Cube(bluetoothDevice);
+
+        cube.failsafeDisconnect();
+        verify(bluetoothDevice, times(1)).getConnected();
+        verify(bluetoothDevice, times(3)).disconnect();
+    }
 }
