@@ -38,9 +38,18 @@ public class BadgeDBService {
      * Returns a collection of all badges for a user.
      * @return A collection of all badges for the given user.
      */
-    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #user.username")
+    @PreAuthorize("principal.username eq #user.username")
     public Collection<BadgeDB> getAllBadgesByUser(User user) {
         return Lists.newArrayList(badgeDBRepository.findByUser(user));
+    }
+
+    /**
+     * Returns a collection of all badges for a user.
+     * @return A collection of all badges for the given user.
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public Collection<BadgeDB> getAllBadgesByDepartment(Department department) {
+        return Lists.newArrayList(badgeDBRepository.findByDepartment(department));
     }
 
     /**
