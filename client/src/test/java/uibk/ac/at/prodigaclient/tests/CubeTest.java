@@ -23,10 +23,6 @@ public class CubeTest {
     private BluetoothDevice bluetoothDevice;
     private List<byte[]> historyList;
 
-    // 4 Stunden Dienstag
-    // 2 Stunden Mittwoch
-    // 1 Stunden Donnerstag
-    // 3 Stunden Donnerstag
     @BeforeEach
     public void setUp() {
         historyList = new LinkedList<>();
@@ -106,6 +102,7 @@ public class CubeTest {
     @Test
     public void deleteCubeHistoryTest() {
         cube.deleteHistory();
+
         verifyPasswordEntered();
         verifyCommand(new byte[]{0x02});
     }
