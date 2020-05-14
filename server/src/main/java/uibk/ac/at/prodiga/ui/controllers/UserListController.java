@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
+import org.primefaces.component.selectonemenu.SelectOneMenu;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
@@ -117,5 +118,12 @@ public class UserListController implements Serializable
         SelectBooleanCheckbox source = (SelectBooleanCheckbox) e.getSource();
         Object value = source.getValue();
         userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)value);
+    }
+
+    public void selectMenuChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    {
+        SelectOneMenu source = (SelectOneMenu) e.getSource();
+        Object value = source.getValue();
+        userService.assignTeam((String) e.getComponent().getAttributes().get("userToEdit"), (Long)value);
     }
 }
