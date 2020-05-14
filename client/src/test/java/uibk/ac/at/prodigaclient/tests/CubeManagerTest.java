@@ -51,7 +51,7 @@ public class CubeManagerTest {
 
 
     @Test
-    public void getHistory() {
+    public void getHistoryTest() {
         cubeManager.updateDeviceList();
 
         List<HistoryEntry> historyEntryListOne = cubeManager.getHistory("12:34:56:78:90:00");
@@ -62,6 +62,24 @@ public class CubeManagerTest {
 
         Assertions.assertNotNull(historyEntryListTwo);
         Assertions.assertEquals(7, historyEntryListTwo.size());
+
+        List<BluetoothDevice> bluetoothDevices = mockManager.getDevices().subList(0, 2); // device 2 isn't a TimeFlipCube
+
+        for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+            verify(bluetoothDevice, times(1)).connect();
+        }
+    }
+
+    @Test
+    public void getBatteryTest() {
+        cubeManager.updateDeviceList();
+
+        int batteryOne = cubeManager.getBattery("12:34:56:78:90:00");
+        int batteryTwo = cubeManager.getBattery("12:34:56:78:90:01");
+
+//        Assertions.assertEquals(1, );
+//
+//        Assertions.assertEquals(7, historyEntryListTwo.size());
 
         List<BluetoothDevice> bluetoothDevices = mockManager.getDevices().subList(0, 2); // device 2 isn't a TimeFlipCube
 

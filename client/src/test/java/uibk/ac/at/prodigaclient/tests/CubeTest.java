@@ -68,6 +68,11 @@ public class CubeTest {
     }
 
     @Test
+    public void getBatteryTest() {
+        Assertions.assertEquals(23, cube.getBattery());
+    }
+
+    @Test
     public void getHistorySizeTest() {
         List<HistoryEntry> historyEntryList = cube.getHistory();
         Assertions.assertEquals(7, historyEntryList.size());
