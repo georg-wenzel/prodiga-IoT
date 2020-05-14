@@ -62,6 +62,7 @@ public class CubeTest {
     public void connectToCubeTest() {
         bluetoothDevice = BluetoothDeviceMockCreator.mockConnectionTestBluetoothDevice(false);
         cube = new Cube(bluetoothDevice);
+
         cube.failsafeConnect();
         verify(bluetoothDevice, times(1)).getConnected();
         verify(bluetoothDevice, times(1)).connect();

@@ -2,6 +2,7 @@ package uibk.ac.at.prodigaclient;
 
 import tinyb.*;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
@@ -113,8 +114,10 @@ public class BluetoothTest {
             }
         }));
 
+        System.out.println("TEST: ");
+        BluetoothGattService facetService = cube.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(10)); // TimeFlip Service
+        System.out.println("Test end: ");
 
-        BluetoothGattService facetService = cube.find("f1196f50-71a4-11e6-bdf4-0800200c9a66"); // TimeFlip Service
         BluetoothGattService batteryService = cube.find("0000180f-0000-1000-8000-00805f9b34fb"); // TimeFlip get battery
 
         if (facetService == null) {

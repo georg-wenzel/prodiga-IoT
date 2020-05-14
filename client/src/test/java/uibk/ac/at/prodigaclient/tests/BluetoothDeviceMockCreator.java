@@ -6,6 +6,7 @@ import tinyb.BluetoothDevice;
 import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class BluetoothDeviceMockCreator {
         serviceList.add(bluetoothFacetService);
 
         when(bluetoothDevice.getServices()).thenReturn(serviceList);
+        when(bluetoothDevice.find(BATTERYCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothBatteryService);
 
         when(bluetoothBatteryService.getUUID()).thenReturn(BATTERYSERVICEUUID);
         when(bluetoothFacetService.getUUID()).thenReturn(FACETSERVICEUUID);
