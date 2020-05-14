@@ -306,7 +306,7 @@ public class BookingService
         int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
         c.add(Calendar.DATE, -(7*backstepWeek));
         Date start = c.getTime();
-        c.add(Calendar.DATE, 6);
+        c.add(Calendar.DATE, 7);
         Date end = c.getTime();
         return getBookingInRangeForUser(user, start, end);
     }

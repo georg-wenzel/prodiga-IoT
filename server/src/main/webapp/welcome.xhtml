@@ -300,7 +300,7 @@
         <div class="ui-g">
         <div class="ui-g-12">
             <h1>Welcome, #{prodigaUserLoginManager.getCurrentUser().username}!</h1><br/>
-            <ui:fragment rendered="#{not empty badgeDBController.lastWeeksBadges}">
+            <ui:fragment rendered="#{bookingController.lastBookingLongerThan2DaysAgo}">
                 <h1>!!Attention: your last booking is longer than 2 days ago!!</h1><br/>
             </ui:fragment>
 
