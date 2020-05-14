@@ -3,45 +3,45 @@ package uibk.ac.at.prodigaclient.tests;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import tinyb.BluetoothManager;
-import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
-import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
+import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothManagerMockCreator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.time.Duration;
-import java.util.LinkedList;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CubeManagerTest {
-    @Mock
-    BluetoothManager mockmanager;
+    BluetoothManager mockManager;
 
     CubeManager cubeManager;
 
-
     @BeforeEach
     public void setUp() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        MockitoAnnotations.initMocks(this);
         Constructor<CubeManager> c = CubeManager.class.getDeclaredConstructor(BluetoothManager.class); // whoa didn't know this works
         c.setAccessible(true);
 
-        when(mockmanager.startDiscovery()).thenReturn(true);
+        mockManager = BluetoothManagerMockCreator.mockBluetoothManager();
 
-        cubeManager = c.newInstance(mockmanager);
+        cubeManager = c.newInstance(mockManager);
     }
 
     @Test
     public void constructorTest() {
         Assertions.assertNotNull(cubeManager);
+    }
+
+
+    @Test
+    public void testGetCubeIDList() {
+        cubeManager.updateDeviceList();
+        Set<String> availableCubes = cubeManager.getCubeIDList();
+
+        Assertions.assertNotNull(availableCubes);
+        Assertions.assertEquals(2, availableCubes.size());
     }
 }

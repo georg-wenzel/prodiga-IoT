@@ -41,7 +41,7 @@ public class CubeManager implements Manager {
     }
 
     /**
-     * Special consturctor for testing
+     * Special constructor for testing
      * This is testable using reflection
      * Not the nicest way but its possible XD
      */
@@ -71,6 +71,7 @@ public class CubeManager implements Manager {
      * When closing the manager this should be called to stop the discovery mode
      */
     public void closeManager() {
+        discoveryStarted = false;
         manager.stopDiscovery();
     }
 
