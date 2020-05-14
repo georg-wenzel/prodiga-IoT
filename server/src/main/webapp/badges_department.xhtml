@@ -23,29 +23,33 @@
 
                     <h:form id="badgeForm">
                         <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByDepartment}" emptyMessage="Unforunately, you don't have any Badges :-(">
-                            <p:column headerText="Name">
+                            <p:column headerText="Name" filterMatchMode="contains"
+                                      filterBy="#{badge.badgeName}" sortBy="#{badge.badgeName}">
                                 <h:outputText value="#{badge.badgeName}" style="font-weight: bold; text-transform: uppercase"/>
                             </p:column>
 
-                            <p:column headerText="Explanation">
+                            <p:column headerText="Explanation" filterMatchMode="contains"
+                                      filterBy="#{badge.explanation}" sortBy="#{badge.explanation}">
                                 <h:outputText value="#{badge.explanation}"/>
                             </p:column>
 
-                            <p:column headerText="From">
+                            <p:column headerText="From" filterMatchMode="contains"
+                                      filterBy="#{badge.fromDate}" sortBy="#{badge.fromDate}">
                                 <h:outputText value="#{badge.fromDate}">
-                                    <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                                    <f:convertDateTime pattern="yyyy-MM-dd 'at' HH:mm 'UTC'" />
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="To">
+                            <p:column headerText="To" filterMatchMode="contains"
+                                      filterBy="#{badge.toDate}" sortBy="#{badge.toDate}">
                                 <h:outputText value="#{badge.toDate}">
-                                    <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                                    <f:convertDateTime pattern="yyyy-MM-dd 'at' HH:mm 'UTC'" />
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="User">
+                            <p:column headerText="User" filterMatchMode="contains"
+                                      filterBy="#{badge.user.username}" sortBy="#{badge.user.username}">
                                 <h:outputText value="#{badge.user.username}">
-                                    <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
                                 </h:outputText>
                             </p:column>
 
