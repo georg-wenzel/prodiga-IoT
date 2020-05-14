@@ -46,28 +46,18 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothDevice.getConnected()).thenReturn(true);
         when(bluetoothDevice.disconnect()).thenReturn(true);
 
-        List<BluetoothGattService> serviceList = new LinkedList<>();
-        serviceList.add(bluetoothBatteryService);
-        serviceList.add(bluetoothFacetService);
-
-        when(bluetoothDevice.getServices()).thenReturn(serviceList);
-        when(bluetoothDevice.find(BATTERYCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothBatteryService);
+        when(bluetoothDevice.find(BATTERYSERVICEUUID, any(Duration.class))).thenReturn(bluetoothBatteryService);
+        when(bluetoothDevice.find(FACETSERVICEUUID, any(Duration.class))).thenReturn(bluetoothFacetService);
 
         when(bluetoothBatteryService.getUUID()).thenReturn(BATTERYSERVICEUUID);
         when(bluetoothFacetService.getUUID()).thenReturn(FACETSERVICEUUID);
 
-        List<BluetoothGattCharacteristic> characteristicListOne = new LinkedList<>();
-        characteristicListOne.add(bluetoothCommandReadCharacteristics);
-        characteristicListOne.add(bluetoothCommandWriteCharacteristics);
-        characteristicListOne.add(bluetoothCurrentFacetCharacteristics);
-        characteristicListOne.add(bluetoothPasswordCharacteristic);
+        when(bluetoothFacetService.find(COMMANDREADCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothCommandReadCharacteristics);
+        when(bluetoothFacetService.find(COMMANDWRITERCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothCommandWriteCharacteristics);
+        when(bluetoothFacetService.find(CURRENTFACETCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothCurrentFacetCharacteristics);
+        when(bluetoothFacetService.find(PASSWORDCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothPasswordCharacteristic);
 
-        when(bluetoothFacetService.getCharacteristics()).thenReturn(characteristicListOne);
-
-        List<BluetoothGattCharacteristic> characteristicListTwo = new LinkedList<>();
-        characteristicListOne.add(bluetoothBatteryCharacteristic);
-
-        when(bluetoothBatteryService.getCharacteristics()).thenReturn(characteristicListTwo);
+        when(bluetoothBatteryService.find(BATTERYCHARACTERISTICUUID, any(Duration.class))).thenReturn(bluetoothBatteryCharacteristic);
 
         when(bluetoothCommandReadCharacteristics.getUUID()).thenReturn(COMMANDREADCHARACTERISTICUUID);
         when(bluetoothCommandWriteCharacteristics.getUUID()).thenReturn(COMMANDWRITERCHARACTERISTICUUID);
