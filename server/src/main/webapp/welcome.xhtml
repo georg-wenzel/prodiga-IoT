@@ -300,6 +300,10 @@
         <div class="ui-g">
         <div class="ui-g-12">
             <h1>Welcome, #{prodigaUserLoginManager.getCurrentUser().username}!</h1><br/>
+            <ui:fragment rendered="#{not empty badgeDBController.lastWeeksBadges}">
+                <h1>!!Attention: your last booking is longer than 2 days ago!!</h1><br/>
+            </ui:fragment>
+
             <div class="ui-g-12 ui-md-6 ui-lg-3">
                 <div class="overview-box sales">
                     <p:graphicImage name="images/user_white.png" library="ecuador-layout"  styleClass="image-icon" />

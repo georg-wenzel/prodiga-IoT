@@ -28,6 +28,7 @@ public class BookingController implements Serializable
     private BookingService bookingService;
     private BookingCategoryService bookingCategoryService;
     private DiceService diceService;
+    private Boolean lastBookingLongerThan2DaysAgo;
 
     public BookingController(ProdigaUserLoginManager userLoginManager, BookingService bookingService, BookingCategoryService bookingCategoryService, DiceService diceService)
     {
@@ -35,6 +36,10 @@ public class BookingController implements Serializable
         this.bookingService = bookingService;
         this.bookingCategoryService = bookingCategoryService;
         this.diceService = diceService;
+    }
+
+    public Boolean getLastBookingLongerThan2DaysAgo() {
+        return bookingService.isBookingLongerThan2DaysAgo(user);
     }
 
     /**

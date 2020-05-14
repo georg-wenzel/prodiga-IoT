@@ -11,7 +11,6 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import java.util.*;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -350,5 +349,21 @@ public class BookingService
         c.add(Calendar.DATE, 6);
         Date end = c.getTime();
         return getBookingInRangeByCategory(bookingCategory, start, end);
+    }
+
+    public Boolean isBookingLongerThan2DaysAgo(User user){
+        Date date = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.DATE, -2);
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 2);
+        Date end = c.getTime();
+        if(getBookingInRangeForUser(user, start, end).isEmpty()){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
