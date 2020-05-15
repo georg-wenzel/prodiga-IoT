@@ -12,9 +12,9 @@
                     <div class="layout-menu-title">MAIN MENU</div>
                     <pe:menu widgetVar="me">
                         <p:menuitem id="om_homepage" value="Homepage" icon="fa fa-fw fa-home" outcome="/welcome" />
-                        <p:submenu id="om_user" label="User" icon="fa fa-fw fa-user" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                        <p:submenu id="om_user" label="Users" icon="fa fa-fw fa-user" rendered="#{prodigaUserLoginManager.hasRole('ADMIN') || prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')}">
                             <p:menuitem id="om_user_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/user/users" />
-                            <p:menuitem id="om_user_add" value="Add user" icon="fa fa-fw fa-plus" outcome="/user/add_user">
+                            <p:menuitem id="om_user_add" value="Add user" icon="fa fa-fw fa-plus" outcome="/user/add_user" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <f:param name="username" value="" />
                             </p:menuitem>
                         </p:submenu>
