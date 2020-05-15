@@ -71,7 +71,7 @@ public class DiceSideServiceTest {
         Assertions.assertNotNull(diceSideService.findByDiceAndSide(d, 0), "Created Dice Side not found");
 
 
-        diceSideService.onNewConfiguredDiceSide(0, null, d);
+        diceSideService.onNewConfiguredDiceSide(0, 0, null, d);
 
         Assertions.assertNull(diceSideService.findByDiceAndSide(d, 0), "Dice Side not deleted");
     }
@@ -94,7 +94,7 @@ public class DiceSideServiceTest {
 
         Assertions.assertNotNull(diceSideService.findByDiceAndSide(d, 0), "Created Dice Side not found");
 
-        diceSideService.onNewConfiguredDiceSide(0, newBc, d);
+        diceSideService.onNewConfiguredDiceSide(0, 0, newBc, d);
 
         DiceSide modifiedDs = diceSideService.findByDiceAndSide(d, 0);
 
@@ -119,7 +119,7 @@ public class DiceSideServiceTest {
 
         Assertions.assertNotNull(newBc, "Mandatory Booking Category does not exist");
 
-        diceSideService.onNewConfiguredDiceSide(0, newBc, d);
+        diceSideService.onNewConfiguredDiceSide(0, 0, newBc, d);
 
         DiceSide modifiedDs = diceSideService.findByDiceAndSide(d, 0);
 
@@ -142,7 +142,7 @@ public class DiceSideServiceTest {
 
         Assertions.assertNotNull(newBc, "Mandatory Booking Category does not exist");
 
-        diceSideService.onNewConfiguredDiceSide(0, null, d);
+        diceSideService.onNewConfiguredDiceSide(0, 0, null, d);
 
         Assertions.assertEquals(currentAmount, diceSideRepository.findAllByDice(d).size());
     }

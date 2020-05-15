@@ -86,7 +86,7 @@ public class DiceConfigurationController implements Serializable
         for(Map.Entry<Integer, String> kvp: newSides.entrySet())
         {
             if(kvp.getValue() == null) continue;
-            wrapper.getCompletedSides().put(kvp.getKey(), bookingCategoryService.findById(Long.parseLong(kvp.getValue())));
+            //wrapper.getCompletedSides().put(kvp.getKey(), bookingCategoryService.findById(Long.parseLong(kvp.getValue())));
         }
         diceService.completeConfiguration(dice);
         abortMapping();

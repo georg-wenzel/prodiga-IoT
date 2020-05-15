@@ -11,7 +11,6 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import java.util.*;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -30,13 +29,15 @@ public class BookingService
     private final VacationService vacationService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
+    private final LogInformationService logInformationService;
 
-    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService)
+    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService, LogInformationService logInformationService)
     {
         this.bookingRepository = bookingRepository;
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
         this.vacationService = vacationService;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -169,7 +170,11 @@ public class BookingService
             booking.setObjectChangedUser(u);
         }
 
-        return bookingRepository.save(booking);
+        Booking result = bookingRepository.save(booking);
+
+        logInformationService.logForCurrentUser("Booking " + result.getId() + " saved for user "+ u.getUsername());
+
+        return result;
     }
 
     /**
@@ -209,6 +214,8 @@ public class BookingService
         }
 
         bookingRepository.delete(booking);
+
+        logInformationService.logForCurrentUser("Booking " + booking.getId() + " deleted");
     }
 
     /**

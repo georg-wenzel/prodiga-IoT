@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.tests;
 
 import org.assertj.core.util.Lists;
+import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -306,10 +307,10 @@ public class DiceServiceTest {
     public void diceService_completeConfigurationWithInvalidSides_throws() {
         Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
         DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
-        Map<Integer, BookingCategory> sides = new HashMap<>();
+        Map<Integer, Pair<Integer, BookingCategory>> sides = new HashMap<>();
 
         for(int i = 0; i < 5; i++) {
-            sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
+            sides.put(i, new Pair<>(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository)));
         }
 
         sides.remove(0);
@@ -326,10 +327,10 @@ public class DiceServiceTest {
         Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
         DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
-        Map<Integer, BookingCategory> sides = new HashMap<>();
+        Map<Integer, Pair<Integer, BookingCategory>> sides = new HashMap<>();
 
-        for(int i = 0; i < 12; i++) {
-            sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
+        for(int i = 0; i < 5; i++) {
+            sides.put(i, new Pair<>(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository)));
         }
 
         wrapper.setCompletedSides(sides);
@@ -338,7 +339,7 @@ public class DiceServiceTest {
 
         ArrayList<DiceSide> all = Lists.newArrayList(diceSideRepository.findAll());
 
-        Assertions.assertEquals(12, all.size());
+        Assertions.assertEquals(5, all.size());
 
         Assertions.assertTrue(all.stream().allMatch(x -> x.getDice().getId().equals(d.getId())));
 
@@ -368,10 +369,9 @@ public class DiceServiceTest {
             Optional<BookingCategory> mandatoryCat = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
             if(wrapper.getCurrentSide() == 12 && mandatoryCat.isPresent())
             {
-                wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
-                        mandatoryCat.get());
+                wrapper.getCompletedSides().put(wrapper.getCurrentSide(), new Pair<>(wrapper.getCurrentSide(), mandatoryCat.get()));
             }
-            wrapper.getCompletedSides().put(wrapper.getCurrentSide(), cats[wrapper.getCurrentSide() - 1]);
+            wrapper.getCompletedSides().put(wrapper.getCurrentSide(), new Pair<>(wrapper.getCurrentSide(), cats[wrapper.getCurrentSide() - 1]));
         });
 
 

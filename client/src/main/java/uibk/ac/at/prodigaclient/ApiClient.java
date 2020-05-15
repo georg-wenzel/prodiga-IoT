@@ -101,18 +101,22 @@ public class ApiClient {
   }
 
   public void createDefaultAdapter() {
+    createDefaultAdapter("http://localhost:8080/");
+  }
+
+  public void createDefaultAdapter(String address) {
     json = new JSON();
     okBuilder = new OkHttpClient.Builder();
 
-    String baseUrl = "http://localhost:8080/";
+    String baseUrl = address;
     if (!baseUrl.endsWith("/"))
       baseUrl = baseUrl + "/";
 
     adapterBuilder = new Retrofit
-      .Builder()
-      .baseUrl(baseUrl)
-      .addConverterFactory(ScalarsConverterFactory.create())
-      .addConverterFactory(GsonCustomConverterFactory.create(json.getGson()));
+            .Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonCustomConverterFactory.create(json.getGson()));
   }
 
   public <S> S createService(Class<S> serviceClass) {
