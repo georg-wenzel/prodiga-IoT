@@ -9,10 +9,9 @@ import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 import uibk.ac.at.prodigaclient.BluetoothUtility.TimeFlipProperties;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
-import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothManagerMockCreator;
 import uibk.ac.at.prodigaclient.tests.MockCreators.CubeManagerCreator;
+import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothManagerMockCreator;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,7 +137,10 @@ public class CubeManagerTest {
 
     @Test
     public void connectToDeviceTest() {
-        mockManager = BluetoothManagerMockCreator.mockBluetoothManagerConnectionTest(false);
+        List<BluetoothDevice> bluetoothDeviceList = new LinkedList<>();
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockConnectionTestBluetoothDevice(false));
+
+        mockManager = BluetoothManagerMockCreator.mockBluetoothManager(bluetoothDeviceList);
         cubeManager = CubeManagerCreator.createCustomCubeManagerInstance(mockManager);
 
         cubeManager.updateDeviceList();
@@ -153,7 +155,10 @@ public class CubeManagerTest {
 
     @Test
     public void disconnectFromDeviceTest() {
-        mockManager = BluetoothManagerMockCreator.mockBluetoothManagerConnectionTest(true);
+        List<BluetoothDevice> bluetoothDeviceList = new LinkedList<>();
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockConnectionTestBluetoothDevice(true));
+
+        mockManager = BluetoothManagerMockCreator.mockBluetoothManager(bluetoothDeviceList);
         cubeManager = CubeManagerCreator.createCustomCubeManagerInstance(mockManager);
 
         cubeManager.updateDeviceList();

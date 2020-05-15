@@ -21,18 +21,4 @@ public class BluetoothManagerMockCreator {
 
         return bluetoothManager;
     }
-
-    public static BluetoothManager mockBluetoothManagerConnectionTest(Boolean connection) {
-        BluetoothManager bluetoothManager = mock(BluetoothManager.class);
-
-        when(bluetoothManager.startDiscovery()).thenReturn(true);
-        when(bluetoothManager.stopDiscovery()).thenReturn(true);
-
-        List<BluetoothDevice> bluetoothDeviceList = new LinkedList<>();
-        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockConnectionTestBluetoothDevice(connection));
-
-        when(bluetoothManager.getDevices()).thenReturn(bluetoothDeviceList);
-
-        return bluetoothManager;
-    }
 }

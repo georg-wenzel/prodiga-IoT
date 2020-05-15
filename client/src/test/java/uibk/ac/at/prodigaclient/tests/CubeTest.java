@@ -10,7 +10,6 @@ import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 import uibk.ac.at.prodigaclient.BluetoothUtility.TimeFlipProperties;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
