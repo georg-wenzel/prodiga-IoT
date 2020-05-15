@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BluetoothManagerMockCreator {
-    // TODO: improve this boy here
     public static BluetoothManager mockBluetoothManager(List<BluetoothDevice> bluetoothDeviceList) {
         BluetoothManager bluetoothManager = mock(BluetoothManager.class);
 

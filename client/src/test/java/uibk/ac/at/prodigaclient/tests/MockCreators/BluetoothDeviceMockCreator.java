@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BluetoothDeviceMockCreator {
-
     public static BluetoothDevice mockFullBluetoothDevice(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId, byte[] batteryStatus, boolean connected) {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
         BluetoothGattService bluetoothBatteryService = mock(BluetoothGattService.class);
