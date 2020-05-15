@@ -7,12 +7,12 @@ import tinyb.BluetoothDevice;
 import tinyb.BluetoothManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
+import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothManagerMockCreator;
 import uibk.ac.at.prodigaclient.tests.MockCreators.CubeManagerCreator;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +26,21 @@ public class CubeManagerTest {
 
     @BeforeEach
     public void setUp() {
-        mockManager = BluetoothManagerMockCreator.mockBluetoothManager();
+        List<BluetoothDevice> bluetoothDeviceList = new LinkedList<>();
+
+        List<byte[]> historyList = new LinkedList<>();
+        historyList.add(new byte[]{0x0d, 0x00, 0x18, 0x3c, 0x00, 0x04, 0x10, 0x00, 0x04, 0x10, 0x00, 0x08,
+                0x16, 0x00, 0x0c, 0x32, 0x00, 0x10, 0x0d, 0x00, 0x14});
+        historyList.add(new byte[]{0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
+        historyList.add(new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
+
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:00", "TimeFlipOne", historyList, new byte[]{0x01}, new byte[] {0x14}, false));
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:01", "TimeFlipTwo", historyList, new byte[]{0x02}, new byte[] {0x25}, false));
+        bluetoothDeviceList.add(BluetoothDeviceMockCreator.mockFullBluetoothDevice("12:34:56:78:90:02", "notACube", null, null, null, false));
+
+        mockManager = BluetoothManagerMockCreator.mockBluetoothManager(bluetoothDeviceList);
         cubeManager = CubeManagerCreator.createCustomCubeManagerInstance(mockManager);
     }
 
