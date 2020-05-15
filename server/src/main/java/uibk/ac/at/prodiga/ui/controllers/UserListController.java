@@ -3,6 +3,8 @@ package uibk.ac.at.prodiga.ui.controllers;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
 import org.primefaces.component.selectonemenu.SelectOneMenu;
@@ -27,9 +29,7 @@ public class UserListController implements Serializable
 {
     private static final long serialVersionUID = 5325687683192577315L;
 
-    private String userToEdit;
-    private boolean historicFlagToSet;
-    private Long teamIdToSet;
+    private Map<String, String> userTeams;
 
     private Collection<User> users;
 
@@ -41,6 +41,7 @@ public class UserListController implements Serializable
         this.userService = userService;
         this.teamService = teamService;
         this.userLoginManager = userLoginManager;
+        this.userTeams = new HashMap<String,String>();
     }
 
     /**
@@ -58,6 +59,12 @@ public class UserListController implements Serializable
                 users = userService.getUsersByDepartment();
             } else if (u.getRoles().contains(UserRole.TEAMLEADER)) {
                 users = userService.getUsersByTeam();
+            }
+            this.userTeams = new HashMap<String,String>();
+            for(User us : users)
+            {
+                if(us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null) this.userTeams.put(us.getUsername(), null);
+                else this.userTeams.put(us.getUsername(), us.getAssignedTeam().getId().toString());
             }
         }
         return users;
@@ -101,18 +108,6 @@ public class UserListController implements Serializable
         return null;
     }
 
-    public void setUserToEdit(String userToEdit) {
-        this.userToEdit = userToEdit;
-    }
-
-    public void setHistoricFlagToSet(boolean historicFlagToSet) {
-        this.historicFlagToSet = historicFlagToSet;
-    }
-
-    public void setTeamIdToSet(Long teamIdToSet) {
-        this.teamIdToSet = teamIdToSet;
-    }
-
     public void editBoxChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
     {
         SelectBooleanCheckbox source = (SelectBooleanCheckbox) e.getSource();
@@ -123,7 +118,18 @@ public class UserListController implements Serializable
     public void selectMenuChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
     {
         SelectOneMenu source = (SelectOneMenu) e.getSource();
-        Object value = source.getValue();
-        userService.assignTeam((String) e.getComponent().getAttributes().get("userToEdit"), (Long)value);
+        String uname = (String)e.getComponent().getAttributes().get("userToEdit");
+        Long teamId;
+        if(userTeams.get(uname) == null) teamId = null;
+        else teamId = Long.parseLong(userTeams.get(uname));
+        userService.assignTeam(uname, teamId);
+    }
+
+    public Map<String, String> getUserTeams() {
+        return userTeams;
+    }
+
+    public void setUserTeams(Map<String, String> userTeams) {
+        this.userTeams = userTeams;
     }
 }

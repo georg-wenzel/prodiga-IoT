@@ -47,11 +47,11 @@
                                 </p:selectBooleanCheckbox>
                             </p:column>
                             <p:column headerText="Team" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
-                                <p:selectOneMenu value="#{user.assignedTeam}" style="width:100%;" partialSubmit="true">
-                                    <f:ajax event="change" listener="#{userListController.selectMenuChanged}"/>
+                                <p:selectOneMenu value="#{userListController.userTeams[user.username]}" style="width:100%;" partialSubmit="true">
                                     <f:selectItem value="#{null}" itemLabel="None" />
-                                    <f:selectItems value="#{userListController.departmentTeams}" var="team" itemLabel="#{team}" itemValue="#{team}" />
+                                    <f:selectItems value="#{userListController.departmentTeams}" var="team" itemLabel="#{team}" itemValue="#{team.id}" />
                                     <f:attribute name="userToEdit" value="#{user.username}" />
+                                    <f:ajax event="change" listener="#{userListController.selectMenuChanged}"/>
                                 </p:selectOneMenu>
                             </p:column>
                             <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">

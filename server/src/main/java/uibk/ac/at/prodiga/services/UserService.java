@@ -220,7 +220,7 @@ public class UserService {
     public User assignTeam(User user, Team team) throws ProdigaGeneralExpectedException
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
-        if(dbUser.getAssignedDepartment() != null && dbUser.getAssignedDepartment().equals(team.getDepartment()))
+        if(dbUser.getAssignedDepartment() != null && team != null && dbUser.getAssignedDepartment().equals(team.getDepartment()))
         {
             if(dbUser.getAssignedTeam() != null && dbUser.getAssignedTeam().equals(team)) return dbUser;
 
@@ -232,6 +232,19 @@ public class UserService {
             User result = userRepository.save(dbUser);
 
             logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Team " + team.getName());
+
+            return result;
+        }
+        else if (team == null)
+        {
+            dbUser.setAssignedTeam(null);
+            Set<UserRole> roles = dbUser.getRoles();
+            roles.remove(UserRole.TEAMLEADER);
+            roles.add(UserRole.EMPLOYEE);
+            dbUser.setRoles(roles);
+            User result = userRepository.save(dbUser);
+
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " removed from previous team.");
 
             return result;
         }
