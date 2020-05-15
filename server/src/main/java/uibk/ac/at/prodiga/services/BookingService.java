@@ -371,7 +371,7 @@ public class BookingService
         c.add(Calendar.DATE, -i);
         Date start = c.getTime();
         if(getBookingInRangeForUser(user, start, end).isEmpty()){
-            mailService.sendEmailTo(user,"Prodiga Booking Information","Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "We want to inform you that your last booking is longer than 2 days ago.\n\n Best Regards,\nThe Prodiga System Managers");
+            //mailService.sendEmailTo(user,"Prodiga Booking Information","Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "We want to inform you that your last booking is longer than 2 days ago.\n\n Best Regards,\nThe Prodiga System Managers");
             return true;
         }
         else{
