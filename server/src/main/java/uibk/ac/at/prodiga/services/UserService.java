@@ -1,9 +1,5 @@
 package uibk.ac.at.prodiga.services;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
-
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +13,10 @@ import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
 
 @Component
 @Scope("application")
@@ -37,6 +37,10 @@ public class UserService {
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Collection<User> getAllUsers() {
+        return Lists.newArrayList(userRepository.findAll());
+    }
+
+    public Collection<User> getAllUsersUnauthorized() {
         return Lists.newArrayList(userRepository.findAll());
     }
 

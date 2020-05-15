@@ -39,7 +39,7 @@ public class MailService {
         mailSender.send(message);
     }
 
-    public void sendMail(String toAddress, String subject, String text) {
+    public void sendMailWithoutStatistic(String toAddress, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toAddress);
         message.setSubject(subject);
@@ -62,9 +62,9 @@ public class MailService {
         }
     }
 
-    public void sendEmailTo(User user, String subject, String text) {
+    public void sendNotificationTo(User user, String subject, String text) {
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            sendMail(user.getEmail(), subject, text);
+            sendMailWithoutStatistic(user.getEmail(), subject, text);
         }
     }
 
