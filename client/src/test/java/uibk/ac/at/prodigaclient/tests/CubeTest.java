@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 import tinyb.BluetoothDevice;
 import uibk.ac.at.prodigaclient.BluetoothUtility.Cube;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
+import uibk.ac.at.prodigaclient.BluetoothUtility.TimeFlipProperties;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -37,16 +39,16 @@ public class CubeTest {
     }
 
     public void verifyPasswordEntered() {
-        verify(bluetoothDevice.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1))
-                              .find("f1196f57-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1)),
+        verify(bluetoothDevice.find(TimeFlipProperties.FACETSERVICEUUID, Duration.ofSeconds(1))
+                              .find(TimeFlipProperties.PASSWORDCHARACTERISTICUUID, Duration.ofSeconds(1)),
                               times(1)
-              ).writeValue(new byte[]{0x30, 0x30, 0x30, 0x30, 0x30, 0x30});
+              ).writeValue(TimeFlipProperties.CUBEPASSWORD);
     }
 
 
     public void verifyCommand(byte[] command) {
-        verify(bluetoothDevice.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1)).
-                               find("f1196f54-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1)),
+        verify(bluetoothDevice.find(TimeFlipProperties.FACETSERVICEUUID, Duration.ofSeconds(1)).
+                               find(TimeFlipProperties.COMMANDWRITERCHARACTERISTICUUID, Duration.ofSeconds(1)),
                                times(1)
               ).writeValue(command);
     }
@@ -77,7 +79,7 @@ public class CubeTest {
         List<HistoryEntry> historyEntryList = cube.getHistory();
         Assertions.assertEquals(7, historyEntryList.size());
         verifyPasswordEntered();
-        verifyCommand(new byte[]{0x01});
+        verifyCommand(TimeFlipProperties.READHISTORYCMD);
     }
 
     @Test
@@ -100,7 +102,7 @@ public class CubeTest {
         }
 
         verifyPasswordEntered();
-        verifyCommand(new byte[]{0x01});
+        verifyCommand(TimeFlipProperties.READHISTORYCMD);
     }
 
     @Test
@@ -108,7 +110,7 @@ public class CubeTest {
         cube.deleteHistory();
 
         verifyPasswordEntered();
-        verifyCommand(new byte[]{0x02});
+        verifyCommand(TimeFlipProperties.DELETEHISTORYCMD);
     }
 
     @Test

@@ -6,6 +6,7 @@ import tinyb.BluetoothDevice;
 import tinyb.BluetoothException;
 import tinyb.BluetoothGattCharacteristic;
 import tinyb.BluetoothGattService;
+import uibk.ac.at.prodigaclient.BluetoothUtility.TimeFlipProperties;
 
 import java.time.Duration;
 import java.util.List;
@@ -16,18 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BluetoothDeviceMockCreator {
-    private static final String FACETSERVICEUUID = "f1196f50-71a4-11e6-bdf4-0800200c9a66";
-    private static final String BATTERYSERVICEUUID = "0000180f-0000-1000-8000-00805f9b34fb";
-
-    private static final String BATTERYCHARACTERISTICUUID = "00002a19-0000-1000-8000-00805f9b34fb";
-    private static final String CURRENTFACETCHARACTERISTICUUID = "f1196f52-71a4-11e6-bdf4-0800200c9a66";
-    private static final String COMMANDREADCHARACTERISTICUUID = "f1196f53-71a4-11e6-bdf4-0800200c9a66";
-    private static final String COMMANDWRITERCHARACTERISTICUUID = "f1196f54-71a4-11e6-bdf4-0800200c9a66";
-    private static final String PASSWORDCHARACTERISTICUUID = "f1196f57-71a4-11e6-bdf4-0800200c9a66";
-
-    private static final byte[] CUBEPASSWORD = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-    private static final byte[] READHISTORYCMD = {0x01};
-    private static final byte[] DELETEHISTORYCMD = {0x02};
 
     public static BluetoothDevice mockFullBluetoothDevice(String deviceMac, String deviceName, List<byte[]> historyEntries, byte[] facetId, byte[] batteryStatus, boolean connected) {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
@@ -47,33 +36,33 @@ public class BluetoothDeviceMockCreator {
         when(bluetoothDevice.getConnected()).thenReturn(connected);
         when(bluetoothDevice.disconnect()).thenReturn(true);
 
-        when(bluetoothDevice.find(eq(BATTERYSERVICEUUID), any(Duration.class))).thenReturn(bluetoothBatteryService);
-        when(bluetoothDevice.find(eq(FACETSERVICEUUID), any(Duration.class))).thenReturn(bluetoothFacetService);
+        when(bluetoothDevice.find(eq(TimeFlipProperties.BATTERYSERVICEUUID), any(Duration.class))).thenReturn(bluetoothBatteryService);
+        when(bluetoothDevice.find(eq(TimeFlipProperties.FACETSERVICEUUID), any(Duration.class))).thenReturn(bluetoothFacetService);
 
-        when(bluetoothBatteryService.getUUID()).thenReturn(BATTERYSERVICEUUID);
-        when(bluetoothFacetService.getUUID()).thenReturn(FACETSERVICEUUID);
+        when(bluetoothBatteryService.getUUID()).thenReturn(TimeFlipProperties.BATTERYSERVICEUUID);
+        when(bluetoothFacetService.getUUID()).thenReturn(TimeFlipProperties.FACETSERVICEUUID);
 
-        when(bluetoothFacetService.find(eq(COMMANDREADCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCommandReadCharacteristics);
-        when(bluetoothFacetService.find(eq(COMMANDWRITERCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCommandWriteCharacteristics);
-        when(bluetoothFacetService.find(eq(CURRENTFACETCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCurrentFacetCharacteristics);
-        when(bluetoothFacetService.find(eq(PASSWORDCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothPasswordCharacteristic);
+        when(bluetoothFacetService.find(eq(TimeFlipProperties.COMMANDREADCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCommandReadCharacteristics);
+        when(bluetoothFacetService.find(eq(TimeFlipProperties.COMMANDWRITERCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCommandWriteCharacteristics);
+        when(bluetoothFacetService.find(eq(TimeFlipProperties.CURRENTFACETCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothCurrentFacetCharacteristics);
+        when(bluetoothFacetService.find(eq(TimeFlipProperties.PASSWORDCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothPasswordCharacteristic);
 
-        when(bluetoothBatteryService.find(eq(BATTERYCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothBatteryCharacteristic);
+        when(bluetoothBatteryService.find(eq(TimeFlipProperties.BATTERYCHARACTERISTICUUID), any(Duration.class))).thenReturn(bluetoothBatteryCharacteristic);
 
-        when(bluetoothCommandReadCharacteristics.getUUID()).thenReturn(COMMANDREADCHARACTERISTICUUID);
-        when(bluetoothCommandWriteCharacteristics.getUUID()).thenReturn(COMMANDWRITERCHARACTERISTICUUID);
-        when(bluetoothCurrentFacetCharacteristics.getUUID()).thenReturn(CURRENTFACETCHARACTERISTICUUID);
-        when(bluetoothPasswordCharacteristic.getUUID()).thenReturn(PASSWORDCHARACTERISTICUUID);
-        when(bluetoothBatteryCharacteristic.getUUID()).thenReturn(BATTERYCHARACTERISTICUUID);
+        when(bluetoothCommandReadCharacteristics.getUUID()).thenReturn(TimeFlipProperties.COMMANDREADCHARACTERISTICUUID);
+        when(bluetoothCommandWriteCharacteristics.getUUID()).thenReturn(TimeFlipProperties.COMMANDWRITERCHARACTERISTICUUID);
+        when(bluetoothCurrentFacetCharacteristics.getUUID()).thenReturn(TimeFlipProperties.CURRENTFACETCHARACTERISTICUUID);
+        when(bluetoothPasswordCharacteristic.getUUID()).thenReturn(TimeFlipProperties.PASSWORDCHARACTERISTICUUID);
+        when(bluetoothBatteryCharacteristic.getUUID()).thenReturn(TimeFlipProperties.BATTERYCHARACTERISTICUUID);
 
         when(bluetoothBatteryCharacteristic.readValue()).thenReturn(batteryStatus);
 
         when(bluetoothPasswordCharacteristic.writeValue(any(byte[].class))).thenAnswer(
-                (Answer<Boolean>) invocationOnMock -> invocationOnMock.getArgument(0).equals(BluetoothDeviceMockCreator.CUBEPASSWORD)
+                (Answer<Boolean>) invocationOnMock -> invocationOnMock.getArgument(0).equals(TimeFlipProperties.CUBEPASSWORD)
         );
 
-        when(bluetoothCommandWriteCharacteristics.writeValue(READHISTORYCMD)).thenReturn(true);
-        when(bluetoothCommandWriteCharacteristics.writeValue(DELETEHISTORYCMD)).thenReturn(true);
+        when(bluetoothCommandWriteCharacteristics.writeValue(TimeFlipProperties.READHISTORYCMD)).thenReturn(true);
+        when(bluetoothCommandWriteCharacteristics.writeValue(TimeFlipProperties.DELETEHISTORYCMD)).thenReturn(true);
 
         when(bluetoothCommandReadCharacteristics.readValue()).thenAnswer(new Answer<byte[]>() {
             int historyStatus = 0;
@@ -88,8 +77,6 @@ public class BluetoothDeviceMockCreator {
                 return returnValue;
             }
         });
-
-
 
         when(bluetoothCurrentFacetCharacteristics.readValue()).thenReturn(facetId);
         return bluetoothDevice;

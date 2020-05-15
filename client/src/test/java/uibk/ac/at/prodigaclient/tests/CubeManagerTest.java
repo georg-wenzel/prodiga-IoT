@@ -7,10 +7,12 @@ import tinyb.BluetoothDevice;
 import tinyb.BluetoothManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
+import uibk.ac.at.prodigaclient.BluetoothUtility.TimeFlipProperties;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothDeviceMockCreator;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothManagerMockCreator;
 import uibk.ac.at.prodigaclient.tests.MockCreators.CubeManagerCreator;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,8 +47,8 @@ public class CubeManagerTest {
     }
 
     public void verifyCommand(BluetoothDevice bluetoothDevice, byte[] command) {
-        verify(bluetoothDevice.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1))
-                              .find("f1196f54-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1)),
+        verify(bluetoothDevice.find(TimeFlipProperties.FACETSERVICEUUID, Duration.ofSeconds(1))
+                              .find(TimeFlipProperties.COMMANDWRITERCHARACTERISTICUUID, Duration.ofSeconds(1)),
                                times(1)
               ).writeValue(command);
     }
@@ -55,7 +57,6 @@ public class CubeManagerTest {
     public void constructorTest() {
         Assertions.assertNotNull(cubeManager);
     }
-
 
     @Test
     public void getCubeIDListTest() {
@@ -113,7 +114,7 @@ public class CubeManagerTest {
 
         for (BluetoothDevice bluetoothDevice : mockManager.getDevices().subList(0, 2)) {
             verify(bluetoothDevice, times(1)).connect();
-            verifyCommand(bluetoothDevice, new byte[]{0x02});
+            verifyCommand(bluetoothDevice, TimeFlipProperties.DELETEHISTORYCMD);
         }
     }
 
