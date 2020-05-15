@@ -8,9 +8,11 @@ import tinyb.BluetoothManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
 import uibk.ac.at.prodigaclient.BluetoothUtility.HistoryEntry;
 import uibk.ac.at.prodigaclient.tests.MockCreators.BluetoothManagerMockCreator;
+import uibk.ac.at.prodigaclient.tests.MockCreators.CubeManagerCreator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
@@ -23,13 +25,16 @@ public class CubeManagerTest {
     CubeManager cubeManager;
 
     @BeforeEach
-    public void setUp() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Constructor<CubeManager> c = CubeManager.class.getDeclaredConstructor(BluetoothManager.class); // whoa didn't know this works
-        c.setAccessible(true);
-
+    public void setUp() {
         mockManager = BluetoothManagerMockCreator.mockBluetoothManager();
+        cubeManager = CubeManagerCreator.createCustomCubeManagerInstance(mockManager);
+    }
 
-        cubeManager = c.newInstance(mockManager);
+    public void verifyCommand(BluetoothDevice bluetoothDevice, byte[] command) {
+        verify(bluetoothDevice.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1))
+                              .find("f1196f54-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(1)),
+                               times(1)
+              ).writeValue(command);
     }
 
     @Test
@@ -63,9 +68,7 @@ public class CubeManagerTest {
         Assertions.assertNotNull(historyEntryListTwo);
         Assertions.assertEquals(7, historyEntryListTwo.size());
 
-        List<BluetoothDevice> bluetoothDevices = mockManager.getDevices().subList(0, 2); // device 2 isn't a TimeFlipCube
-
-        for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+        for (BluetoothDevice bluetoothDevice : mockManager.getDevices().subList(0, 2)) {
             verify(bluetoothDevice, times(1)).connect();
         }
     }
@@ -77,14 +80,73 @@ public class CubeManagerTest {
         int batteryOne = cubeManager.getBattery("12:34:56:78:90:00");
         int batteryTwo = cubeManager.getBattery("12:34:56:78:90:01");
 
-//        Assertions.assertEquals(1, );
-//
-//        Assertions.assertEquals(7, historyEntryListTwo.size());
+        Assertions.assertEquals(20, batteryOne);
 
-        List<BluetoothDevice> bluetoothDevices = mockManager.getDevices().subList(0, 2); // device 2 isn't a TimeFlipCube
+        Assertions.assertEquals(37, batteryTwo);
 
-        for (BluetoothDevice bluetoothDevice : bluetoothDevices) {
+        for (BluetoothDevice bluetoothDevice : mockManager.getDevices().subList(0, 2)) {
             verify(bluetoothDevice, times(1)).connect();
         }
+    }
+
+
+    @Test
+    public void getDeleteHistory() {
+        cubeManager.updateDeviceList();
+
+        cubeManager.deleteHistory("12:34:56:78:90:00");
+        cubeManager.deleteHistory("12:34:56:78:90:01");
+
+        for (BluetoothDevice bluetoothDevice : mockManager.getDevices().subList(0, 2)) {
+            verify(bluetoothDevice, times(1)).connect();
+            verifyCommand(bluetoothDevice, new byte[]{0x02});
+        }
+    }
+
+    @Test
+    public void getCurrentSideTest() {
+        cubeManager.updateDeviceList();
+
+        int batteryOne = cubeManager.getCurrentSide("12:34:56:78:90:00");
+        int batteryTwo = cubeManager.getCurrentSide("12:34:56:78:90:01");
+
+        Assertions.assertEquals(1, batteryOne);
+
+        Assertions.assertEquals(2, batteryTwo);
+
+        for (BluetoothDevice bluetoothDevice : mockManager.getDevices().subList(0, 2)) {
+            verify(bluetoothDevice, times(0)).connect();
+            verify(bluetoothDevice, times(0)).disconnect();
+        }
+    }
+
+
+    @Test
+    public void connectToDeviceTest() {
+        mockManager = BluetoothManagerMockCreator.mockBluetoothManagerConnectionTest(false);
+        cubeManager = CubeManagerCreator.createCustomCubeManagerInstance(mockManager);
+
+        cubeManager.updateDeviceList();
+
+        for (String s : cubeManager.getCubeIDList()) {
+            cubeManager.connectToCube(s);
+        }
+
+        verify(mockManager.getDevices().get(0), times(1)).connect();
+    }
+
+
+    @Test
+    public void disconnectFromDeviceTest() {
+        mockManager = BluetoothManagerMockCreator.mockBluetoothManagerConnectionTest(true);
+        cubeManager = CubeManagerCreator.createCustomCubeManagerInstance(mockManager);
+
+        cubeManager.updateDeviceList();
+
+        for (String s : cubeManager.getCubeIDList()) {
+            cubeManager.disconnectFromCube(s);
+        }
+
+        verify(mockManager.getDevices().get(0), times(1)).disconnect();
     }
 }

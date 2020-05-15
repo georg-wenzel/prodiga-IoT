@@ -99,8 +99,8 @@ public class BluetoothDeviceMockCreator {
     public static BluetoothDevice mockConnectionTestBluetoothDevice(boolean connectionStatus) {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
 
-        when(bluetoothDevice.getName()).thenReturn("Dummy Name");
-        when(bluetoothDevice.getAddress()).thenReturn("Dummy Address");
+        when(bluetoothDevice.getName()).thenReturn("TimeFlip");
+        when(bluetoothDevice.getAddress()).thenReturn("12:34:56:78:90:12");
 
         when(bluetoothDevice.connect()).thenReturn(true);
         when(bluetoothDevice.getConnected()).thenReturn(connectionStatus);
@@ -112,8 +112,8 @@ public class BluetoothDeviceMockCreator {
     public static BluetoothDevice mockBrokenConnectionTestBluetoothDevice(boolean connectionStatus) {
         BluetoothDevice bluetoothDevice = mock(BluetoothDevice.class);
 
-        when(bluetoothDevice.getName()).thenReturn("Dummy Name");
-        when(bluetoothDevice.getAddress()).thenReturn("Dummy Address");
+        when(bluetoothDevice.getName()).thenReturn("TimeFlip");
+        when(bluetoothDevice.getAddress()).thenReturn("12:34:56:78:90:12");
 
         when(bluetoothDevice.connect()).thenThrow(BluetoothException.class).thenThrow(BluetoothException.class).thenReturn(true);
         when(bluetoothDevice.getConnected()).thenReturn(connectionStatus);
