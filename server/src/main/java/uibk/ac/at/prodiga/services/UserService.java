@@ -160,7 +160,7 @@ public class UserService {
         return user.equals(userRepository.findFirstByUsername(user.getUsername()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<User> getUsersByTeam(Team team)
     {
         return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
