@@ -326,6 +326,8 @@ public class DiceService {
                     MessageType.ERROR);
         }
 
+        diceSideService.clearSidesForDice(d);
+
         wrapper.getCompletedSides().forEach((key, value) -> {
             diceSideService.onNewConfiguredDiceSide(key, value.getValue0(), value.getValue1(), wrapper.getDice());
         });
