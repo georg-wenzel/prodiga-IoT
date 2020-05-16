@@ -31,14 +31,27 @@
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 1}">
                         <h1>Start Dice Configuration</h1>
                         To configure your dice, please switch to configuration mode. Click the button below to start the configuration. <br />
+                        You should use this option if your dice has lost power (i.e. battery change) or you are configuring it for the first time. <br />
                         <p:commandButton value="Enable Configuration Mode" id="btn_config" update=":infoHolder :diceConfigForm" ajax="true" action="#{diceConfigurationController.startConfigureDice}" style="margin-right:20px; margin-top:10px;" />
+
+                        <h1>Start Editing Mode</h1>
+                        Editing mode can be used to change the booking categories on your dice sides without reconfiguring the sides. <br />
+                        You should use this option if you have already configured your dice, and are simply trying to change single sides of your dice configuration. <br />
+                        <p:commandButton value="Enable Editing Mode" id="btn_edit" update=":infoHolder :diceEditForm" ajax="true" action="#{diceConfigurationController.startEditDice}" style="margin-right:20px; margin-top:10px;" />
                     </h:panelGroup>
 
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 2}">
                         <h1>Dice Sides</h1>
                         Your dice is currently in configuration mode. <br />
                         By turning your dice to any side, the corresponding side will light up. You can then configure the side that is light up. <br/>
-                        Please keep in mind that the mapping of physical dice sides to the prodiga dice sides [1-12] might change when the battery is changed. <br />
+                        Please keep in mind that the mapping of physical dice sides to the prodiga dice sides [1-12] is newly created in this mode and may not reflect your previous settings. <br />
+                    </h:panelGroup>
+
+                    <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 3}">
+                        <h1>Dice Sides</h1>
+                        Your dice is currently in editing mode. <br />
+                        In this mode, you may freely change the configurations of any side that has previously been configured. <br />
+                        If you wish to use more sides, you must first configure your dice in configuration mode to create a mapping to the physical dice side <br />
                     </h:panelGroup>
                     </h:form>
 
@@ -47,14 +60,10 @@
                         <h:panelGroup rendered="#{diceConfigurationController.status == 2}">
                             <p:dataTable id="sidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}"
                                      rowStyleClass="#{(diceConfigurationController.currentSide == side.key) ? 'selectedRow': null}">
-                            <p:column headerText="Side" style="width:50px">
+                            <p:column headerText="Side">
                                 <h:outputText value="#{side.key}" />
                             </p:column>
-                            <p:column headerText="Current Category">
-                                <h:outputText rendered="#{diceConfigurationController.getSide(side.key) != null}" value="#{diceConfigurationController.getSide(side.key)}" />
-                                <h:outputText rendered="#{diceConfigurationController.getSide(side.key) == null}" value="None" />
-                            </p:column>
-                            <p:column headerText="New Category">
+                            <p:column headerText="Side Category">
                                 <p:selectOneMenu id="category" style="width:100%;" value="#{diceConfigurationController.newSides[side.key]}" disabled="#{(diceConfigurationController.currentSide != side.key)}">
                                     <f:selectItem itemLabel="None" itemValue="#{null}"/>
                                     <f:selectItems value="#{diceConfigurationController.availableCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.id}"/>
@@ -64,6 +73,30 @@
 
                             <p:commandButton value="Confirm" update=":infoHolder :diceConfigForm" icon="fa fa-check" action="#{diceConfigurationController.confirmMapping()}" style="margin-right:20px; width:100px;" />
                             <p:commandButton value="Abort" update=":infoHolder :diceConfigForm" icon="fa fa-close" action="#{diceConfigurationController.abortMapping()}" style="margin-right:20px; width:100px;" />
+                        </h:panelGroup>
+                    </h:form>
+
+                    <h:form id="diceEditForm">
+                        <h:panelGroup rendered="#{diceConfigurationController.status == 3}">
+                            <p:dataTable id="editSidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}"
+                                         rowStyleClass="#{(diceConfigurationController.currentSide == side.key) ? 'selectedRow': null}">
+                                <p:column headerText="Side" style="width:50px">
+                                    <h:outputText value="#{side.key}" />
+                                </p:column>
+                                <p:column headerText="Current Category">
+                                    <h:outputText rendered="#{diceConfigurationController.getSide(side.key) != null}" value="#{diceConfigurationController.getSide(side.key)}" />
+                                    <h:outputText rendered="#{diceConfigurationController.getSide(side.key) == null}" value="None" />
+                                </p:column>
+                                <p:column headerText="New Category">
+                                    <p:selectOneMenu id="category_edit" style="width:100%;" value="#{diceConfigurationController.newSides[side.key]}" disabled="#{diceConfigurationController.getSide(side.key) == null}">
+                                        <f:selectItem itemLabel="None" itemValue="#{null}"/>
+                                        <f:selectItems value="#{diceConfigurationController.availableCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.id}"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </p:dataTable>
+
+                            <p:commandButton value="Confirm" update=":infoHolder :diceEditForm" icon="fa fa-check" action="#{diceConfigurationController.confirmEdit()}" style="margin-right:20px; width:100px;" />
+                            <p:commandButton value="Abort" update=":infoHolder :diceEditForm" icon="fa fa-close" action="#{diceConfigurationController.abortEdit()}" style="margin-right:20px; width:100px;" />
                         </h:panelGroup>
                     </h:form>
 

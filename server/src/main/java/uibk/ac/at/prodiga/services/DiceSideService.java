@@ -97,6 +97,10 @@ public class DiceSideService {
         return diceSideRepository.findFirstByDiceAndSide(dice, side);
     }
 
+    public DiceSide findByDiceAndFriendlySide(Dice dice, Integer side){
+        return diceSideRepository.findFirstByDiceAndSideFriendlyName(dice, side);
+    }
+
     public Collection<DiceSide> findByDice(Dice dice)
     {
         return diceSideRepository.findAllByDice(dice);
