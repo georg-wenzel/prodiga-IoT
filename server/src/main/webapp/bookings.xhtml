@@ -20,7 +20,7 @@
                     <h:outputText rendered="#{!bookingController.user.mayEditHistoricData}" value="Without explicit permission, you may only edit bookings from this week and the previous week." />
                     <h:outputText rendered="#{bookingController.user.mayEditHistoricData}" value="You are currently permitted to edit historic data which goes past the previous week." />
 
-                <h:form id="bookingsForm">
+                <h:form id="bookingsForm" rendered="#{bookingController.getDice() != null}">
                     <p:dataTable id="bookingsTable" var="booking" scrollable="true" style="width:100%; margin-top:30px;" scrollHeight="500" value="#{bookingController.userBookings}">
                         <p:column headerText="Start Time: " filterMatchMode="contains"
                                   filterBy="#{booking.activityStartDate}" sortBy="#{booking.activityStartDate}">
@@ -61,6 +61,12 @@
                             </p:commandButton>
                         </p:column>
                     </p:dataTable>
+                </h:form>
+
+                <h:form id="noDiceForm" rendered="#{bookingController.getDice() == null}" style="margin-top:20px;">
+                    <p:outputPanel>
+                        <p:staticMessage severity="warn" summary="No dice connected!" detail="No bookings can be displayed, because no dice is configured for this user. Please contact the administrator." />
+                    </p:outputPanel>
                 </h:form>
 
                 <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">

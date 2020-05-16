@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.BookingCategory;
+import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
@@ -89,6 +90,12 @@ public class BookingController implements Serializable
     public User getUser()
     {
         return user;
+    }
+
+    public Dice getDice()
+    {
+        if(user == null) return null;
+        return diceService.getDiceByUser(user);
     }
 
     public Collection<Booking> getUserBookings()
