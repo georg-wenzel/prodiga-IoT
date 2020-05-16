@@ -223,7 +223,7 @@ public class DiceService {
             if(value != null) {
                 wrapper.setCurrentSideFriendlyName(value.getValue0());
             } else {
-                wrapper.setCurrentSideFriendlyName(wrapper.getCurrentSide() + 1);
+                wrapper.setCurrentSideFriendlyName(wrapper.getCurrentSideFriendlyName() + 1);
             }
 
             onNewDiceSideCallBackDict.forEach((key, v) -> v.accept(Pair.with(key, wrapper)));
@@ -282,7 +282,7 @@ public class DiceService {
         DiceConfigurationWrapper wrapper = new DiceConfigurationWrapper();
         wrapper.setCurrentSide(-1);
         wrapper.setDice(d);
-        wrapper.setCurrentSideFriendlyName(1);
+        wrapper.setCurrentSideFriendlyName(0);
 
         diceConfigurationWrapperDict.put(d.getInternalId(), wrapper);
 
