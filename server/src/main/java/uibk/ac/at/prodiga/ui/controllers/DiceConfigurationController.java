@@ -116,7 +116,7 @@ public class DiceConfigurationController implements Serializable
      */
     public void confirmEdit() throws ProdigaGeneralExpectedException
     {
-        if(newSides.entrySet().stream().noneMatch(x -> bookingCategoryService.findById(Long.parseLong(x.getValue())).getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)))
+        if(newSides.entrySet().stream().noneMatch(x -> x.getValue() != null && bookingCategoryService.findById(Long.parseLong(x.getValue())).getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)))
             throw new ProdigaGeneralExpectedException("At least one side must be configured with " + bookingCategoryService.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).getName(), MessageType.ERROR);
 
         for(Map.Entry<Integer, String> kvp: newSides.entrySet())
