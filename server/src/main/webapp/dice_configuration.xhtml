@@ -37,8 +37,8 @@
                     <h:panelGroup layout="block" rendered="#{diceConfigurationController.status == 2}">
                         <h1>Dice Sides</h1>
                         Your dice is currently in configuration mode. <br />
-                        Listed below is a table for your dice sides as well as the possible categories you can assign to each side. Please assign all sides you want to assign, then confirm your selection. <br />
-                        By turning your dice to any side while in configuration mode, the corresponding table row will light up.
+                        By turning your dice to any side, the corresponding side will light up. You can then configure the side that is light up. <br/>
+                        Please keep in mind that the mapping of physical dice sides to the prodiga dice sides [1-12] might change when the battery is changed. <br />
                     </h:panelGroup>
                     </h:form>
 
@@ -55,7 +55,7 @@
                                 <h:outputText rendered="#{diceConfigurationController.getSide(side.key) == null}" value="None" />
                             </p:column>
                             <p:column headerText="New Category">
-                                <p:selectOneMenu id="category" style="width:100%;" value="#{diceConfigurationController.newSides[side.key]}">
+                                <p:selectOneMenu id="category" style="width:100%;" value="#{diceConfigurationController.newSides[side.key]}" disabled="#{(diceConfigurationController.currentSide != side.key)}">
                                     <f:selectItem itemLabel="None" itemValue="#{null}"/>
                                     <f:selectItems value="#{diceConfigurationController.availableCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.id}"/>
                                 </p:selectOneMenu>
