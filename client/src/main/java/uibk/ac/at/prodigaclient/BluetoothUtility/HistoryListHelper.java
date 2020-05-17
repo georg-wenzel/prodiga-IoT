@@ -15,7 +15,7 @@ public class HistoryListHelper {
 	 * @param test The byte array received from the cube
 	 * @return Is it the last line?
 	 */
-	protected static boolean isLast(byte [] test) {
+	public static boolean isLast(byte [] test) { // public for testing
 		for (byte x : test) {
 			if (x != 0x00) {
 				return false;
@@ -29,7 +29,7 @@ public class HistoryListHelper {
 	 * @param historyList The list of byte array received from the TimeFlip
 	 * @return List of HistoryEntrys
 	 */
-	protected static List<HistoryEntry> convertToHistoryList(List<byte []> historyList) {
+	public static List<HistoryEntry> convertToHistoryList(List<byte []> historyList) { // public for testing
 		List<HistoryEntry> historyEntryList = new LinkedList<>();
 		for (byte [] historyBlock: historyList) {
 			for (int i = 0; i < 7; i++) {

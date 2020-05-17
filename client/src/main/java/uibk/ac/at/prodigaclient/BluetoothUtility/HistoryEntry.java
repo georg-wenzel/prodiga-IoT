@@ -18,7 +18,7 @@ public class HistoryEntry {
      * Constructs the history entry
      * @param entry a 3 wide byte array which we get from the cube
      */
-    HistoryEntry(byte[] entry) {
+    public HistoryEntry(byte[] entry) {
         this.ID = getFacet(entry);
         this.seconds = this.getTime(entry);
     }
@@ -59,7 +59,7 @@ public class HistoryEntry {
      * @return facet id
      */
     private int getFacet(byte [] byteArray) {
-        return byteArray[2] >> 2;
+        return Byte.toUnsignedInt(byteArray[2]) >> 2;
     }
 
     /**

@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
+import de.jollyday.*;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -173,13 +175,17 @@ public class VacationService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Vacation vacationCoversBooking(Booking booking)
     {
+        return vacationCoversBooking(booking, userLoginManager.getCurrentUser());
+    }
+
+    public Vacation vacationCoversBooking(Booking booking, User u) {
         LocalDate beginDate = toLocalDate(booking.getActivityStartDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = toLocalDate(booking.getActivityEndDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
 
         Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), userLoginManager.getCurrentUser());
         if (v != null) return v;
 
-        return vacationRepository.findVacationCoveringDate(toDate(endDate), userLoginManager.getCurrentUser());
+        return vacationRepository.findVacationCoveringDate(toDate(endDate), u);
     }
 
     /**
@@ -204,6 +210,12 @@ public class VacationService
         if(startDate.getYear() != endDate.getYear())
         {
             checkYearlyVacationDays(vacation, endDate.getYear());
+        }
+
+        //Make sure that vacation covers at least one actual vacation day (not weekend or holdiay)
+        if(getCountVacationDays(startDate, endDate) == 0)
+        {
+            throw new ProdigaGeneralExpectedException("At least one vacation day must not be a holiday or weekend day.", MessageType.ERROR);
         }
 
         //Check that there is no other vacations over the same days
@@ -245,30 +257,73 @@ public class VacationService
     /**
      * Gets the number of days in a vacation
      * @param vacation The vacation to check
-     * @return The number of days between start and end date.
+     * @return The number of days between start and end date, excluding weekends and holidays
      */
     public int getVacationDays(Vacation vacation)
     {
-        return(int)Duration.between(toLocalDate(vacation.getBeginDate()).atStartOfDay(), toLocalDate(vacation.getEndDate()).plusDays(1).atStartOfDay()).toDays();
+        return getCountVacationDays(toLocalDate(vacation.getBeginDate()), toLocalDate(vacation.getEndDate()));
     }
 
     /**
      * Gets the number of days in a vacation, but only the days in a given year
      * @param vacation The vacation to check
      * @param year the year bound
-     * @return The number of days between start and end date.
+     * @return The number of days between start and end date, in the year provided, excluding holidays and weekends
      */
-    private int getVacationDaysInYear(Vacation vacation, int year)
+    public int getVacationDaysInYear(Vacation vacation, int year)
     {
         LocalDate beginDate = toLocalDate(vacation.getBeginDate());
-        LocalDate endDate = toLocalDate(vacation.getEndDate()).plusDays(1);
-        LocalDate upperBound = LocalDate.of(year+1,1,1);
+        LocalDate endDate = toLocalDate(vacation.getEndDate());
+        LocalDate upperBound = LocalDate.of(year,12,31);
         LocalDate lowerBound = LocalDate.of(year,1,1);
         if(beginDate.isBefore(lowerBound)) beginDate = lowerBound;
         if(endDate.isAfter(upperBound)) endDate = upperBound;
 
-        return (int)Duration.between(beginDate.atStartOfDay(), endDate.atStartOfDay()).toDays();
+        return getCountVacationDays(beginDate, endDate);
     }
+
+    /**
+     * For two LocalDate variables, calculates the amount of vacation days between them, excluding holidays and weekends.
+     * @param beginDate The start date of the vacation.
+     * @param endDate The end date of the vacation.
+     * @return The vacation days excluding weekends and national holidays.
+     */
+    private int getCountVacationDays(LocalDate beginDate, LocalDate endDate)
+    {
+        HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
+
+        int vacationDays = 0;
+        while(!beginDate.isAfter(endDate))
+        {
+            //check if date is weekend day
+            if(beginDate.getDayOfWeek() != DayOfWeek.SATURDAY && beginDate.getDayOfWeek() != DayOfWeek.SUNDAY)
+            {
+                //because two date formats werent enough yet
+                org.joda.time.LocalDate jodaDate = org.joda.time.LocalDate.fromDateFields(toDate(beginDate));
+                //check if date is a holiday
+                if(!m.isHoliday(jodaDate))
+                {
+                    vacationDays++;
+                }
+            }
+            beginDate = beginDate.plusDays(1);
+        }
+
+        return vacationDays;
+    }
+
+    /**
+     * Gets a collection of holidays from the current year and next year
+     * @return A collection of Jollyday Holiday objects from the current year and next year
+     */
+    public Collection<Holiday> getHolidays()
+    {
+        HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
+        Collection<Holiday> holidays = m.getHolidays(LocalDate.now().getYear());
+        holidays.addAll(m.getHolidays(LocalDate.now().getYear() + 1));
+        return holidays;
+    }
+
 
     /**
      * Converts a java.util.Date to a LocalDate
