@@ -10,6 +10,7 @@ import uibk.ac.at.prodiga.repositories.BadgeDBRepository;
 import uibk.ac.at.prodiga.utils.badge.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("application")
@@ -114,6 +115,11 @@ public class BadgeDBService {
         Date end = cal2.getTime();
 
         return this.badgeDBRepository.findBadgeDBSInRange(start, end);
+    }
+
+    public Collection<BadgeDB> getLastWeeksBadgesByUser(User user){
+        Collection<BadgeDB> badgeDBS = getLastWeeksBadges();
+        return badgeDBS.stream().filter(x -> x.getUser().equals(user)).collect(Collectors.toList());
     }
 
     public Calendar getWeekBeginning(){

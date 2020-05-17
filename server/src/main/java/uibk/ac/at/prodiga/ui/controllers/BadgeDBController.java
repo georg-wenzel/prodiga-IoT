@@ -37,4 +37,8 @@ public class BadgeDBController {
     public Collection<BadgeDB> getLastWeeksBadges(){
         return this.badgeDBService.getLastWeeksBadges();
     }
+
+    public Collection<BadgeDB> getLastWeeksBadgesByUser(){
+        return this.badgeDBService.getLastWeeksBadgesByUser(prodigaUserLoginManager.getCurrentUser());
+    }
 }
