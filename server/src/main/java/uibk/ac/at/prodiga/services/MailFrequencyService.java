@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.repositories.MailRepository;
 @Service
 public class MailFrequencyService {
 
+
     private final MailRepository mailRepoitory;
     private final MailService mailService;
     private final ProductivityAnalysisService productivityAnalysisService;
@@ -17,6 +18,8 @@ public class MailFrequencyService {
     public MailFrequencyService(MailRepository mailRepoitory, MailService mailService, ProductivityAnalysisService productivityAnalysisService, LogInformationService logInformationService) {
         this.mailRepoitory = mailRepoitory;
         this.mailService = mailService;
+        this.userService = userService;
+        this.bookingService = bookingService;
         this.productivityAnalysisService = productivityAnalysisService;
         this.logInformationService = logInformationService;
     }
@@ -27,7 +30,7 @@ public class MailFrequencyService {
      */
     @Scheduled(cron = "0 0 12 1 * ?")
     public void sendMonthlyNotification(){
-        for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.MONTHLY)){
+        for(User user : mailRepository.findUserByFrequencyType(FrequencyType.MONTHLY)){
             productivityAnalysisService.createJSON(FrequencyType.MONTHLY, user);
             mailService.sendEmailTo(user, "Your monthly Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your monthly productivity statistic can be found in the appendix.\n\n" + "Best Regards\nThe Prodiga System Managers", FrequencyType.MONTHLY);
 
@@ -41,7 +44,7 @@ public class MailFrequencyService {
      */
     @Scheduled(cron = "0 0 12 * * MON")
     public void sendWeeklyNotification(){
-        for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.WEEKLY)) {
+        for(User user : mailRepository.findUserByFrequencyType(FrequencyType.WEEKLY)) {
             productivityAnalysisService.createJSON(FrequencyType.WEEKLY, user);
             mailService.sendEmailTo(user, "Your weekly Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your weekly productivity statistic can be found in the appendix.\n\n" + "Best Regards\nThe Prodiga System Managers", FrequencyType.WEEKLY);
 
@@ -55,11 +58,24 @@ public class MailFrequencyService {
      */
     @Scheduled(cron = "0 0 12 * * MON-FRI")
     public void sendDailyNotification(){
-        for(User user : mailRepoitory.findUserByFrequencyType(FrequencyType.DAILY)) {
+        for(User user : mailRepository.findUserByFrequencyType(FrequencyType.DAILY)) {
             productivityAnalysisService.createJSON(FrequencyType.DAILY, user);
             mailService.sendEmailTo(user, "Your daily Prodiga Statistics", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "Your daily productivity statistic can be found in the appendix.\nPlease download the appendix folder and unzip it before you open the html file.\n\n" + "Best Regards,\nThe Prodiga System Managers", FrequencyType.DAILY);
 
             logInformationService.logForCurrentUser("Daily report send to user " + user.getUsername());
+        }
+    }
+
+    /**
+     * sends every weekday at 12:00pm
+     * a notification to all users whose last booking is longer than 2 days ago
+     */
+    @Scheduled(cron = "0 0 12 * * *")
+    public void sendBookingNotification(){
+        for(User user : userService.getAllUsersUnauthorized()) {
+            if(bookingService.isBookingLongerThan2DaysAgo(user)) {
+                mailService.sendNotificationTo(user, "Prodiga Information", "Hello " + user.getFirstName() + " " + user.getLastName() + "!\n\n" + "We want to inform you that your last booking is longer than 2 days ago.\n\n" + "Best Regards,\nThe Prodiga System Managers");
+            }
         }
     }
 
