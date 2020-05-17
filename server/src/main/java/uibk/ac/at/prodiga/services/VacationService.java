@@ -33,12 +33,14 @@ public class VacationService
     private final VacationRepository vacationRepository;
     private final ProdigaUserLoginManager userLoginManager;
     private final BookingRepository bookingRepository;
+    private final LogInformationService logInformationService;
 
-    public VacationService(VacationRepository vacationRepository, ProdigaUserLoginManager userLoginManager, BookingRepository bookingRepository)
+    public VacationService(VacationRepository vacationRepository, ProdigaUserLoginManager userLoginManager, BookingRepository bookingRepository, LogInformationService logInformationService)
     {
         this.vacationRepository = vacationRepository;
         this.userLoginManager = userLoginManager;
         this.bookingRepository = bookingRepository;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -114,7 +116,11 @@ public class VacationService
         }
 
         //Save method if no exception has been thrown so far
-        return vacationRepository.save(vacation);
+        Vacation result = vacationRepository.save(vacation);
+
+        logInformationService.logForCurrentUser("Vacation " + result.getId() + " was saved");
+
+        return result;
     }
 
     /**
@@ -154,6 +160,8 @@ public class VacationService
             throw new ProdigaGeneralExpectedException("Cannot delete vacations that have already begun or ended.", MessageType.ERROR);
         }
         vacationRepository.delete(v);
+
+        logInformationService.logForCurrentUser("Vacation " + v.getId() + " was deleted");
     }
 
     /**

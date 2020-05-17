@@ -157,7 +157,7 @@
             function skinPie() {
                 this.cfg.shadow = false;
                 this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210'];
+                //this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210', '#AB44BC', '#2162b0', '#FFD000', '#ff2c00', '#00d0ff', '#b9ff00', '#ffb900', '#1a8f0a'];
                 this.cfg.grid = {
                     background: '#ffffff',
                     borderColor: '#ffffff',
@@ -347,93 +347,7 @@
             </div>
 
         </div></div><br></br>
-            <ui:fragment rendered="#{not empty badgeDBController.lastWeeksBadges}">
-            <h1>Last Week's Badges</h1><br/>
-            <h:form id="badgeForm">
-                <p:carousel value="#{badgeDBController.lastWeeksBadges}" headerText="" var="badge" itemStyle="text-align:center" responsive="true">
-                    <p:panelGrid columns="2" style="width:100%;margin:10px 0px" columnClasses="label,value" layout="grid" styleClass="ui-panelgrid-blank">
-                        <f:facet name="header">
-                            <p:graphicImage name="images/#{badge.badgeName}.png" library="ecuador-layout" style="width:200px;"/>
-                        </f:facet>
 
-                        <h:outputText value="User:" />
-                        <h:outputText value="#{badge.user.username}" />
-
-                        <h:outputText value="From:" />
-                        <h:outputText value="#{badge.fromDate}">
-                            <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
-                        </h:outputText>
-
-
-                        <h:outputText value="To:" />
-                        <h:outputText value="#{badge.toDate}">
-                            <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
-                        </h:outputText>
-                    </p:panelGrid>
-
-                </p:carousel>
-                <br></br><br></br>
-            </h:form></ui:fragment>
-        <ui:fragment rendered="#{(prodigaUserLoginManager.getCurrentUser().assignedTeam != null and prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')) or (prodigaUserLoginManager.getCurrentUser().assignedTeam != null and prodigaUserLoginManager.hasRole('TEAMLEADER'))}">
-            <h2>Statistic Overview</h2>
-            </ui:fragment>
-            <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}">
-            <p:separator/>
-            <h3>Team: #{prodigaUserLoginManager.getCurrentUser().getAssignedTeam().getName()}</h3>
-            <p:tabView>
-                <p:tab title="Last Week" >
-                    <p:tabView orientation="bottom" headerAlignment="center">
-                        <p:tab title="Barchart">
-                            <br/>
-                            <p:chart id="bar3" type="bar" model="#{statisticsController.weeklyTeamAnalysisBar}" responsive="true"/>
-                            <br/>
-                        </p:tab>
-                        <p:tab title="Piechart" hide="true">
-                            <br/>
-                            <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
-                            <br/>
-                        </p:tab>
-                    </p:tabView>
-                </p:tab>
-                <p:tab title="Last Month" >
-                    <p:tabView orientation="bottom" headerAlignment="center">
-                        <p:tab title="Barchart">
-                            <br/>
-                            <p:chart id="bar2" type="bar" model="#{statisticsController.monthlyTeamAnalysisBar}" responsive="true"/>
-                            <br/>
-                        </p:tab>
-                        <p:tab title="Piechart" hide="true">
-                            <br/>
-                            <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
-                            <br/>
-                        </p:tab>
-                    </p:tabView>
-                </p:tab>
-            </p:tabView><br/><br/>
-            </ui:fragment>
-
-            <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}">
-            <p:separator/>
-            <h3>Department: #{prodigaUserLoginManager.getCurrentUser().getAssignedDepartment().getName()}</h3>
-            <p:tabView>
-                <p:tab title="Last Week">
-                    <p:tabView orientation="bottom">
-                        <p:tab title="Barchart">
-                            <br/>
-                            <p:chart id="bar4" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
-                            <br/>
-                        </p:tab>
-                        <p:tab title="Piechart" hide="true">
-                            <br/>
-                            <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
-                            <br/>
-                        </p:tab>
-                    </p:tabView>
-                </p:tab>
-            </p:tabView><br/><br/>
-            <p:separator/>
-
-            </ui:fragment>
         </div>
 
 

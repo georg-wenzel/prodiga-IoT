@@ -31,7 +31,7 @@
                                       filterBy="#{user.lastName}" sortBy="#{user.lastName}">
                                 <h:outputText value="#{user.lastName}"/>
                             </p:column>
-                            <p:column filterBy="#{user.roles}" filterMatchMode="in">
+                            <p:column filterBy="#{user.roles}" filterMatchMode="in" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <f:facet name="filter">
                                     <p:selectCheckboxMenu label="Roles" onchange="PF('usersTable').filter()"
                                                           styleClass="custom-filter">
@@ -40,10 +40,24 @@
                                 </f:facet>
                                 <h:outputText value="#{user.roles}" />
                             </p:column>
-                            <p:column headerText="Enabled">
-                                <h:selectBooleanCheckbox value="#{user.enabled}" disabled="true"/>
+                            <p:column headerText="Edit historic data" rendered="#{(prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
+                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}">
+                                    <f:attribute name="userToEdit" value="#{user.username}" />
+                                    <f:ajax listener="#{userListController.editBoxChanged}" />
+                                </p:selectBooleanCheckbox>
                             </p:column>
-                            <p:column style="text-align: center">
+                            <p:column headerText="Team" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
+                                <p:selectOneMenu value="#{userListController.userTeams[user.username]}" style="width:100%;" partialSubmit="true">
+                                    <f:selectItem value="#{null}" itemLabel="None" />
+                                    <f:selectItems value="#{userListController.departmentTeams}" var="team" itemLabel="#{team}" itemValue="#{team.id}" />
+                                    <f:attribute name="userToEdit" value="#{user.username}" />
+                                    <f:ajax event="change" listener="#{userListController.selectMenuChanged}"/>
+                                </p:selectOneMenu>
+                            </p:column>
+                            <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
+                                <p:selectBooleanCheckbox value="#{user.enabled}" disabled="true" />
+                            </p:column>
+                            <p:column style="text-align: center" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="user">
@@ -56,60 +70,6 @@
                             </p:column>
                         </p:dataTable>
 
-                        <p:dialog header="Edit User" id="userEditDialog" widgetVar="userEditDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
-                            <p:outputPanel id="userData" rendered="#{not empty userDetailController.user}">
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel for="username" value="Username: " />
-                                    <p:inputText id="username" value="#{userDetailController.user.username}" disabled="true"/>
-                                    <p:outputLabel for="password" value="Password: " />
-                                    <p:password id="password" value="#{userDetailController.user.password}" disabled="true"/>
-                                </h:panelGrid>
-                                <p:separator />
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel for="firstName" value="First Name: " />
-                                    <p:inputText id="firstName" required="true" requiredMessage="Please add an IATA"
-                                                 value="#{userDetailController.user.firstName}"/>
-                                    <!--<p:inputText id="firstName" value="#{userDetailController.user.firstName}" required="true"/>-->
-                                    <p:outputLabel for="firstName" value="Last Name: " />
-                                    <p:inputText id="lastName" value="#{userDetailController.user.lastName}"/>
-                                    <p:outputLabel for="email" value="E-Mail: " />
-                                    <p:inputText id="email" value="#{userDetailController.user.email}"/>
-                                    <p:outputLabel for="phone" value="Phone: " />
-                                    <p:inputMask id="phone" value="#{userDetailController.user.phone}" mask="+99? 999 9999999"/>
-                                </h:panelGrid>
-                                <p:separator />
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel for="enabled" value="Enabled: " />
-                                    <p:selectBooleanCheckbox id="enabled" value="#{userDetailController.user.enabled}"/>
-                                    <p:outputLabel for="roles" value="Roles"/>
-                                    <p:selectCheckboxMenu id="roles" value="#{userDetailController.user.rolesAsString}"
-                                                          label="Roles"
-                                                          filter="false" multiple="true">
-                                        <f:selectItems value="#{userDetailController.allRoles}"/>
-                                    </p:selectCheckboxMenu>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel for="enabled" value="Team: " rendered="#{userDetailController.user.assignedTeam != null}"/>
-                                    <p:selectOneMenu id="teams" value="#{userDetailController.user.assignedTeam}" style="width:250px" rendered="#{userDetailController.user.assignedTeam != null}">
-                                        <f:selectItem itemLabel="#{userDetailController.user.assignedTeam.name}" itemValue="#{userDetailController.user.assignedTeam}" />
-                                        <f:selectItems value="#{teamController.allTeams}" var="team" itemLabel="#{team.name}" itemValue="#{team}"/>
-                                    </p:selectOneMenu>
-                                </h:panelGrid>
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel for="enabled" value="Department: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
-                                    <p:selectOneMenu id="departments" value="#{userDetailController.user.assignedDepartment}" style="width:200px" rendered="#{userDetailController.user.assignedDepartment != null}">
-                                        <f:selectItem itemLabel="#{userDetailController.user.assignedDepartment.name}" itemValue="#{userDetailController.user.assignedDepartment}" />
-                                        <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department}"/>
-                                    </p:selectOneMenu>
-                                </h:panelGrid>
-                                <p:separator />
-                                <h:panelGrid columns="3">
-                                    <p:commandButton value="Save" ajax="true" action="#{userDetailController.doSaveUser()}" oncomplete="PF('testDialog').hide()" update=":userForm:usersTable"/>
-                                    <p:commandButton value="Reload" action="#{userDetailController.doReloadUser(userDetailController.user)}" update=":userForm:userData"/>
-                                    <p:commandButton value="Abort" onclick="PF('userEditDialog').hide()"/>
-                                </h:panelGrid>
-                            </p:outputPanel>
-                        </p:dialog>
 
                         <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
                             <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
