@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.utils;
 
+import org.javatuples.Pair;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.Dice;
 
@@ -12,7 +13,8 @@ public class DiceConfigurationWrapper {
 
     private Dice dice;
     private int currentSide;
-    private Map<Integer, BookingCategory> completedSides;
+    private int currentSideFriendlyName;
+    private Map<Integer, Pair<Integer, BookingCategory>> completedSides;
     private UUID feedId;
 
     public DiceConfigurationWrapper() {
@@ -35,11 +37,11 @@ public class DiceConfigurationWrapper {
         this.currentSide = currentSide;
     }
 
-    public Map<Integer, BookingCategory> getCompletedSides() {
+    public Map<Integer, Pair<Integer, BookingCategory>> getCompletedSides() {
         return completedSides;
     }
 
-    public void setCompletedSides(Map<Integer, BookingCategory> completedSides) {
+    public void setCompletedSides(Map<Integer, Pair<Integer, BookingCategory>> completedSides) {
         this.completedSides = completedSides;
     }
 
@@ -49,5 +51,13 @@ public class DiceConfigurationWrapper {
 
     public void setFeedId(UUID feedId) {
         this.feedId = feedId;
+    }
+
+    public int getCurrentSideFriendlyName() {
+        return currentSideFriendlyName;
+    }
+
+    public void setCurrentSideFriendlyName(int currentSideFriendlyName) {
+        this.currentSideFriendlyName = currentSideFriendlyName;
     }
 }

@@ -18,6 +18,9 @@ public class DiceSide implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private int side;
 
+    @Column(nullable = false)
+    private int sideFriendlyName;
+
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Dice.class)
     Dice dice;
 
@@ -35,6 +38,14 @@ public class DiceSide implements Persistable<Long>, Serializable {
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     User objectChangedUser;
+
+    public int getSideFriendlyName() {
+        return sideFriendlyName;
+    }
+
+    public void setSideFriendlyName(int sideFriendlyName) {
+        this.sideFriendlyName = sideFriendlyName;
+    }
 
     public void setId(Long id) {
         this.id = id;

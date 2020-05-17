@@ -105,7 +105,7 @@ public class VacationServiceTest
         User u2 = DataHelper.createUserWithRoles("vacation_test_user_02", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Vacation v1 = DataHelper.createVacation(5,10, u1, vacationRepository);
         Vacation v2 = DataHelper.createVacation(14,21, u1, vacationRepository);
-        Vacation v3 = DataHelper.createVacation(12,15,u2,vacationRepository);
+        Vacation v3 = DataHelper.createVacation(12,18,u2,vacationRepository);
 
         Collection<Vacation> vacs = vacationService.getAllVacations();
 
@@ -159,43 +159,33 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_too_many_days() throws ProdigaGeneralExpectedException
+    public void create_vacation_too_many_days()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
-        Date fromDate, toDate;
+        Vacation v2;
 
         //Need to make two different cases, based on what date it currently is
         //if in december month
         if(LocalDate.now().getMonth() == Month.DECEMBER)
         {
             //create test case in following year
-            //20 vacation days
-            Vacation v1 = DataHelper.createVacation(100,120, u1, vacationRepository);
-            int totalDays = vacationService.getVacationDays(v1);
-            //30 - totalDays to cover for potential holidays and weekends
-            fromDate = Date.from(LocalDate.now().plusDays(40).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(LocalDate.now().plusDays(40 + (30 - totalDays)).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            //20 true  days
+            Vacation v1 = DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear()+1, 1, 10), 20, u1, vacationRepository);
+            //6 true days
+            v2 = DataHelper.returnTrueVacation(LocalDate.of(LocalDate.now().getYear()+1, 3, 10), 6, u1);
         }
         else
         {
             //create test case in current year
-            //20 vacation days
-            Vacation v1 = DataHelper.createVacation(0,20, u1, vacationRepository);
-            int totalDays = vacationService.getVacationDays(v1);
-            //30 - totalDays to cover for potential holidays and weekends
-            fromDate = Date.from(LocalDate.now().plusDays(21).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(LocalDate.now().plusDays(21 + (30 - totalDays)).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            //20 true days earlier in the year
+            Vacation v1 = DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear(), 1, 1), 20, u1, vacationRepository);
+            //6 true days now
+            v2 = DataHelper.returnTrueVacation(LocalDate.now().plusDays(1), 6, u1);
         }
 
-
-        Vacation v1 = new Vacation();
-        v1.setBeginDate(fromDate);
-        v1.setEndDate(toDate);
-        v1.setUser(u1);
-
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            vacationService.saveVacation(v1);
+            vacationService.saveVacation(v2);
         }, "Vacation saved despite passing 25 days in one year.");
     }
 
@@ -205,10 +195,9 @@ public class VacationServiceTest
      */
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_invalid_dates() throws ProdigaGeneralExpectedException
+    public void create_vacation_invalid_dates()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-
 
         //vacation that ends before starting
         Date fromDate = Date.from(LocalDate.now().plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -289,49 +278,19 @@ public class VacationServiceTest
     public void create_vacation_new_year() throws ProdigaGeneralExpectedException
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Vacation v1 = new Vacation();
 
-        //get 27th december of this year
-        LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), 12, 27);
-        Date fromDate, toDate;
+        //create 25 true vacation days earlier
+        DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear(), 1,1), 25, u1, vacationRepository);
 
-        //if in december month
-        if(LocalDate.now().getMonth() == Month.DECEMBER)
-        {
-            //20 vacation days earlier
-            DataHelper.createVacation(-30,-11, u1, vacationRepository);
-            if(LocalDate.now().getDayOfMonth() > 26)
-            {
-                //start date is simply now, as it is already past the 26th, so there is less than 6 days in the current year
-                fromDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-                toDate = Date.from(LocalDate.now().plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            }
-            else
-            {
-                //start date is 27th dec
-                fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                toDate = Date.from(startDate.plusDays(27).atStartOfDay(ZoneId.systemDefault()).toInstant());
-            }
-        }
-        else
-        {
-            //20 vacation days now
-            DataHelper.createVacation(0,19, u1, vacationRepository);
-            //start date is 27th dec
-            fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            toDate = Date.from(startDate.plusDays(40).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
-        v1.setBeginDate(fromDate);
-        v1.setEndDate(toDate);
-        v1.setUser(u1);
+        //create vacation over new years that lasts 25 true vacation days, all of those are in the new year, because xxxx-12-31 is a holiday.
+        Vacation v1 = DataHelper.returnTrueVacation(LocalDate.of(LocalDate.now().getYear(), 12, 31), 25, u1);
 
-        //user has min 5 vacation days in this year, might be more depending on holidays, but should not have more than 15
-        //new vacation lasts for 40 days, and starts at the latest at the 27th, so it should pass.
-        vacationService.saveVacation(v1);
+
+        Vacation db_v1 = vacationService.saveVacation(v1);
 
         //asserts that dates still match
-        Assertions.assertEquals(fromDate, v1.getBeginDate(), "Beginning Date was not correctly stored in DB.");
-        Assertions.assertEquals(toDate, v1.getEndDate(), "End date was not correctly stored in DB.");
+        Assertions.assertEquals(v1.getBeginDate(), db_v1.getBeginDate(), "Beginning Date was not correctly stored in DB.");
+        Assertions.assertEquals(v1.getEndDate(), db_v1.getEndDate(), "End date was not correctly stored in DB.");
     }
 
     /**
@@ -340,26 +299,15 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_new_year_invalid() throws ProdigaGeneralExpectedException
+    public void create_vacation_new_year_invalid()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Vacation v1 = new Vacation();
 
         //get somewhere in june of next year and make a 20 day vacation
-        LocalDate startDate = LocalDate.of(LocalDate.now().getYear() + 1, 6, 10);
-        LocalDate endDate = startDate.plusDays(20);
-        DataHelper.createVacation(startDate, endDate, u1, vacationRepository);
+        DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear() + 1, 6, 10), 20, u1, vacationRepository);
 
-        //20 day vacation, with 19 in the new year, but user should have less than that left in the next year, even factoring in weekends
-        startDate = LocalDate.of(LocalDate.now().getYear(), 12, 31);
-        endDate = startDate.plusDays(20);
-
-
-        Date fromDate = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Date toDate = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        v1.setBeginDate(fromDate);
-        v1.setEndDate(toDate);
-        v1.setUser(u1);
+        //vacation starts at xxxx-12-31, so no vacation days in the current year, then 6 true days in the next year, which is too many
+        Vacation v1 = DataHelper.returnTrueVacation(LocalDate.of(LocalDate.now().getYear(),12,31), 6, u1);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             vacationService.saveVacation(v1);
@@ -372,7 +320,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_overlapping() throws ProdigaGeneralExpectedException
+    public void create_vacation_overlapping()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         DataHelper.createVacation(5,10, u1, vacationRepository);
@@ -439,7 +387,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_on_booking_day() throws ProdigaGeneralExpectedException
+    public void create_vacation_on_booking_day()
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
@@ -522,7 +470,7 @@ public class VacationServiceTest
      */
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void create_vacation_other_user() throws ProdigaGeneralExpectedException
+    public void create_vacation_other_user()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_02", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
@@ -544,7 +492,7 @@ public class VacationServiceTest
      */
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
-    public void create_vacation_unauthorized() throws ProdigaGeneralExpectedException
+    public void create_vacation_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             vacationService.saveVacation(new Vacation());
@@ -583,7 +531,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void update_vacation_from_past() throws ProdigaGeneralExpectedException
+    public void update_vacation_from_past()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Vacation v1 = DataHelper.createVacation(-6, -3, u1, vacationRepository);
@@ -605,7 +553,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void update_vacation_to_other_user() throws ProdigaGeneralExpectedException
+    public void update_vacation_to_other_user()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         User u2 = DataHelper.createRandomUser(userRepository);
@@ -624,7 +572,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void update_vacation_from_other_user() throws ProdigaGeneralExpectedException
+    public void update_vacation_from_other_user()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         User u2 = DataHelper.createRandomUser(userRepository);
@@ -659,7 +607,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void delete_vacation_other_user() throws ProdigaGeneralExpectedException
+    public void delete_vacation_other_user()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         User u2 = DataHelper.createRandomUser(userRepository);
@@ -676,7 +624,7 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void delete_vacation_past() throws ProdigaGeneralExpectedException
+    public void delete_vacation_past()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Vacation v1 = DataHelper.createVacation(-6,5, u1, vacationRepository);
@@ -691,7 +639,7 @@ public class VacationServiceTest
      */
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"TEAMLEADER", "DEPARTMENTLEADER", "ADMIN"})
-    public void delete_vacation_unauthorized() throws ProdigaGeneralExpectedException
+    public void delete_vacation_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             vacationService.deleteVacation(new Vacation());
@@ -704,21 +652,25 @@ public class VacationServiceTest
     @DirtiesContext
     @Test
     @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
-    public void get_remaining_vacation_days() throws ProdigaGeneralExpectedException
+    public void get_remaining_vacation_days()
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        //7 days in current year, 10 days in next year
-        Vacation v1 = DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 12, 25), LocalDate.of(LocalDate.now().getYear() + 1, 1, 10), u1, vacationRepository);;
+        //4 days in current year (27., 28., 29., 30.), 10 days in next year
+        LocalDate decemberDate = LocalDate.of(LocalDate.now().getYear(), 12, 27);
+        DataHelper.createTrueVacation(decemberDate, 14, u1, vacationRepository);;
         //3 days in next year
-        Vacation v2 = DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear() + 1, 3, 5), LocalDate.of(LocalDate.now().getYear() + 1, 3, 7), u1, vacationRepository);;
+        DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear() + 1, 3, 5), 3, u1, vacationRepository);;
         //11 days in current year
-        Vacation v3 = DataHelper.createVacation(LocalDate.of(LocalDate.now().getYear(), 6, 10), LocalDate.of(LocalDate.now().getYear() , 6, 20), u1, vacationRepository);
+        DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear(), 6, 10), 11, u1, vacationRepository);;
 
-        //remaining vacation days depend on weekend composition at the given date, but should be within these boundaries
-        //7 (no weekends or holidays) - 17 (2 holidays = 25. and 26., 8 weekend days) for current year
-        //12 (no weekends or holidays) - 19 (6 weekend days, 1 holiday = new year)
-        Assertions.assertTrue(7 <= vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()) &&  vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()) <= 17, "Vacation days for the current year were not calculated properly.");
-        Assertions.assertTrue(12 <= vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1) && vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1) <= 19, "Vacation days for the next year were not calculated properly.");
+        //remaining vacation days
+        //depending on whether or not there is weekend days in 27,28,29,30, the amount of vacation days differs
+        int addThisYear = 0;
+        if(decemberDate.getDayOfWeek() == DayOfWeek.WEDNESDAY || decemberDate.getDayOfWeek() == DayOfWeek.SUNDAY) addThisYear = 1;
+        else if(decemberDate.getDayOfWeek() == DayOfWeek.THURSDAY || decemberDate.getDayOfWeek() == DayOfWeek.SATURDAY || decemberDate.getDayOfWeek() == DayOfWeek.FRIDAY) addThisYear = 2;
+
+        Assertions.assertEquals(10 + addThisYear, vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear()), "Vacation days for the current year were not calculated properly.");
+        Assertions.assertEquals(12 - addThisYear,vacationService.getUsersRemainingVacationDays(LocalDate.now().getYear() + 1), "Vacation days for the next year were not calculated properly.");
     }
 
     /**

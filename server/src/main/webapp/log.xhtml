@@ -1,0 +1,106 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Protiga Logs</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/log">Logs</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h:form id="logForm">
+                        <h1>Log Overview</h1>
+                        Here your can see a logged information. There might be a bunch of them, so try out the great filters we've got :)
+                        <div class="ui-g">
+                            <div class="ui-g-12">
+                                <div class="ui-g-1 input-form">
+                                    <p:outputLabel for="startDate" value="After Date: "/>
+                                </div>
+                                <div class="ui-g-2 input-form">
+                                    <p:calendar id="startDate"
+                                                value="#{logInformationController.startDate}"
+                                                showOn="button"
+                                                pattern="yyyy-MM-dd HH:mm 'UTC'"/>
+                                </div>
+                                <div class="ui-g-1 input-form">
+                                    <p:outputLabel for="endDate" value="Before Date: "/>
+                                </div>
+                                <div class="ui-g-2 input-form">
+                                    <p:calendar id="endDate"
+                                                value="#{logInformationController.endDate}"
+                                                showOn="button"
+                                                pattern="yyyy-MM-dd HH:mm 'UTC'"/>
+                                </div>
+                                <div class="ui-g-1 input-form">
+                                    <p:outputLabel for="user" value="Username: "/>
+                                </div>
+                                <div class="ui-g-2 input-form">
+                                    <p:inputText id="user"
+                                                 value="#{logInformationController.user}"
+                                                 label="Username"/>
+                                </div>
+                                <div class="ui-g-1 input-form">
+                                    <p:commandButton id="reset"
+                                                     value="Reset"
+                                                     icon="fa fa-fw fa-refresh"
+                                                     update="resultTable"
+                                                     action="#{logInformationController.reset}"/>
+                                </div>
+                            </div>
+                        </div>
+                        <p:commandButton id="startSearch"
+                                         value="Search"
+                                         update="resultTable"
+                                         icon="fa fa-fw fa-search"
+                                         action="#{logInformationController.search}"/>
+
+                        <p:dataTable id="resultTable"
+                                     var="log"
+                                     style="margin-top: 20px;"
+                                     value="#{logInformationController.result}"
+                                     paginator="true"
+                                     scrollable="true"
+                                     rows="20"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                                     rowsPerPageTemplate="5,10,20,50"
+                                     sortBy="#{log.logDate}"
+                                     sortOrder="descending">
+                            <p:column headerText="Log Text"
+                                      width="70%"
+                                      filterMatchMode="contains"
+                                      filterBy="#{log.text}">
+                                <h:outputText value="#{log.text}" />
+                            </p:column>
+                            <p:column headerText="Date"
+                                      width="15%"
+                                      filterMatchMode="contains"
+                                      filterBy="#{log.logDate}"
+                                      sortBy="#{log.logDate}">
+                                <h:outputText value="#{log.logDate}">
+                                    <f:convertDateTime pattern="yyyy-MM-dd 'at' HH:mm 'UTC'" />
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="Insert User"
+                                      width="15%"
+                                      filterMatchMode="contains"
+                                      filterBy="#{log.insertUserName}"
+                                      sortBy="#{log.insertUserName}">
+                                <h:outputText value="#{log.insertUserName}" />
+                            </p:column>
+                        </p:dataTable>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

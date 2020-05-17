@@ -30,7 +30,6 @@ Checken was passiert, wenn noch ein Raspi/Würfel in dem Raum is usw...
 public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
-    private final RaspberryPiRepository raspberryPiRepository;
     private final LogInformationService logInformationService;
 
     private User getAuthenicatedUser(){
@@ -38,10 +37,9 @@ public class RoomService {
         return userRepository.findFirstByUsername(auth.getName());
     }
 
-    public RoomService(RoomRepository roomRepository, UserRepository userRepository, RaspberryPiRepository raspberryPiRepository, LogInformationService logInformationService){
+    public RoomService(RoomRepository roomRepository, UserRepository userRepository, LogInformationService logInformationService){
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
-        this.raspberryPiRepository = raspberryPiRepository;
         this.logInformationService = logInformationService;
     }
 
@@ -104,7 +102,12 @@ public class RoomService {
             room.setObjectChangedDateTime(new Date());
             room.setObjectChangedUser(getAuthenicatedUser());
         }
-        return roomRepository.save(room);
+
+        Room result = roomRepository.save(room);
+
+        logInformationService.logForCurrentUser("Room "+ result.getName() + " was saved");
+
+        return result;
     }
 
     /**
@@ -120,7 +123,7 @@ public class RoomService {
             throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
         }
         roomRepository.delete(roomToDelete);
-        logInformationService.log("Room " + roomToDelete.getName() + " was deleted!");
+        logInformationService.logForCurrentUser("Room " + roomToDelete.getName() + " was deleted!");
     }
 
     /**
@@ -131,6 +134,7 @@ public class RoomService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).addRaspberryPi(raspberryPi);
+        logInformationService.logForCurrentUser("Raspberry Pi " +raspberryPi.getInternalId() + " added to Room " + room.getName());
     }
 
     /**
@@ -141,6 +145,7 @@ public class RoomService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
         this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
+        logInformationService.logForCurrentUser("Raspberry Pi " +raspberryPi.getInternalId() + " removed from Room " + room.getName());
     }
 
     /**

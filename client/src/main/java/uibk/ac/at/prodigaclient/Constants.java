@@ -21,6 +21,7 @@ public class Constants {
     private static AuthControllerApi authControllerApi = null;
     private static IntrinsicsControllerApi intrinsicsControllerApi = null;
     private static CubeControllerApi cubeControllerApi = null;
+    private static String serverAddress = null;
 
     public static final int DEFAULT_WAIT_TIMEOUT_MILLIS = 20000;
 
@@ -53,6 +54,7 @@ public class Constants {
     public static ApiClient getClient() {
         if(client == null) {
             client = new ApiClient("JWT");
+            client.createDefaultAdapter(serverAddress);
         }
         synchronized (jwtLock) {
             return client;
@@ -70,6 +72,10 @@ public class Constants {
             Constants.jwt = newJwt;
             client.setApiKey("Bearer " + jwt);
         }
+    }
+
+    public static void setServerAddress(String address) {
+        serverAddress = address;
     }
 
     public static String getPassword() {
