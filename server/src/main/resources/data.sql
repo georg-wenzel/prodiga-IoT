@@ -41,18 +41,20 @@ INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'DEPARTMENTLE
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user1', 'EMPLOYEE');
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id, may_edit_historic_data) VALUES(TRUE, 'Max', 'Mustermann', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user2', 'admin', '2016-01-01 00:00:00',1,1, 1);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user2', 'EMPLOYEE');
-INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id) VALUES(TRUE, 'Frank', 'Merkwürdig', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user3', 'admin', '2016-01-01 00:00:00',1,1);
+INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id) VALUES(TRUE, 'Frank', 'Merkwürdig', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'user3', 'admin', '2016-01-01 00:00:00',1,2);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('user3', 'EMPLOYEE');
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id) VALUES(TRUE, 'John', 'Doe', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'ITS leader', 'admin', '2016-01-01 00:00:00', 1);
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id) VALUES(TRUE, 'Sandra', 'Sun', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'RD leader', 'admin', '2016-01-01 00:00:00', 2);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('RD leader', 'DEPARTMENTLEADER');
+INSERT INTO user_user_role (user_username, ROLES) VALUES ('RD leader', 'EMPLOYEE');
 INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date) VALUES(TRUE, 'Spongebob', 'Schwammkopf', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'Schwamm', 'admin', '2016-01-01 00:00:00');
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('Schwamm', 'EMPLOYEE');
-INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_team_id) VALUES(TRUE, 'Patrick', 'Star', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'Team leader Stern', 'admin', '2016-01-01 00:00:00', 2);
+INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_department_id, assigned_team_id) VALUES(TRUE, 'Patrick', 'Star', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'Team leader Stern', 'admin', '2016-01-01 00:00:00', 1, 2);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('Team leader Stern', 'TEAMLEADER');
-INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES(TRUE, 'Corey', 'Taylor', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'slipknotfan', 'admin', '2016-01-01 00:00:00', 2, 2);
+INSERT INTO user_user_role (user_username, ROLES) VALUES ('Team leader Stern', 'EMPLOYEE');
+INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES(TRUE, 'Corey', 'Taylor', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'slipknotfan', 'admin', '2016-01-01 00:00:00', 2, 1);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('slipknotfan', 'EMPLOYEE');
-INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES(TRUE, 'Matthew', 'Heafy', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'triviumfan', 'admin', '2016-01-01 00:00:00', 2, 2);
+INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES(TRUE, 'Matthew', 'Heafy', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'triviumfan', 'admin', '2016-01-01 00:00:00', 2, 1);
 INSERT INTO user_user_role (user_username, ROLES) VALUES ('triviumfan', 'EMPLOYEE');
 
 INSERT INTO room (ID, NAME, object_created_date_time, object_changed_date_time, object_created_user_username, object_changed_user_username) VALUE (1, 'Test Room 1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'admin', 'admin');
@@ -125,9 +127,9 @@ INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanat
 INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(10, 'The Sloth', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours pause/vacation');
 
 
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'user2', 'Most hours debugging');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'user3', 'Most hours implementation');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours frontend');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours managing');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(15, 'Educated Gabbo', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours training and testing');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(16, 'The Sloth', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW() - INTERVAL 1 DAY), 'admin', 'Most hours pause/vacation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user2', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user3', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours frontend');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours managing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(15, 'Educated Gabbo', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours training and testing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(16, 'The Sloth', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours pause/vacation');

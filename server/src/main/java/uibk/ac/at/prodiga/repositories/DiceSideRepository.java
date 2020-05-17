@@ -9,5 +9,6 @@ import java.util.Collection;
 public interface DiceSideRepository extends AbstractRepository<DiceSide, Long> {
 
     DiceSide findFirstByDiceAndSide(Dice d, int side);
+    DiceSide findFirstByDiceAndSideFriendlyName(Dice d, int side);
     Collection<DiceSide> findAllByDice(Dice d);
 }

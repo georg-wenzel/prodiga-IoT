@@ -10,6 +10,7 @@ import uibk.ac.at.prodiga.repositories.BadgeDBRepository;
 import uibk.ac.at.prodiga.utils.badge.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("application")
@@ -38,9 +39,18 @@ public class BadgeDBService {
      * Returns a collection of all badges for a user.
      * @return A collection of all badges for the given user.
      */
-    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #user.username")
+    @PreAuthorize("principal.username eq #user.username")
     public Collection<BadgeDB> getAllBadgesByUser(User user) {
         return Lists.newArrayList(badgeDBRepository.findByUser(user));
+    }
+
+    /**
+     * Returns a collection of all badges for a user.
+     * @return A collection of all badges for the given user.
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public Collection<BadgeDB> getAllBadgesByDepartment(Department department) {
+        return Lists.newArrayList(badgeDBRepository.findByDepartment(department));
     }
 
     /**
@@ -114,6 +124,11 @@ public class BadgeDBService {
         Date end = cal2.getTime();
 
         return this.badgeDBRepository.findBadgeDBSInRange(start, end);
+    }
+
+    public Collection<BadgeDB> getLastWeeksBadgesByUser(User user){
+        Collection<BadgeDB> badgeDBS = getLastWeeksBadges();
+        return badgeDBS.stream().filter(x -> x.getUser().equals(user)).collect(Collectors.toList());
     }
 
     public Calendar getWeekBeginning(){
