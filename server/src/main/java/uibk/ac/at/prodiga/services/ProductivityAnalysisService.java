@@ -195,7 +195,7 @@ public class ProductivityAnalysisService {
         stringBuilder.append("<html>\n" +
                 "<head>\n" +
                 "    <meta charset=\"utf-8\"/>\n" +
-                "    <title>Chart.js demo</title>\n" +
+                "    <title>Prodiga Statistics</title>\n" +
                 "  \n" +
                 "</head>\n" +
                 "<body>\n" +
