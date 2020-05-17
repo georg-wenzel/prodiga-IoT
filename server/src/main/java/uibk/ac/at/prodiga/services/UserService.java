@@ -14,9 +14,11 @@ import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 @Component
 @Scope("application")
@@ -24,9 +26,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final LogInformationService logInformationService;
+    private final TeamRepository teamRepository;
+    private final ProdigaUserLoginManager userLoginManager;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager) {
         this.userRepository = userRepository;
+        this.teamRepository = teamRepository;
+        this.userLoginManager = userLoginManager;
         this.logInformationService = logInformationService;
     }
 
@@ -154,7 +160,7 @@ public class UserService {
         return user.equals(userRepository.findFirstByUsername(user.getUsername()));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('TEAMLEADER') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<User> getUsersByTeam(Team team)
     {
         return Lists.newArrayList(userRepository.findAllByAssignedTeam(team));
@@ -168,6 +174,26 @@ public class UserService {
     @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
     public Collection<User> getUsersByDepartment(Department d){
         return Lists.newArrayList(userRepository.findAllByAssignedDepartment(d));
+    }
+
+    /**
+     * Get all users in the same department as the calling user
+     * @return A list of users
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
+    public Collection<User> getUsersByDepartment()
+    {
+        return Lists.newArrayList(userRepository.findAllByAssignedDepartment(userLoginManager.getCurrentUser().getAssignedDepartment()));
+    }
+
+    /**
+     * Get all users in the same team as the calling user
+     * @return A list of users
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('TEAMLEADER')") //NOSONAR
+    public Collection<User> getUsersByTeam()
+    {
+        return Lists.newArrayList(userRepository.findAllByAssignedTeam(userLoginManager.getCurrentUser().getAssignedTeam()));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -194,7 +220,7 @@ public class UserService {
     public User assignTeam(User user, Team team) throws ProdigaGeneralExpectedException
     {
         User dbUser = userRepository.findFirstByUsername(user.getUsername());
-        if(dbUser.getAssignedDepartment() != null && dbUser.getAssignedDepartment().equals(team.getDepartment()))
+        if(dbUser.getAssignedDepartment() != null && team != null && dbUser.getAssignedDepartment().equals(team.getDepartment()))
         {
             if(dbUser.getAssignedTeam() != null && dbUser.getAssignedTeam().equals(team)) return dbUser;
 
@@ -209,10 +235,39 @@ public class UserService {
 
             return result;
         }
+        else if (team == null)
+        {
+            dbUser.setAssignedTeam(null);
+            Set<UserRole> roles = dbUser.getRoles();
+            roles.remove(UserRole.TEAMLEADER);
+            roles.add(UserRole.EMPLOYEE);
+            dbUser.setRoles(roles);
+            User result = userRepository.save(dbUser);
+
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " removed from previous team.");
+
+            return result;
+        }
         else
         {
             throw new ProdigaGeneralExpectedException("User team does not match assigned department.", MessageType.ERROR);
         }
+    }
+
+    /**
+     * Assigns a team to a user
+     * @param username The user's name
+     * @param teamId The team's id
+     * @return The user after he was changed in the database
+     * @throws ProdigaGeneralExpectedException Is thrown when team to assign and the users department in the DB do not match up.
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
+    public User assignTeam(String username, Long teamId) throws ProdigaGeneralExpectedException
+    {
+        User dbUser = userRepository.findFirstByUsername(username);
+        Team team = teamRepository.findFirstById(teamId);
+
+        return assignTeam(dbUser, team);
     }
 
      /**
@@ -232,6 +287,45 @@ public class UserService {
         logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Department " + department.getName());
 
         return result;
+    }
+
+    /**
+     * Sets the historic data editing flag of the user provided
+     * @param user The username of the user
+     * @param allowedToEdit Whether or not he is allowed to edit historic data
+     */
+    @PreAuthorize("hasAuthority('TEAMLEADER') || hasAuthority('DEPARTMENTLEADER')")
+    public void setEditAllowed(String user, boolean allowedToEdit) throws ProdigaGeneralExpectedException
+    {
+        User currentUser = userLoginManager.getCurrentUser();
+        User dbUser = userRepository.findFirstByUsername(user);
+        if(dbUser == null) throw new ProdigaGeneralExpectedException("Could not find user to set flag for.", MessageType.ERROR);
+
+        if(currentUser.getRoles().contains(UserRole.DEPARTMENTLEADER))
+        {
+            if(dbUser.getAssignedDepartment().equals(currentUser.getAssignedDepartment()))
+            {
+                dbUser.setMayEditHistoricData(allowedToEdit);
+                userRepository.save(dbUser);
+            }
+            else
+            {
+                throw new RuntimeException("Illegal attempt to set flag of user that is out of authorization scope.");
+            }
+        }
+
+        else if(currentUser.getRoles().contains(UserRole.TEAMLEADER))
+        {
+            if(dbUser.getAssignedTeam().equals(currentUser.getAssignedTeam()))
+            {
+                dbUser.setMayEditHistoricData(allowedToEdit);
+                userRepository.save(dbUser);
+            }
+            else
+            {
+                throw new RuntimeException("Illegal attempt to set flag of user that is out of authorization scope.");
+            }
+        }
     }
 
     /**

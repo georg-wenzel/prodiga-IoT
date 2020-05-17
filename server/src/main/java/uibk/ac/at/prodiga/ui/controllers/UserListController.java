@@ -3,34 +3,71 @@ package uibk.ac.at.prodiga.ui.controllers;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
+import org.primefaces.component.selectonemenu.SelectOneMenu;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+
+import javax.faces.component.html.HtmlSelectBooleanCheckbox;
+import javax.faces.event.AjaxBehaviorEvent;
 
 @Component
 @Scope("view")
-public class UserListController implements Serializable {
-
+public class UserListController implements Serializable
+{
     private static final long serialVersionUID = 5325687683192577315L;
 
-    private final UserService userService;
+    private Map<String, String> userTeams;
 
-    public UserListController(UserService userService) {
+    private Collection<User> users;
+
+    private final UserService userService;
+    private final TeamService teamService;
+    private final ProdigaUserLoginManager userLoginManager;
+
+    public UserListController(UserService userService, TeamService teamService, ProdigaUserLoginManager userLoginManager) {
         this.userService = userService;
+        this.teamService = teamService;
+        this.userLoginManager = userLoginManager;
+        this.userTeams = new HashMap<String,String>();
     }
 
     /**
-     * Returns a list of all users.
+     * Returns a list of all users dependent on current authorization level of the calling user.
      *
      * @return a Collection of all users.
      */
-    public Collection<User> getUsers() {
-        return userService.getAllUsers();
+    public Collection<User> getUsers()
+    {
+        if(users == null) {
+            User u = userLoginManager.getCurrentUser();
+            if (u.getRoles().contains(UserRole.ADMIN)) {
+                users = userService.getAllUsers();
+            } else if (u.getRoles().contains(UserRole.DEPARTMENTLEADER)) {
+                users = userService.getUsersByDepartment();
+            } else if (u.getRoles().contains(UserRole.TEAMLEADER)) {
+                users = userService.getUsersByTeam();
+            }
+            this.userTeams = new HashMap<String,String>();
+            for(User us : users)
+            {
+                if(us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null) this.userTeams.put(us.getUsername(), null);
+                else this.userTeams.put(us.getUsername(), us.getAssignedTeam().getId().toString());
+            }
+        }
+        return users;
     }
 
     /**
@@ -55,5 +92,44 @@ public class UserListController implements Serializable {
             return new ArrayList<>();
         }
         return userService.getUsersByTeam(t);
+    }
+
+    /**
+     * Returns all teams of the same department as the calling user
+     * @return A collection of teams.
+     */
+    public Collection<Team> getDepartmentTeams()
+    {
+        User u = userLoginManager.getCurrentUser();
+        if(u.getRoles().contains(UserRole.DEPARTMENTLEADER))
+        {
+            return teamService.findTeamsOfDepartment();
+        }
+        return null;
+    }
+
+    public void editBoxChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    {
+        SelectBooleanCheckbox source = (SelectBooleanCheckbox) e.getSource();
+        Object value = source.getValue();
+        userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)value);
+    }
+
+    public void selectMenuChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    {
+        SelectOneMenu source = (SelectOneMenu) e.getSource();
+        String uname = (String)e.getComponent().getAttributes().get("userToEdit");
+        Long teamId;
+        if(userTeams.get(uname) == null) teamId = null;
+        else teamId = Long.parseLong(userTeams.get(uname));
+        userService.assignTeam(uname, teamId);
+    }
+
+    public Map<String, String> getUserTeams() {
+        return userTeams;
+    }
+
+    public void setUserTeams(Map<String, String> userTeams) {
+        this.userTeams = userTeams;
     }
 }

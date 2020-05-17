@@ -93,8 +93,16 @@ public class DiceSideService {
         // else -> no existing side and no category - so ignore
     }
 
+    public void clearSidesForDice(Dice d) {
+        findByDice(d).forEach(this::delete);
+    }
+
     public DiceSide findByDiceAndSide(Dice dice, Integer side){
         return diceSideRepository.findFirstByDiceAndSide(dice, side);
+    }
+
+    public DiceSide findByDiceAndFriendlySide(Dice dice, Integer side){
+        return diceSideRepository.findFirstByDiceAndSideFriendlyName(dice, side);
     }
 
     public Collection<DiceSide> findByDice(Dice dice)
