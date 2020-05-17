@@ -10,18 +10,20 @@ import uibk.ac.at.prodiga.repositories.MailRepository;
 public class MailFrequencyService {
 
 
-    private final MailRepository mailRepoitory;
+    private final MailRepository mailRepository;
     private final MailService mailService;
     private final ProductivityAnalysisService productivityAnalysisService;
     private final LogInformationService logInformationService;
+    private final UserService userService;
+    private final BookingService bookingService;
 
-    public MailFrequencyService(MailRepository mailRepoitory, MailService mailService, ProductivityAnalysisService productivityAnalysisService, LogInformationService logInformationService) {
-        this.mailRepoitory = mailRepoitory;
+    public MailFrequencyService(MailRepository mailRepository, MailService mailService, ProductivityAnalysisService productivityAnalysisService, LogInformationService logInformationService, UserService userService, BookingService bookingService) {
+        this.mailRepository = mailRepository;
         this.mailService = mailService;
-        this.userService = userService;
-        this.bookingService = bookingService;
         this.productivityAnalysisService = productivityAnalysisService;
         this.logInformationService = logInformationService;
+        this.userService = userService;
+        this.bookingService = bookingService;
     }
 
     /**

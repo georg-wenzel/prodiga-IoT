@@ -28,7 +28,6 @@ public class BookingService
 {
     private final BookingRepository bookingRepository;
     private final VacationService vacationService;
-    private final MailService mailService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
     private final LogInformationService logInformationService;
@@ -38,7 +37,6 @@ public class BookingService
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
         this.vacationService = vacationService;
-        this.mailService = mailService;
         this.logInformationService = logInformationService;
     }
 

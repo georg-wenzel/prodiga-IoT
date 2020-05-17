@@ -88,7 +88,11 @@
                                         rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}"
                                         outcome="/team_categories"/>
                         </p:submenu>
-                        <p:menuitem id="om_log" value="Logs" icon="fa fa-fw fa-database" outcome="/log" />
+                        <p:menuitem id="om_log"
+                                    rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"
+                                    value="Logs"
+                                    icon="fa fa-fw fa-database"
+                                    outcome="/log" />
                         <p:menuitem id="om_logout" value="Logout" icon="fa fa-fw fa-sign-out" url="/logout" />
                     </pe:menu>
                 </h:form>
