@@ -31,6 +31,14 @@ public class MailService {
         this.badgesDBService = badgesDBService;
     }
 
+    /**
+     *
+     * @param toAddress mail address where the mail is send to
+     * @param subject subject of the email
+     * @param text text of the email
+     * @param user user whose statistics are sent
+     * @param frequencyType how often the email should be sent
+     */
     public void sendMail(String toAddress, String subject, String text, User user, FrequencyType frequencyType) {
 
         MimeMessage message = mailSender.createMimeMessage();
