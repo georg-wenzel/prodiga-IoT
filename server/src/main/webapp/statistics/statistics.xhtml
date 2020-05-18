@@ -297,7 +297,12 @@
     <ui:define name="content">
         <h:form id="colorForm">
             <div class="ui-g">
+
             <div class="ui-g-5">
+                <h1>Statistic Overview</h1>
+                <h:form id="statisticInfoForm">
+                    You can choose your own colors if you are not happy with the colors in the statistics below. Therefore choose a color and a booking category and then click on the button "Save and Reload". Now you should see your selected color for this booking in each statistic below. Reply this for each booking category you want to recolor.
+                </h:form>
                 <h:panelGrid columns="2" cellpadding="5">
                     <h3>Choose a color: </h3>
                     <p:colorPicker value="#{statisticsController.actualColor}" />
