@@ -37,20 +37,21 @@
                                 </div>
 
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel for="teamLeader" value="Team leader: "/>
+                                    <p:outputLabel for="teamDept" value="Department: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:selectOneMenu id="teamLeader"
+                                    <p:selectOneMenu id="teamDept" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"
                                                      value="#{teamController.team.department.id}"
                                                      disabled="false"
                                                      required="false"
-                                                     label="Team leader"
+                                                     label="Department"
                                                      style="width: 100%">
                                         <f:selectItems value="#{departmentController.allDepartments}"
                                                        var="d"
                                                        itemValue="#{d.id}"
                                                        itemLabel="#{d.name}" />
                                     </p:selectOneMenu>
+                                    <h:outputText value="#{teamController.userDept}" rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}"/>
                                 </div>
                             </div>
                         </div>
