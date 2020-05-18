@@ -9,20 +9,20 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/badges">Badges</p:link></li>
+        <li><p:link outcome="/badge/badges_department">Badges Department</p:link></li>
     </ui:define>
 
     <ui:define name="content">
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-                    <h1>My Badges</h1>
+                    <h1>Badges of all department employees</h1>
 
-                    <h3>Total number of badges: <h:outputText value="#{badgeDBController.badgesByUserNum}" style="font-weight: bold;"/></h3>
+                    <h3>Total number of badges: <h:outputText value="#{badgeDBController.badgesByDepartmentNum}" style="font-weight: bold;"/></h3>
                     <br/>
 
                     <h:form id="badgeForm">
-                        <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByUser}" emptyMessage="Unforunately, you don't have any Badges :-(">
+                        <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByDepartment}" emptyMessage="Unforunately, you don't have any Badges :-(">
                             <p:column headerText="Name" filterMatchMode="contains"
                                       filterBy="#{badge.badgeName}" sortBy="#{badge.badgeName}">
                                 <h:outputText value="#{badge.badgeName}" style="font-weight: bold; text-transform: uppercase"/>
@@ -44,6 +44,12 @@
                                       filterBy="#{badge.toDate}" sortBy="#{badge.toDate}">
                                 <h:outputText value="#{badge.toDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd 'at' HH:mm 'UTC'" />
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="User" filterMatchMode="contains"
+                                      filterBy="#{badge.user.username}" sortBy="#{badge.user.username}">
+                                <h:outputText value="#{badge.user.username}">
                                 </h:outputText>
                             </p:column>
 

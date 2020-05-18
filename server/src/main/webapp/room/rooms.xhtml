@@ -8,7 +8,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/rooms">rooms</p:link></li>
+        <li><p:link outcome="/room/rooms">rooms</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -27,7 +27,7 @@
                             <p:column style="text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
-                                              outcome="room">
+                                              outcome="/room/room">
                                     <f:param name="roomname" value="#{room.name}"/>
                                 </p:linkButton>
                                 <p:commandButton action="#{roomDetailController.doDeleteRoom}" icon="fa fa-fw fa-trash" title="Delete" update=":roomForm:roomsTable" style="margin-left:5px;">

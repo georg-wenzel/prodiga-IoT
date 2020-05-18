@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/rooms">room</p:link></li>
+        <li><p:link outcome="/room/rooms">room</p:link></li>
         <li>/</li>
         <li>#{roomDetailController.room.name}</li>
     </ui:define>
@@ -44,7 +44,7 @@
 
                 <div class="ui-g">
                     <div class="ui-g-6">
-                        <p:linkButton outcome="/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                        <p:linkButton outcome="/room/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
                     </div>
                     <div class="ui-g-6" align="right">
                         <p:commandButton value="Save"

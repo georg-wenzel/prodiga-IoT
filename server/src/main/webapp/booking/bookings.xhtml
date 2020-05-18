@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/bookings">Booking Overview</p:link></li>
+        <li><p:link outcome="/booking/bookings">Booking Overview</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -51,7 +51,7 @@
                             <p:linkButton icon="fa fa-fw fa-edit"
                                           title="Edit"
                                           disabled="#{!bookingController.isBookingEditable(booking)}"
-                                          outcome="booking">
+                                          outcome="/booking/booking">
                                 <f:param name="booking" value="#{booking.id}" />
                             </p:linkButton>
                             <p:commandButton action="#{bookingController.deleteBooking(booking)}" icon="fa fa-fw fa-trash" title="Delete" style="margin-left:5px;"

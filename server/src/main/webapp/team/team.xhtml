@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/teams">Teams</p:link></li>
+        <li><p:link outcome="/team/teams">Teams</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -57,7 +57,7 @@
                         <br />
                         <div class="ui-g">
                             <div class="ui-g-6">
-                                <p:linkButton outcome="/teams" value="Back to team overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
+                                <p:linkButton outcome="/team/teams" value="Back to team overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;">
                                 </p:linkButton>
                             </div>
                             <div class="ui-g-6" align="right">
@@ -97,7 +97,7 @@
                                       rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
-                                              outcome="user/user">
+                                              outcome="/user/user">
                                     <f:param name="username" value="#{u.username}"/>
                                 </p:linkButton>
                             </p:column>

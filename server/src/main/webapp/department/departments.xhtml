@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/departments">Departments</p:link></li>
+        <li><p:link outcome="/department/departments">Departments</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -44,7 +44,7 @@
                             <p:column style="width:100px;text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
-                                              outcome="department"
+                                              outcome="/department/department"
                                               rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                     <f:param name="department" value="#{department.id}" />
                                 </p:linkButton>

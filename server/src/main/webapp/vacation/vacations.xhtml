@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/vacations">Vacations</p:link></li>
+        <li><p:link outcome="/vacation/vacations">Vacations</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -72,7 +72,7 @@
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               rendered="#{vacationController.hasStarted(vacation)}"
-                                              outcome="vacation">
+                                              outcome="/vacation/vacation">
                                     <f:param name="vacation" value="#{vacation.id}" />
                                 </p:linkButton>
                                 <p:commandButton action="#{vacationController.doDeleteVacation()}" icon="fa fa-fw fa-trash" title="Delete" rendered="#{vacationController.hasStarted(vacation)}" update=":vacationForm:vacationTable vacationInfoForm" style="margin-left:5px;">

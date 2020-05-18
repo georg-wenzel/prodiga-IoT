@@ -9,7 +9,7 @@
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/dices">Dices</p:link></li>
+        <li><p:link outcome="/dice/dices">Dices</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -38,7 +38,7 @@
                             <p:column style="width:100px;text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
-                                              outcome="dice">
+                                              outcome="/dice/dice">
                                     <f:param name="dice" value="#{dice.id}" />
                                 </p:linkButton>
                                <p:commandButton action="#{diceController.deleteDice(dice)}" icon="fa fa-fw fa-trash" title="Delete" update=":dicesForm:dicesTable" style="margin-left:5px;">
