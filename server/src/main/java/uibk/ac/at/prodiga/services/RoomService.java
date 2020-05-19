@@ -6,18 +6,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.repositories.RoomRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Date;
 
@@ -180,10 +177,15 @@ public class RoomService {
         return room;
     }
 
+    /**
+     * Creates a new room
+     * @return a new room
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room createNewRoom() {
         return new Room();
     }
+
     /**
      * Returns the amount of rooms in the db
      * @return the amount of rooms
