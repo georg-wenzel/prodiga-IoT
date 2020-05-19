@@ -241,44 +241,6 @@ public class BookingService
         return true;
     }
 
-    /**
-     * Searches for a collections of the current user's last week's bookings for a given booking category.
-     *
-     * @param bookingCategory The category for searching bookings
-     * @return collection of bookings
-     */
-
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLastWeek(User user,BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-        c.add(Calendar.DATE, -i - 7);
-        Date start = c.getTime();
-        c.add(Calendar.DATE, 6);
-        Date end = c.getTime();
-        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
-    }
-
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLast24hours(User user,BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, -1);
-        Date start = c.getTime();
-        Date end = new Date();
-        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
-    }
-
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLastMonth(User user,BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.MONTH, -1);
-        Date start = c.getTime();
-        Date end = new Date();
-        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
-    }
 
     /**
      * Searches for a collections of bookings for a given user, booking category and period of time
