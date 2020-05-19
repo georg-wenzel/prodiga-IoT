@@ -19,12 +19,12 @@
                 <div class="card">
                     <h1>Vacation Info</h1>
                     <h:form id="vacationInfoForm">
-                        For the current year, you have  <h:outputText value="#{vacationController.currentYearDays}" /> vacation days remaining. For the upcoming year, you have <h:outputText value="#{vacationController.nextYearDays}" /> vacation days remaining.
+                        For the current year, you have  <strong><h:outputText value="#{vacationController.currentYearDays}" /></strong> vacation days remaining. For the upcoming year, you have <strong><h:outputText value="#{vacationController.nextYearDays}" /></strong> vacation days remaining.
                     </h:form>
 
                     <h1>Your past vacations this year</h1>
                     <h:form id="pastVacationForm">
-                        <p:dataTable id="pastVacationTable" var="vacation" scrollable="true" style="width:100%" scrollHeight="500" value="#{vacationController.pastVacations}" sortBy="#{vacation.beginDate}">
+                        <p:dataTable id="pastVacationTable" var="vacation" scrollable="true" style="width:50%" scrollHeight="500" value="#{vacationController.pastVacations}" sortBy="#{vacation.beginDate}">
                             <p:column headerText="From" filterMatchMode="contains"
                                       filterBy="#{vacation.beginDate}" sortBy="#{vacation.beginDate}">
                                 <h:outputText value="#{vacation.beginDate}">
@@ -43,12 +43,14 @@
                                       filterBy="#{vacationController.getDays(vacation)}" sortBy="#{vacationController.getDays(vacation)}">
                                 <h:outputText value="#{vacationController.getDays(vacation)}" /> days
                             </p:column>
+
+                            <p:column style="width:100px;" />
                         </p:dataTable>
                     </h:form>
 
-                    <h1>Your Vacations</h1>
+                    <h1>Your upcoming vacations</h1>
                     <h:form id="vacationForm">
-                        <p:dataTable id="vacationTable" var="vacation" scrollable="true" style="width:100%" scrollHeight="500" value="#{vacationController.currentVacations}" sortBy="#{vacation.beginDate}">
+                        <p:dataTable id="vacationTable" var="vacation" scrollable="true" style="width:50%" scrollHeight="500" value="#{vacationController.currentVacations}" sortBy="#{vacation.beginDate}">
                             <p:column headerText="From" filterMatchMode="contains"
                                       filterBy="#{vacation.beginDate}" sortBy="#{vacation.beginDate}">
                                 <h:outputText value="#{vacation.beginDate}">
