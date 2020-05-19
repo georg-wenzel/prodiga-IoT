@@ -225,6 +225,10 @@ public class TeamService
         return team.equals(teamRepository.findFirstById(team.getId()));
     }
 
+    /**
+     * Creates a new team
+     * @return new created team
+     */
     @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
     public Team createTeam(){
         Team team = new Team();
@@ -234,6 +238,11 @@ public class TeamService
         return team;
     }
 
+    /**
+     * Loads team by its teamId
+     * @param teamId teamId of the team to load
+     * @return the team with the given teamId
+     */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Team loadTeam(Long teamId){
         return teamRepository.findFirstById(teamId);

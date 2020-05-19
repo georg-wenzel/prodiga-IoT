@@ -241,44 +241,6 @@ public class BookingService
         return true;
     }
 
-    /**
-     * Searches for a collections of the current user's last week's bookings for a given booking category.
-     *
-     * @param bookingCategory The category for searching bookings
-     * @return collection of bookings
-     */
-
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLastWeek(User user,BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
-        c.add(Calendar.DATE, -i - 7);
-        Date start = c.getTime();
-        c.add(Calendar.DATE, 6);
-        Date end = c.getTime();
-        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
-    }
-
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLast24hours(User user,BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.DATE, -1);
-        Date start = c.getTime();
-        Date end = new Date();
-        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
-    }
-
-    public Collection<Booking> getUsersBookingInRangeByCategoryForLastMonth(User user,BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.MONTH, -1);
-        Date start = c.getTime();
-        Date end = new Date();
-        return getBookingInRangeByCategoryAndByUser(user,bookingCategory, start, end);
-    }
 
     /**
      * Searches for a collections of bookings for a given user, booking category and period of time
@@ -293,10 +255,25 @@ public class BookingService
         return Lists.newArrayList(bookingRepository.findUsersBookingWithCategoryInRange(user,bookingCategory,begin,end));
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and period of time
+     *
+     * @param user The user that has done the booking
+     * @param begin The beginning date
+     * @param end The ending date
+     * @return collections of bookings
+     */
     public Collection<Booking> getBookingInRangeForUser(User user, Date begin, Date end) {
         return Lists.newArrayList(bookingRepository.findUsersBookingInRange(user,begin,end));
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and backstepDay days ago
+     *
+     * @param user user that has done the bookings
+     * @param backstepDay how many months ago(i.e. backstepDay = 1 is 1 day ago)
+     * @return collection of bookings
+     */
     public Collection<Booking> getUsersBookingInRangeByDay(User user, int backstepDay){
         Date date = new Date();
         Calendar c = Calendar.getInstance();
@@ -308,6 +285,13 @@ public class BookingService
         return getBookingInRangeForUser(user, start, end);
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and backstepWeek weeks ago
+     *
+     * @param user user that has done the bookings
+     * @param backstepWeek how many months ago(i.e. backstepWeek = 1 is 1 week ago)
+     * @return collection of bookings
+     */
     public Collection<Booking> getUsersBookingInRangeByWeek(User user, int backstepWeek){
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
@@ -319,6 +303,13 @@ public class BookingService
         return getBookingInRangeForUser(user, start, end);
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and backstepMonth months ago
+     *
+     * @param user user that has done the bookings
+     * @param backstepMonth how many months ago(i.e. backstepMonth = 1 is 1 month ago)
+     * @return collection of bookings
+     */
     public Collection<Booking> getUsersBookingInRangeByMonth(User user,int backstepMonth){
         Date date = new Date();
         Calendar c = Calendar.getInstance();
