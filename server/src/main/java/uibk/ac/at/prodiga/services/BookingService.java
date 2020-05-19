@@ -293,10 +293,25 @@ public class BookingService
         return Lists.newArrayList(bookingRepository.findUsersBookingWithCategoryInRange(user,bookingCategory,begin,end));
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and period of time
+     *
+     * @param user The user that has done the booking
+     * @param begin The beginning date
+     * @param end The ending date
+     * @return collections of bookings
+     */
     public Collection<Booking> getBookingInRangeForUser(User user, Date begin, Date end) {
         return Lists.newArrayList(bookingRepository.findUsersBookingInRange(user,begin,end));
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and backstepDay days ago
+     *
+     * @param user user that has done the bookings
+     * @param backstepDay how many months ago(i.e. backstepDay = 1 is 1 day ago)
+     * @return collection of bookings
+     */
     public Collection<Booking> getUsersBookingInRangeByDay(User user, int backstepDay){
         Date date = new Date();
         Calendar c = Calendar.getInstance();
@@ -308,6 +323,13 @@ public class BookingService
         return getBookingInRangeForUser(user, start, end);
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and backstepWeek weeks ago
+     *
+     * @param user user that has done the bookings
+     * @param backstepWeek how many months ago(i.e. backstepWeek = 1 is 1 week ago)
+     * @return collection of bookings
+     */
     public Collection<Booking> getUsersBookingInRangeByWeek(User user, int backstepWeek){
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
@@ -319,6 +341,13 @@ public class BookingService
         return getBookingInRangeForUser(user, start, end);
     }
 
+    /**
+     * Searches for a collections of bookings for a given user and backstepMonth months ago
+     *
+     * @param user user that has done the bookings
+     * @param backstepMonth how many months ago(i.e. backstepMonth = 1 is 1 month ago)
+     * @return collection of bookings
+     */
     public Collection<Booking> getUsersBookingInRangeByMonth(User user,int backstepMonth){
         Date date = new Date();
         Calendar c = Calendar.getInstance();
