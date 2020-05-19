@@ -35,11 +35,16 @@ public class TeamController implements Serializable {
     }
 
     /**
-     * Returns a collection of all teams
-     * @return a collection of all teams
+     * Returns a collection of all teams visible to the calling user
+     * @return a collection of all teams visible to the calling user
      */
-    public Collection<Team> getAllTeams(){
-        return teamService.getAllTeams();
+    public Collection<Team> getAllTeams()
+    {
+        if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN))
+            return teamService.getAllTeams();
+
+        else
+            return teamService.findTeamsOfDepartment();
     }
 
     public Department getUserDept()

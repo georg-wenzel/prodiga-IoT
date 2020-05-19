@@ -36,6 +36,10 @@
                                 <h:outputText value="#{userListController.getAllUsersInTeam(team).size()}" />
                             </p:column>
 
+                            <p:column headerText="Department" filterMatchMode="contains" filterBy="#{team.department.name}" sortBy="#{team.department.name}">
+                                <h:outputText value="#{team.department.name}" />
+                            </p:column>
+
                             <p:column style="width:100px;text-align: center">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
