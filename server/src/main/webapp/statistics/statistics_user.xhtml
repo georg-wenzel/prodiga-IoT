@@ -1,0 +1,76 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga User Statistics</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/statistics/statistics_department">User Statistics</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>#{prodigaUserLoginManager.getCurrentUser().getUsername()} Statistics</h1>
+                    <p:tabView>
+                        <p:tab title="Weekly" >
+                            <p:tabView orientation="right" headerAlignment="center">
+                                <p:tab title="Table">
+                                    <h:form id="weeklyForm">
+                                        <p:dataTable id="weeklyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByWeek}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                            <p:column headerText="Booking category">
+                                                <h:outputText value="#{entry.key.name}" />
+                                            </p:column>
+                                            <p:column headerText="Time in hours">
+                                                <h:outputText value="#{entry.value}" />
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:form>
+                                </p:tab>
+                                <p:tab title="Barchart">
+                                    <br/>
+                                    <p:barChart id="bar1" type="bar" model="#{statisticsController.weeklyAnalysisBar}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                                <p:tab title="Piechart" hide="true">
+                                    <br/>
+                                    <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <p:tab title="Monthly" >
+                            <p:tabView orientation="right" headerAlignment="center">
+                                <p:tab title="Table">
+                                    <h:form id="monthlyForm">
+                                        <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                            <p:column headerText="Booking category">
+                                                <h:outputText value="#{entry.key.name}" />
+                                            </p:column>
+                                            <p:column headerText="Time in hours">
+                                                <h:outputText value="#{entry.value}" />
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:form>
+                                </p:tab>
+                                <p:tab title="Barchart">
+                                    <br/>
+                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyAnalysisBar}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                                <p:tab title="Piechart" hide="true">
+                                    <br/>
+                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                    </p:tabView></div></div><br/><br/>
+                </div>
+    </ui:define>
+</ui:composition>

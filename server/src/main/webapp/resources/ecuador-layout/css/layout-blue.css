@@ -2321,9 +2321,9 @@ body .ui-selectonemenu.ui-state-error {
 
 
 
-  body .ui-tabs.ui-tabs-bottom .ui-tabs-nav {
+  body .ui-tabs.ui-tabs-right .ui-tabs-nav {
     text-align: center;
-    margin-bottom: 20px;
+
   }
 
   body .ui-tabs.ui-tabs-nav li{
@@ -2331,9 +2331,14 @@ body .ui-selectonemenu.ui-state-error {
     display: inline-block;
   }
 
-  body .ui-tabs .ui-tabs-bottom .ui-tabs-panels{
+  body .ui-tabs .ui-tabs-right .ui-tabs-panels{
     border: none;
+
   }
 
-  ui-tabs-panel ui-widget-content ui-corner-bottom
+  body .ui-tabs.ui-tabs-right > .ui-tabs-nav {
+    width: auto;
+    padding: 10px;
+  }
+
 }
