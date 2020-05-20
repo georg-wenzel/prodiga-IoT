@@ -20,7 +20,7 @@ public class Client {
         String serverAddress = args[0];
         String password = args[1];
 
-        if(!password.startsWith("http://") || !password.endsWith("/")) {
+        if(!serverAddress.startsWith("http://") || !serverAddress.endsWith("/")) {
             logger.error("Server Address needs to have form http://<ip-address>:<port>/");
             return;
         }
