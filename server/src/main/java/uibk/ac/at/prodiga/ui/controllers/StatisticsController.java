@@ -1,13 +1,11 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 
-import org.primefaces.model.charts.bar.BarChartDataSet;
-import org.primefaces.model.charts.bar.BarChartOptions;
-import org.primefaces.model.charts.optionconfig.legend.Legend;
-import org.primefaces.model.charts.pie.PieChartModel;
-import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.bar.BarChartDataSet;
+import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.pie.PieChartDataSet;
+import org.primefaces.model.charts.pie.PieChartModel;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BookingCategory;
@@ -38,6 +36,10 @@ public class StatisticsController implements Serializable {
     private BarChartModel weeklyTeamAnalysisBar;
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
+
+    private int backstepDays = 1;
+    private int backstepWeeks = 1;
+    private int backstepMonths = 1;
 
     private HashMap<String,String> colorByCategory = new HashMap<String, String>(){{
 
@@ -89,12 +91,12 @@ public class StatisticsController implements Serializable {
 
     @PostConstruct
     public void init() {
-        createDailyAnalysisPie();
-        createWeeklyAnalysisPie();
-        createMonthlyAnalysisPie();
-        createWeeklyTeamAnalysisPie();
-        createMonthlyTeamAnalysisPie();
-        createMonthlyDepartmentAnalysisPie();
+        createDailyAnalysisPie(backstepDays);
+        createWeeklyAnalysisPie(backstepWeeks);
+        createMonthlyAnalysisPie(backstepMonths);
+        createWeeklyTeamAnalysisPie(backstepWeeks);
+        createMonthlyTeamAnalysisPie(backstepMonths);
+        createMonthlyDepartmentAnalysisPie(backstepMonths);
     }
 
     public PieChartModel getDailyAnalysisPie() {
@@ -176,7 +178,7 @@ public class StatisticsController implements Serializable {
     }
 
 
-    private void createWeeklyAnalysisPie() {
+    private void createWeeklyAnalysisPie(int backstepWeek) {
         weeklyAnalysisPie = new PieChartModel();
         ChartData data = new ChartData();
 
@@ -192,7 +194,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("My First Dataset");
         List<Number> values = new ArrayList<>();
         List<String> labelsBar = new ArrayList<>();
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByWeek(1);
+        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByWeek(backstepWeek);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
@@ -222,7 +224,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createDailyAnalysisPie() {
+    private void createDailyAnalysisPie(int backstepDay) {
         dailyAnalysisPie = new PieChartModel();
         dailyAnalysisBar = new BarChartModel();
         ChartData data = new ChartData();
@@ -237,7 +239,7 @@ public class StatisticsController implements Serializable {
         List<String> mycolors = new ArrayList<>();
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        Map<BookingCategory, Long> map = productivityAnalysisService.getStatisicForCurrentUserByDay(1);
+        Map<BookingCategory, Long> map = productivityAnalysisService.getStatisicForCurrentUserByDay(backstepDay);
         for (Map.Entry<BookingCategory, Long> entry : map.entrySet()) {
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
@@ -265,7 +267,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createMonthlyAnalysisPie() {
+    private void createMonthlyAnalysisPie(int backstepMonth) {
         monthlyAnalysisPie = new PieChartModel();
         monthlyAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -280,7 +282,7 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByMonth(1);
+        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByMonth(backstepMonth);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
@@ -308,7 +310,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createWeeklyTeamAnalysisPie() {
+    private void createWeeklyTeamAnalysisPie(int backstepWeek) {
         weeklyTeamAnalysisPie = new PieChartModel();
         weeklyTeamAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -322,7 +324,7 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByWeek(1);
+        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByWeek(backstepWeek);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
@@ -351,7 +353,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createMonthlyTeamAnalysisPie() {
+    private void createMonthlyTeamAnalysisPie(int backstepMonth) {
         monthlyTeamAnalysisPie = new PieChartModel();
         monthlyTeamAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -366,7 +368,7 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByMonth(1);
+        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByMonth(backstepMonth);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
@@ -394,7 +396,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createMonthlyDepartmentAnalysisPie() {
+    private void createMonthlyDepartmentAnalysisPie(int backstepMonth) {
         monthlyDepartmentAnalysisPie = new PieChartModel();
         monthlyDepartmentAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -408,7 +410,7 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForDepartmenByMonth(1);
+        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForDepartmenByMonth(backstepMonth);
         for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
