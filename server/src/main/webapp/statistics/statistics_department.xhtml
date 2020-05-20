@@ -5,7 +5,7 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Protiga Department Statistics</ui:define>
+    <ui:define name="title">Prodiga Department Statistics</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
@@ -20,26 +20,34 @@
 
 
                     <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}">
-                        <div class="ui-g-12">
-                            <div class="ui-g-2"></div>
-                            <div class="ui-g-8">
-                                <p:tabView>
-                                    <p:tab title="Last Week">
-                                        <p:tabView orientation="bottom">
-                                            <p:tab title="Barchart">
-                                                <br/>
-                                                <p:barChart id="bar4" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
-                                                <br/>
-                                            </p:tab>
-                                            <p:tab title="Piechart" hide="true">
-                                                <br/>
-                                                <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
-                                                <br/>
-                                            </p:tab>
-                                        </p:tabView>
+                        <p:tabView>
+                            <p:tab title="Monthly" >
+                                <p:tabView orientation="right" headerAlignment="center">
+                                    <p:tab title="Table">
+                                        <h:form id="monthlyForm">
+                                            <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisicForDepartmenByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                                <p:column headerText="Booking category">
+                                                    <h:outputText value="#{entry.key.name}" />
+                                                </p:column>
+                                                <p:column headerText="Time in hours">
+                                                    <h:outputText value="#{entry.value}" />
+                                                </p:column>
+                                            </p:dataTable>
+                                        </h:form>
                                     </p:tab>
-                                </p:tabView></div><div class="ui-g-2"></div></div>
-                        <div><h:outputText value="."/></div>
+                                    <p:tab title="Barchart">
+                                        <br/>
+                                        <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
+                                        <br/>
+                                    </p:tab>
+                                    <p:tab title="Piechart" hide="true">
+                                        <br/>
+                                        <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                                        <br/>
+                                    </p:tab>
+                                </p:tabView>
+                            </p:tab>
+                        </p:tabView>
 
                     </ui:fragment>
                 </div>

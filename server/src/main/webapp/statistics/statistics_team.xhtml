@@ -5,11 +5,11 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/template.xhtml">
 
-    <ui:define name="title">Protiga Department Statistics</ui:define>
+    <ui:define name="title">Prodiga Team Statistics</ui:define>
     <ui:define name="viewname">
         <li>Pages</li>
         <li>/</li>
-        <li><p:link outcome="/statistics/statistics_department">Department Statistics</p:link></li>
+        <li><p:link outcome="/statistics/statistics_team">Team Statistics</p:link></li>
     </ui:define>
 
     <ui:define name="content">
@@ -17,43 +17,61 @@
             <div class="ui-g-12">
                 <div class="card">
                     <h1>#{prodigaUserLoginManager.getCurrentUser().getAssignedTeam().getName()} Statistics</h1>
-
                     <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}">
-
-                        <div class="ui-g-12">
-                            <div class="ui-g-2"></div>
-                            <div class="ui-g-8">
-                                <p:tabView>
-                                    <p:tab title="Last Week" >
-                                        <p:tabView orientation="bottom" headerAlignment="center">
-                                            <p:tab title="Barchart">
-                                                <br/>
-                                                <p:barChart id="bar3" type="bar" model="#{statisticsController.weeklyTeamAnalysisBar}" responsive="true"/>
-                                                <br/>
-                                            </p:tab>
-                                            <p:tab title="Piechart" hide="true">
-                                                <br/>
-                                                <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
-                                                <br/>
-                                            </p:tab>
-                                        </p:tabView>
+                        <p:tabView>
+                            <p:tab title="Weekly" >
+                                <p:tabView orientation="right" headerAlignment="center">
+                                    <p:tab title="Table">
+                                        <h:form id="weeklyForm">
+                                            <p:dataTable id="weeklyTable" var="entry" value="#{statisticsController.statisicForTeamByWeek}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                                <p:column headerText="Booking category">
+                                                    <h:outputText value="#{entry.key.name}" />
+                                                </p:column>
+                                                <p:column headerText="Time in hours">
+                                                    <h:outputText value="#{entry.value}" />
+                                                </p:column>
+                                            </p:dataTable>
+                                        </h:form>
                                     </p:tab>
-                                    <p:tab title="Last Month" >
-                                        <p:tabView orientation="bottom" headerAlignment="center">
-                                            <p:tab title="Barchart">
-                                                <br/>
-                                                <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyTeamAnalysisBar}" responsive="true"/>
-                                                <br/>
-                                            </p:tab>
-                                            <p:tab title="Piechart" hide="true">
-                                                <br/>
-                                                <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
-                                                <br/>
-                                            </p:tab>
-                                        </p:tabView>
+                                    <p:tab title="Barchart">
+                                        <br/>
+                                        <p:barChart id="bar1" type="bar" model="#{statisticsController.weeklyTeamAnalysisBar}" responsive="true"/>
+                                        <br/>
                                     </p:tab>
-                                </p:tabView></div><div class="ui-g-2"></div></div><br/><br/>
-                        <div><h:outputText value="."/></div>
+                                    <p:tab title="Piechart" hide="true">
+                                        <br/>
+                                        <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
+                                        <br/>
+                                    </p:tab>
+                                </p:tabView>
+                            </p:tab>
+                            <p:tab title="Monthly" >
+                                <p:tabView orientation="right" headerAlignment="center">
+                                    <p:tab title="Table">
+                                        <h:form id="monthlyForm">
+                                            <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisicForTeamByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                                <p:column headerText="Booking category">
+                                                    <h:outputText value="#{entry.key.name}" />
+                                                </p:column>
+                                                <p:column headerText="Time in hours">
+                                                    <h:outputText value="#{entry.value}" />
+                                                </p:column>
+                                            </p:dataTable>
+                                        </h:form>
+                                    </p:tab>
+                                    <p:tab title="Barchart">
+                                        <br/>
+                                        <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyTeamAnalysisBar}" responsive="true"/>
+                                        <br/>
+                                    </p:tab>
+                                    <p:tab title="Piechart" hide="true">
+                                        <br/>
+                                        <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
+                                        <br/>
+                                    </p:tab>
+                                </p:tabView>
+                            </p:tab>
+                        </p:tabView><br/><br/>
                     </ui:fragment>
 
 
