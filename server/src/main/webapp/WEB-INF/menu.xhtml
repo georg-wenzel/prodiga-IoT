@@ -32,13 +32,12 @@
                                 <f:param name="department" value="" />
                             </p:menuitem>
                         </p:submenu>
-                        <p:submenu id="om_customization" label="Notifications" icon="fa fa-fw fa-envelope" outcome="/notifications"/>
                         <p:submenu id="om_statistics" label="Statistics" icon="fa fa-fw fa-dashboard">
-                            <p:menuitem id="om_statistics_dep" value="Department" icon="fa fa-fw fa-area-chart" outcome="/statistics/statistics_department" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and prodigaUserLoginManager.getCurrentUser().assignedDepartment != null}"/>
+                            <p:menuitem id="om_my_statistics" value="Overview" icon="fa fa-fw fa fa-area-chart" outcome="/statistics/statistics"/>
+                            <p:menuitem id="om_statistics_user" value="User" icon="fa fa-fw fa fa-area-chart" outcome="/statistics/statistics_user"/>
                             <p:menuitem id="om_statistics_team" value="Team" icon="fa fa-fw fa fa-area-chart" outcome="/statistics/statistics_team" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER') and prodigaUserLoginManager.getCurrentUser().assignedTeam != null}"/>
-                            <p:menuitem id="om_my_statistics" value="My overview" icon="fa fa-fw fa fa-area-chart" outcome="/statistics/statistics"/>
+                            <p:menuitem id="om_statistics_dep" value="Department" icon="fa fa-fw fa-area-chart" outcome="/statistics/statistics_department" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and prodigaUserLoginManager.getCurrentUser().assignedDepartment != null}"/>
                         </p:submenu>
-                        <p:submenu id="om_overview" label="Time overview" icon="fa fa-fw fa-dashboard" outcome="overview"/>
                         <p:submenu id="om_badges" label="Badges" icon="fa fa-fw fa-trophy">
                             <p:menuitem id="om_badges_dep" value="Department" icon="fa fa-fw fa-trophy" outcome="/badge/badges_department" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}"/>
                             <p:menuitem id="om_my_badges" value="My Badges" icon="fa fa fa-fw fa-trophy" outcome="/badge/badges">
