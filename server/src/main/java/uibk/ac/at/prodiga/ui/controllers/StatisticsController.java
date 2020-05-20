@@ -16,10 +16,7 @@ import uibk.ac.at.prodiga.services.ProductivityAnalysisService;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Scope("view")
@@ -147,6 +144,37 @@ public class StatisticsController implements Serializable {
     public BarChartModel getMonthlyDepartmentAnalysisBar() {
         return monthlyDepartmentAnalysisBar;
     }
+
+    public List<Map.Entry<BookingCategory, Long>> getStatisticForCurrentUserByDay(){
+        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForCurrentUserByDay(1).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Long>> getStatisticForCurrentUserByWeek(){
+        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForCurrentUserByWeek(1).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Long>> getStatisticForCurrentUserByMonth(){
+        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForCurrentUserByMonth(1).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Long>> getStatisicForTeamByWeek(){
+        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForTeamByWeek(1).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Long>> getStatisicForTeamByMonth(){
+        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForTeamByMonth(1).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Long>> getStatisicForDepartmenByMonth(){
+        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForDepartmenByMonth(1).entrySet();
+        return new ArrayList<>(set);
+    }
+
 
     private void createWeeklyAnalysisPie() {
         weeklyAnalysisPie = new PieChartModel();
