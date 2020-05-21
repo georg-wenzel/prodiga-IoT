@@ -1,5 +1,0 @@
-/*apply class scroll-fixed to datatable to fix datatable issue which has been classified as a bug in PrimeFaces git since 2018 and is not scheduled to be fixed :)*/
-.scroll-fixed .ui-datatable-scrollable-body
-{
-    overflow-x:hidden !important;
-}

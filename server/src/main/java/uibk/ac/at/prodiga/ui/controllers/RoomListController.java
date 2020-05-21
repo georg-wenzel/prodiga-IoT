@@ -17,8 +17,12 @@ public class RoomListController implements Serializable {
     private static final long serialVersionUID = 5325687682292577315L;
 
     private final RoomService roomService;
+    private Collection<Room> rooms;
 
     public RoomListController(RoomService roomService){this.roomService = roomService;}
 
-    public Collection<Room> getRooms(){return roomService.getAllRooms();}
+    public Collection<Room> getRooms(){
+        if(rooms == null) rooms = roomService.getAllRooms();
+        return rooms;
+    }
 }

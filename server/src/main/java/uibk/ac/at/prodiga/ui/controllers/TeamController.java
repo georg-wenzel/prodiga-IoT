@@ -27,6 +27,7 @@ public class TeamController implements Serializable {
     private final ProdigaUserLoginManager userLoginManager;
     private Team team;
     private User teamLeader;
+    private Collection<Team> teams;
 
     public TeamController(TeamService teamService, ProdigaUserLoginManager userLoginManager, UserService userService){
         this.teamService = teamService;
@@ -40,11 +41,15 @@ public class TeamController implements Serializable {
      */
     public Collection<Team> getAllTeams()
     {
-        if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN))
-            return teamService.getAllTeams();
+        if(teams == null)
+        {
+            if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN))
+                teams = teamService.getAllTeams();
 
-        else
-            return teamService.findTeamsOfDepartment();
+            else
+                teams = teamService.findTeamsOfDepartment();
+        }
+        return teams;
     }
 
     public Department getUserDept()

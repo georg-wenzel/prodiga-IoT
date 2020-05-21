@@ -31,6 +31,7 @@ public class BookingCategoryController implements Serializable
     private String editCategoryName;
     private long editCategoryId;
     private BookingCategory deleteCategory;
+    private Collection<BookingCategory> bookingCategories;
     private boolean isEditing = false;
     private Map<BookingCategory, Integer> usedInBookings = new HashMap<BookingCategory, Integer>();
 
@@ -83,11 +84,15 @@ public class BookingCategoryController implements Serializable
         BookingCategory cat = bookingCategoryService.findById(editCategoryId);
         cat.setName(editCategoryName);
         bookingCategoryService.save(cat);
+
+        //force category update
+        bookingCategories = null;
     }
 
     public Collection<BookingCategory> getAllBookingCategories()
     {
-        return bookingCategoryService.findAllCategories();
+        if(bookingCategories == null) bookingCategories = bookingCategoryService.findAllCategories();
+        return bookingCategories;
     }
 
     public String getNewCategoryName()

@@ -18,7 +18,7 @@
                 <div class="card">
                     <h1>Teams</h1>
                     <h:form id="teamForm">
-                        <p:dataTable id="teamTable" var="team" scrollable="true" style="width:60%" scrollHeight="500" value="#{teamController.allTeams}">
+                        <p:dataTable id="teamTable" var="team" scrollable="true" scrollHeight="500" value="#{teamController.allTeams}">
                             <p:column headerText="Team name" filterMatchMode="contains"
                                       filterBy="#{team.name}" sortBy="#{team.name}">
                             <h:outputText value="#{team.name}"/>

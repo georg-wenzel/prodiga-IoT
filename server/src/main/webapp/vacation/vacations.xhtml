@@ -14,6 +14,7 @@
 
     <ui:define name="content">
         <h:outputStylesheet name = "vacations.css" library="css" />
+        <h:outputStylesheet name = "tables.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
@@ -24,7 +25,7 @@
 
                     <h1>Your past vacations this year</h1>
                     <h:form id="pastVacationForm">
-                        <p:dataTable id="pastVacationTable" var="vacation" scrollable="true" style="width:50%" scrollHeight="500" value="#{vacationController.pastVacations}" sortBy="#{vacation.beginDate}">
+                        <p:dataTable id="pastVacationTable" var="vacation" scrollable="true" styleClass="short-table" scrollHeight="500" value="#{vacationController.pastVacations}" sortBy="#{vacation.beginDate}">
                             <p:column headerText="From" filterMatchMode="contains"
                                       filterBy="#{vacation.beginDate}" sortBy="#{vacation.beginDate}">
                                 <h:outputText value="#{vacation.beginDate}">
@@ -50,7 +51,7 @@
 
                     <h1>Your upcoming vacations</h1>
                     <h:form id="vacationForm">
-                        <p:dataTable id="vacationTable" var="vacation" scrollable="true" style="width:50%" scrollHeight="500" value="#{vacationController.currentVacations}" sortBy="#{vacation.beginDate}">
+                        <p:dataTable id="vacationTable" var="vacation" scrollable="true" styleClass="short-table" scrollHeight="500" value="#{vacationController.currentVacations}" sortBy="#{vacation.beginDate}">
                             <p:column headerText="From" filterMatchMode="contains"
                                       filterBy="#{vacation.beginDate}" sortBy="#{vacation.beginDate}">
                                 <h:outputText value="#{vacation.beginDate}">

@@ -11,6 +11,7 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -21,6 +22,7 @@ public class DiceController implements Serializable {
 
     private final DiceService diceService;
     private Dice dice;
+    private Collection<Dice> dices;
 
     public DiceController(DiceService diceService) {
         this.diceService = diceService;
@@ -39,8 +41,9 @@ public class DiceController implements Serializable {
      * Returns all dices
      * @return A list with dices
      */
-    public List<Dice> getAllDices() {
-       return this.diceService.getAllDice();
+    public Collection<Dice> getAllDices() {
+       if(dices == null) dices = this.diceService.getAllDice();
+        return dices;
     }
 
     /**

@@ -31,12 +31,7 @@
                                       filterBy="#{user.lastName}" sortBy="#{user.lastName}">
                                 <h:outputText value="#{user.lastName}"/>
                             </p:column>
-                            <p:column filterBy="#{user.roles}" filterMatchMode="in" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
-                                <f:facet name="filter">
-                                    <p:selectCheckboxMenu label="Roles" onchange="PF('userForm:usersTable').filter()">
-                                        <f:selectItems value="#{userDetailController.allUserRoles}"/>
-                                    </p:selectCheckboxMenu>
-                                </f:facet>
+                            <p:column headerText="Roles" filterBy="#{user.roles}" filterMatchMode="contains" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <h:outputText value="#{user.roles}" />
                             </p:column>
                             <p:column headerText="Edit historic data" rendered="#{(prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">

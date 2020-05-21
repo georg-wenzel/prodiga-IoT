@@ -13,13 +13,14 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
                     <h1>Configured Raspberry Pis <p:graphicImage style="width: 20px" name="images/raspi_white.png" library="ecuador-layout" /></h1>
 
                     <h:form id="raspberryForm">
-                        <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" scrollHeight="500" value="#{raspberryPiController.allConfiguredRaspberryPis}">
+                        <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" scrollHeight="500" value="#{raspberryPiController.allConfiguredRaspberryPis}" styleClass="short-table">
                             <p:column headerText="RasPi ID" filterMatchMode="contains"
                                       filterBy="#{raspberry_pi.id}" sortBy="#{raspberry_pi.id}">
                                 <h:outputText value="#{raspberry_pi.id}"/>
@@ -36,7 +37,7 @@
                             </p:column>
 
 
-                            <p:column style="text-align: center">
+                            <p:column style="text-align: center;width:100px;">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="/raspberrypi/raspberry_pi_conf">
