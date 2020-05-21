@@ -13,6 +13,7 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
@@ -22,13 +23,17 @@
                     <br/>
 
                     <h:form id="badgeForm">
-                        <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByUser}" emptyMessage="Unforunately, you don't have any Badges :-(">
+                        <p:dataTable id="badgeTable" var="badge" scrollable="true" scrollHeight="500" value="#{badgeDBController.badgesByUser}"  styleClass="scroll-fixed" emptyMessage="Unforunately, you don't have any Badges :-(">
+                            <p:column style="text-align: center;width:200px;">
+                                <p:graphicImage name="images/#{badge.badgeName}.png" library="ecuador-layout" style="width:150px;"/>
+                            </p:column>
+
                             <p:column headerText="Name" filterMatchMode="contains"
                                       filterBy="#{badge.badgeName}" sortBy="#{badge.badgeName}">
                                 <h:outputText value="#{badge.badgeName}" style="font-weight: bold; text-transform: uppercase"/>
                             </p:column>
 
-                            <p:column headerText="Explanation" filterMatchMode="contains"
+                            <p:column headerText="Description" filterMatchMode="contains"
                                       filterBy="#{badge.explanation}" sortBy="#{badge.explanation}">
                                 <h:outputText value="#{badge.explanation}"/>
                             </p:column>
@@ -45,10 +50,6 @@
                                 <h:outputText value="#{badge.toDate}">
                                     <f:convertDateTime pattern="yyyy-MM-dd 'at' HH:mm 'UTC'" />
                                 </h:outputText>
-                            </p:column>
-
-                            <p:column style="text-align: center">
-                                <p:graphicImage name="images/#{badge.badgeName}.png" library="ecuador-layout" style="width:150px;"/>
                             </p:column>
                         </p:dataTable>
 

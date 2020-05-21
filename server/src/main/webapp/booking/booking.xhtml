@@ -26,6 +26,7 @@
                         <h:panelGroup layout="block" rendered="#{!bookingController.getEditing()}">
                             <h1>Add Booking</h1>
                         </h:panelGroup>
+                        * The team and department of the booking are set automatically to your current ones when adding bookings, and kept the same when editing them.
                         <p:messages id="msgs" for="msgs"/>
                         <p:outputPanel rendered="#{bookingController.getDice() == null}" >
                             <p:staticMessage severity="warn" summary="No dice connected!" detail="No booking can be added, because no dice is configured for this user. Please contact the administrator." />
@@ -40,7 +41,7 @@
                                             <p:outputLabel for="toDate" value="End date: " />
                                             <p:calendar id="toDate" value="#{bookingController.booking.activityEndDate}" required="true" pattern="yyyy-MM-dd HH:mm 'UTC'" timeZone="UTC" maxDate="#{bookingController.maxDate}"/>
                                             <p:outputLabel for="activityCategory" value="Category:" />
-                                            <p:selectOneMenu id="activityCategory" value="#{bookingController.bookingCategory}" required="true">
+                                            <p:selectOneMenu id="activityCategory" value="#{bookingController.bookingCategory}" required="true" style="width:100%;">
                                                 <f:selectItems value="#{bookingController.availableCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.id}"/>
                                             </p:selectOneMenu>
                                             <p:outputLabel for="department" value="Department: " />

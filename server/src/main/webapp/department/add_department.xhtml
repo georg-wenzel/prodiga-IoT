@@ -20,23 +20,22 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
-
+                    <h1>Add Department</h1>
                     <h:form id="addDepartmentForm" prependId="false">
                         <p:messages id="msgs" for="msgs"/>
-
-                        <p:panelGrid id="userCredentialCreationGrid" columns="3" cellpadding="5" layout="grid"
-                                     columnClasses="ui-g-1 ui-md-2 ui-lg-2 ui-xl-1, ui-g-4 ui-md-4 ui-lg-4 ui-xl-2, ui-g-3 ui-md-3 ui-lg-3">
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="card">
+                        <p:panelGrid id="userCredentialCreationGrid" columns="2" cellpadding="5" layout="grid">
                             <p:outputLabel for="addName" value="Name: "/>
                             <p:inputText id="addName" required="true" requiredMessage="Please add a department name"
                                          maxlength="99"
                                          value="#{departmentController.department.name}"/>
                         </p:panelGrid>
 
-                        <p:spacer/>
-                        <p:separator/>
-
-
-                        <p:spacer/>
+                            </div>
+                        </div>
+                    </div>
 
                         <p:panelGrid layout="tabular" style="width: 100%;" styleClass="ui-noborder">
                             <p:row style="width: 100%">
@@ -59,8 +58,6 @@
                         </p:panelGrid>
 
                     </h:form>
-
-
                 </div>
             </div>
         </div>

@@ -78,8 +78,7 @@
 
                     <h:form id="diceEditForm">
                         <h:panelGroup rendered="#{diceConfigurationController.status == 3}">
-                            <p:dataTable id="editSidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}"
-                                         rowStyleClass="#{(diceConfigurationController.currentSide == side.key) ? 'selectedRow': null}">
+                            <p:dataTable id="editSidesTable" var="side" scrollable="true" style="width:100%; margin-top:30px; margin-bottom:20px;" scrollHeight="500" value="#{diceConfigurationController.newSides}">
                                 <p:column headerText="Side" style="width:50px">
                                     <h:outputText value="#{side.key}" />
                                 </p:column>

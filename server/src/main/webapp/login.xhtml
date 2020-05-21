@@ -73,6 +73,7 @@
           header="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
           widgetVar="exceptionDialog"
           resizable="false">
+    <h:form>
     <p:staticMessage severity="#{exceptionHelperBean.getUiSeverity(pfExceptionHandler.exception)}"
                      summary="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
                      detail="#{exceptionHelperBean.getDisplayMessage(pfExceptionHandler.exception)}" escape="true" />
@@ -81,6 +82,7 @@
                      icon="fa fa-fw fa-bug"
                      action="#{exceptionHelperBean.sendException(pfExceptionHandler.exception)}"
                      oncomplete="PF('exceptionDialog').hide();"/>
+    </h:form>
 </p:dialog>
 
 </html>

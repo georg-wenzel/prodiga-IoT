@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,9 @@ import java.util.Optional;
 public class RaspberryPiController implements Serializable {
 
     private static final long serialVersionUID = 5325690687692577315L;
+
+    private Collection<RaspberryPi> configuredRaspis;
+    private Collection<RaspberryPi> pendingRaspis;
 
     private final RaspberryPiService raspberryPiService;
 
@@ -72,16 +76,19 @@ public class RaspberryPiController implements Serializable {
      * Returns all raspberry pis which are not configured
      * @return A list of raspberry pis
      */
-    public List<RaspberryPi> getAllPendingRaspberryPis() {
-        return this.raspberryPiService.getAllPendingRaspberryPis();
+    public Collection<RaspberryPi> getAllPendingRaspberryPis() {
+
+        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
+        return pendingRaspis;
     }
 
     /**
      * Returns a list of all raspberry pis which are configured
      * @return A list of raspberry pis
      */
-    public List<RaspberryPi> getAllConfiguredRaspberryPis() {
-        return this.raspberryPiService.getAllConfiguredRaspberryPis();
+    public Collection<RaspberryPi> getAllConfiguredRaspberryPis() {
+        if(this.configuredRaspis == null) configuredRaspis = this.raspberryPiService.getAllConfiguredRaspberryPis();
+        return configuredRaspis;
     }
 
     /**
@@ -90,6 +97,9 @@ public class RaspberryPiController implements Serializable {
      */
     public void addPendingRaspberry() {
         this.raspberryPiService.tryAddPendingRaspberry(this.pendingRasPiInternalId);
+        //refresh data
+        this.pendingRaspis = null;
+        getAllPendingRaspberryPis();
     }
 
     /**

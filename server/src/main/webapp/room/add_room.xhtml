@@ -20,17 +20,21 @@
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
+                    <h1>Add Room</h1>
                     <h:form id="addRoomForm" prependId="false">
                         <p:messages id="msgs" for="msgs"/>
-
-                        <p:panelGrid id="roomCredentialCreationGrid" columns="3" cellpadding="5" layout="grid"
-                                     columnClasses="ui-g-1 ui-md-2 ui-lg-2 ui-xl-1, ui-g-4 ui-md-4 ui-lg-4 ui-xl-2, ui-g-3 ui-md-3 ui-lg-3">
+                        <div class="ui-g">
+                        <div class="ui-g-5">
+                        <div class="card">
+                        <p:panelGrid id="roomCredentialCreationGrid" columns="2" cellpadding="5" layout="grid">
                             <p:outputLabel for="addRoomname" value="Room name: "/>
                             <p:inputText id="addRoomname" required="true" requiredMessage="Please add a roomname"
                                          maxlength="99"
                                          value="#{roomDetailController.room.name}"/>
                         </p:panelGrid>
-
+                        </div>
+                        </div>
+                        </div>
                         <p:spacer/>
 
                         <br></br>

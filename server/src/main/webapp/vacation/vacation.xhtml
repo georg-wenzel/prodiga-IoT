@@ -13,6 +13,7 @@
 </ui:define>
 
 <ui:define name="content">
+    <h:outputStylesheet name = "tables.css" library="css" />
     <f:metadata>
         <f:viewParam name="vacation" value="#{vacationController.vacationById}"/>
     </f:metadata>
@@ -54,15 +55,16 @@
                             </p:commandButton>
                         </div>
                     </div>
+                    <p:separator />
                     <h1>National Holidays</h1>
                     The following days are national holidays and do not count towards your yearly vacation limit. Further, you are not allowed to create vacations which only cover holidays.
 
-                    <p:dataTable id="holidayTable" var="holiday" style="width:100%; margin-top:20px;" value="#{vacationController.holidays}" sortBy="#{holiday.date}">
+                    <p:dataTable id="holidayTable" var="holiday" style="margin-top:20px;" scrollable="true" scrollHeight="300" styleClass="scroll-fixed short-table" value="#{vacationController.holidays}" sortBy="#{holiday.date}">
                         <p:column headerText="Date">
                             <h:outputText value="#{holiday.date}" />
                         </p:column>
 
-                        <p:column headerText="Description">
+                        <p:column headerText="Holiday Name">
                             <h:outputText value="#{holiday.description}" />
                         </p:column>
                     </p:dataTable>

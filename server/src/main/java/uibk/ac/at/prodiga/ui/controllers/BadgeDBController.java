@@ -8,6 +8,7 @@ import uibk.ac.at.prodiga.repositories.BadgeDBRepository;
 import uibk.ac.at.prodiga.services.BadgeDBService;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -15,13 +16,14 @@ import java.util.Collection;
  */
 @Component
 @Scope("view")
-public class BadgeDBController {
-    private final BadgeDBRepository badgeDBRepository;
+public class BadgeDBController implements Serializable
+{
+    private static final long serialVersionUID = 2523502304205602054L;
+
     private final BadgeDBService badgeDBService;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
 
-    public BadgeDBController(BadgeDBRepository badgeDBRepository, BadgeDBService badgeDBService, ProdigaUserLoginManager prodigaUserLoginManager) {
-        this.badgeDBRepository = badgeDBRepository;
+    public BadgeDBController(BadgeDBService badgeDBService, ProdigaUserLoginManager prodigaUserLoginManager) {
         this.badgeDBService = badgeDBService;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }

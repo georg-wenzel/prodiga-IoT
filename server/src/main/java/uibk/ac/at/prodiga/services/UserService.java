@@ -16,6 +16,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -330,6 +331,16 @@ public class UserService {
                 throw new RuntimeException("Illegal attempt to set flag of user that is out of authorization scope.");
             }
         }
+    }
+
+    /**
+     * Returns a collection of all user roles in the system
+     * @return A collection of all user roles
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<UserRole> getAllUserRoles()
+    {
+        return Arrays.asList(UserRole.values());
     }
 
     /**

@@ -13,17 +13,13 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
                     <h1>Departments</h1>
                     <h:form id="departmentForm">
-                        <p:dataTable id="departmentTable" var="department" scrollable="true"  style="width:100%" scrollHeight="500" value="#{departmentController.allDepartments}">
-                            <p:column headerText="Department id" style="width: 15%; text-align: center" filterMatchMode="contains"
-                                      filterBy="#{department.id}" sortBy="#{department.id}">
-                                <h:outputText value="#{department.id}" />
-                            </p:column>
-
+                        <p:dataTable id="departmentTable" var="department" scrollable="true"  styleClass="short-table" scrollHeight="500" value="#{departmentController.allDepartments}">
                             <p:column headerText="Department name" filterMatchMode="contains"
                                       filterBy="#{department.name}" sortBy="#{department.name}">
                                 <h:outputText value="#{department.name}"/>

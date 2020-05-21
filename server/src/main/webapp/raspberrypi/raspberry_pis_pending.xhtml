@@ -13,20 +13,21 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
                     <h1>Pending Raspberry Pis <p:graphicImage style="width: 20px" name="images/raspi_white.png" library="ecuador-layout" /></h1>
                     <h:form id="raspberryForm">
                         <p:messages id="msgs" for="msgs"/>
-                        <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" style="width: 50%" scrollHeight="500" value="#{raspberryPiController.allPendingRaspberryPis}">
+                        <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" styleClass="shorter-table" scrollHeight="500" value="#{raspberryPiController.allPendingRaspberryPis}">
 
                             <p:column headerText="RasPi Internal ID" filterMatchMode="contains"
                                       filterBy="#{raspberry_pi.internalId}" sortBy="#{raspberry_pi.internalId}">
                                 <h:outputText value="#{raspberry_pi.internalId}"/>
                             </p:column>
 
-                            <p:column headerText="Configure Raspberry Pi" style="text-align: center">
+                            <p:column headerText="Configure Raspberry Pi" style="text-align: center;width:100px;">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Configure"
                                               outcome="raspberry_pi_pend">
@@ -40,10 +41,11 @@
                         <br/>
                         <div class="ui-g-12 input-form">
                             <h2>Add pending Raspberry Pi</h2>
-                            <p:outputLabel for="raspiInternalId" value="Raspberry Pi Internal Id: "/>
+                            <p:outputLabel for="raspiInternalId" value="Raspberry Pi Internal Id: " style="margin-right:10px;"/>
                             <p:inputText id="raspiInternalId"
                                          value="#{raspberryPiController.pendingRasPiInternalId}"
                                          disabled="false"
+                                         required="true"
                                          label="Flightnumber"/>
                             <br/>
                         </div>

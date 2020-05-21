@@ -18,7 +18,7 @@
                 <div class="card">
                     <h1>Users</h1>
                     <h:form id="userForm">
-                        <p:dataTable id="usersTable" var="user" value="#{userListController.users}" reflow="true" paginator="false">
+                        <p:dataTable id="usersTable" var="user" value="#{userListController.users}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
                             <p:column headerText="Username" filterMatchMode="contains"
                                       filterBy="#{user.username}" sortBy="#{user.username}">
                                 <h:outputText value="#{user.username}"/>
@@ -31,13 +31,7 @@
                                       filterBy="#{user.lastName}" sortBy="#{user.lastName}">
                                 <h:outputText value="#{user.lastName}"/>
                             </p:column>
-                            <p:column filterBy="#{user.roles}" filterMatchMode="in" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
-                                <f:facet name="filter">
-                                    <p:selectCheckboxMenu label="Roles" onchange="PF('usersTable').filter()"
-                                                          styleClass="custom-filter">
-                                        <f:selectItems value="#{userDetailController.allRolesTotal}"/>
-                                    </p:selectCheckboxMenu>
-                                </f:facet>
+                            <p:column headerText="Roles" filterBy="#{user.roles}" filterMatchMode="contains" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <h:outputText value="#{user.roles}" />
                             </p:column>
                             <p:column headerText="Edit historic data" rendered="#{(prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
@@ -54,10 +48,10 @@
                                     <f:ajax event="change" listener="#{userListController.selectMenuChanged}"/>
                                 </p:selectOneMenu>
                             </p:column>
-                            <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
+                            <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center; width:50px;">
                                 <p:selectBooleanCheckbox value="#{user.enabled}" disabled="true" />
                             </p:column>
-                            <p:column style="text-align: center" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                            <p:column style="text-align: center;width:100px;" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="user">

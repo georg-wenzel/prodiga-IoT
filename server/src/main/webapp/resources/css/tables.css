@@ -1,0 +1,40 @@
+/*apply class scroll-fixed to datatable to fix datatable issue which has been classified as a bug in PrimeFaces git since 2018 and is not scheduled to be fixed :)*/
+.scroll-fixed .ui-datatable-scrollable-body
+{
+    overflow-x:hidden !important;
+}
+
+/*apply class short-table to datatable so the table is reduced to 50% width on a big viewport */
+.short-table
+{
+    width:100% !important;
+}
+
+/*apply class shorter-table to tables with only one field and a button (i.e. pending raspis) */
+.shorter-table
+{
+    width:100% !important
+}
+@media screen and (min-width: 1000px)
+{
+    .shorter-table
+    {
+        width:60% !important;
+    }
+}
+
+@media screen and (min-width: 1300px )
+{
+    .short-table
+    {
+        width:50% !important;
+    }
+
+    .shorter-table
+    {
+        width:40% !important;
+    }
+}
+
+
+
