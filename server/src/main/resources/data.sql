@@ -125,9 +125,9 @@ INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanat
 INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(10, 'The Sloth', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'admin', 'Most hours pause/vacation');
 
 
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user2', 'Most hours debugging');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user3', 'Most hours implementation');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours frontend');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours managing');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(11, 'Bugsimilian', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user1', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(12, 'Code Raptor Georg', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user1', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(13, 'Frontend Laura', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user1', 'Most hours frontend');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(14, 'Busy Bee Jamie', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'user1', 'Most hours managing');
 INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(15, 'Educated Gabbo', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours training and testing');
 INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(16, 'The Sloth', DATE(NOW() - INTERVAL 10 DAY), DATE(NOW() - INTERVAL 4 DAY), 'admin', 'Most hours pause/vacation');
