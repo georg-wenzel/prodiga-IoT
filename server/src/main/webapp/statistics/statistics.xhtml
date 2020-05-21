@@ -302,10 +302,10 @@
                 <h1>Statistic Overview</h1>
                 <p:outputLabel value="You can choose your own colors if you are not happy with the colors in the statistics below. Therefore choose a color and a booking category and then click on the button 'Save and Reload'. Now you should see your selected color for this booking in each statistic below. Reply this for each booking category you want to recolor." />
                 <h:panelGrid columns="2" cellpadding="5">
-                    <h3>Choose a color: </h3>
+                    <p:outputLabel value="Choose a color: " />
                     <p:colorPicker value="#{statisticsController.actualColor}" />
 
-                    <h3>Choose a category: </h3>
+                    <p:outputLabel for="bookingName" value="Choose a category: " />
                 <p:selectOneMenu id="bookingName" value="#{statisticsController.bookingName}">
                     <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.name}"/>
                 </p:selectOneMenu>
@@ -327,13 +327,13 @@
 
             <div class="ui-g">
                 <div class="ui-g-5">
-                    <div class="card">
-                        <h:panelGrid columns="2" cellpadding="5">
-                            <p:outputLabel for="selectDate" value="Select a Date:" />
-                            <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="false" disabledWeekends="true" locale="en_GB"/>
+                    <p:outputLabel value="In the calendar below you can select a Day and then click on the 'Save and Reload' button on the right. Now the charts are updated so that you can see the daily pie chart of the chosen day, the weekly pie chart of the week where you chosen day is in and the monthly pie chart for the month of your chosen day." />
 
-                        </h:panelGrid>
-                    </div>
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <p:outputLabel for="selectDate" value="Select a Day:" />
+                        <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="false" disabledWeekends="true" locale="en_GB"/>
+                    </h:panelGrid>
+
                 </div>
             </div>
 
@@ -347,6 +347,8 @@
                     </p:commandButton>
                 </div>
             </div>
+
+            <p:separator />
 
         <div class="ui-g">
             <div class="ui-g-5">
