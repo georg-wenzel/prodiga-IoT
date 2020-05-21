@@ -37,9 +37,26 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
 
+    private Date selectedDate;
     private int backstepDays = 1;
     private int backstepWeeks = 1;
     private int backstepMonths = 1;
+
+    public Date getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(Date selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
+    public void doSaveBackstep(){
+        Date today = new Date();
+        backstepDays = (int)(today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
+        backstepWeeks = (backstepDays / 7) + 1;
+        backstepMonths = (int)(today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24 * 7 * 30) + 1;
+        init();
+    }
 
     private HashMap<String,String> colorByCategory = new HashMap<String, String>(){{
 

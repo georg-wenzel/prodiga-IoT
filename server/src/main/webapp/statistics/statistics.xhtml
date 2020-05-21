@@ -313,17 +313,40 @@
             </div>
             </div>
             <div class="ui-g">
-            <div class="ui-g-10" align="right">
-                <p:commandButton value="Save and Reload"
-                                 action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
-                                 ajax="true"
-                                 icon="fa fa-fw fa-refresh"
-                                 update="growl colorForm">
-                </p:commandButton>
-            </div>
+                <div class="ui-g-10" align="right">
+                    <p:commandButton value="Save and Reload"
+                                     action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
+                                     ajax="true"
+                                     icon="fa fa-fw fa-refresh"
+                                     update="growl colorForm">
+                    </p:commandButton>
+                </div>
             </div>
 
         <p:separator />
+
+            <div class="ui-g">
+                <div class="ui-g-5">
+                    <div class="card">
+                        <h:panelGrid columns="2" cellpadding="5">
+                            <p:outputLabel for="selectDate" value="Select a Date:" />
+                            <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="false" disabledWeekends="true" locale="en_GB"/>
+
+                        </h:panelGrid>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui-g">
+                <div class="ui-g-10" align="right">
+                    <p:commandButton value="Save and Reload"
+                                     action="#{statisticsController.doSaveBackstep()}"
+                                     ajax="true"
+                                     icon="fa fa-fw fa-refresh"
+                                     update="growl colorForm">
+                    </p:commandButton>
+                </div>
+            </div>
 
         <div class="ui-g">
             <div class="ui-g-5">
