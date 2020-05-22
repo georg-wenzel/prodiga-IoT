@@ -14,287 +14,6 @@
         <li><p:link outcome="/welcome">Welcome</p:link></li>
     </ui:define>
 
-    <ui:define name="head">
-        <script type="text/javascript">
-            function skinChart() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#dce2e7',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    borderWidth: 0.1,
-                    borderColor: 'd8dae2',
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 1,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinBar() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#d8dae2',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    borderWidth: 0.1,
-                    borderColor: 'd8dae2',
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 1,
-                    renderer: $.jqplot.BarRenderer,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinArea() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#dce2e7',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    borderWidth: 0.1,
-                    borderColor: 'd8dae2',
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 1,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinBubble() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#d8dae2',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 1,
-                    renderer: $.jqplot.BubbleRenderer,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinZoom() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#d8dae2',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 1,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinPie() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                //this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210', '#AB44BC', '#2162b0', '#FFD000', '#ff2c00', '#00d0ff', '#b9ff00', '#ffb900', '#1a8f0a'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#dce2e7',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    rendererOptions: {
-                        textColor: '#434560',
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    renderer: $.jqplot.PieRenderer,
-                    shadow: false,
-                    lineWidth: 1,
-                    markerOptions: {
-                        shadow: false,
-                        size: 30,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinDonut() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3', '#44be2c', '#eeb210'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#d8dae2',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    rendererOptions: {
-                        textColor: '#434560',
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    renderer: $.jqplot.DonutRenderer,
-                    shadow: false,
-                    lineWidth: 1,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinBarAndLine() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#d8dae2',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    borderWidth: 0.1,
-                    borderColor: 'd8dae2',
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 5,
-                    renderer: $.jqplot.BarRenderer,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-
-            function skinMeterGauge() {
-                this.cfg.title = '';
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth: 5,
-                    renderer: $.jqplot.MeterGaugeRenderer,
-                    rendererOptions: {
-                        shadow: false,
-                        min: 100,
-                        max: 800,
-                        intervals: [200, 300, 400, 500, 600, 700, 800],
-                        intervalColors: ['#e02365', '#2D8EE3', '#44be2c', '#eeb210', '#AB44BC', '#2162b0', '#FFD000']
-                    }
-                }
-            }
-
-            function skinMultiAxis() {
-                this.cfg.shadow = false;
-                this.cfg.title = '';
-                this.cfg.seriesColors = ['#e02365', '#2D8EE3'];
-                this.cfg.grid = {
-                    background: '#ffffff',
-                    borderColor: '#ffffff',
-                    gridLineColor: '#d8dae2',
-                    shadow: false
-                };
-                this.cfg.axesDefaults = {
-                    borderWidth: 0.1,
-                    borderColor: 'bdc3c9',
-                    rendererOptions: {
-                        textColor: '#434560'
-                    }
-                };
-                this.cfg.seriesDefaults = {
-                    shadow: false,
-                    lineWidth:1,
-                    renderer: $.jqplot.BarRenderer,
-                    markerOptions: {
-                        shadow: false,
-                        size: 7,
-                        style: 'circle'
-                    }
-                }
-            }
-        </script>
-        <style type="text/css">
-            .jqplot-xaxis-label, .jqplot-yaxis-label, .jqplot-y2axis-label, .jqplot-x2axis-label {
-                color: #757575;
-            }
-
-            table.jqplot-table-legend {
-                background-color: #ffffff;
-                color: #434560;
-                border-color: #d8dae2;
-            }
-        </style>
-    </ui:define>
-
     <ui:define name="content">
         <div class="layout-dashboard">
         <div class="ui-g">
@@ -305,6 +24,8 @@
                 <p:staticMessage style="font-size:20px;" severity="warn" summary="WARN!" detail="Your last booking is longer than 2 days ago!" />
                 </div>
             </ui:fragment>
+
+            <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
             <div class="ui-g-12 ui-md-6 ui-lg-3">
                 <div class="overview-box sales">
                     <p:graphicImage name="images/user_white.png" library="ecuador-layout"  styleClass="image-icon" />
@@ -345,8 +66,80 @@
                     <br></br>
                 </div>
             </div>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}">
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="overview-box sales">
+                        <p:graphicImage name="images/stopwatch.png" library="ecuador-layout"  styleClass="image-icon" />
+                        <div class="overview-title">WORKING HOURS THIS WEEK</div>
+                        <div class="overview-numbers">
+                            #{dashboardController.workingHoursThisWeek()} h
+                        </div>
+                        <br></br>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="overview-box views">
+                        <p:graphicImage name="images/calendar.png" library="ecuador-layout" styleClass="image-icon"/>
+                        <div class="overview-title">WORKING HOURS LAST WEEK</div>
+                        <div class="overview-numbers">
+                            #{dashboardController.workingHoursLastWeek()} h
+                        </div>
+                        <br></br>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="overview-box users">
+                        <p:graphicImage name="images/pokal.png" library="ecuador-layout" styleClass="image-icon"/>
+                        <div class="overview-title">BADGES LAST WEEK</div>
+                        <div class="overview-numbers">
+                            #{dashboardController.numBadgesLastWeek()}
+                        </div>
+                        <br></br>
+                    </div>
+                </div>
+                <div class="ui-g-12 ui-md-6 ui-lg-3">
+                    <div class="overview-box checkins">
+                        <p:graphicImage name="images/pokal2.png" library="ecuador-layout"  styleClass="image-icon" />
+                        <div class="overview-title">BADGES TOTAL</div>
+                        <div class="overview-numbers">
+                            #{dashboardController.numBadgesTotal()}
+                        </div>
+                        <br></br>
+                    </div>
+                </div>
+            </ui:fragment>
 
         </div></div><br></br>
+            <ui:fragment rendered="#{not empty badgeDBController.lastWeeksBadges}">
+            <h1>Last Week's Badges</h1><br/>
+            <h:form id="badgeForm">
+                <p:carousel value="#{badgeDBController.lastWeeksBadges}" headerText="" var="badge" itemStyle="text-align:center" responsive="true">
+                    <p:panelGrid columns="2" style="width:100%;margin:10px 0px" columnClasses="label,value" layout="grid" styleClass="ui-panelgrid-blank">
+                        <f:facet name="header">
+                            <p:graphicImage name="images/#{badge.badgeName}.png" library="ecuador-layout" style="width:200px;"/>
+                        </f:facet>
+
+                        <h:outputText value="User:" />
+                        <h:outputText value="#{badge.user.username}" />
+
+                        <h:outputText value="From:" />
+                        <h:outputText value="#{badge.fromDate}">
+                            <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                        </h:outputText>
+
+
+                        <h:outputText value="To:" />
+                        <h:outputText value="#{badge.toDate}">
+                            <f:convertDateTime type="date" pattern="dd. MMMM yyyy"/>
+                        </h:outputText>
+                    </p:panelGrid>
+
+                </p:carousel>
+                <br></br><br></br>
+            </h:form></ui:fragment>
+
 
         </div>
 
