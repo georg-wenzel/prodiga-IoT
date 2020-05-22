@@ -133,8 +133,8 @@
                                 </div>
                                 <div class="ui-g-10 input-form">
                                     <p:selectManyButton id="roles" disabled="true"
-                                                        value="#{userDetailController.userRolesAsString}">
-                                        <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
+                                                        value="#{userDetailController.userRoles}">
+                                        <f:selectItems value="#{userDetailController.allUserRoles}" var="role" itemLabel="#{role}" itemValue="#{role}" />
                                     </p:selectManyButton>
                                 </div>
                             </div>
