@@ -1,6 +1,5 @@
 package uibk.ac.at.prodigaclient.threads;
 
-import com.sun.org.apache.bcel.internal.Const;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uibk.ac.at.prodigaclient.BluetoothUtility.CubeManager;
