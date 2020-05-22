@@ -9,6 +9,8 @@ import uibk.ac.at.prodigaclient.utils.Action;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Arrays;
 
 public class Constants {
 
@@ -30,9 +32,8 @@ public class Constants {
     public static String getInternalId() {
         if(macAddress == null) {
             try {
-                InetAddress ip = InetAddress.getLocalHost();
-
-                NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+                // always get the first network interface.
+                NetworkInterface network = NetworkInterface.getNetworkInterfaces().nextElement();
 
                 byte[] mac = network.getHardwareAddress();
 
