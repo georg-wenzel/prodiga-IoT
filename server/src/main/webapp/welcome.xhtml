@@ -112,7 +112,7 @@
             </ui:fragment>
 
         </div></div><br></br>
-
+            <ui:fragment rendered="#{not empty badgeDBController.lastWeeksBadges}">
             <h1>Last Week's Badges</h1><br/>
             <h:form id="badgeForm">
                 <p:carousel value="#{badgeDBController.lastWeeksBadges}" headerText="" var="badge" itemStyle="text-align:center" responsive="true">
@@ -138,7 +138,7 @@
 
                 </p:carousel>
                 <br></br><br></br>
-            </h:form>
+            </h:form></ui:fragment>
 
 
         </div>
