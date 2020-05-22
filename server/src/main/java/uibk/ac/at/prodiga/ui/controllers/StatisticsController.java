@@ -58,7 +58,7 @@ public class StatisticsController implements Serializable {
         Date today = c.getTime();
         backstepDays = (int)((today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24));
         backstepWeeks = backstepDays / 7;
-        backstepMonths = backstepWeeks / 4;
+        backstepMonths = backstepDays / 30;
         init();
     }
 
