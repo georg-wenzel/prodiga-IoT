@@ -436,7 +436,7 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Only admins can edit dices without users",
                     MessageType.ERROR);
         } else if(d.getUser() != null
-                && !currentUser.getUsername().equals(d.getUser().getUsername())) {
+                && !currentUser.getUsername().equals(d.getUser().getUsername()) && !currentUser.getRoles().contains(UserRole.ADMIN)) {
             throw new ProdigaGeneralExpectedException("You cannot save someone else's dice",
                     MessageType.ERROR);
         }
