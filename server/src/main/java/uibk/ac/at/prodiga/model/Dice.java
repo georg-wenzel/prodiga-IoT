@@ -39,6 +39,17 @@ public class Dice implements Persistable<Long>, Serializable {
     @Column(nullable = false)
     private boolean isActive;
 
+    @Column(nullable = true)
+    private Integer lastBatteryStatus;
+
+    public Integer getLastBatteryStatus() {
+        return lastBatteryStatus;
+    }
+
+    public void setLastBatteryStatus(Integer lastBatteryStatus) {
+        this.lastBatteryStatus = lastBatteryStatus;
+    }
+
     public boolean isActive() {
         return isActive;
     }

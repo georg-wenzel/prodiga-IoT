@@ -133,14 +133,22 @@ public class DiceService {
     /**
      * Saves the given dice
      * @param dice The dice to save
-     * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         checkAccessDiceAndThrow(dice);
 
+        return saveWithoutAuth(dice);
+    }
 
+    /**
+     * Saves the given dice
+     * @param dice The dice to save
+     * @return The saved dice
+     * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
+     */
+    public Dice saveWithoutAuth(Dice dice) throws ProdigaGeneralExpectedException {
         if(dice.isActive()) {
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
@@ -194,6 +202,28 @@ public class DiceService {
         logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
     }
 
+    /**
+     * Gets the battery status for the given user
+     * @param u The user
+     * @return The battery status
+     */
+    public String getDiceBatteryStatusForUser(User u) {
+        if(u == null) {
+            return null;
+        }
+
+        Dice d = getDiceByUser(u);
+
+        if(d == null) {
+            return null;
+        }
+
+        if(d.getLastBatteryStatus() == null){
+            return "not available";
+        }
+
+        return d.getLastBatteryStatus().toString() + "%";
+    }
 
     /**
      * Returns the number of dice of users who are in the same team as the calling user, that have the corresponding Category set as one of their sides.

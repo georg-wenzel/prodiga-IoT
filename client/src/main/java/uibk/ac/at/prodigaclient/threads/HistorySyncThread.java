@@ -58,6 +58,8 @@ public class HistorySyncThread implements Runnable {
 
                         mre.waitDefaultAndLog("Error while waiting for server request on syncing history entries", logger);
 
+                        connectedIds.forEach(x -> CubeManager.getInstance().deleteHistory(x));
+
                         logger.info("Finished Syncing History Entries for Cube " + str);
                     }
 
