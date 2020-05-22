@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import uibk.ac.at.prodigaclient.threads.AuthThread;
 import uibk.ac.at.prodigaclient.threads.FeedThread;
 import uibk.ac.at.prodigaclient.threads.HistorySyncThread;
+import uibk.ac.at.prodigaclient.threads.IntrinsicsThread;
 
 public class Client {
 
@@ -46,17 +47,21 @@ public class Client {
         // Set aup all other threads
         HistorySyncThread historySyncThread = new HistorySyncThread();
         FeedThread feedThread = new FeedThread();
+        IntrinsicsThread intrinsicsThread = new IntrinsicsThread();
 
         Thread authThreadThread = new Thread(authThread, "AuthThread");
         Thread historySyncThreadThread = new Thread(historySyncThread, "HistorySyncThread");
         Thread feedThreadThread = new Thread(feedThread, "FeedThreadThread");
+        Thread intrinsicsThreadThread = new Thread(intrinsicsThread, "IntrinsicsThreadThread");
 
         // Then we start the auth thread
         authThreadThread.start();
         historySyncThreadThread.start();
         feedThreadThread.start();
+        intrinsicsThreadThread.start();
         authThreadThread.join();
         historySyncThreadThread.join();
         feedThreadThread.join();
+        intrinsicsThreadThread.join();
     }
 }

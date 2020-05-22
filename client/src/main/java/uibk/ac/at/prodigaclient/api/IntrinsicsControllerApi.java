@@ -2,14 +2,11 @@ package uibk.ac.at.prodigaclient.api;
 
 import uibk.ac.at.prodigaclient.dtos.FeedDTO;
 import uibk.ac.at.prodigaclient.dtos.GenericStringDTO;
-import uibk.ac.at.prodigaclient.dtos.InstrincsDTO;
-import uibk.ac.at.prodigaclient.CollectionFormats.*;
 
 import retrofit2.Call;
 import retrofit2.http.*;
 
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
+import uibk.ac.at.prodigaclient.dtos.IntrinsicsDTO;
 
 import java.util.*;
 
@@ -34,7 +31,7 @@ public interface IntrinsicsControllerApi {
   })
   @POST("api/instrincs")
   Call<Void> pushUsingPOST(
-                    @retrofit2.http.Body InstrincsDTO body
+                    @retrofit2.http.Body IntrinsicsDTO body
   );
 
   /**

@@ -8,6 +8,7 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
+import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.io.Serializable;
@@ -21,11 +22,13 @@ public class DiceController implements Serializable {
     private static final long serialVersionUID = 5325687687622577315L;
 
     private final DiceService diceService;
+    private final ProdigaUserLoginManager prodigaUserLoginManager;
     private Dice dice;
     private Collection<Dice> dices;
 
-    public DiceController(DiceService diceService) {
+    public DiceController(DiceService diceService, ProdigaUserLoginManager prodigaUserLoginManager) {
         this.diceService = diceService;
+        this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
 
@@ -141,5 +144,13 @@ public class DiceController implements Serializable {
         this.diceService.deleteDice(dice);
         SnackbarHelper.getInstance()
                 .showSnackBar("Dice \"" + dice.getInternalId() + "\" deleted!", MessageType.ERROR);
+    }
+
+    /**
+     * Returns the battery info for the current user
+     * @return Battery info
+     */
+    public String getDiceBatteryInfoForCurrentUser() {
+        return diceService.getDiceBatteryStatusForUser(prodigaUserLoginManager.getCurrentUser());
     }
 }
