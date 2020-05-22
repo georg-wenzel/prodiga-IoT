@@ -218,12 +218,14 @@ public class DiceService {
             DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict.get(internalId);
             wrapper.setCurrentSide(side);
 
-            Pair<Integer, BookingCategory> value = wrapper.getCompletedSides().getOrDefault(side, null);
+            Integer value = wrapper.getVisitedSites().getOrDefault(side, null);
 
             if(value != null) {
-                wrapper.setCurrentSideFriendlyName(value.getValue0());
+                wrapper.setCurrentSideFriendlyName(value);
             } else {
-                wrapper.setCurrentSideFriendlyName(wrapper.getCurrentSideFriendlyName() + 1);
+                int newFriendlySide = wrapper.getCurrentSideFriendlyName() + 1;
+                wrapper.setCurrentSideFriendlyName(newFriendlySide);
+                wrapper.getVisitedSites().put(side, newFriendlySide);
             }
 
             onNewDiceSideCallBackDict.forEach((key, v) -> v.accept(Pair.with(key, wrapper)));
