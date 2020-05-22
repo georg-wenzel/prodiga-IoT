@@ -1,9 +1,6 @@
 package uibk.ac.at.prodiga.rest.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.rest.dtos.FeedDTO;
 import uibk.ac.at.prodiga.rest.dtos.GenericStringDTO;
@@ -55,12 +52,12 @@ public class IntrinsicsController {
         }
     }
 
-    @GetMapping("/api/feed")
+    @PostMapping("/api/feed")
     public List<FeedDTO> getFeedForDevices(@RequestBody List<String> internalId) {
         return FeedManager.getInstance().getFeed(internalId);
     }
 
-    @PostMapping("/api/feed")
+    @PatchMapping("/api/feed")
     public void completeFeed(@RequestBody UUID feedId) {
         FeedManager.getInstance().completeFeedItem(feedId);
     }

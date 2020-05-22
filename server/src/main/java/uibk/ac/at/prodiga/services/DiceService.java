@@ -219,7 +219,7 @@ public class DiceService {
         }
 
         if(d.getLastBatteryStatus() == null){
-            return "not available";
+            return "n/a";
         }
 
         return d.getLastBatteryStatus().toString() + "%";

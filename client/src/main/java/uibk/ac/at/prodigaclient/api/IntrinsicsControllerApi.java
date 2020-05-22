@@ -43,8 +43,8 @@ public interface IntrinsicsControllerApi {
   @Headers({
           "Content-Type:application/json"
   })
-  @GET("api/feed")
-  Call<List<FeedDTO>> getFeedForDevicesUsingGET(
+  @POST("api/feed")
+  Call<List<FeedDTO>> getFeedForDevicesUsingPOST(
           @retrofit2.http.Body List<String> internalIds
   );
 
@@ -57,8 +57,8 @@ public interface IntrinsicsControllerApi {
   @Headers({
           "Content-Type:application/json"
   })
-  @POST("api/feed")
-  Call<Void> completeFeedUsingPOST(
+  @PATCH("api/feed")
+  Call<Void> completeFeedUsingPATCH(
           @retrofit2.http.Body UUID feedId
           );
 }

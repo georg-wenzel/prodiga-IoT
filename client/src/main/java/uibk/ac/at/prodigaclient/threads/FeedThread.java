@@ -72,7 +72,7 @@ public class FeedThread implements Runnable {
                 }
             });
 
-        intrinsicsControllerApi.getFeedForDevicesUsingGET(allInternalIds).enqueue(callback);
+        intrinsicsControllerApi.getFeedForDevicesUsingPOST(allInternalIds).enqueue(callback);
 
         mre.waitDefaultAndLog("Error while waiting for server request on getting feed", logger);
     }
@@ -88,7 +88,7 @@ public class FeedThread implements Runnable {
 
             logger.info("Completing feed item " + feed.getId());
 
-            intrinsicsControllerApi.completeFeedUsingPOST(feed.getId()).enqueue(callback);
+            intrinsicsControllerApi.completeFeedUsingPATCH(feed.getId()).enqueue(callback);
 
             mres.add(mre);
 
