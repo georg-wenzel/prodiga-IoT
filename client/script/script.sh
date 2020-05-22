@@ -6,21 +6,21 @@ cd ~
 # sudo -s
 
 # update the system
-apt-get update
-apt-get upgrade
+sudo apt-get update
+sudo apt-get upgrade
 
 # install git
-apt-get install git
+sudo apt-get install git
 
 # install cmake
-apt-get install cmake
+sudo apt-get install cmake
 
 # purge every available jdk becaus we need a specific one
-apt-get purge openjdk*
+sudo apt-get purge openjdk*
 
 # install java jdk-8
 # sudo find / -name java-8-openjdk-armhf # looks if java is installed correctly
-apt-get install openjdk-8-jdk
+sudo apt-get install openjdk-8-jdk
 
 # export environment variable for JAVA_HOME
 echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
@@ -29,10 +29,10 @@ echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
 bash
 
 # install maven
-apt-get install maven
+sudo apt-get install maven
 
 # install dependencies for BlueZ
-apt-get install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev
+sudo apt-get install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev
 
 # ensure that you are in the home directory
 cd ~ 
@@ -51,30 +51,29 @@ tar -xf bluez-5.47.tar.xz && cd bluez-5.47
 
 # build blueZ
 make
-make install
+sudo make install
 
 # check if version 5.47
 #/usr/libexec/bluetooth/bluetoothd --version
 
 # input policy group for bluetooth
-# TODO: SED befehl hinzufügen
-sed '0,/<\/policy>/s//<\/policy>\n\n  <policy group="bluetooth">\n    <allow send_destination="org.bluez"\/>\n  <\/policy>/'
+sudo sed '0,/<\/policy>/s//<\/policy>\n\n  <policy group="bluetooth">\n    <allow send_destination="org.bluez"\/>\n  <\/policy>/'
 
 # Add user to openhab
-adduser --system --no-create-home --group --disabled-login openhab
-usermod -a -G bluetooth openhab
+sudo adduser --system --no-create-home --group --disabled-login openhab
+sudo usermod -a -G bluetooth openhab
 
 # reload system definition
-systemctl daemon-reload
+sudo systemctl daemon-reload
 
 # reload blueZ
-systemctl restart bluetooth
+sudo systemctl restart bluetooth
 
-#systemctl status bluetooth | grep "daemon"
+#sudo systemctl status bluetooth | grep "daemon"
 
 # install tinyB dependency
-apt-get install graphviz
-apt-get install doxygen
+sudo apt-get install graphviz
+sudo apt-get install doxygen
 
 # change to standard binary files directory
 cd ~/binary_files 
@@ -92,8 +91,8 @@ cd build
 sudo -E cmake -DBUILDJAVA=ON -DCMAKE_INSTALL_PREFIX=/usr ..
 
 # make and make install of tinyB
-make
-make install
+sudo make
+sudo make install
 
-exit
+# exit
 
