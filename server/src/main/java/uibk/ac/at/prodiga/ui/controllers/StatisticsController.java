@@ -38,9 +38,9 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyDepartmentAnalysisBar;
 
     private Date selectedDate;
-    private int backstepDays = 1;
-    private int backstepWeeks = 1;
-    private int backstepMonths = 1;
+    private int backstepDays = 0;
+    private int backstepWeeks = 0;
+    private int backstepMonths = 0;
 
     public Date getSelectedDate() {
         return selectedDate;
@@ -51,10 +51,14 @@ public class StatisticsController implements Serializable {
     }
 
     public void doSaveBackstep(){
-        Date today = new Date();
-        backstepDays = (int)(today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24) + 1;
-        backstepWeeks = (backstepDays / 7) + 1;
-        backstepMonths = (int) backstepWeeks / 4 + 1;
+        Calendar c = Calendar.getInstance();
+        Date date = new Date();
+        c.setTime(date);
+        c.set(Calendar.HOUR_OF_DAY,0);
+        Date today = c.getTime();
+        backstepDays = (int)((today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24));
+        backstepWeeks = backstepDays / 7;
+        backstepMonths = backstepWeeks / 4;
         init();
     }
 
