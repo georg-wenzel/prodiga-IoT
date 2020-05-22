@@ -28,12 +28,14 @@ public class BookingService
 {
     private final BookingRepository bookingRepository;
     private final VacationService vacationService;
+    private final DiceService diceService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
     private final LogInformationService logInformationService;
 
-    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService, LogInformationService logInformationService) {
+    public BookingService(BookingRepository bookingRepository, DiceService diceService, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService, LogInformationService logInformationService) {
         this.bookingRepository = bookingRepository;
+        this.diceService = diceService;
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
         this.vacationService = vacationService;
@@ -48,6 +50,17 @@ public class BookingService
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
         if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        return Lists.newArrayList(bookingRepository.findAllByDice(dice));
+    }
+
+    /**
+     * Returns a collection of all bookings for a dice.
+     * @return A collection of all bookings for the given dice.
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public Collection<Booking> getAllBookingsByCurrentUser()
+    {
+        Dice dice = diceService.getDiceByUser(userLoginManager.getCurrentUser());
         return Lists.newArrayList(bookingRepository.findAllByDice(dice));
     }
 
