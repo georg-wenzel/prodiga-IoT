@@ -47,7 +47,9 @@ public class AuthThread implements Runnable {
 
                     // 5 Minutes
                     try {
-                        monitor.wait(300000);
+                        synchronized (monitor){
+                            monitor.wait(300000);
+                        }
                     } catch (Exception ex) {
                         logger.info("Auth Thread has timeout");
                     }
@@ -65,7 +67,9 @@ public class AuthThread implements Runnable {
      * Invokes the auth thread from sleep - used when a calls encounter as 401 response
      */
     public void invokeAuth() {
-        monitor.notifyAll();
+        synchronized (monitor) {
+            monitor.notifyAll();
+        }
     }
 
     private void handleRegister() {
@@ -112,6 +116,9 @@ public class AuthThread implements Runnable {
                 if (success[0]) {
                     break;
                 }
+
+                // 30 sec
+                Thread.sleep(30000);
             }
         } catch (Exception ex) {
             logger.error("Error in Login loop, loop will quit now", ex);
