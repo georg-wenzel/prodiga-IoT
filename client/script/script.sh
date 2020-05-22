@@ -3,22 +3,24 @@
 # change to home directory
 cd ~
 
+# sudo -s
+
 # update the system
-sudo apt-get update
-sudo apt-get upgrade
+apt-get update
+apt-get upgrade
 
 # install git
-sudo apt-get install git
+apt-get install git
 
 # install cmake
-sudo apt-get install cmake
+apt-get install cmake
 
 # purge every available jdk becaus we need a specific one
-sudo apt-get purge openjdk*
+apt-get purge openjdk*
 
 # install java jdk-8
 # sudo find / -name java-8-openjdk-armhf # looks if java is installed correctly
-sudo apt-get install openjdk-8-jdk
+apt-get install openjdk-8-jdk
 
 # export environment variable for JAVA_HOME
 echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
@@ -27,10 +29,10 @@ echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
 bash
 
 # install maven
-sudo apt-get install maven
+apt-get install maven
 
 # install dependencies for BlueZ
-sudo apt-get install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev
+apt-get install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev
 
 # ensure that you are in the home directory
 cd ~ 
@@ -49,29 +51,30 @@ tar -xf bluez-5.47.tar.xz && cd bluez-5.47
 
 # build blueZ
 make
-sudo make install
+make install
 
 # check if version 5.47
 #/usr/libexec/bluetooth/bluetoothd --version
 
 # input policy group for bluetooth
 # TODO: SED befehl hinzufügen
+sed '0,/<\/policy>/s//<\/policy>\n\n  <policy group="bluetooth">\n    <allow send_destination="org.bluez"\/>\n  <\/policy>/'
 
 # Add user to openhab
-sudo adduser --system --no-create-home --group --disabled-login openhab
-sudo usermod -a -G bluetooth openhab
+adduser --system --no-create-home --group --disabled-login openhab
+usermod -a -G bluetooth openhab
 
 # reload system definition
-sudo systemctl daemon-reload
+systemctl daemon-reload
 
 # reload blueZ
-sudo systemctl restart bluetooth
+systemctl restart bluetooth
 
-#sudo systemctl status bluetooth | grep "daemon"
+#systemctl status bluetooth | grep "daemon"
 
 # install tinyB dependency
-sudo apt-get install graphviz
-sudo apt-get install doxygen
+apt-get install graphviz
+apt-get install doxygen
 
 # change to standard binary files directory
 cd ~/binary_files 
@@ -89,7 +92,8 @@ cd build
 sudo -E cmake -DBUILDJAVA=ON -DCMAKE_INSTALL_PREFIX=/usr ..
 
 # make and make install of tinyB
-sudo make
-sudo make install
+make
+make install
 
+exit
 

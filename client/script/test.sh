@@ -1,4 +1,4 @@
 #!/bin/sh
 
 filename=./bluetooth.conf
-sed '/<policy user="root">(.|\n)*?<\/policy>/i \ line10/g' $filename
+sed -i '0,/<\/policy>/s//<\/policy>\n\n  <policy group="bluetooth">\n    <allow send_destination="org.bluez"\/>\n  <\/policy>/' $filename
