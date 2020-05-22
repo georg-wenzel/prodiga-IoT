@@ -43,7 +43,7 @@ public class IntrinsicsController {
                 if(d != null){
                     d.setLastBatteryStatus(x.getBatteryStatus());
                     try {
-                        diceService.saveWithoutAuth(d);
+                        diceService.saveWithoutAuth(d, d.getUser());
                     } catch (Exception ex) {
                         // Ignore - nothing we can do about it here
                     }

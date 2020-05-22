@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class HistorySyncThread implements Runnable {
 
-    private final CubeControllerApi cubeControllerApi;
+    private CubeControllerApi cubeControllerApi;
     private final Logger logger = LogManager.getLogger();
 
     public HistorySyncThread() {
@@ -34,6 +34,8 @@ public class HistorySyncThread implements Runnable {
         try{
             while (true) {
                 try {
+                    this.cubeControllerApi = Constants.getCubeControllerApi();
+
                     Set<String> connectedIds = CubeManager.getInstance().getCubeIDList();
 
                     logger.info("Found " + connectedIds.size() + " cubes");

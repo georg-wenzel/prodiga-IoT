@@ -69,6 +69,7 @@ public class FeedManager {
             List<FeedDTO> result =  openFeedItems.getOrDefault(internalId, new ArrayList<>());
 
             result.forEach(x -> pendingFeedItems.put(x.getId(), x));
+            openFeedItems.remove(internalId);
 
             return result;
         }

@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -61,11 +62,9 @@ public class PreAuthRequestFilter extends OncePerRequestFilter {
             }
             // Once we get the token validate it.
 
-            SecurityContext ctx = SecurityContextHolder.getContext();
             boolean success = false;
 
-            if (internalId != null && (ctx == null
-                || ctx.getAuthentication() instanceof UsernamePasswordAuthenticationToken)) {
+            if (internalId != null) {
                 RaspberryPi raspberryPi = null;
                 try {
                     raspberryPi = raspberryPiService.findByInternalIdAndThrow(internalId);
@@ -78,15 +77,18 @@ public class PreAuthRequestFilter extends OncePerRequestFilter {
                 if (jwtTokenUtil.validateToken(jwtToken, raspberryPi)) {
                     httpServletRequest.authenticate(httpServletResponse);
                     success = true;
+                    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(raspberryPi.getInternalId(), null, new ArrayList<>()));
                 }
             }
 
-            if(!success)
-            {
+            if(!success) {
                 httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token not found!");
+            } else {
+                filterChain.doFilter(httpServletRequest, httpServletResponse);
             }
+        } else {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
         }
 
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }
