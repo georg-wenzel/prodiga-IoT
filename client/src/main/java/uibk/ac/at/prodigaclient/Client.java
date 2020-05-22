@@ -2,16 +2,27 @@ package uibk.ac.at.prodigaclient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
 import uibk.ac.at.prodigaclient.threads.AuthThread;
 import uibk.ac.at.prodigaclient.threads.FeedThread;
 import uibk.ac.at.prodigaclient.threads.HistorySyncThread;
 import uibk.ac.at.prodigaclient.threads.IntrinsicsThread;
 
+import java.io.File;
+
 public class Client {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws InterruptedException {
+
+        LoggerContext context = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+        File f = new File("log4j2.xml");
+        if(f.exists()) {
+            context.setConfigLocation(f.toURI());
+        }
+
+        logger = LogManager.getLogger();
 
         if(args.length != 2) {
             logger.error("Usage: <server-address> <password>");
