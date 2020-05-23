@@ -90,7 +90,7 @@
                                         outcome="/team_categories"/>
                         </p:submenu>
                         <p:menuitem id="om_log"
-                                    rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}"
+                                    rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}"
                                     value="Logs"
                                     icon="fa fa-fw fa-database"
                                     outcome="/log" />
