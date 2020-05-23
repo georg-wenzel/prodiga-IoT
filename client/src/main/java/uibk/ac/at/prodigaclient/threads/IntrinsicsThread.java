@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class IntrinsicsThread implements Runnable {
 
-    private final IntrinsicsControllerApi intrinsicsControllerApi;
+    private IntrinsicsControllerApi intrinsicsControllerApi;
     private final Logger logger = LogManager.getLogger();
 
     public IntrinsicsThread() {
@@ -28,6 +28,9 @@ public class IntrinsicsThread implements Runnable {
         try{
             while(true) {
                 try{
+                    logger.info("Intrinsics Thread has awoken");
+                    intrinsicsControllerApi = Constants.getIntrinsicsControllerApi();
+
                     Set<String> connectedCubes = CubeManager.getInstance().getCubeIDList();
 
                     IntrinsicsDTO dto = new IntrinsicsDTO();

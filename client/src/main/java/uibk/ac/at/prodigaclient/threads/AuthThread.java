@@ -2,15 +2,10 @@ package uibk.ac.at.prodigaclient.threads;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import uibk.ac.at.prodigaclient.Constants;
 import uibk.ac.at.prodigaclient.api.AuthControllerApi;
 import uibk.ac.at.prodigaclient.dtos.JwtRequestDTO;
 import uibk.ac.at.prodigaclient.dtos.JwtResponseDTO;
-import uibk.ac.at.prodigaclient.utils.CallLoggerHelper;
 import uibk.ac.at.prodigaclient.utils.ManualResetEventSlim;
 import uibk.ac.at.prodigaclient.utils.ProdigaCallback;
 
@@ -23,7 +18,7 @@ public class AuthThread implements Runnable {
 
     private final Object monitor = new Object();
 
-    private final AuthControllerApi authControllerApi;
+    private AuthControllerApi authControllerApi;
 
     public AuthThread() {
         this.authControllerApi = Constants.getAuthControllerApi();
@@ -39,6 +34,8 @@ public class AuthThread implements Runnable {
         try {
             while(true) {
                 try {
+                    authControllerApi = Constants.getAuthControllerApi();
+
                     logger.info("Auth Thread has awoken");
                     // First let's register the raspi
                     handleRegister();

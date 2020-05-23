@@ -139,16 +139,17 @@ public class DiceService {
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         checkAccessDiceAndThrow(dice);
 
-        return saveWithoutAuth(dice);
+        return saveWithoutAuth(dice, prodigaUserLoginManager.getCurrentUser());
     }
 
     /**
      * Saves the given dice
      * @param dice The dice to save
+     * @param user The user which saves the dice
      * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
-    public Dice saveWithoutAuth(Dice dice) throws ProdigaGeneralExpectedException {
+    public Dice saveWithoutAuth(Dice dice, User user) throws ProdigaGeneralExpectedException {
         if(dice.isActive()) {
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
@@ -170,9 +171,9 @@ public class DiceService {
 
         if(dice.isNew()) {
             dice.setObjectCreatedDateTime(new Date());
-            dice.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+            dice.setObjectCreatedUser(user);
         } else {
-            dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
+            dice.setObjectChangedUser(user);
             dice.setObjectChangedDateTime(new Date());
         }
 
@@ -291,13 +292,17 @@ public class DiceService {
     /**
      * Unregisters the service with the given id from the newSide Callback
      * @param id The services id
+     * @param internalId The dices internal id
      */
-    public void unregisterNewSideCallback(UUID id) {
+    public void unregisterNewSideCallback(UUID id, String internalId) {
         if(id == null) {
             return;
         }
 
+        // Remove dice from config mode, unregister callback and send message to client
         onNewDiceSideCallBackDict.remove(id);
+        diceConfigurationWrapperDict.remove(internalId);
+        FeedManager.getInstance().addToFeed(internalId, DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
 
         logInformationService.logForCurrentUser("Unregistered " + id.toString() + " from Dice Side Listener");
     }
@@ -364,11 +369,7 @@ public class DiceService {
             diceSideService.onNewConfiguredDiceSide(key, value.getValue0(), value.getValue1(), wrapper.getDice());
         });
 
-        diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
-
-        FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
-
-        FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
+        removeDiceInConfigMode(wrapper);
 
         logInformationService.logForCurrentUser("Dice " + d.getInternalId() + " left configuration mode");
     }
@@ -408,7 +409,7 @@ public class DiceService {
         for (Map.Entry<Pair<UUID, String>, Instant> entry: notSurviving) {
             survivingTimerMap.remove(entry.getKey());
 
-            unregisterNewSideCallback(entry.getKey().getValue0());
+            unregisterNewSideCallback(entry.getKey().getValue0(), entry.getKey().getValue1());
 
             DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict
                     .getOrDefault(entry.getKey().getValue1(), null);

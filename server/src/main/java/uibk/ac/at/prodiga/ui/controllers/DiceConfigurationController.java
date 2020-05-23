@@ -137,7 +137,7 @@ public class DiceConfigurationController implements Serializable
      */
     public void abortMapping()
     {
-        diceService.unregisterNewSideCallback(uuid);
+        diceService.unregisterNewSideCallback(uuid, dice.getInternalId());
         inConfiguration = false;
     }
 
