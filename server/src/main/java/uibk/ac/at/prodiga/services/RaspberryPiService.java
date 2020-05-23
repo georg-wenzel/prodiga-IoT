@@ -230,7 +230,8 @@ public class RaspberryPiService {
     /**
      * Deletes raspberry from the pending list
      */
-    private void tryDeletePendingRaspberry(RaspberryPi raspi) {
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void tryDeletePendingRaspberry(RaspberryPi raspi) {
         pendingRaspberryPis.stream()
             .filter(x -> x.getInternalId().equals(raspi.getInternalId()))
             .findFirst().ifPresent(raspiInList -> {

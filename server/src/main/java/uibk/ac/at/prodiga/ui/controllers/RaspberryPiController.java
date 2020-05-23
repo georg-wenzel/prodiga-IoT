@@ -77,8 +77,7 @@ public class RaspberryPiController implements Serializable {
      * @return A list of raspberry pis
      */
     public Collection<RaspberryPi> getAllPendingRaspberryPis() {
-
-        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
+        pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
         return pendingRaspis;
     }
 
@@ -87,8 +86,20 @@ public class RaspberryPiController implements Serializable {
      * @return A list of raspberry pis
      */
     public Collection<RaspberryPi> getAllConfiguredRaspberryPis() {
-        if(this.configuredRaspis == null) configuredRaspis = this.raspberryPiService.getAllConfiguredRaspberryPis();
+        configuredRaspis = this.raspberryPiService.getAllConfiguredRaspberryPis();
         return configuredRaspis;
+    }
+
+    /**
+     * Deletes the given raspi from all pending
+     * @param raspi The raspi to delte
+     */
+    public void deletePendingRaspberry(RaspberryPi raspi) {
+        if(raspi == null) {
+            return;
+        }
+
+        raspberryPiService.tryDeletePendingRaspberry(raspi);
     }
 
     /**
