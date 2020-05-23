@@ -105,7 +105,7 @@ public class BookingController implements Serializable
 
     public Collection<Booking> getUserBookings()
     {
-        if(userBookings == null) userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
+        userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
         return userBookings;
     }
 
