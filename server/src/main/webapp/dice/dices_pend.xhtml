@@ -1,0 +1,47 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Dices</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/dice/dices_pend">Pending Dices</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Pending Dices </h1>
+                    <h:form id="diceForm">
+                        <p:messages id="msgs" for="msgs"/>
+                        <p:dataTable id="diceTable" var="dice" scrollable="true" styleClass="shorter-table" scrollHeight="500" value="#{diceController.allPendingDices}">
+
+                            <p:column headerText="Dice Internal ID" filterMatchMode="contains"
+                                      filterBy="#{dice.internalId}" sortBy="#{dice.internalId}">
+                                <h:outputText value="#{dice.internalId}"/>
+                            </p:column>
+
+                            <p:column headerText="RaspberryPi Internal ID" filterMatchMode="contains"
+                                      filterBy="#{dice.assignedRaspberry.internalId}" sortBy="#{dice.assignedRaspberry.internalId}">
+                                <h:outputText value="#{dice.assignedRaspberry.internalId}"/>
+                            </p:column>
+
+                            <p:column headerText="Add Dice" style="text-align: center;width:100px;">
+                                <p:commandButton icon="fa fa-fw fa-plus"
+                                                 value="Add" action="#{diceController.savePendingDice(dice)}"
+                                                 update="diceForm growl"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
