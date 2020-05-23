@@ -22,7 +22,7 @@
                     <h1>Configured Raspberry Pis <p:graphicImage style="width: 20px" name="images/raspi_white.png" library="ecuador-layout" /></h1>
 
                     <h:form id="raspberryForm">
-                        <p:messages id="msgs" for="msgs"/>
+                        <p:messages id="msgs" for="password" autoUpdate="true" showDetail="true"/>
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
@@ -34,6 +34,7 @@
                                                  disabled="true"
                                                  label="Username"  style="width:100%"/>
                                 </div>
+                                <div id="matchGrid">
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="password" value="Password: "/>
                                 </div>
@@ -43,6 +44,7 @@
                                                 disabled="false"
                                                 label="Username"  style="width:100%"
                                                 required="false"
+                                                match="repeated_password"
                                     />
                                 </div>
                                 <div class="ui-g-4 input-form">
@@ -55,6 +57,7 @@
                                                 required="false"
                                                 label="Username"  style="width:100%"
                                                 match="repeated_password"/>
+                                </div>
                                 </div>
 
                                 <div class="ui-g-4 input-form">
