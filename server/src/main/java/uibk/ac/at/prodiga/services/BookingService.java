@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -31,14 +32,16 @@ public class BookingService
     private final DiceService diceService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
+    private final UserRepository userRepository;
     private final LogInformationService logInformationService;
 
-    public BookingService(BookingRepository bookingRepository, DiceService diceService, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService, LogInformationService logInformationService) {
+    public BookingService(BookingRepository bookingRepository, DiceService diceService, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, UserRepository userRepository, VacationService vacationService, LogInformationService logInformationService) {
         this.bookingRepository = bookingRepository;
         this.diceService = diceService;
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
         this.vacationService = vacationService;
+        this.userRepository = userRepository;
         this.logInformationService = logInformationService;
     }
 
@@ -125,6 +128,9 @@ public class BookingService
      */
     public Booking saveBooking(Booking booking, User u, boolean useAuth) throws ProdigaGeneralExpectedException
     {
+        //refresh user
+        u = userRepository.findFirstByUsername(u.getUsername());
+
         //check fields
         if(booking.getActivityEndDate().before(booking.getActivityStartDate()))
         {

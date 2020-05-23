@@ -337,7 +337,7 @@ public class UserService {
      * Returns a collection of all user roles in the system
      * @return A collection of all user roles
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Collection<UserRole> getAllUserRoles()
     {
         return Arrays.asList(UserRole.values());

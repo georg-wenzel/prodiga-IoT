@@ -11,6 +11,9 @@
         <li>/</li>
         <li><p:link outcome="/statistics/statistics_department">User Statistics</p:link></li>
     </ui:define>
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{statisticsController.userPageInit}"/>
+    </f:metadata>
 
     <ui:define name="content">
         <script>
@@ -26,9 +29,9 @@
                     <h:form id="dateSelectForm">
                     <div class="ui-g">
                         <div class="ui-g-5">
-                            Select a date below to update the statistics charts with data from that period. (Day / Week / Month)
+                            Select a date below to update the statistics charts with data from that period. (Day / Week / Month). When you press the "Save and Reload" button, the statistics will be updated to reflect the given time period. For your personal statistics, you have to pick a date that does not lie in the future.
                             <h:panelGrid columns="2" style="margin-top:15px;">
-                                <p:outputLabel for="selectDate" value="Select a Day:" />
+                                <p:outputLabel for="selectDate" value="Date:" />
                                 <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" disabledWeekends="true" locale="en_GB"/>
                             </h:panelGrid>
                         </div>
@@ -39,6 +42,7 @@
                             <p:commandButton value="Save and Reload"
                                              action="#{statisticsController.verifyBackstepUser()}"
                                              ajax="true"
+                                             validateClient="true"
                                              icon="fa fa-fw fa-refresh"
                                              update="growl statistics">
                             </p:commandButton>
@@ -49,6 +53,7 @@
                     <p:separator style="margin-top:20px;margin-bottom:20px;"/>
 
                     <p:tabView id="statistics">
+                        <p:outputLabel value="#{statisticsController.selectedDate}"/>
                         <p:tab title="Daily" >
                             <p:tabView orientation="right" headerAlignment="center" id="dailyStatistics">
                                 <p:tab title="Table">

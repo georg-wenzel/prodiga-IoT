@@ -12,6 +12,9 @@
         <li><p:link outcome="/statistics/statistics">Statistics</p:link></li>
         <li>/</li>
     </ui:define>
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{statisticsController.statisticsInit}"/>
+    </f:metadata>
 
     <ui:define name="head">
         <script type="text/javascript">
@@ -339,7 +342,7 @@
             <div class="ui-g">
                 <div class="ui-g-10" align="right">
                     <p:commandButton value="Save and Reload"
-                                     action="#{statisticsController.doSaveBackstep()}"
+                                     action="#{statisticsController.verifyBackstepUser()}"
                                      ajax="true"
                                      icon="fa fa-fw fa-refresh"
                                      update="growl colorForm">
