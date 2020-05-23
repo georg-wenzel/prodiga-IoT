@@ -18,6 +18,7 @@ import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
 import uibk.ac.at.prodiga.rest.dtos.PendingDiceDTO;
+import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.Constants;
@@ -60,6 +61,9 @@ public class DiceServiceTest {
 
     @Autowired
     DiceRestController diceRestController;
+
+    @Autowired
+    BookingRepository bookingRepository;
 
     User admin = null;
     User notAdmin = null;
@@ -488,5 +492,25 @@ public class DiceServiceTest {
         diceService.save(d);
 
         Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_deleteDiceWithBookings_diceDeletedNoBookings() throws ProdigaGeneralExpectedException {
+        Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
+        DataHelper.createBooking(bc, admin, d, bookingRepository);
+        DataHelper.createDiceSide(d, bc, 1, admin, diceSideRepository);
+
+        Assertions.assertEquals(1, Lists.newArrayList(bookingRepository.findAll()).size());
+        Assertions.assertEquals(1, Lists.newArrayList(diceSideRepository.findAll()).size());
+
+        diceService.deleteDice(d);
+
+        Assertions.assertEquals(0, Lists.newArrayList(bookingRepository.findAll()).size());
+        Assertions.assertEquals(0, diceService.getAllDice().size());
+        Assertions.assertEquals(0, Lists.newArrayList(diceSideRepository.findAll()).size());
     }
 }
