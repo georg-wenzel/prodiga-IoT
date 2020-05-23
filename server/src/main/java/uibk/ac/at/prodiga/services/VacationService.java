@@ -191,7 +191,7 @@ public class VacationService
         LocalDate beginDate = toLocalDate(booking.getActivityStartDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = toLocalDate(booking.getActivityEndDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
 
-        Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), userLoginManager.getCurrentUser());
+        Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), u);
         if (v != null) return v;
 
         return vacationRepository.findVacationCoveringDate(toDate(endDate), u);
