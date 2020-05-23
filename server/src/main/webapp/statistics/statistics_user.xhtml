@@ -13,25 +13,55 @@
     </ui:define>
 
     <ui:define name="content">
+        <script>
+            PrimeFaces.locales['en_GB'] = {
+                firstDay : 1
+            };
+        </script>
+
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
                     <h1>#{prodigaUserLoginManager.getCurrentUser().getUsername()} Statistics</h1>
-                    <p:tabView>
+                    <h:form id="dateSelectForm">
+                    <div class="ui-g">
+                        <div class="ui-g-5">
+                            Select a date below to update the statistics charts with data from that period. (Day / Week / Month)
+                            <h:panelGrid columns="2" style="margin-top:15px;">
+                                <p:outputLabel for="selectDate" value="Select a Day:" />
+                                <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" disabledWeekends="true" locale="en_GB"/>
+                            </h:panelGrid>
+                        </div>
+                    </div>
+
+                    <div class="ui-g">
+                        <div class="ui-g-10" align="right">
+                            <p:commandButton value="Save and Reload"
+                                             action="#{statisticsController.verifyBackstepUser()}"
+                                             ajax="true"
+                                             icon="fa fa-fw fa-refresh"
+                                             update="growl statistics">
+                            </p:commandButton>
+                        </div>
+                    </div>
+                    </h:form>
+
+                    <p:separator style="margin-top:20px;margin-bottom:20px;"/>
+
+                    <p:tabView id="statistics">
                         <p:tab title="Daily" >
-                            <p:tabView orientation="right" headerAlignment="center">
+                            <p:tabView orientation="right" headerAlignment="center" id="dailyStatistics">
                                 <p:tab title="Table">
-                                    <h:form id="dailyForm">
-                                        <p:dataTable id="dailyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByDay}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
-                                            <p:column headerText="Booking category">
-                                                <h:outputText value="#{entry.key.name}" />
-                                            </p:column>
-                                            <p:column headerText="Time in hours">
-                                                <h:outputText value="#{entry.value}" />
-                                            </p:column>
-                                        </p:dataTable>
-                                    </h:form>
+                                    <p:dataTable id="dailyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByDay}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                        <p:column headerText="Booking category">
+                                            <h:outputText value="#{entry.key.name}" />
+                                        </p:column>
+                                        <p:column headerText="Time in hours">
+                                            <h:outputText value="#{entry.value}" />
+                                        </p:column>
+                                    </p:dataTable>
                                 </p:tab>
+
                                 <p:tab title="Barchart">
                                     <br/>
                                     <p:barChart id="bar1" type="bar" model="#{statisticsController.dailyAnalysisBar}" responsive="true"/>
@@ -42,23 +72,20 @@
                                     <p:pieChart id="pie1" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
                                     <br/>
                                 </p:tab>
-
                             </p:tabView>
                         </p:tab>
 
                         <p:tab title="Weekly" >
-                            <p:tabView orientation="right" headerAlignment="center">
+                            <p:tabView orientation="right" headerAlignment="center" id="weeklyStatistics">
                                 <p:tab title="Table">
-                                    <h:form id="weeklyForm">
-                                        <p:dataTable id="weeklyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByWeek}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
-                                            <p:column headerText="Booking category">
-                                                <h:outputText value="#{entry.key.name}" />
-                                            </p:column>
-                                            <p:column headerText="Time in hours">
-                                                <h:outputText value="#{entry.value}" />
-                                            </p:column>
-                                        </p:dataTable>
-                                    </h:form>
+                                    <p:dataTable id="weeklyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByWeek}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                        <p:column headerText="Booking category">
+                                            <h:outputText value="#{entry.key.name}" />
+                                        </p:column>
+                                        <p:column headerText="Time in hours">
+                                            <h:outputText value="#{entry.value}" />
+                                        </p:column>
+                                    </p:dataTable>
                                 </p:tab>
                                 <p:tab title="Barchart">
                                     <br/>
@@ -70,22 +97,20 @@
                                     <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
                                     <br/>
                                 </p:tab>
-
                             </p:tabView>
                         </p:tab>
-                        <p:tab title="Monthly" >
+
+                        <p:tab title="Monthly" id="monthlyStatistics">
                             <p:tabView orientation="right" headerAlignment="center">
                                 <p:tab title="Table">
-                                    <h:form id="monthlyForm">
-                                        <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
-                                            <p:column headerText="Booking category">
-                                                <h:outputText value="#{entry.key.name}" />
-                                            </p:column>
-                                            <p:column headerText="Time in hours">
-                                                <h:outputText value="#{entry.value}" />
-                                            </p:column>
-                                        </p:dataTable>
-                                    </h:form>
+                                    <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                        <p:column headerText="Booking category">
+                                            <h:outputText value="#{entry.key.name}" />
+                                        </p:column>
+                                        <p:column headerText="Time in hours">
+                                            <h:outputText value="#{entry.value}" />
+                                        </p:column>
+                                    </p:dataTable>
                                 </p:tab>
                                 <p:tab title="Barchart">
                                     <br/>
