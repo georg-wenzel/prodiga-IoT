@@ -11,6 +11,9 @@
         <li>/</li>
         <li><p:link outcome="/statistics/statistics_department">Department Statistics</p:link></li>
     </ui:define>
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{statisticsController.deptPageInit}"/>
+    </f:metadata>
 
     <ui:define name="content">
         <div class="ui-g">
@@ -18,38 +21,60 @@
                 <div class="card">
                     <h1>#{prodigaUserLoginManager.getCurrentUser().getAssignedDepartment().getName()} Statistics</h1>
 
+                    <h:form id="dateSelectForm">
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                Select a date below to update the statistics charts with data from that period. (Month). When you press the "Save and Reload" button, the statistics will be updated to reflect the given time period. For your department's statistics, you have to pick a date that lies at least in the previous month.
+                                <h:panelGrid columns="2" style="margin-top:15px;">
+                                    <p:outputLabel for="selectDate" value="Date:" />
+                                    <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" disabledWeekends="true" locale="en_GB"/>
+                                </h:panelGrid>
+                            </div>
+                        </div>
 
-                    <ui:fragment rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}">
-                        <p:tabView>
-                            <p:tab title="Monthly" >
-                                <p:tabView orientation="right" headerAlignment="center">
-                                    <p:tab title="Table">
-                                        <h:form id="monthlyForm">
-                                            <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisicForDepartmenByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
-                                                <p:column headerText="Booking category">
-                                                    <h:outputText value="#{entry.key.name}" />
-                                                </p:column>
-                                                <p:column headerText="Time in hours">
-                                                    <h:outputText value="#{entry.value}" />
-                                                </p:column>
-                                            </p:dataTable>
-                                        </h:form>
-                                    </p:tab>
-                                    <p:tab title="Barchart">
-                                        <br/>
-                                        <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
-                                        <br/>
-                                    </p:tab>
-                                    <p:tab title="Piechart" hide="true">
-                                        <br/>
-                                        <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
-                                        <br/>
-                                    </p:tab>
-                                </p:tabView>
-                            </p:tab>
-                        </p:tabView>
+                        <div class="ui-g">
+                            <div class="ui-g-10" align="right">
+                                <p:commandButton value="Save and Reload"
+                                                 action="#{statisticsController.verifyBackstepDept()}"
+                                                 ajax="true"
+                                                 validateClient="true"
+                                                 icon="fa fa-fw fa-refresh"
+                                                 update="growl statistics">
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </h:form>
 
-                    </ui:fragment>
+                    <p:separator style="margin-top:20px;margin-bottom:20px;"/>
+
+                    <p:tabView id="statistics">
+                        <p:tab title="Monthly" >
+                            <p:tabView orientation="right" headerAlignment="center">
+                                <p:tab title="Table">
+                                    <h:form id="monthlyForm">
+                                        <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisticForDepartmenByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                            <p:column headerText="Booking category">
+                                                <h:outputText value="#{entry.key.name}" />
+                                            </p:column>
+                                            <p:column headerText="Time in hours">
+                                                <h:outputText value="#{entry.value}" />
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:form>
+                                </p:tab>
+                                <p:tab title="Barchart">
+                                    <br/>
+                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                                <p:tab title="Piechart" hide="true">
+                                    <br/>
+                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                    </p:tabView>
                 </div>
             </div>
         </div>

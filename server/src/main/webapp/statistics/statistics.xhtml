@@ -12,6 +12,9 @@
         <li><p:link outcome="/statistics/statistics">Statistics</p:link></li>
         <li>/</li>
     </ui:define>
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{statisticsController.statisticsInit}"/>
+    </f:metadata>
 
     <ui:define name="head">
         <script type="text/javascript">
@@ -300,14 +303,12 @@
 
             <div class="ui-g-5">
                 <h1>Statistic Overview</h1>
-                <h:form id="statisticInfoForm">
-                    You can choose your own colors if you are not happy with the colors in the statistics below. Therefore choose a color and a booking category and then click on the button "Save and Reload". Now you should see your selected color for this booking in each statistic below. Reply this for each booking category you want to recolor.
-                </h:form>
+                <p:outputLabel value="You can choose your own colors if you are not happy with the colors in the statistics below. Therefore choose a color and a booking category and then click on the button 'Save and Reload'. Now you should see your selected color for this booking in each statistic below. Reply this for each booking category you want to recolor." />
                 <h:panelGrid columns="2" cellpadding="5">
-                    <h3>Choose a color: </h3>
+                    <p:outputLabel value="Choose a color: " />
                     <p:colorPicker value="#{statisticsController.actualColor}" />
 
-                    <h3>Choose a category: </h3>
+                    <p:outputLabel for="bookingName" value="Choose a category: " />
                 <p:selectOneMenu id="bookingName" value="#{statisticsController.bookingName}">
                     <f:selectItems value="#{bookingCategoryController.allBookingCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.name}"/>
                 </p:selectOneMenu>
@@ -315,17 +316,43 @@
             </div>
             </div>
             <div class="ui-g">
-            <div class="ui-g-10" align="right">
-                <p:commandButton value="Save and Reload"
-                                 action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
-                                 ajax="true"
-                                 icon="fa fa-fw fa-refresh"
-                                 update="growl colorForm">
-                </p:commandButton>
-            </div>
+                <div class="ui-g-10" align="right">
+                    <p:commandButton value="Save and Reload"
+                                     action="#{statisticsController.doSaveColorByCategory(statisticsController.bookingName,statisticsController.actualColor)}"
+                                     ajax="true"
+                                     icon="fa fa-fw fa-refresh"
+                                     update="growl colorForm">
+                    </p:commandButton>
+                </div>
             </div>
 
         <p:separator />
+
+            <div class="ui-g">
+                <div class="ui-g-5">
+                    <p:outputLabel value="In the calendar below you can select a Day and then click on the 'Save and Reload' button on the right. Now the charts are updated so that you can see the daily pie chart of the chosen day, the weekly pie chart of the week where you chosen day is in and the monthly pie chart for the month of your chosen day." />
+                    <p:outputPanel rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}"><strong>Team diagrams are not available for the current week and month.</strong></p:outputPanel>
+                    <p:outputPanel rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}"><strong>Department diagrams are not available for the current month.</strong></p:outputPanel>
+
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <p:outputLabel for="selectDate" value="Select a Day:" />
+                        <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="false" disabledWeekends="true" locale="en_GB"/>
+                    </h:panelGrid>
+                </div>
+            </div>
+
+            <div class="ui-g">
+                <div class="ui-g-10" align="right">
+                    <p:commandButton value="Save and Reload"
+                                 action="#{statisticsController.verifyBackstepUser()}"
+                                 ajax="true"
+                                 icon="fa fa-fw fa-refresh"
+                                 update="growl colorForm">
+                    </p:commandButton>
+                </div>
+            </div>
+
+            <p:separator />
 
         <div class="ui-g">
             <div class="ui-g-5">
@@ -349,26 +376,26 @@
                 </div>
             </div>
             <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}">
-            <div class="ui-g-5" >
+            <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastWeek}">
                 <div class="card">
                     <h1 class="centerText" >Weekly Pie Chart Team</h1>
                     <p:pieChart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
                 </div>
-            </div>
-            <div class="ui-g-5">
+            </p:outputPanel>
+            <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastMonth}">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart Team</h1>
                     <p:pieChart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
                 </div>
-            </div>
+            </p:outputPanel>
             </h:panelGroup>
             <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') or prodigaUserLoginManager.hasRole('ADMIN')}">
-            <div class="ui-g-5">
+            <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastMonth}">
                 <div class="card">
                     <h1 class="centerText">Monthly Pie Chart Department</h1>
                     <p:pieChart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
                 </div>
-            </div>
+            </p:outputPanel>
             </h:panelGroup>
         </div>
         </h:form>
