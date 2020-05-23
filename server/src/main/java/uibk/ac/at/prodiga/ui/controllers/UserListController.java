@@ -16,12 +16,11 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
-import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.event.ValueChangeEvent;
 
 @Component
 @Scope("view")
@@ -64,6 +63,7 @@ public class UserListController implements Serializable
         {
             if(us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null) this.userTeams.put(us.getUsername(), null);
             else this.userTeams.put(us.getUsername(), us.getAssignedTeam().getId().toString());
+
         }
         return users;
     }
@@ -106,11 +106,9 @@ public class UserListController implements Serializable
         return null;
     }
 
-    public void editBoxChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    public void editBoxChanged(ValueChangeEvent e) throws ProdigaGeneralExpectedException
     {
-        SelectBooleanCheckbox source = (SelectBooleanCheckbox) e.getSource();
-        Object value = source.getValue();
-        userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)value);
+        userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)e.getNewValue());
     }
 
     public void selectMenuChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
