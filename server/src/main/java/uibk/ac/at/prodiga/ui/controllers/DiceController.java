@@ -45,7 +45,7 @@ public class DiceController implements Serializable {
      * @return A list with dices
      */
     public Collection<Dice> getAllDices() {
-       if(dices == null) dices = this.diceService.getAllDice();
+        dices = this.diceService.getAllDice();
         return dices;
     }
 
@@ -103,6 +103,30 @@ public class DiceController implements Serializable {
     }
 
     /**
+     * Returns all pending dices
+     * @return A list with dice entities
+     */
+    public List<Dice> getAllPendingDices() {
+        return diceService.getPendingDices();
+    }
+
+    /**
+     * pls ignore me
+     */
+    public void setAllPendingDices(List<Dice> dices) {
+        // Needed because JSF lol
+    }
+
+    /**
+     * Saves the given dice
+     * @param d The dice
+     */
+    public void savePendingDice(Dice d) throws ProdigaGeneralExpectedException {
+        Dice result = diceService.save(d);
+        SnackbarHelper.getInstance().showSnackBar("Dice " + result.getInternalId() + " added!", MessageType.INFO);
+    }
+
+    /**
      * Gets dice by id.
      *
      * @return the dice by id
@@ -129,6 +153,9 @@ public class DiceController implements Serializable {
     public void loadDiceById(Long diceId) throws ProdigaGeneralExpectedException {
         if (diceId != null) {
             this.dice = diceService.loadDice(diceId);
+            if(dice.getUser() == null) {
+                dice.setUser(prodigaUserLoginManager.getCurrentUser());
+            }
         } else {
             this.dice = diceService.createDice();
             this.dice.setUser(new User());

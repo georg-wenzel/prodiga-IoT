@@ -3,10 +3,7 @@ package uibk.ac.at.prodigaclient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import uibk.ac.at.prodigaclient.threads.AuthThread;
-import uibk.ac.at.prodigaclient.threads.FeedThread;
-import uibk.ac.at.prodigaclient.threads.HistorySyncThread;
-import uibk.ac.at.prodigaclient.threads.IntrinsicsThread;
+import uibk.ac.at.prodigaclient.threads.*;
 
 import java.io.File;
 
@@ -55,24 +52,46 @@ public class Client {
         // Get a Function Pointer to invoke the auth thread - used by other threads to invoke the auth process
         Constants.setAuthAction(authThread::invokeAuth);
 
+        Thread authThreadThread = new Thread(authThread, "AuthThread");
+        authThreadThread.start();
+
+        while(true) {
+            try {
+                if(!StringUtil.isNullOrWhiteSpace(Constants.getJwt())) {
+                    break;
+                }
+
+                logger.info("No Auth Token found - waiting to start threads");
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            } finally {
+                // 5 sec
+                Thread.sleep(5000);
+            }
+        }
+
+        logger.info("Token found - starting threads");
+
         // Set aup all other threads
         HistorySyncThread historySyncThread = new HistorySyncThread();
         FeedThread feedThread = new FeedThread();
         IntrinsicsThread intrinsicsThread = new IntrinsicsThread();
+        PendingDiceThread pendingDiceThread = new PendingDiceThread();
 
-        Thread authThreadThread = new Thread(authThread, "AuthThread");
         Thread historySyncThreadThread = new Thread(historySyncThread, "HistorySyncThread");
         Thread feedThreadThread = new Thread(feedThread, "FeedThreadThread");
         Thread intrinsicsThreadThread = new Thread(intrinsicsThread, "IntrinsicsThreadThread");
+        Thread pendingDiceThreadThread = new Thread(pendingDiceThread, "PendingDiceThreadThread");
 
-        // Then we start the auth thread
-        authThreadThread.start();
         historySyncThreadThread.start();
         feedThreadThread.start();
         intrinsicsThreadThread.start();
+        pendingDiceThreadThread.start();
         authThreadThread.join();
         historySyncThreadThread.join();
         feedThreadThread.join();
         intrinsicsThreadThread.join();
+        pendingDiceThreadThread.join();
     }
 }

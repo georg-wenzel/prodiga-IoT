@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.tests;
 
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,13 +11,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import uibk.ac.at.prodiga.model.Department;
-import uibk.ac.at.prodiga.model.Team;
-import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.model.UserRole;
-import uibk.ac.at.prodiga.repositories.DepartmentRepository;
-import uibk.ac.at.prodiga.repositories.TeamRepository;
-import uibk.ac.at.prodiga.repositories.UserRepository;
+import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
@@ -38,6 +34,24 @@ public class UserServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    DiceRepository diceRepository;
+
+    @Autowired
+    RaspberryPiRepository raspberryPiRepository;
+
+    @Autowired
+    RoomRepository roomRepository;
+
+    @Autowired
+    BookingCategoryRepository bookingCategoryRepository;
+
+    @Autowired
+    BookingRepository bookingRepository;
+
+    @Autowired
+    BadgeDBRepository badgeDBRepository;
 
     @Test
     @DirtiesContext
@@ -397,5 +411,36 @@ public class UserServiceTest {
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
                         userService.saveUser(u),
                 "Save successful although user with same email already exists");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void userService_deleteUserWithDice_bookingsAndUserDeleted() throws Exception {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User notAdmin = DataHelper.createUserWithRoles("notAdmin", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+        DataHelper.createRandomBadge(notAdmin, badgeDBRepository);
+
+        d.setUser(notAdmin);
+
+        d = diceRepository.save(d);
+
+        BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
+        DataHelper.createBooking(bc, notAdmin, d, bookingRepository);
+
+        Assertions.assertEquals(1, Lists.newArrayList(bookingRepository.findAll()).size());
+        Assertions.assertEquals(1, Lists.newArrayList(diceRepository.findAll()).size());
+        Assertions.assertEquals(1, Lists.newArrayList(badgeDBRepository.findAll()).size());
+
+        userService.deleteUser(notAdmin);
+
+        d = diceRepository.findFirstByInternalId("123");
+
+        Assertions.assertNull(d.getUser());
+        Assertions.assertFalse(d.isActive());
+
+        Assertions.assertEquals(0, Lists.newArrayList(bookingRepository.findAll()).size());
+        Assertions.assertEquals(0, Lists.newArrayList(badgeDBRepository.findAll()).size());
     }
 }

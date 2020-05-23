@@ -50,4 +50,21 @@ public class StringUtil {
     }
     return out.toString();
   }
+
+  /**
+   * Returns whether  the string is null or only contains whitespace
+   * @param s The string to check
+   * @return Whether the string is null or whitespace
+   */
+  public static boolean isNullOrWhiteSpace(String s) {
+    if(s == null) {
+      return true;
+    }
+
+    for(int i = 0; i < s.length(); i++) {
+      if(s.charAt(i) != ' ') return false;
+    }
+
+    return true;
+  }
 }

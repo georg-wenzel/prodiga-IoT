@@ -51,21 +51,19 @@ public class UserListController implements Serializable
      */
     public Collection<User> getUsers()
     {
-        if(users == null) {
-            User u = userLoginManager.getCurrentUser();
-            if (u.getRoles().contains(UserRole.ADMIN)) {
-                users = userService.getAllUsers();
-            } else if (u.getRoles().contains(UserRole.DEPARTMENTLEADER)) {
-                users = userService.getUsersByDepartment();
-            } else if (u.getRoles().contains(UserRole.TEAMLEADER)) {
-                users = userService.getUsersByTeam();
-            }
-            this.userTeams = new HashMap<String,String>();
-            for(User us : users)
-            {
-                if(us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null) this.userTeams.put(us.getUsername(), null);
-                else this.userTeams.put(us.getUsername(), us.getAssignedTeam().getId().toString());
-            }
+        User u = userLoginManager.getCurrentUser();
+        if (u.getRoles().contains(UserRole.ADMIN)) {
+            users = userService.getAllUsers();
+        } else if (u.getRoles().contains(UserRole.DEPARTMENTLEADER)) {
+            users = userService.getUsersByDepartment();
+        } else if (u.getRoles().contains(UserRole.TEAMLEADER)) {
+            users = userService.getUsersByTeam();
+        }
+        this.userTeams = new HashMap<String,String>();
+        for(User us : users)
+        {
+            if(us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null) this.userTeams.put(us.getUsername(), null);
+            else this.userTeams.put(us.getUsername(), us.getAssignedTeam().getId().toString());
         }
         return users;
     }

@@ -89,7 +89,7 @@ public class BookingController implements Serializable
 
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
-        bookingService.deleteBooking(booking);
+        bookingService.deleteBooking(booking, false);
     }
 
     public User getUser()

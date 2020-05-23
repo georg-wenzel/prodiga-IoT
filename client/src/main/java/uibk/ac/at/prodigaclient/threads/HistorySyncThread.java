@@ -42,12 +42,14 @@ public class HistorySyncThread implements Runnable {
 
                     for(String str : connectedIds) {
                         List<HistoryEntry> historyEntry = CubeManager.getInstance().getHistory(str);
-                        List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream().map(x -> {
-                            HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
-                            historyEntryDTO.setCubeInternalId(str);
-                            historyEntryDTO.setSeconds(x.getSeconds());
-                            historyEntryDTO.setSide(x.getID());
-                            return historyEntryDTO;
+                        List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream()
+                                .filter(x -> x.getSeconds() > 60) // Ignore entries smaller than a minute
+                                .map(x -> {
+                                    HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
+                                    historyEntryDTO.setCubeInternalId(str);
+                                    historyEntryDTO.setSeconds(x.getSeconds());
+                                    historyEntryDTO.setSide(x.getID());
+                                    return historyEntryDTO;
                         }).collect(Collectors.toList());
 
                         logger.info("Syncing " + historyEntryDTOS.size() + " History Entries for Cube " + str);

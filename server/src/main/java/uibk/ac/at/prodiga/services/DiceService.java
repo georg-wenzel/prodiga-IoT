@@ -2,6 +2,7 @@ package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
 import uibk.ac.at.prodiga.rest.dtos.DeviceType;
 import uibk.ac.at.prodiga.rest.dtos.FeedAction;
+import uibk.ac.at.prodiga.rest.dtos.PendingDiceDTO;
 import uibk.ac.at.prodiga.utils.*;
 
 import java.time.Duration;
@@ -28,17 +30,22 @@ public class DiceService {
     private final LogInformationService logInformationService;
     private final DiceSideService diceSideService;
     private final BookingCategoryService bookingCategoryService;
+    private final RaspberryPiService raspberryPiService;
+    private final BookingService bookingService;
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
     private final Map<Pair<UUID, String>, Instant> survivingTimerMap = new HashMap<>();
+    private final List<Dice> pendingDices = Collections.synchronizedList(new ArrayList<>());
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService, @Lazy RaspberryPiService raspberryPiService, @Lazy BookingService bookingService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
         this.diceSideService = diceSideService;
         this.logInformationService = logInformationService;
         this.bookingCategoryService = bookingCategoryService;
+        this.raspberryPiService = raspberryPiService;
+        this.bookingService = bookingService;
     }
 
     /**
@@ -139,7 +146,11 @@ public class DiceService {
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         checkAccessDiceAndThrow(dice);
 
-        return saveWithoutAuth(dice, prodigaUserLoginManager.getCurrentUser());
+        Dice result = saveWithoutAuth(dice, prodigaUserLoginManager.getCurrentUser());
+
+        tryDeletePendingDice(result.getInternalId());
+
+        return result;
     }
 
     /**
@@ -193,12 +204,59 @@ public class DiceService {
     }
 
     /**
+     * Adds the given dices to the pending dices
+     * @param diceRaspiMapping The dice internalIds
+     */
+    public void addDicesToPending(List<PendingDiceDTO> diceRaspiMapping) {
+        for(PendingDiceDTO entry : diceRaspiMapping) {
+            if(pendingDices.stream().anyMatch(x -> x.getInternalId().equals(entry.getDiceInternalId()))) {
+                logInformationService.logForCurrentUser("Cannot add Dice " + entry.getDiceInternalId() + " to pending because it already exists");
+                continue;
+            }
+
+            if(getDiceByInternalId(entry.getDiceInternalId()) != null) {
+                logInformationService.logForCurrentUser("Dice " + entry.getDiceInternalId() + " already exists.");
+                continue;
+            }
+
+            Optional<RaspberryPi> raspi = raspberryPiService.findByInternalId(entry.getRaspiInternalId());
+
+            if(!raspi.isPresent()) {
+                logInformationService.logForCurrentUser("Dice " + entry.getDiceInternalId() + " cannot be added because Raspberry Pi " + entry.getRaspiInternalId() + " does not exist");
+                continue;
+            }
+
+            Dice d = new Dice();
+            d.setInternalId(entry.getDiceInternalId());
+            d.setAssignedRaspberry(raspi.get());
+            pendingDices.add(d);
+            logInformationService.logForCurrentUser("Added Dice " + entry.getDiceInternalId() + " to pending dices");
+        }
+    }
+
+    /**
+     * Returns all pending dices
+     * @return A list with all pending dices
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    public List<Dice> getPendingDices() {
+        return new ArrayList<>(pendingDices);
+    }
+
+    /**
      * Deletes the dice.
      *
      * @param dice the dice to delete
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    public void deleteDice(Dice dice) {
+    public void deleteDice(Dice dice) throws ProdigaGeneralExpectedException {
+        if(dice == null) {
+            return;
+        }
+        bookingService.deleteBookingsForDice(dice);
+
+        diceSideService.deleteForDice(dice);
+
         diceRepository.delete(dice);
         logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
     }
@@ -441,5 +499,14 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("You cannot save someone else's dice",
                     MessageType.ERROR);
         }
+    }
+
+    private void tryDeletePendingDice(String internalId){
+        pendingDices.stream()
+                .filter(x -> x.getInternalId().equals(internalId))
+                .findFirst().ifPresent(diceInList -> {
+                    pendingDices.remove(diceInList);
+                    logInformationService.logForCurrentUser("Removed Dice " + diceInList.getInternalId() + " from pending dices");
+        });
     }
 }
