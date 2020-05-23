@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.rest.dtos.HistoryEntryDTO;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
+import uibk.ac.at.prodiga.rest.dtos.PendingDiceDTO;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.services.DiceSideService;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -31,6 +33,17 @@ public class DiceRestController {
         this.diceService = diceService;
         this.diceSideService = diceSideService;
         this.bookingService = bookingService;
+    }
+
+    /**
+     * Registers the dices with the given internal id
+     * @param diceRaspiMapping Dice internal Ids and Raspi internal Id
+     */
+    @PostMapping("api/dice")
+    public void register(@RequestBody List<PendingDiceDTO> diceRaspiMapping){
+        if(diceRaspiMapping != null) {
+            diceService.addDicesToPending(diceRaspiMapping);
+        }
     }
 
     /**
