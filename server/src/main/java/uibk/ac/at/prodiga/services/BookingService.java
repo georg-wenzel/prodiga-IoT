@@ -78,7 +78,7 @@ public class BookingService
      * @return
      */
     public Booking getLastBookingForDice(Dice d) {
-        return bookingRepository.findFirstByDiceOrderByObjectCreatedDateTimeDesc(d);
+        return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
     }
 
     /**
