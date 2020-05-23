@@ -738,7 +738,7 @@ public class BookingServiceTest
         Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         Assertions.assertDoesNotThrow(() -> {
-            bookingService.deleteBooking(b1);
+            bookingService.deleteBooking(b1, false);
         }, "User was not able to delete a valid booking.");
     }
 
@@ -751,7 +751,7 @@ public class BookingServiceTest
     public void delete_booking_unauthorized() throws ProdigaGeneralExpectedException
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-                bookingService.deleteBooking(new Booking());
+                bookingService.deleteBooking(new Booking(), false);
         }, "User was able to access deletion method despite lacking authorization.");
     }
 
@@ -773,7 +773,7 @@ public class BookingServiceTest
         Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
-            bookingService.deleteBooking(b1);
+            bookingService.deleteBooking(b1, false);
         }, "User was able to delete another users valid booking.");
     }
 
@@ -795,7 +795,7 @@ public class BookingServiceTest
         Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            bookingService.deleteBooking(b1);
+            bookingService.deleteBooking(b1, false);
         }, "User was able to delete booking from before last week without having sufficient authorization.");
     }
 
@@ -819,7 +819,7 @@ public class BookingServiceTest
         userRepository.save(u1);
 
         Assertions.assertDoesNotThrow(() -> {
-            bookingService.deleteBooking(b1);
+            bookingService.deleteBooking(b1, false);
         }, "User was not able to delete booking from before last week despite having sufficient authorization.");
     }
 

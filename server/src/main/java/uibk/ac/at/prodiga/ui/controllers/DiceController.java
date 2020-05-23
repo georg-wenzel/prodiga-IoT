@@ -45,7 +45,7 @@ public class DiceController implements Serializable {
      * @return A list with dices
      */
     public Collection<Dice> getAllDices() {
-       if(dices == null) dices = this.diceService.getAllDice();
+        dices = this.diceService.getAllDice();
         return dices;
     }
 

@@ -11,13 +11,12 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.awt.print.Book;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for accessing and manipulating bookings.
@@ -49,7 +48,13 @@ public class BookingService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
-        if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        User currentUser = userLoginManager.getCurrentUser();
+
+        if((currentUser != null && !currentUser.getRoles().contains(UserRole.ADMIN)) &&
+                !diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) {
+            throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        }
+
         return Lists.newArrayList(bookingRepository.findAllByDice(dice));
     }
 
@@ -209,26 +214,46 @@ public class BookingService
      * @throws ProdigaGeneralExpectedException Thrown if the user is trying to delete a booking from longer than 2 weeks ago, but does not have permissions.
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
-    public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
+    public void deleteBooking(Booking booking, boolean isHardDelete) throws ProdigaGeneralExpectedException
     {
-        User u = userLoginManager.getCurrentUser();
+        if(!isHardDelete) {
+            User u = userLoginManager.getCurrentUser();
 
-        booking = bookingRepository.findFirstById(booking.getId());
-        if(booking == null) return;
+            booking = bookingRepository.findFirstById(booking.getId());
+            if(booking == null) return;
 
-        if(!booking.getDice().getUser().equals(u))
-        {
-            throw new RuntimeException("User cannot delete other user's bookings.");
+            if(!booking.getDice().getUser().equals(u))
+            {
+                throw new RuntimeException("User cannot delete other user's bookings.");
+            }
+
+            if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
+            {
+                throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
+            }
         }
 
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
-        {
-            throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
-        }
 
         bookingRepository.delete(booking);
 
         logInformationService.logForCurrentUser("Booking " + booking.getId() + " deleted");
+    }
+
+    /**
+     * Deletes all bookings for the given dice
+     * @param d The dice
+     */
+    public void deleteBookingsForDice(Dice d) throws ProdigaGeneralExpectedException {
+        if(d == null) {
+            return;
+        }
+
+        Collection<Booking> bookings = getAllBookingsByDice(d);
+        if(bookings.size() > 0) {
+            for(Booking b : bookings) {
+                deleteBooking(b, true);
+            }
+        }
     }
 
     /**

@@ -31,19 +31,21 @@ public class DiceService {
     private final DiceSideService diceSideService;
     private final BookingCategoryService bookingCategoryService;
     private final RaspberryPiService raspberryPiService;
+    private final BookingService bookingService;
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
     private final Map<Pair<UUID, String>, Instant> survivingTimerMap = new HashMap<>();
     private final List<Dice> pendingDices = Collections.synchronizedList(new ArrayList<>());
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService, @Lazy RaspberryPiService raspberryPiService) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService, @Lazy RaspberryPiService raspberryPiService, @Lazy BookingService bookingService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
         this.diceSideService = diceSideService;
         this.logInformationService = logInformationService;
         this.bookingCategoryService = bookingCategoryService;
         this.raspberryPiService = raspberryPiService;
+        this.bookingService = bookingService;
     }
 
     /**
@@ -247,7 +249,14 @@ public class DiceService {
      * @param dice the dice to delete
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    public void deleteDice(Dice dice) {
+    public void deleteDice(Dice dice) throws ProdigaGeneralExpectedException {
+        if(dice == null) {
+            return;
+        }
+        bookingService.deleteBookingsForDice(dice);
+
+        diceSideService.deleteForDice(dice);
+
         diceRepository.delete(dice);
         logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
     }
