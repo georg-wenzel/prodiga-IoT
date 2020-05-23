@@ -7,10 +7,7 @@ import uibk.ac.at.prodigaclient.api.CubeControllerApi;
 import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
 import uibk.ac.at.prodigaclient.utils.Action;
 
-import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Arrays;
 
 public class Constants {
 
