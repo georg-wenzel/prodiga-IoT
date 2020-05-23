@@ -18,6 +18,34 @@
                 <div class="card">
                     <h1>#{prodigaUserLoginManager.getCurrentUser().getUsername()} Statistics</h1>
                     <p:tabView>
+                        <p:tab title="Daily" >
+                            <p:tabView orientation="right" headerAlignment="center">
+                                <p:tab title="Table">
+                                    <h:form id="dailyForm">
+                                        <p:dataTable id="dailyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByDay}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                            <p:column headerText="Booking category">
+                                                <h:outputText value="#{entry.key.name}" />
+                                            </p:column>
+                                            <p:column headerText="Time in hours">
+                                                <h:outputText value="#{entry.value}" />
+                                            </p:column>
+                                        </p:dataTable>
+                                    </h:form>
+                                </p:tab>
+                                <p:tab title="Barchart">
+                                    <br/>
+                                    <p:barChart id="bar1" type="bar" model="#{statisticsController.dailyAnalysisBar}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                                <p:tab title="Piechart" hide="true">
+                                    <br/>
+                                    <p:pieChart id="pie1" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+
+                            </p:tabView>
+                        </p:tab>
+
                         <p:tab title="Weekly" >
                             <p:tabView orientation="right" headerAlignment="center">
                                 <p:tab title="Table">
@@ -42,6 +70,7 @@
                                     <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
                                     <br/>
                                 </p:tab>
+
                             </p:tabView>
                         </p:tab>
                         <p:tab title="Monthly" >
