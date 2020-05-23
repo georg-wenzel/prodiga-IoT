@@ -53,9 +53,8 @@
                     <p:separator style="margin-top:20px;margin-bottom:20px;"/>
 
                     <p:tabView id="statistics">
-                        <p:outputLabel value="#{statisticsController.selectedDate}"/>
                         <p:tab title="Daily" >
-                            <p:tabView orientation="right" headerAlignment="center" id="dailyStatistics">
+                            <p:tabView orientation="right" headerAlignment="center">
                                 <p:tab title="Table">
                                     <p:dataTable id="dailyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByDay}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
                                         <p:column headerText="Booking category">
@@ -81,7 +80,7 @@
                         </p:tab>
 
                         <p:tab title="Weekly" >
-                            <p:tabView orientation="right" headerAlignment="center" id="weeklyStatistics">
+                            <p:tabView orientation="right" headerAlignment="center">
                                 <p:tab title="Table">
                                     <p:dataTable id="weeklyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByWeek}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
                                         <p:column headerText="Booking category">
@@ -105,7 +104,7 @@
                             </p:tabView>
                         </p:tab>
 
-                        <p:tab title="Monthly" id="monthlyStatistics">
+                        <p:tab title="Monthly">
                             <p:tabView orientation="right" headerAlignment="center">
                                 <p:tab title="Table">
                                     <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisticForCurrentUserByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">

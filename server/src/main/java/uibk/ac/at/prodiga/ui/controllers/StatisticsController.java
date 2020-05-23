@@ -16,6 +16,7 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import javax.annotation.PostConstruct;
 import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -46,6 +47,8 @@ public class StatisticsController implements Serializable {
     private int backstepWeeks;
     private int backstepMonths;
 
+    private boolean firstInit = true;
+
     public Date getSelectedDate() {
         return selectedDate;
     }
@@ -64,12 +67,31 @@ public class StatisticsController implements Serializable {
         return (int)((today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24));
     }
 
+    public boolean getAtLeastLastMonth()
+    {
+        return calculateBackstepMonths(calculateBackstepDays()) >= 1;
+    }
+
+    public boolean getAtLeastLastWeek()
+    {
+        return calculateBackstepWeeks(calculateBackstepDays()) >= 1;
+    }
+
     private int calculateBackstepWeeks(int backstepDays)
     {
         LocalDate now = LocalDate.now();
         LocalDate target = LocalDate.now().minusDays(backstepDays);
 
-        return (int) ChronoUnit.WEEKS.between(target, now);
+        int weeksChanged = 0;
+
+
+        while(target.isBefore(now))
+        {
+            now = now.minusDays(1);
+            if(now.getDayOfWeek() == DayOfWeek.SUNDAY) weeksChanged++;
+        }
+
+        return weeksChanged;
     }
 
     private int calculateBackstepMonths(int backstepDays)
@@ -77,7 +99,15 @@ public class StatisticsController implements Serializable {
         LocalDate now = LocalDate.now();
         LocalDate target = LocalDate.now().minusDays(backstepDays);
 
-        return (int) ChronoUnit.MONTHS.between(target, now);
+        int monthsPassed = 0;
+
+        while(target.isBefore(now))
+        {
+            if(now.getMonth() != now.minusDays(1).getMonth()) monthsPassed++;
+            now = now.minusDays(1);
+        }
+
+        return monthsPassed;
     }
 
     public void verifyBackstepUser() throws ProdigaGeneralExpectedException
@@ -117,11 +147,14 @@ public class StatisticsController implements Serializable {
 
     public void userPageInit()
     {
-        if(selectedDate == null) selectedDate = Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        backstepDays = 1;
-        backstepWeeks = calculateBackstepWeeks(1);
-        backstepMonths = calculateBackstepMonths(1);
-        init();
+        if(selectedDate == null)
+        {
+            selectedDate = Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            backstepDays = 1;
+            backstepWeeks = calculateBackstepWeeks(1);
+            backstepMonths = calculateBackstepMonths(1);
+            init();
+        }
     }
 
     public void teamPageInit()
