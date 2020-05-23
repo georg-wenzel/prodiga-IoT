@@ -142,6 +142,7 @@ namespace Prodiga.SQLFileGenerator
                 {
                     Dictionary<string, object> value = getDefaultValues(id);
                     value["side"] = j;
+                    value["side_friendly_name"] = j;
                     value["booking_category_id"] = j;
                     value["dice_id"] = i + 1;
                     AllData["dice_side"][id] = value;
@@ -399,6 +400,15 @@ namespace Prodiga.SQLFileGenerator
                     {"user_username", username},
                     {"ROLES", role}
                 };
+
+                if (!role.Equals("EMPLOYEE"))
+                {
+                    AllData["user_user_role"][i] = new Dictionary<string, object>
+                    {
+                        {"user_username", username},
+                        {"ROLES", "EMPLOYEE"}
+                    };
+                }
 
                 i++;
             }
