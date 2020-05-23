@@ -69,10 +69,15 @@ public class DiceRestController {
      */
     @PostMapping("api/booking")
     public void addBooking(@Valid @RequestBody List<HistoryEntryDTO> historyEntries) {
+
+        System.out.println("Got " + historyEntries.size() + " history entries");
+
         // First we create a list with rappers which filter all invalid entries
         List<HistoryEntryWrapper> realEntries = historyEntries.stream()
                 .map(x -> new HistoryEntryWrapper(x, diceService, diceSideService))
                 .filter(x -> x.handleEntry).collect(Collectors.toList()) ;
+
+        System.out.println("===============");
 
         // Iterate over all filtered entries and create booking - here we know all data is valid
         for(HistoryEntryWrapper entry : realEntries){
@@ -91,15 +96,20 @@ public class DiceRestController {
             // If there is already a booking we have to get the endDate and add the current seconds
             // in order to get the new Start date
             if(lastBooking != null) {
+                System.out.println("Found last booking for user");
                 newStartDate = lastBooking.getActivityEndDate().toInstant();
             } else {
                 // If there is no booking we have to get all current history entries for the given dice
                 // Sum up the seconds to get the real start date
 
+                System.out.println("Could not find last booking for user");
+
                 int sumSeconds = realEntries.stream().
                         filter(x -> x.dice.getInternalId().equals(dice.getInternalId()))
                         .mapToInt(x -> x.entry.getSeconds())
                         .sum();
+
+                System.out.println("Sum entries: " + sumSeconds);
 
                 // Now we have to subtract the summed seconds from the current time
                 newStartDate = Instant.now().minus(Duration.ofMinutes(sumSeconds));
@@ -117,8 +127,10 @@ public class DiceRestController {
 
             try {
                 bookingService.saveBooking(b, user, false);
+                System.out.println("Created booking");
             } catch (Exception ex) {
                 // Ignore - can't do anything against it anyways
+                System.out.println("Error while creating booking\n" + ex.toString());
             }
         }
     }
@@ -147,31 +159,45 @@ public class DiceRestController {
             dice = diceService.getDiceByInternalId(entry.getCubeInternalId());
 
             if(dice == null) {
+                System.out.println("Could not find dice with id "+ entry.getCubeInternalId());
                 // Dice seems not to be registered here - so ignore this entry
                 return false;
             }
+
+            System.out.println("Found dice with internal id " + dice.getInternalId());
 
             user = dice.getUser();
 
             if(user == null) {
                 // Seems like the dice doesn't have a user assigned - ignore
+                System.out.println("Could not find user for dice");
                 return false;
             }
+
+            System.out.println("Found user " + user.getUsername());
 
             DiceSide diceSide = diceSideService.findByDiceAndSide(dice, entry.getSide());
 
             if(diceSide == null) {
+                System.out.println("Could not find dice side for side " + entry.getSide());
                 // The given side is not configured on the given dice - so ignore this entry
                 return false;
             }
 
+            System.out.println("Found dice side for dice");
+
             bookingCategory = diceSide.getBookingCategory();
 
             if(bookingCategory == null) {
+                System.out.println("Could not find booking category for dice side " + diceSide.getSideFriendlyName());
                 // In theory this should never happen - dice side without BookingCategory is not valid.
                 // We don't want any exceptions here so ignore this entry
                 return false;
             }
+
+            System.out.println("Found booking category " + bookingCategory.getName());
+
+            System.out.println("===============");
 
             // If so the dice was on side vacation our out of office or something
             // Ignore this entry
