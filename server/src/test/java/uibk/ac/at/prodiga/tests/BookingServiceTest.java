@@ -1134,7 +1134,7 @@ public class BookingServiceTest
         //get ranges
         Collection<Booking> daybookings = bookingService.getUsersBookingInRangeByDay(u1, 1);
         Collection<Booking> weekbookings = bookingService.getUserBookingInRangeByWeek(u1, 1);
-        Collection<Booking> monthbookings = bookingService.getUsersBookingInRangeByMonth(u1, 1);
+        Collection<Booking> monthbookings = bookingService.getUserBookingInRangeByMonth(u1, 1);
 
         //asserts
         Assertions.assertTrue(daybookings.contains(daybooking), "Collection returned incorrect results.");
