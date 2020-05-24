@@ -71,7 +71,7 @@
                             </p:column>
                             </p:dataTable>
 
-                            <p:commandButton value="Confirm" update=":infoHolder :diceConfigForm" icon="fa fa-check" action="#{diceConfigurationController.confirmMapping()}" style="margin-right:20px; width:100px;" />
+                            <p:commandButton value="Confirm" update=":infoHolder :diceConfigForm growl" icon="fa fa-check" action="#{diceConfigurationController.confirmMapping()}" style="margin-right:20px; width:100px;" />
                             <p:commandButton value="Abort" update=":infoHolder :diceConfigForm" icon="fa fa-close" action="#{diceConfigurationController.abortMapping()}" style="margin-right:20px; width:100px;" />
                         </h:panelGroup>
                     </h:form>
@@ -94,7 +94,7 @@
                                 </p:column>
                             </p:dataTable>
 
-                            <p:commandButton value="Confirm" update=":infoHolder :diceEditForm" icon="fa fa-check" action="#{diceConfigurationController.confirmEdit()}" style="margin-right:20px; width:100px;" />
+                            <p:commandButton value="Confirm" update=":infoHolder :diceEditForm growl" icon="fa fa-check" action="#{diceConfigurationController.confirmEdit()}" style="margin-right:20px; width:100px;" />
                             <p:commandButton value="Abort" update=":infoHolder :diceEditForm" icon="fa fa-close" action="#{diceConfigurationController.abortEdit()}" style="margin-right:20px; width:100px;" />
                         </h:panelGroup>
                     </h:form>
