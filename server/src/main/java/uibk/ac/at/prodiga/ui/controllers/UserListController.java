@@ -111,14 +111,22 @@ public class UserListController implements Serializable
         userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)e.getNewValue());
     }
 
-    public void selectMenuChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    public void selectMenuChanged(ValueChangeEvent e) throws ProdigaGeneralExpectedException
     {
-        SelectOneMenu source = (SelectOneMenu) e.getSource();
         String uname = (String)e.getComponent().getAttributes().get("userToEdit");
-        Long teamId;
-        if(userTeams.get(uname) == null) teamId = null;
-        else teamId = Long.parseLong(userTeams.get(uname));
+
+        Object value = e.getNewValue();
+        Long teamId = null;
+        String teamMap = null;
+
+        if(value != null) {
+            teamMap = value.toString();
+            teamId = Long.parseLong(teamMap);
+        }
+
         userService.assignTeam(uname, teamId);
+
+        userTeams.put(uname, teamMap);
     }
 
     public Map<String, String> getUserTeams() {
