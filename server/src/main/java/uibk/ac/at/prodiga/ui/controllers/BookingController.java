@@ -29,7 +29,6 @@ public class BookingController implements Serializable
     private BookingService bookingService;
     private BookingCategoryService bookingCategoryService;
     private DiceService diceService;
-    private Boolean lastBookingLongerThan2DaysAgo;
 
     public BookingController(ProdigaUserLoginManager userLoginManager, BookingService bookingService, BookingCategoryService bookingCategoryService, DiceService diceService)
     {
@@ -39,6 +38,10 @@ public class BookingController implements Serializable
         this.diceService = diceService;
     }
 
+    /**
+     * Returns whether or not a booking is editable
+     * @return true if the last booking of the user is longer than 2 days ago
+     */
     public Boolean getLastBookingLongerThan2DaysAgo() {
         return bookingService.isBookingLongerThan2DaysAgo(user);
     }
@@ -73,6 +76,10 @@ public class BookingController implements Serializable
         return (int) (Math.floorDiv(booking.getActivityEndDate().toInstant().toEpochMilli() - booking.getActivityStartDate().toInstant().toEpochMilli(), 1000 * 60) - getFullHours(booking) * 60);
     }
 
+    /**
+     * Saves the current booking stored in the controller
+     * @throws ProdigaGeneralExpectedException If saving the booking causes an exception (propagated by the service)
+     */
     public void doSaveBooking() throws ProdigaGeneralExpectedException
     {
         //set fields if not already present
@@ -83,15 +90,22 @@ public class BookingController implements Serializable
         if(this.booking.getDept() == null)
             this.booking.setDept(user.getAssignedDepartment());
 
-        bookingService.saveBooking(this.booking);
-        SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
+        this.booking = bookingService.saveBooking(this.booking);
+        if(SnackbarHelper.getInstance().facesContextExists())
+            SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
     }
 
+    /**
+     * Deletes given booking
+     * @param booking The booking to delete
+     * @throws ProdigaGeneralExpectedException If deleting the booking causes an exception (propagated by the service)
+     */
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
         bookingService.deleteBooking(booking, false);
     }
 
+    //////GETTERS & SETTERS
     public User getUser()
     {
         return user;

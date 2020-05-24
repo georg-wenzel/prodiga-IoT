@@ -75,9 +75,11 @@ public class BookingService
     /**
      * Returns the last booking for the given dice
      * @param d The dice
-     * @return
+     * @return The last booking for this dice, i.e. the one furthest in the future
      */
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Booking getLastBookingForDice(Dice d) {
+        if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(d)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
         return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
     }
 
@@ -114,12 +116,23 @@ public class BookingService
         return bookingRepository.findAllByBookingCategory(cat).size();
     }
 
+    /**
+     * Gets the number of calling user's team's bookings with given booking category
+     * @param cat The booking category
+     * @return an integer showing how many bookings in the calling user's team use this booking category
+     */
     @PreAuthorize("hasAuthority('TEAMLEADER')")
     public int getNumberOfTeamBookingsWithCategory(BookingCategory cat)
     {
         return bookingRepository.findAllByBookingCategoryAndTeam(cat, userLoginManager.getCurrentUser().getAssignedTeam()).size();
     }
 
+    /**
+     * Saves a booking
+     * @param booking The booking
+     * @return The booking after being stored in the database
+     * @throws ProdigaGeneralExpectedException When saving the booking is invalid.
+     */
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Booking saveBooking(Booking booking) throws ProdigaGeneralExpectedException {
         return saveBooking(booking, userLoginManager.getCurrentUser(), true);

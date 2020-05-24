@@ -17,7 +17,10 @@ import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 
@@ -390,6 +393,35 @@ public class BookingServiceTest
     }
 
     /**
+     * Tests adding a new booking which ends in the future
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void save_booking_future()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+
+        Booking b1 = new Booking();
+        b1.setDice(d1);
+        b1.setBookingCategory(cat);
+        //set activity end time to 5 minutes after current time.
+        Date endingTime = new Date(new Date().getTime() + 60*1000*5);
+        b1.setActivityEndDate(endingTime);
+        Date startingTime = new Date(new Date().getTime() - 60*1000*60*5);
+        b1.setActivityStartDate(startingTime);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            bookingService.saveBooking(b1);
+        }, "Booking was saved despite activity ending in the future.");
+    }
+
+    /**
      * Tests adding data from longer ago than the previous week
      */
     @DirtiesContext
@@ -491,10 +523,7 @@ public class BookingServiceTest
         b1.setActivityStartDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 5)));
         b1.setActivityEndDate(Date.from(Instant.ofEpochMilli(currentEpoch - 1000 * 60 * 60 * 24 * 5 + 1000 * 60 * 30)));
         Assertions.assertDoesNotThrow(() -> bookingService.saveBooking(b1));
-
-
     }
-
 
     /**
      * Tests accessing the save method without being EMPLOYEE
@@ -908,5 +937,230 @@ public class BookingServiceTest
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             bookingService.getNumberOfTeamBookingsWithCategory(new BookingCategory());
         }, "User was able to access method to get number of bookings despite lacking authorization.");
+    }
+
+    /**
+     * Tests getting the last booking of the users dice
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "empl", authorities = {"EMPLOYEE"})
+    public void get_last_booking_by_dice()
+    {
+        User admin = DataHelper.createAdminUser("adminuser", userRepository);
+
+        User u = DataHelper.createUserWithRoles("empl", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Room r = DataHelper.createRoom("testroom", admin, roomRepository);
+        RaspberryPi raspi = DataHelper.createRaspi("raspi", u, r, raspberryPiRepository, roomRepository);
+        Dice d = DataHelper.createDice("anydice", raspi, admin, u, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("testcat1", u, bookingCategoryRepository);
+
+        DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(60)), Date.from(Instant.now().plusSeconds(70)), u, d, bookingRepository);
+        DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(70)), Date.from(Instant.now().plusSeconds(80)), u, d, bookingRepository);
+        Booking last = DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(80)), Date.from(Instant.now().plusSeconds(90)), u, d, bookingRepository);
+
+        Assertions.assertEquals(last, bookingService.getLastBookingForDice(d));
+    }
+
+    /**
+     * Tests getting the last booking of another users dice
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "empl", authorities = {"EMPLOYEE"})
+    public void get_last_booking_by_dice_other_user()
+    {
+        User admin = DataHelper.createAdminUser("adminuser", userRepository);
+
+        User u = DataHelper.createUserWithRoles("empl", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User u2 = DataHelper.createUserWithRoles("emp2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+
+        Room r = DataHelper.createRoom("testroom", admin, roomRepository);
+        RaspberryPi raspi = DataHelper.createRaspi("raspi", u, r, raspberryPiRepository, roomRepository);
+
+        Dice d = DataHelper.createDice("anydice", raspi, admin, u, diceRepository, raspberryPiRepository, roomRepository);
+        Dice d2 = DataHelper.createDice("anydice2", raspi, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            bookingService.getLastBookingForDice(d2);
+        }, "User was able to access method to get last booking from another dice.");
+    }
+
+    /**
+     * Tests getting last booking without EMPLOYEE privileges
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN", "DEPARTMENTLEADER", "TEAMLEADER"})
+    public void get_last_booking_by_dice_unauthorized()
+    {
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            bookingService.getLastBookingForDice(new Dice());
+        }, "User was able to access last booking method despite lacking authorization of EMPLOYEE.");
+    }
+
+    /**
+     * Tests the method to check all bookings in range by category and user
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"EMPLOYEE", "ADMIN"})
+    public void category_range_for_user_and_cat()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+
+        User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+
+        BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
+
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b4 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u2, d2, bookingRepository);
+
+        Collection<Booking> lastWeekCat = bookingService.getBookingInRangeByCategoryAndByUser(u1, cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 10), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 5));
+
+        Assertions.assertFalse(lastWeekCat.contains(b1));
+        Assertions.assertTrue(lastWeekCat.contains(b2));
+        Assertions.assertFalse(lastWeekCat.contains(b3));
+        Assertions.assertFalse(lastWeekCat.contains(b4));
+    }
+
+    /**
+     * Tests the method to check all bookings in range by category and user
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"EMPLOYEE", "ADMIN"})
+    public void category_range_for_all_users()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+
+        User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
+
+        BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
+
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b4 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u2, d2, bookingRepository);
+
+        Collection<Booking> lastWeekCat = bookingService.getBookingInRangeByCategory(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 10), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 5));
+
+        Assertions.assertFalse(lastWeekCat.contains(b1));
+        Assertions.assertTrue(lastWeekCat.contains(b2));
+        Assertions.assertFalse(lastWeekCat.contains(b3));
+        Assertions.assertTrue(lastWeekCat.contains(b4));
+    }
+
+    /**
+     * Tests checking if a users booking was longer than 2 days ago
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void booking_longer_than_2_days_ago()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
+
+        DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000*60*60*24*4), new Date(new Date().getTime() - 1000*60*60*24*4 + 1000*60*30), u1, d1, bookingRepository);
+        Assertions.assertTrue(bookingService.isBookingLongerThan2DaysAgo(u1), "Last booking was not shown as being longer than 2 days ago, but was.");
+        DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000*60*60), new Date(new Date().getTime() - 1000*60*30), u1, d1, bookingRepository);
+        Assertions.assertFalse(bookingService.isBookingLongerThan2DaysAgo(u1), "Last booking was shown to be longer than 2 days ago, but was not.");
+    }
+
+    /**
+     * Tests the method to check all bookings in a certain category last week
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"EMPLOYEE", "ADMIN"})
+    public void category_range_for_last_week()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
+        BookingCategory cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
+
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+
+        Collection<Booking> lastWeekCat = bookingService.getBookingInRangeByCategoryForLastWeek(cat);
+
+        Assertions.assertFalse(lastWeekCat.contains(b1));
+        Assertions.assertTrue(lastWeekCat.contains(b2));
+        Assertions.assertFalse(lastWeekCat.contains(b3));
+    }
+
+    /**
+     * Tests the methods for daily, weekly and monthly booking ranges.
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
+    public void get_booking_ranges()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
+        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
+
+        LocalDate now = LocalDate.now();
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate lastWeek = LocalDate.now().minusWeeks(1);
+        LocalDate lastMonth = LocalDate.now().minusMonths(1);
+
+        //create bookings centered around these dates
+        Booking daybooking = DataHelper.createBooking(cat, Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+        Booking weekbooking = DataHelper.createBooking(cat, Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+        Booking monthbooking = DataHelper.createBooking(cat, Date.from(lastMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+
+        //Create a second set two days/weeks/months ago
+        Booking daybooking2 = DataHelper.createBooking(cat, Date.from(yesterday.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(yesterday.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+        Booking weekbooking2 = DataHelper.createBooking(cat, Date.from(lastWeek.minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+        Booking monthbooking2 = DataHelper.createBooking(cat, Date.from(lastMonth.minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastMonth.minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+
+        //get ranges
+        Collection<Booking> daybookings = bookingService.getUsersBookingInRangeByDay(u1, 1);
+        Collection<Booking> weekbookings = bookingService.getUsersBookingInRangeByWeek(u1, 1);
+        Collection<Booking> monthbookings = bookingService.getUsersBookingInRangeByMonth(u1, 1);
+
+        //asserts
+        Assertions.assertTrue(daybookings.contains(daybooking), "Collection returned incorrect results.");
+        Assertions.assertFalse(daybookings.contains(daybooking2), "Collection returned incorrect results.");
+
+        Assertions.assertTrue(weekbookings.contains(weekbooking), "Collection returned incorrect results.");
+        Assertions.assertFalse(weekbookings.contains(weekbooking2), "Collection returned incorrect results.");
+
+        Assertions.assertTrue(monthbookings.contains(monthbooking), "Collection returned incorrect results.");
+        Assertions.assertFalse(monthbookings.contains(monthbooking2), "Collection returned incorrect results.");
+
+        //get second ranges
+        daybookings = bookingService.getUsersBookingInRangeByDay(u1, 2);
+        weekbookings = bookingService.getUsersBookingInRangeByWeek(u1, 2);
+        monthbookings = bookingService.getUsersBookingInRangeByMonth(u1, 2);
+
+        //asserts
+        Assertions.assertFalse(daybookings.contains(daybooking), "Collection returned incorrect results.");
+        Assertions.assertTrue(daybookings.contains(daybooking2), "Collection returned incorrect results.");
+
+        Assertions.assertFalse(daybookings.contains(weekbookings), "Collection returned incorrect results.");
+        Assertions.assertTrue(daybookings.contains(weekbooking2), "Collection returned incorrect results.");
+
+        Assertions.assertFalse(daybookings.contains(monthbookings), "Collection returned incorrect results.");
+        Assertions.assertTrue(daybookings.contains(monthbooking2), "Collection returned incorrect results.");
     }
 }
