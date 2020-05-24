@@ -128,5 +128,3 @@ fi
 echo "tinyB installed"
 
 echo "Everything installed successfully"
-
-
