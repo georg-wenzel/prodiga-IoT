@@ -1,5 +1,16 @@
 #!/bin/sh
 
+install_apt_dependencies()
+{
+dependencies=$1
+for element in $dependencies;do
+    if ! dpkg -s $element >/dev/null 2>&1; then
+        sudo apt-get install $element
+    fi
+    echo "$element installed"
+done
+}
+
 # change to home directory
 cd ~
 
@@ -8,24 +19,10 @@ sudo apt-get update
 sudo apt-get upgrade
 
 # install git
-git_installed=$(which git | wc -l)
-
-if [ "$git" -eq 0 ]; then
-  echo "installing git"
-  sudo apt-get install git
-fi
-
-echo "git is installed"
+install_apt_dependencies 'git'
 
 # install cmake
-cmake=$(which cmake | wc -l)
-
-if [ "$cmake" -eq 0 ]; then
-  echo "installing cmake"
-  sudo apt-get install cmake
-fi
-
-echo "cmake is installed"
+install_apt_dependencies 'cmake'
 
 # install java jdk-8
 java_installed=$(which java | wc -l)
@@ -50,10 +47,12 @@ fi
 echo "java is installed"
 
 # install maven
-sudo apt-get install maven
+install_apt_dependencies 'maven'
 
 # install dependencies for BlueZ
-sudo apt-get install libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev
+install_apt_dependencies 'libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev'
+
+echo "installed blueZ dependencies"
 
 # ensure that you are in the home directory
 cd ~ 
@@ -93,8 +92,7 @@ sudo systemctl restart bluetooth
 #sudo systemctl status bluetooth | grep "daemon"
 
 # install tinyB dependency
-sudo apt-get install graphviz
-sudo apt-get install doxygen
+install_apt_dependencies 'graphviz doxygen'
 
 # change to standard binary files directory
 cd ~/binary_files 
