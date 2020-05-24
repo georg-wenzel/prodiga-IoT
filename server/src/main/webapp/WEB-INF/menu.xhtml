@@ -57,9 +57,6 @@
                             <p:menuitem id="om_dices_overview" value="Overview" icon="fa fa-fw fa-list-ul" outcome="/dice/dices" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" />
                             <p:menuitem id="om_dices_pending" value="Pending" icon="fa fa-fw fa-toggle-off"
                                         outcome="/dice/dices_pend" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" />
-                            <p:menuitem id="om_dices_add" value="Add Dice" icon="fa fa-fw fa-plus" outcome="/dice/add_dice" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
-                                <f:param name="dice" value="" />
-                            </p:menuitem>
                             <p:menuitem id="dice_config" value="Your Dice" icon="fa fa-fw fa-connectdevelop" outcome="/dice/dice_configuration" rendered="#{prodigaUserLoginManager.hasRole('EMPLOYEE')}" />
                         </p:submenu>
                         <p:submenu id="om_team"
