@@ -52,6 +52,7 @@ public class CalendarController implements Serializable {
 
             DefaultScheduleEvent booking = new DefaultScheduleEvent(x.getBookingCategory().getName(), x.getActivityStartDate(), newEnd, true);
             booking.setData(x);
+            booking.setAllDay(false);
             eventModel.addEvent(booking);
         });
     }
