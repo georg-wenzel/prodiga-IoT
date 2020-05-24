@@ -24,6 +24,7 @@ import uibk.ac.at.prodiga.services.RaspberryPiService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -314,5 +315,20 @@ public class RaspberryPiServiceTest {
 
         Assertions.assertEquals(0, raspberryPiService.getAllPendingRaspberryPis().size(),
                 "Saved Raspi still in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void RaspberryPiService_findByRoom_returnsCorrectRaspi() throws Exception {
+        Room r = DataHelper.createRoom("test", admin, roomRepository);
+
+        RaspberryPi raspi = DataHelper.createRaspi("123", admin, r, raspberryPiRepository, null);
+
+        Collection<RaspberryPi> found = raspberryPiService.findByRoom(r);
+
+        Assertions.assertEquals(1, found.size());
+        RaspberryPi dbRaspi = found.stream().findFirst().orElseThrow(() -> new Exception("NEVER HAPPENS"));
+        Assertions.assertEquals(raspi.getInternalId(), dbRaspi.getInternalId());
     }
 }

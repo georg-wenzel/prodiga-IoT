@@ -82,10 +82,26 @@ public class RaspberryPiService {
                                 "found", MessageType.ERROR));
     }
 
+    /**
+     * Gets the raspberry pi by the given id
+     * @param raspId The id
+     * @return The raspberry pi
+     * @throws Exception When the Rapsi cannot be found
+     */
     public RaspberryPi findById(Long raspId) throws Exception {
         return raspberryPiRepository.findById(raspId)
                 .orElseThrow(
                         () -> new ProdigaGeneralExpectedException("Could not find Raspberry Pi wiht id " + raspId, MessageType.ERROR));
+    }
+
+    /**
+     * Gets all raspberry pis assigned to the given roo
+     * @param room The  room
+     * @return A list with raspberry pis
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<RaspberryPi> findByRoom(Room room) {
+        return raspberryPiRepository.findAllByAssignedRoom(room);
     }
 
     /**
