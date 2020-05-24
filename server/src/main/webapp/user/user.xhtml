@@ -126,21 +126,19 @@
                             </div>
                         </div>
 
-                        <p:outputLabel rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
-                            <div class="ui-g">
+                        <div class="ui-g">
+                            <div class="ui-g-10 input-form">
+                                <div class="ui-g-2 input-form">
+                                    <p:outputLabel for="roles" value="Roles: " />
+                                </div>
                                 <div class="ui-g-10 input-form">
-                                    <div class="ui-g-2 input-form">
-                                        <p:outputLabel for="roles" value="Roles: " />
-                                    </div>
-                                    <div class="ui-g-10 input-form">
-                                        <p:selectManyButton id="roles" disabled="true"
-                                                            value="#{userDetailController.userRoles}">
-                                            <f:selectItems value="#{userDetailController.allUserRoles}" var="role" itemLabel="#{role}" itemValue="#{role}" />
-                                        </p:selectManyButton>
-                                    </div>
+                                    <p:selectManyButton id="roles" disabled="true"
+                                                        value="#{userDetailController.userRoles}">
+                                        <f:selectItems value="#{userDetailController.allUserRoles}" var="role" itemLabel="#{role}" itemValue="#{role}" />
+                                    </p:selectManyButton>
                                 </div>
                             </div>
-                        </p:outputLabel>
+                        </div>
                         <div class="ui-g">
                             <div class="ui-g-10 input-form">
                                 <div class="ui-g-2 input-form">
@@ -158,7 +156,7 @@
                             <p:row style="width: 100%">
                                 <p:column>
                                     <p:selectBooleanCheckbox id="notificationsEnabled" value="#{userDetailController.user.notificationsEnabled}"/>
-                                    <p:outputLabel for="notificationsEnabled" value=" Enable notifications"/>
+                                    <p:outputLabel for="notificationsEnabled" value=" Enable noetifications"/>
                                 </p:column>
 
                             </p:row>
