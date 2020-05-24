@@ -194,4 +194,44 @@ public class DepartmentController implements Serializable {
     public Collection<Team> showTeamsofDepartment(Department department){
         return this.teamService.findTeamsOfDepartment(department);
     }
+
+    /**
+     * Removes the given user from the Department
+     * @param user The user to delete
+     * @throws ProdigaGeneralExpectedException When deleting is not possible
+     */
+    public void deleteUserFromDepartment(User user) throws ProdigaGeneralExpectedException {
+        if(user == null) {
+            return;
+        }
+        userService.assignTeam(user, null);
+        userService.assignDepartment(user, null);
+    }
+
+    /**
+     * Returns whether the given user may be deleted from the given department
+     * @param user The user to check
+     * @param d The team to check
+     * @return Whether the user can be deleted
+     */
+    public boolean mayBeDeleteFromDepartment(User user, Department d) {
+        if(d == null || user == null) {
+            return false;
+        }
+
+        Team userTeam = user.getAssignedTeam();
+        if(userTeam != null) {
+            User teamLeader = userService.getTeamLeaderOf(userTeam);
+            if(teamLeader.getUsername().equals(user.getUsername())) {
+                return false;
+            }
+        }
+
+        User deptLeader = getDepartmentLeaderOf(d);
+        if(deptLeader == null) {
+            return true;
+        }
+
+        return !deptLeader.getUsername().equals(user.getUsername());
+    }
 }

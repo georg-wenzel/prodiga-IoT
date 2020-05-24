@@ -315,7 +315,12 @@ public class UserService {
         dbUser.setAssignedDepartment(department);
         User result = this.saveUser(dbUser);
 
-        logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Department " + department.getName());
+        if(department == null) {
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " unassigned from department");
+        } else {
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Department " + department.getName());
+
+        }
 
         return result;
     }
