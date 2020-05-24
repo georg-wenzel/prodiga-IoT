@@ -117,6 +117,15 @@ public class DiceService {
     }
 
     /**
+     * Gets the dice with the given id
+     * @param id The dices id
+     * @return An Optional with the dice
+     */
+    public Optional<Dice> getDiceById(Long id) {
+        return diceRepository.findById(id);
+    }
+
+    /**
      * Returns all dice which are a signed to teh given raspi
      * @param raspi The raspi
      * @return A list with dices
@@ -184,6 +193,20 @@ public class DiceService {
             dice.setObjectCreatedDateTime(new Date());
             dice.setObjectCreatedUser(user);
         } else {
+
+            // Here we check if the newly saved dice has a different user than previously
+            // First get the dice
+            Optional<Dice> oDice = getDiceById(dice.getId());
+
+            if(oDice.isPresent()) {
+                Dice dbDice = oDice.get();
+
+                // If the dice needs to be cleared (see impl) we clear all bookings and dice sides
+                if(diceNeedsToBeCleared(dice, dbDice)) {
+                    clearDiceData(dice);
+                }
+            }
+
             dice.setObjectChangedUser(user);
             dice.setObjectChangedDateTime(new Date());
         }
@@ -253,9 +276,8 @@ public class DiceService {
         if(dice == null) {
             return;
         }
-        bookingService.deleteBookingsForDice(dice);
 
-        diceSideService.deleteForDice(dice);
+        clearDiceData(dice);
 
         diceRepository.delete(dice);
         logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
@@ -508,5 +530,36 @@ public class DiceService {
                     pendingDices.remove(diceInList);
                     logInformationService.logForCurrentUser("Removed Dice " + diceInList.getInternalId() + " from pending dices");
         });
+    }
+
+    /**
+     * Removes all data associated with the given dice - currently bookings and dice Sides
+     * @param d The dice
+     * @throws ProdigaGeneralExpectedException Can occur when deleting bookings
+     */
+    private void clearDiceData(Dice d) throws ProdigaGeneralExpectedException {
+        bookingService.deleteBookingsForDice(d);
+        diceSideService.deleteForDice(d);
+    }
+
+    /**
+     * Returns whether the given dice and the dice in the db need to be cleared
+     * @param dice The dice to save
+     * @param dbDice The dice in the db
+     * @return Whether the dice needs to be cleared
+     */
+    private boolean diceNeedsToBeCleared(Dice dice, Dice dbDice) {
+        // If the current dice and the dice in the DB both have a user and the user is different
+        // we delete all data from the dice
+        return (
+                dice.getUser() != null && dbDice.getUser() != null &&
+                        !dbDice.getUser().getUsername().equals(dice.getUser().getUsername())
+                )
+                ||
+                // if the current dice does not have an user and the dice in the DB has a user we know
+                // the user is unassigned - clear all data
+                (
+                    dice.getUser() == null && dbDice.getUser() != null
+                );
     }
 }
