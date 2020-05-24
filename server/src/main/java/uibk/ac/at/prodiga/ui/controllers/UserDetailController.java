@@ -1,6 +1,8 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
+import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.FrequencyType;
 import uibk.ac.at.prodiga.model.Team;
@@ -90,10 +92,13 @@ public class UserDetailController implements Serializable {
      * Action to save the currently displayed user.
      */
     public void doSaveUser() throws Exception {
-        if(userDepartmentId != null) this.user.setAssignedDepartment(departmentService.loadDepartment(userDepartmentId));
-        else this.user.setAssignedDepartment(null);
-        if(userTeamId != null) this.user.setAssignedTeam(teamService.loadTeam(userTeamId));
-        else this.user.setAssignedTeam(null);
+
+        if(userLoginManager.hasRole("ADMIN")) {
+            if(userDepartmentId != null) this.user.setAssignedDepartment(departmentService.loadDepartment(userDepartmentId));
+            else this.user.setAssignedDepartment(null);
+            if(userTeamId != null) this.user.setAssignedTeam(teamService.loadTeam(userTeamId));
+            else this.user.setAssignedTeam(null);
+        }
 
         user = this.userService.saveUser(user);
         SnackbarHelper.getInstance()
@@ -127,16 +132,14 @@ public class UserDetailController implements Serializable {
         return userRoleList;
     }
 
-    /**
-     * Returns a list of all existing user roles
-     * @return list of all existing user roles
-     */
-    public List<String> getAllRolesTotal() {
-        List<String> userRoleList = new LinkedList<>();
-        userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
-        userRoleList.add(UserRole.TEAMLEADER.getLabel());
-        userRoleList.add(UserRole.EMPLOYEE.getLabel());
-        return userRoleList;
+    public List<UserRole> getUserRoles()
+    {
+        return userService.getAllUserRoles().stream().filter(x -> this.user.getRoles().contains(x)).collect(Collectors.toList());
+    }
+
+    public List<UserRole> getAllUserRoles()
+    {
+        return Lists.newArrayList(userService.getAllUserRoles());
     }
 
     public void setUserRolesAsString(Set<String> roleList){

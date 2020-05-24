@@ -19,8 +19,8 @@ public class Booking implements Persistable<Long>, Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = Dice.class)
-    private Dice dice;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    private User user;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = BookingCategory.class)
     private BookingCategory bookingCategory;
@@ -64,12 +64,12 @@ public class Booking implements Persistable<Long>, Serializable
         this.id = id;
     }
 
-    public Dice getDice() {
-        return dice;
+    public User getUser() {
+        return user;
     }
 
-    public void setDice(Dice dice) {
-        this.dice = dice;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public BookingCategory getBookingCategory() {

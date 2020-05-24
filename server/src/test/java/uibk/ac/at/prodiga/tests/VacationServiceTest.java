@@ -393,7 +393,7 @@ public class VacationServiceTest
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Dice d = DataHelper.createDice("testdice", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        DataHelper.createBooking(cat, Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 2)), Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 3)),  u1, d, bookingRepository);
+        DataHelper.createBooking(cat, Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 2)), Date.from(Instant.ofEpochMilli(new Date().getTime() + 1000 * 60 * 60 * 24 * 3)),  u1, bookingRepository);
 
         //vacation that overlaps with the booking
         Date fromDate1 = Date.from(LocalDate.now().plusDays(2).atStartOfDay(ZoneId.systemDefault()).toInstant());

@@ -31,6 +31,14 @@ public class MailService {
         this.badgesDBService = badgesDBService;
     }
 
+    /**
+     *
+     * @param toAddress mail address where the mail is send to
+     * @param subject subject of the email
+     * @param text text of the email
+     * @param user user whose statistics are sent
+     * @param frequencyType how often the email should be sent
+     */
     public void sendMail(String toAddress, String subject, String text, User user, FrequencyType frequencyType) {
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -60,6 +68,12 @@ public class MailService {
         logInformationService.logForCurrentUser("Mail sent to " + toAddress);
     }
 
+    /**
+     * sends an email with subject and text to a given address
+     * @param toAddress email address where the mail is send to
+     * @param subject subject of the email
+     * @param text text of the email
+     */
     public void sendMailWithoutStatistic(String toAddress, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toAddress);
@@ -69,11 +83,12 @@ public class MailService {
     }
 
     /**
-     * sends an email to a given user iff the notifications are enabled and if
-     * the user has a valid email adress
+     * sends an email with statistics to a given user iff the notifications are enabled and if
+     * the user has a valid email address
      * @param user user who should receive the email
      * @param subject subject of the email
      * @param text text of the email
+     * @param frequencyType how often the mail should be sent
      */
     public void sendEmailTo(User user, String subject, String text, FrequencyType frequencyType) {
         if(user.getNotificationsEnabled()) {
@@ -83,6 +98,12 @@ public class MailService {
         }
     }
 
+    /**
+     * sends an email without statistics to a given user if the user has a valid email address
+     * @param user user who should receive the email
+     * @param subject subject of the email
+     * @param text text of the email
+     */
     public void sendNotificationTo(User user, String subject, String text) {
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
             sendMailWithoutStatistic(user.getEmail(), subject, text);

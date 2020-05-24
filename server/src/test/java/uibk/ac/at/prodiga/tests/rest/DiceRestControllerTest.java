@@ -216,7 +216,7 @@ public class DiceRestControllerTest {
 
         DataHelper.createDiceSide(d, bc2, 2, notAdmin, diceSideRepository);
 
-        Booking existing = DataHelper.createBooking(bc, notAdmin, d, bookingRepository);
+        Booking existing = DataHelper.createBooking(bc, notAdmin, bookingRepository);
 
         BookingCategory bc3 = DataHelper.createBookingCategory("test2", notAdmin, bookingCategoryRepository);
 
@@ -249,7 +249,7 @@ public class DiceRestControllerTest {
         Assertions.assertEquals(60,
                 (b1.getActivityEndDate().getTime() - b1.getActivityStartDate().getTime()) / 1000);
 
-        Assertions.assertEquals(60,
+        Assertions.assertEquals(120,
                 (b1.getActivityEndDate().getTime() - existing.getActivityEndDate().getTime()) / 1000);
 
         Assertions.assertEquals(1L, allBookings.stream()

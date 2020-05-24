@@ -20,11 +20,11 @@ public class MostWorkingHours implements Badge {
         Collection<Booking> bookings = bookingService.getBookingInRangeByCategoryForLastWeek(category.get());
         HashMap<User, Long> hashMap = new HashMap<>();
         for(Booking b : bookings){
-            if(hashMap.containsKey(b.getDice().getUser())){
-                hashMap.put(b.getDice().getUser(), hashMap.get(b.getDice().getUser()) + b.getActivityEndDate().getTime()-b.getActivityStartDate().getTime());
+            if(hashMap.containsKey(b.getUser())){
+                hashMap.put(b.getUser(), hashMap.get(b.getUser()) + b.getActivityEndDate().getTime()-b.getActivityStartDate().getTime());
             }
             else{
-                hashMap.put(b.getDice().getUser(), b.getActivityEndDate().getTime()-b.getActivityStartDate().getTime());
+                hashMap.put(b.getUser(), b.getActivityEndDate().getTime()-b.getActivityStartDate().getTime());
             }
         }
 

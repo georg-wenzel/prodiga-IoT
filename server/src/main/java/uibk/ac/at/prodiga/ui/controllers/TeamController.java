@@ -27,6 +27,7 @@ public class TeamController implements Serializable {
     private final ProdigaUserLoginManager userLoginManager;
     private Team team;
     private User teamLeader;
+    private Collection<Team> teams;
 
     public TeamController(TeamService teamService, ProdigaUserLoginManager userLoginManager, UserService userService){
         this.teamService = teamService;
@@ -35,11 +36,21 @@ public class TeamController implements Serializable {
     }
 
     /**
-     * Returns a collection of all teams
-     * @return a collection of all teams
+     * Returns a collection of all teams visible to the calling user
+     * @return a collection of all teams visible to the calling user
      */
-    public Collection<Team> getAllTeams(){
-        return teamService.getAllTeams();
+    public Collection<Team> getAllTeams()
+    {
+        if(teams == null)
+        {
+            if (userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN)) {
+                teams = teamService.getAllTeams();
+
+            } else {
+                teams = teamService.findTeamsOfDepartment();
+            }
+        }
+        return teams;
     }
 
     public Department getUserDept()
@@ -134,6 +145,37 @@ public class TeamController implements Serializable {
         }
     }
 
+    /**
+     * Removes the given user from the team
+     * @param user The user to delete
+     * @throws ProdigaGeneralExpectedException When deleting is not possible
+     */
+    public void deleteUserFromTeam(User user) throws ProdigaGeneralExpectedException {
+        if(user == null) {
+            return;
+        }
+        userService.assignTeam(user, null);
+    }
+
+    /**
+     * Returns whether the given user may be deleted from the given team
+     * @param user The user to check
+     * @param t The team to check
+     * @return Whether the user can be deleted
+     */
+    public boolean mayBeDeleteFromTeam(User user, Team t) {
+        if(t == null || user == null) {
+            return false;
+        }
+
+        User teamLeader = getTeamLeaderOf(t);
+        if(teamLeader == null) {
+            return true;
+        }
+
+        return !teamLeader.getUsername().equals(user.getUsername());
+    }
+
     public Team getTeam() {
         return team;
     }
@@ -157,6 +199,7 @@ public class TeamController implements Serializable {
 
     public void doDeleteTeam() throws Exception {
         this.teamService.deleteTeam(team);
+        this.teams = null;
         SnackbarHelper.getInstance()
                 .showSnackBar("Team \"" + team.getName() + "\" deleted!", MessageType.ERROR);
     }

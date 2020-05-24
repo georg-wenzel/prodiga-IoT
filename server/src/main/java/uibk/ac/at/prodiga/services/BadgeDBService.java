@@ -39,7 +39,7 @@ public class BadgeDBService {
      * Returns a collection of all badges for a user.
      * @return A collection of all badges for the given user.
      */
-    @PreAuthorize("principal.username eq #user.username")
+    @PreAuthorize("principal.username eq #user.username || hasAuthority('ADMIN')")
     public Collection<BadgeDB> getAllBadgesByUser(User user) {
         return Lists.newArrayList(badgeDBRepository.findByUser(user));
     }
@@ -105,6 +105,23 @@ public class BadgeDBService {
     }
 
     /**
+     * Deletes all badges for the given user
+     * @param u The users to delete badges
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteBadgesForUser(User u) {
+        if(u == null) {
+            return;
+        }
+
+        Collection<BadgeDB> badges = getAllBadgesByUser(u);
+
+        if(badges.size() > 0) {
+            badges.forEach(this::deleteBadge);
+        }
+    }
+
+    /**
      * Returns the first badge with a matching name (unique identifier)
      * @param name The name of the badge
      * @return The first badge with a matching name, or null if none was found
@@ -133,7 +150,7 @@ public class BadgeDBService {
 
     public Calendar getWeekBeginning(){
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -143,12 +160,26 @@ public class BadgeDBService {
 
     public Calendar getWeekEnd(){
         Calendar cal2 = Calendar.getInstance();
-        cal2.set(Calendar.DAY_OF_WEEK, cal2.getFirstDayOfWeek());
+        cal2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         cal2.set(Calendar.HOUR_OF_DAY, 23);
         cal2.set(Calendar.MINUTE, 59);
         cal2.set(Calendar.SECOND, 0);
         cal2.add(Calendar.DATE, 6);
 
         return cal2;
+    }
+
+    /**
+     * Deletes the given Badge
+     * @param b The badge to delete
+     */
+    private void deleteBadge(BadgeDB b){
+        if(b == null) {
+            return;
+        }
+
+        badgeDBRepository.delete(b);
+
+        logInformationService.logForCurrentUser("Badge " + b.getId() + " was deleted!");
     }
 }

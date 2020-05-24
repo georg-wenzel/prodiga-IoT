@@ -294,7 +294,7 @@ public class BookingCategoryServiceTest {
     public void bookingCategoryService_deleteWithBooking_throws() {
         Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b = DataHelper.createBooking(cat, admin, d, bookingRepository);
+        Booking b = DataHelper.createBooking(cat, admin, bookingRepository);
 
         b.setBookingCategory(cat);
 

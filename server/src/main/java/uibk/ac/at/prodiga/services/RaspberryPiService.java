@@ -82,10 +82,26 @@ public class RaspberryPiService {
                                 "found", MessageType.ERROR));
     }
 
+    /**
+     * Gets the raspberry pi by the given id
+     * @param raspId The id
+     * @return The raspberry pi
+     * @throws Exception When the Rapsi cannot be found
+     */
     public RaspberryPi findById(Long raspId) throws Exception {
         return raspberryPiRepository.findById(raspId)
                 .orElseThrow(
                         () -> new ProdigaGeneralExpectedException("Could not find Raspberry Pi wiht id " + raspId, MessageType.ERROR));
+    }
+
+    /**
+     * Gets all raspberry pis assigned to the given roo
+     * @param room The  room
+     * @return A list with raspberry pis
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Collection<RaspberryPi> findByRoom(Room room) {
+        return raspberryPiRepository.findAllByAssignedRoom(room);
     }
 
     /**
@@ -209,7 +225,7 @@ public class RaspberryPiService {
         List<Dice> assignedDices = diceService.getAllByRaspberryPi(raspi);
         if(!assignedDices.isEmpty()) {
             throw new ProdigaGeneralExpectedException(
-                    "Cannot delete Raspberry Pi because there are still cubes assigned.",
+                    "Cannot delete Raspberry Pi because there are still dices assigned.",
                     MessageType.ERROR);
         }
 
@@ -230,7 +246,8 @@ public class RaspberryPiService {
     /**
      * Deletes raspberry from the pending list
      */
-    private void tryDeletePendingRaspberry(RaspberryPi raspi) {
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void tryDeletePendingRaspberry(RaspberryPi raspi) {
         pendingRaspberryPis.stream()
             .filter(x -> x.getInternalId().equals(raspi.getInternalId()))
             .findFirst().ifPresent(raspiInList -> {

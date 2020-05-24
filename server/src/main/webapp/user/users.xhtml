@@ -18,7 +18,7 @@
                 <div class="card">
                     <h1>Users</h1>
                     <h:form id="userForm">
-                        <p:dataTable id="usersTable" var="user" value="#{userListController.users}" reflow="true" paginator="false">
+                        <p:dataTable id="usersTable" var="user" value="#{userListController.users}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
                             <p:column headerText="Username" filterMatchMode="contains"
                                       filterBy="#{user.username}" sortBy="#{user.username}">
                                 <h:outputText value="#{user.username}"/>
@@ -31,40 +31,36 @@
                                       filterBy="#{user.lastName}" sortBy="#{user.lastName}">
                                 <h:outputText value="#{user.lastName}"/>
                             </p:column>
-                            <p:column filterBy="#{user.roles}" filterMatchMode="in" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
-                                <f:facet name="filter">
-                                    <p:selectCheckboxMenu label="Roles" onchange="PF('usersTable').filter()"
-                                                          styleClass="custom-filter">
-                                        <f:selectItems value="#{userDetailController.allRolesTotal}"/>
-                                    </p:selectCheckboxMenu>
-                                </f:facet>
+                            <p:column headerText="Roles" filterBy="#{user.roles}" filterMatchMode="contains" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <h:outputText value="#{user.roles}" />
                             </p:column>
                             <p:column headerText="Edit historic data" rendered="#{(prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
-                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}">
+                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}" valueChangeListener="#{userListController.editBoxChanged}">
                                     <f:attribute name="userToEdit" value="#{user.username}" />
-                                    <f:ajax listener="#{userListController.editBoxChanged}" />
+                                    <f:ajax />
                                 </p:selectBooleanCheckbox>
                             </p:column>
                             <p:column headerText="Team" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
-                                <p:selectOneMenu value="#{userListController.userTeams[user.username]}" style="width:100%;" partialSubmit="true">
+                                <p:selectOneMenu value="#{userListController.userTeams[user.username]}" style="width:100%;" partialSubmit="true" valueChangeListener="#{userListController.selectMenuChanged}">
                                     <f:selectItem value="#{null}" itemLabel="None" />
                                     <f:selectItems value="#{userListController.departmentTeams}" var="team" itemLabel="#{team}" itemValue="#{team.id}" />
                                     <f:attribute name="userToEdit" value="#{user.username}" />
-                                    <f:ajax event="change" listener="#{userListController.selectMenuChanged}"/>
+                                    <f:ajax />
                                 </p:selectOneMenu>
                             </p:column>
-                            <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
+                            <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center; width:50px;">
                                 <p:selectBooleanCheckbox value="#{user.enabled}" disabled="true" />
                             </p:column>
-                            <p:column style="text-align: center" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                            <p:column style="text-align: center;width:100px;" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="user">
                                     <f:param name="username" value="#{user.username}"/>
                                 </p:linkButton>
-                                <p:commandButton action="#{userDetailController.doDeleteUser}" icon="fa fa-fw fa-trash" title="Delete" update=":userForm:usersTable" style="margin-left:5px;">
+                                <p:commandButton icon="fa fa-fw fa-trash" title="Delete" update=":userForm:usersTable" style="margin-left:5px;">
                                     <f:setPropertyActionListener value="#{user}" target="#{userDetailController.user}" />
+                                    <f:actionListener binding="#{userDetailController.doDeleteUser()}" />
+                                    <f:actionListener binding="#{userListController.forceRefresh()}" />
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this user? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>
                             </p:column>

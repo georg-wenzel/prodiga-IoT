@@ -25,6 +25,15 @@ public class SnackbarHelper {
     }
 
     /**
+     * Returns whether or not a faces context exists
+     * @return true when a faces context exists.
+     */
+    public boolean facesContextExists()
+    {
+        return FacesContext.getCurrentInstance() != null;
+    }
+
+    /**
      * Show snack bar.
      *
      * @param message the message

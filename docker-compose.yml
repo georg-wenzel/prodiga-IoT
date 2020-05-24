@@ -11,8 +11,8 @@ services:
             - MYSQL_ROOT_PASSWORD=root
         ports:
             - 3306:3306
-            
-    server: 
+
+    server:
         build: .
         image: prodiga_server:1.0
         ports:
@@ -23,7 +23,7 @@ services:
             - MYSQL_HOST=db
         restart: always
         volumes:
-            - m2data:/home/prodiga_user/.m2/repository
+            - m2data:${HOME}/.m2/repository
             - ${PWD}/server:/home/prodiga_user/app
 
 volumes:

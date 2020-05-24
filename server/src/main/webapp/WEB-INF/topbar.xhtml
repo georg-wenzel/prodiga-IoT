@@ -14,12 +14,21 @@
             <p:graphicImage name="images/logo.png" library="ecuador-layout" />
         </h:link>
 
+
         <a id="topbar-profile-menu-button" href="#">
             <span>#{prodigaUserLoginManager.getCurrentUser().username}</span>
             <i class="fa fa-angle-down"></i>
         </a>
 
         <ul id="topbar-usermenu">
+            <li>
+                <h:outputLabel rendered="#{diceController.diceBatteryInfoForCurrentUser != null}"
+                               style="color: #BBBBBB; margin-top: 5px; margin-bottom: 5px;">
+                    <i class="fa fa-fw fa-plug"></i>
+                    Battery Status: #{diceController.diceBatteryInfoForCurrentUser}
+                </h:outputLabel>
+            </li>
+            <p:separator />
             <li>
                 <a href="${pageContext.request.contextPath}/user/user.xhtml?username=#{prodigaUserLoginManager.getCurrentUser().username}">
                     <i class="fa fa-fw fa-user"></i>

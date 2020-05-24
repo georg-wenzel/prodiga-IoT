@@ -16,12 +16,11 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
-import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
-import javax.faces.component.html.HtmlSelectBooleanCheckbox;
 import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.event.ValueChangeEvent;
 
 @Component
 @Scope("view")
@@ -60,14 +59,23 @@ public class UserListController implements Serializable
             } else if (u.getRoles().contains(UserRole.TEAMLEADER)) {
                 users = userService.getUsersByTeam();
             }
-            this.userTeams = new HashMap<String,String>();
-            for(User us : users)
-            {
-                if(us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null) this.userTeams.put(us.getUsername(), null);
+            this.userTeams = new HashMap<String, String>();
+            for (User us : users) {
+                if (us.getAssignedTeam() == null || us.getAssignedTeam().getId() == null)
+                    this.userTeams.put(us.getUsername(), null);
                 else this.userTeams.put(us.getUsername(), us.getAssignedTeam().getId().toString());
+
             }
         }
         return users;
+    }
+
+    /**
+     * forces refresh of user data by clearing users list.
+     */
+    public void forceRefresh()
+    {
+        this.users = null;
     }
 
     /**
@@ -108,21 +116,27 @@ public class UserListController implements Serializable
         return null;
     }
 
-    public void editBoxChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    public void editBoxChanged(ValueChangeEvent e) throws ProdigaGeneralExpectedException
     {
-        SelectBooleanCheckbox source = (SelectBooleanCheckbox) e.getSource();
-        Object value = source.getValue();
-        userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)value);
+        userService.setEditAllowed((String) e.getComponent().getAttributes().get("userToEdit"), (boolean)e.getNewValue());
     }
 
-    public void selectMenuChanged(AjaxBehaviorEvent e) throws ProdigaGeneralExpectedException
+    public void selectMenuChanged(ValueChangeEvent e) throws ProdigaGeneralExpectedException
     {
-        SelectOneMenu source = (SelectOneMenu) e.getSource();
         String uname = (String)e.getComponent().getAttributes().get("userToEdit");
-        Long teamId;
-        if(userTeams.get(uname) == null) teamId = null;
-        else teamId = Long.parseLong(userTeams.get(uname));
+
+        Object value = e.getNewValue();
+        Long teamId = null;
+        String teamMap = null;
+
+        if(value != null) {
+            teamMap = value.toString();
+            teamId = Long.parseLong(teamMap);
+        }
+
         userService.assignTeam(uname, teamId);
+
+        userTeams.put(uname, teamMap);
     }
 
     public Map<String, String> getUserTeams() {

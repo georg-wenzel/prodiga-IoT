@@ -82,6 +82,8 @@ public class CubeManager implements Manager {
     public Set<String> getCubeIDList() {
         Set<String> cubeIDs = null;
 
+        updateDeviceList();
+
         if (listOfCubes != null) {
             cubeIDs = listOfCubes.keySet();
         }

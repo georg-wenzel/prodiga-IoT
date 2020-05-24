@@ -31,6 +31,7 @@ public class BookingCategoryController implements Serializable
     private String editCategoryName;
     private long editCategoryId;
     private BookingCategory deleteCategory;
+    private Collection<BookingCategory> bookingCategories;
     private boolean isEditing = false;
     private Map<BookingCategory, Integer> usedInBookings = new HashMap<BookingCategory, Integer>();
 
@@ -51,6 +52,7 @@ public class BookingCategoryController implements Serializable
         cat.setName(newCategoryName);
         bookingCategoryService.save(cat);
         newCategoryName = "";
+        this.bookingCategories = null;
     }
 
     /**
@@ -60,6 +62,7 @@ public class BookingCategoryController implements Serializable
     public void doDeleteCategory() throws ProdigaGeneralExpectedException
     {
         bookingCategoryService.delete(deleteCategory);
+        bookingCategories = null;
     }
 
     /**
@@ -83,11 +86,15 @@ public class BookingCategoryController implements Serializable
         BookingCategory cat = bookingCategoryService.findById(editCategoryId);
         cat.setName(editCategoryName);
         bookingCategoryService.save(cat);
+
+        //force category update
+        bookingCategories = null;
     }
 
     public Collection<BookingCategory> getAllBookingCategories()
     {
-        return bookingCategoryService.findAllCategories();
+        if(bookingCategories == null) bookingCategories = bookingCategoryService.findAllCategories();
+        return bookingCategories;
     }
 
     public String getNewCategoryName()

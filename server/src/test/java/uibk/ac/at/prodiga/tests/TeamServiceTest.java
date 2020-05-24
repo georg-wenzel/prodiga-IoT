@@ -239,13 +239,16 @@ public class TeamServiceTest
      */
     @DirtiesContext
     @Test
-    @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"DEPARTMENTLEADER"})
+    @WithMockUser(username = "TEST_DEPT_LEADER_01", authorities = {"EMPLOYEE", "DEPARTMENTLEADER"})
     public void delete_team() throws ProdigaGeneralExpectedException
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
-        User dept_leader = DataHelper.createUserWithRoles("TEST_DEPT_LEADER_01", Sets.newSet(UserRole.DEPARTMENTLEADER), userRepository);
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        Team team = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        User dept_leader = DataHelper.createUserWithRoles("TEST_DEPT_LEADER_01", Sets.newSet(UserRole.EMPLOYEE, UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+
+        dept_leader.setAssignedDepartment(dept);
+        userRepository.save(dept_leader);
 
         teamService.deleteTeam(team);
 

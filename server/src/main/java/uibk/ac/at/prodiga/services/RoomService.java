@@ -6,18 +6,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.repositories.RaspberryPiRepository;
 import uibk.ac.at.prodiga.repositories.RoomRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Date;
 
@@ -31,16 +28,18 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final LogInformationService logInformationService;
+    private final RaspberryPiService raspberryPiService;
 
     private User getAuthenicatedUser(){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findFirstByUsername(auth.getName());
     }
 
-    public RoomService(RoomRepository roomRepository, UserRepository userRepository, LogInformationService logInformationService){
+    public RoomService(RoomRepository roomRepository, UserRepository userRepository, LogInformationService logInformationService, RaspberryPiService raspberryPiService){
         this.roomRepository = roomRepository;
         this.userRepository = userRepository;
         this.logInformationService = logInformationService;
+        this.raspberryPiService = raspberryPiService;
     }
 
     /**
@@ -117,35 +116,11 @@ public class RoomService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteRoom(Room roomToDelete)  throws DeletionNotAllowedException
     {
-        Room managedRoom = this.getManagedInstance(roomToDelete);
-
-        if(!roomToDelete.getRaspberryPis().isEmpty()) {
+        if(!raspberryPiService.findByRoom(roomToDelete).isEmpty()) {
             throw new DeletionNotAllowedException("Room can not be deleted if there is a Raspberry Pi in it");
         }
         roomRepository.delete(roomToDelete);
         logInformationService.logForCurrentUser("Room " + roomToDelete.getName() + " was deleted!");
-    }
-
-    /**
-     * Adds a raspberry pi to a room
-     * @param room that gets the raspberry pi added
-     * @param raspberryPi to be add to the given room
-     */
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
-        this.getManagedInstance(room).addRaspberryPi(raspberryPi);
-        logInformationService.logForCurrentUser("Raspberry Pi " +raspberryPi.getInternalId() + " added to Room " + room.getName());
-    }
-
-    /**
-     * Removes the raspberry pi from a room
-     * @param room that gets the raspberry pi removed
-     * @param raspberryPi to be removed from the given room
-     */
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
-        this.getManagedInstance(room).removeRaspberryPi(raspberryPi);
-        logInformationService.logForCurrentUser("Raspberry Pi " +raspberryPi.getInternalId() + " removed from Room " + room.getName());
     }
 
     /**
@@ -180,10 +155,15 @@ public class RoomService {
         return room;
     }
 
+    /**
+     * Creates a new room
+     * @return a new room
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room createNewRoom() {
         return new Room();
     }
+
     /**
      * Returns the amount of rooms in the db
      * @return the amount of rooms

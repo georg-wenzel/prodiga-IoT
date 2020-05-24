@@ -17,6 +17,8 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
+import uibk.ac.at.prodiga.rest.dtos.PendingDiceDTO;
+import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.Constants;
@@ -59,6 +61,9 @@ public class DiceServiceTest {
 
     @Autowired
     DiceRestController diceRestController;
+
+    @Autowired
+    BookingRepository bookingRepository;
 
     User admin = null;
     User notAdmin = null;
@@ -393,5 +398,113 @@ public class DiceServiceTest {
         Assertions.assertTrue(all.stream().allMatch(x -> x.getDice().getId().equals(d.getId())));
 
         Assertions.assertFalse(diceService.diceInConfigurationMode(d.getInternalId()), "Dice in configuration mode");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPending_inPending(){
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice not in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingWhichExists_notInPending(){
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice not in pending list");
+
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice added to list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingWhichExistsInDB_notInPending(){
+        DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingWhichNoRaspi_notInPending(){
+        DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingAndSave_notInPending() throws ProdigaGeneralExpectedException {
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice not in pending list");
+
+        Dice d = diceService.getPendingDices().get(0);
+
+        d.setActive(false);
+
+        diceService.save(d);
+
+        Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_deleteDiceWithBookings_diceDeletedNoBookings() throws ProdigaGeneralExpectedException {
+        Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
+        DataHelper.createDiceSide(d, bc, 1, admin, diceSideRepository);
+
+        diceService.deleteDice(d);
+
+        Assertions.assertEquals(0, diceService.getAllDice().size());
     }
 }

@@ -109,6 +109,7 @@ public class DiceConfigurationController implements Serializable
         }
         diceService.completeConfiguration(dice);
         abortMapping();
+        SnackbarHelper.getInstance().showSnackBar("Mapping saved", MessageType.INFO);
     }
 
     /**
@@ -130,6 +131,7 @@ public class DiceConfigurationController implements Serializable
             }
         }
         abortEdit();
+        SnackbarHelper.getInstance().showSnackBar("Mapping saved", MessageType.INFO);
     }
 
     /**
@@ -137,7 +139,7 @@ public class DiceConfigurationController implements Serializable
      */
     public void abortMapping()
     {
-        diceService.unregisterNewSideCallback(uuid);
+        diceService.unregisterNewSideCallback(uuid, dice.getInternalId());
         inConfiguration = false;
     }
 

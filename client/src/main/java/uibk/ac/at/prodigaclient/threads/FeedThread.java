@@ -15,9 +15,9 @@ import java.util.*;
 
 public class FeedThread implements Runnable {
 
-    private final IntrinsicsControllerApi intrinsicsControllerApi;
+    private IntrinsicsControllerApi intrinsicsControllerApi;
     private final Logger logger = LogManager.getLogger();
-    private final List<FeedDTO> toCompleteItems = new ArrayList<>();
+    private final Map<UUID, FeedDTO> toCompleteItems = new HashMap<>();
 
     public FeedThread() {
         this.intrinsicsControllerApi = Constants.getIntrinsicsControllerApi();
@@ -29,6 +29,8 @@ public class FeedThread implements Runnable {
         try {
             while(true) {
                 try {
+                    this.intrinsicsControllerApi = Constants.getIntrinsicsControllerApi();
+
                     logger.info("Feed Thread has awoken");
 
                     handleNewItems();
@@ -63,7 +65,7 @@ public class FeedThread implements Runnable {
                         if(handler != null) {
                             handler.handle(x);
                             if(handler.needsToReportToServer(x)) {
-                                toCompleteItems.add(x);
+                                toCompleteItems.put(x.getId(), x);
                             }
                         }
                     });
@@ -72,7 +74,7 @@ public class FeedThread implements Runnable {
                 }
             });
 
-        intrinsicsControllerApi.getFeedForDevicesUsingGET(allInternalIds).enqueue(callback);
+        intrinsicsControllerApi.getFeedForDevicesUsingPOST(allInternalIds).enqueue(callback);
 
         mre.waitDefaultAndLog("Error while waiting for server request on getting feed", logger);
     }
@@ -81,20 +83,23 @@ public class FeedThread implements Runnable {
 
         List<ManualResetEventSlim> mres = new ArrayList<>();
 
-        for (FeedDTO feed: toCompleteItems) {
+        List<UUID> completed = new ArrayList<>();
+
+        for (FeedDTO feed: toCompleteItems.values()) {
             ManualResetEventSlim mre = new ManualResetEventSlim(false);
 
             ProdigaCallback<Void> callback = new ProdigaCallback<>(mre, Constants.getAuthAction());
 
             logger.info("Completing feed item " + feed.getId());
 
-            intrinsicsControllerApi.completeFeedUsingPOST(feed.getId()).enqueue(callback);
+            intrinsicsControllerApi.completeFeedUsingPATCH(feed.getId()).enqueue(callback);
 
             mres.add(mre);
-
+            completed.add(feed.getId());
         }
 
         mres.forEach(x ->
                 x.waitDefaultAndLog("Error while waiting for server request on completing feed item", logger));
+        completed.forEach(toCompleteItems::remove);
     }
 }

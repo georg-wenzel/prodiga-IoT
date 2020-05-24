@@ -77,15 +77,6 @@ public class RoomDetailController implements Serializable {
         return roomService.getFirstById(id);
     }
 
-
-    public void addRoomToRaspberryPi(Room room, RaspberryPi raspberryPi){
-        roomService.addRoomToRaspberryPi(room,raspberryPi);
-    }
-
-    public void removeRoomFromRaspberryPi(Room room, RaspberryPi raspberryPi){
-        roomService.removeRoomFromRaspberryPi(room,raspberryPi);
-    }
-
     public long getRoomCount(){
         return roomService.getRoomCount();
     }

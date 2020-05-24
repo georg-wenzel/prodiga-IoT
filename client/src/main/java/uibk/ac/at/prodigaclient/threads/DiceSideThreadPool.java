@@ -21,15 +21,15 @@ public class DiceSideThreadPool {
      */
     public void ensureRunningForDice(String internalId) {
         if(!threadPool.containsKey(internalId)) {
-            DiceSideListenerThread listenerThread = new DiceSideListenerThread(internalId);
-            Thread realThread = new Thread(listenerThread, "DiceSideListenerThread " + internalId);
-            Pair<DiceSideListenerThread, Thread> pair = new Pair<>(listenerThread, realThread);
-            threadPool.put(internalId, pair);
+            threadPool.remove(internalId);
         }
         // First make sure the thread impl runs and the start the thread
-        Pair<DiceSideListenerThread, Thread> thread = threadPool.get(internalId);
-        thread.getValue0().ensureRunning();
-        thread.getValue1().start();
+        DiceSideListenerThread listenerThread = new DiceSideListenerThread(internalId);
+        Thread realThread = new Thread(listenerThread, "DiceSideListenerThread " + internalId);
+        listenerThread.ensureRunning();
+        realThread.start();
+        Pair<DiceSideListenerThread, Thread> pair = new Pair<>(listenerThread, realThread);
+        threadPool.put(internalId, pair);
     }
 
     /**

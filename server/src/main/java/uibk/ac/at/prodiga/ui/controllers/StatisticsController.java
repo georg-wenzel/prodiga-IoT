@@ -1,29 +1,29 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 
-import org.primefaces.model.charts.bar.BarChartDataSet;
-import org.primefaces.model.charts.bar.BarChartOptions;
-import org.primefaces.model.charts.optionconfig.legend.Legend;
-import org.primefaces.model.charts.pie.PieChartModel;
-import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.ChartData;
+import org.primefaces.model.charts.bar.BarChartDataSet;
+import org.primefaces.model.charts.bar.BarChartModel;
 import org.primefaces.model.charts.pie.PieChartDataSet;
+import org.primefaces.model.charts.pie.PieChartModel;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.services.ProductivityAnalysisService;
+import uibk.ac.at.prodiga.utils.MessageType;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Component
 @Scope("view")
-@RequestScoped
 @SuppressWarnings("Duplicates")
 public class StatisticsController implements Serializable {
     private final ProductivityAnalysisService productivityAnalysisService;
@@ -41,6 +41,157 @@ public class StatisticsController implements Serializable {
     private BarChartModel weeklyTeamAnalysisBar;
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
+
+    private Date selectedDate;
+    private int backstepDays;
+    private int backstepWeeks;
+    private int backstepMonths;
+
+    private boolean firstInit = true;
+
+    public Date getSelectedDate() {
+        return selectedDate;
+    }
+
+    public void setSelectedDate(Date selectedDate) {
+        this.selectedDate = selectedDate;
+    }
+
+    private int calculateBackstepDays()
+    {
+        Calendar c = Calendar.getInstance();
+        Date date = new Date();
+        c.setTime(date);
+        c.set(Calendar.HOUR_OF_DAY,0);
+        Date today = c.getTime();
+        return (int)((today.getTime() - this.selectedDate.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    public boolean getAtLeastLastMonth()
+    {
+        return calculateBackstepMonths(calculateBackstepDays()) >= 1;
+    }
+
+    public boolean getAtLeastLastWeek()
+    {
+        return calculateBackstepWeeks(calculateBackstepDays()) >= 1;
+    }
+
+    private int calculateBackstepWeeks(int backstepDays)
+    {
+        LocalDate now = LocalDate.now();
+        LocalDate target = LocalDate.now().minusDays(backstepDays);
+
+        int weeksChanged = 0;
+
+
+        while(target.isBefore(now))
+        {
+            now = now.minusDays(1);
+            if(now.getDayOfWeek() == DayOfWeek.SUNDAY) weeksChanged++;
+        }
+
+        return weeksChanged;
+    }
+
+    private int calculateBackstepMonths(int backstepDays)
+    {
+        LocalDate now = LocalDate.now();
+        LocalDate target = LocalDate.now().minusDays(backstepDays);
+
+        int monthsPassed = 0;
+
+        while(target.isBefore(now))
+        {
+            if(now.getMonth() != now.minusDays(1).getMonth()) monthsPassed++;
+            now = now.minusDays(1);
+        }
+
+        return monthsPassed;
+    }
+
+    public void verifyBackstepUser() throws ProdigaGeneralExpectedException
+    {
+        //check that day is max now
+        if(calculateBackstepDays() < 0)
+            throw new ProdigaGeneralExpectedException("Date may not lie in the future.", MessageType.ERROR);
+
+        doSaveBackstep();
+    }
+
+    public void verifyBackstepTeam() throws ProdigaGeneralExpectedException
+    {
+        //check that date is minimum in the last week
+        if(calculateBackstepWeeks(calculateBackstepDays()) < 1)
+            throw new ProdigaGeneralExpectedException("Date must be at least in last week.", MessageType.ERROR);
+
+        doSaveBackstep();
+    }
+
+    public void verifyBackstepDept() throws ProdigaGeneralExpectedException
+    {
+        //check that date is minimum in the last month
+        if(calculateBackstepMonths(calculateBackstepDays()) < 1)
+            throw new ProdigaGeneralExpectedException("Date must be at least in last month.", MessageType.ERROR);
+
+        doSaveBackstep();
+    }
+
+    public void doSaveBackstep()
+    {
+        backstepDays = calculateBackstepDays();
+        backstepWeeks = calculateBackstepWeeks(backstepDays);
+        backstepMonths = calculateBackstepMonths(backstepDays);
+        init();
+    }
+
+    public void userPageInit()
+    {
+        if(selectedDate == null)
+        {
+            selectedDate = Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            backstepDays = 1;
+            backstepWeeks = calculateBackstepWeeks(1);
+            backstepMonths = calculateBackstepMonths(1);
+            init();
+        }
+    }
+
+    public void teamPageInit()
+    {
+        if(selectedDate == null)
+        {
+            selectedDate = Date.from(LocalDate.now().minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            backstepDays = (int) ChronoUnit.DAYS.between(LocalDate.now().minusWeeks(1), LocalDate.now());
+            backstepWeeks = calculateBackstepWeeks(backstepDays);
+            backstepMonths = calculateBackstepMonths(backstepDays);
+            init();
+        }
+    }
+
+    public void deptPageInit()
+    {
+        if(selectedDate == null)
+        {
+            selectedDate = Date.from(LocalDate.now().minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            backstepDays = (int) ChronoUnit.DAYS.between(LocalDate.now().minusMonths(1), LocalDate.now());
+            backstepWeeks = calculateBackstepWeeks(backstepDays);
+            backstepMonths = calculateBackstepMonths(backstepDays);
+            init();
+        }
+    }
+
+    public void statisticsInit()
+    {
+        if(selectedDate == null)
+        {
+            selectedDate = Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+            backstepDays = 1;
+            backstepWeeks = calculateBackstepWeeks(1);
+            backstepMonths = calculateBackstepMonths(1);
+            init();
+        }
+    }
 
     private HashMap<String,String> colorByCategory = new HashMap<String, String>(){{
 
@@ -90,14 +241,14 @@ public class StatisticsController implements Serializable {
 
     }
 
-    @PostConstruct
-    public void init() {
-        createDailyAnalysisPie();
-        createWeeklyAnalysisPie();
-        createMonthlyAnalysisPie();
-        createWeeklyTeamAnalysisPie();
-        createMonthlyTeamAnalysisPie();
-        createMonthlyDepartmentAnalysisPie();
+    public void init()
+    {
+        createDailyAnalysisPie(backstepDays);
+        createWeeklyAnalysisPie(backstepWeeks);
+        createMonthlyAnalysisPie(backstepMonths);
+        createWeeklyTeamAnalysisPie(backstepWeeks);
+        createMonthlyTeamAnalysisPie(backstepMonths);
+        createMonthlyDepartmentAnalysisPie(backstepMonths);
     }
 
     public PieChartModel getDailyAnalysisPie() {
@@ -148,7 +299,38 @@ public class StatisticsController implements Serializable {
         return monthlyDepartmentAnalysisBar;
     }
 
-    private void createWeeklyAnalysisPie() {
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForCurrentUserByDay(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForCurrentUserByDay(backstepDays).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForCurrentUserByWeek(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForCurrentUserByWeek(backstepWeeks).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForCurrentUserByMonth(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForCurrentUserByMonth(backstepMonths).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForTeamByWeek(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForTeamByWeek(backstepWeeks).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForTeamByMonth(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForTeamByMonth(backstepMonths).entrySet();
+        return new ArrayList<>(set);
+    }
+
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForDepartmenByMonth(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForDepartmenByMonth(backstepMonths).entrySet();
+        return new ArrayList<>(set);
+    }
+
+
+    private void createWeeklyAnalysisPie(int backstepWeek) {
         weeklyAnalysisPie = new PieChartModel();
         ChartData data = new ChartData();
 
@@ -164,8 +346,8 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("My First Dataset");
         List<Number> values = new ArrayList<>();
         List<String> labelsBar = new ArrayList<>();
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByWeek(1);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForCurrentUserByWeek(backstepWeek);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory.containsKey(entry.getKey().getName())){
@@ -194,7 +376,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createDailyAnalysisPie() {
+    private void createDailyAnalysisPie(int backstepDay) {
         dailyAnalysisPie = new PieChartModel();
         dailyAnalysisBar = new BarChartModel();
         ChartData data = new ChartData();
@@ -209,8 +391,8 @@ public class StatisticsController implements Serializable {
         List<String> mycolors = new ArrayList<>();
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        Map<BookingCategory, Long> map = productivityAnalysisService.getStatisicForCurrentUserByDay(1);
-        for (Map.Entry<BookingCategory, Long> entry : map.entrySet()) {
+        Map<BookingCategory, Double> map = productivityAnalysisService.getStatisticForCurrentUserByDay(backstepDay);
+        for (Map.Entry<BookingCategory, Double> entry : map.entrySet()) {
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -237,7 +419,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createMonthlyAnalysisPie() {
+    private void createMonthlyAnalysisPie(int backstepMonth) {
         monthlyAnalysisPie = new PieChartModel();
         monthlyAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -252,8 +434,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByMonth(1);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForCurrentUserByMonth(backstepMonth);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -280,7 +462,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createWeeklyTeamAnalysisPie() {
+    private void createWeeklyTeamAnalysisPie(int backstepWeek) {
         weeklyTeamAnalysisPie = new PieChartModel();
         weeklyTeamAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -294,8 +476,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByWeek(1);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForTeamByWeek(backstepWeek);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -323,7 +505,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createMonthlyTeamAnalysisPie() {
+    private void createMonthlyTeamAnalysisPie(int backstepMonth) {
         monthlyTeamAnalysisPie = new PieChartModel();
         monthlyTeamAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -338,8 +520,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByMonth(1);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForTeamByMonth(backstepMonth);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -366,7 +548,7 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("Categories");
     }
 
-    private void createMonthlyDepartmentAnalysisPie() {
+    private void createMonthlyDepartmentAnalysisPie(int backstepMonth) {
         monthlyDepartmentAnalysisPie = new PieChartModel();
         monthlyDepartmentAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
@@ -380,8 +562,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForDepartmenByMonth(1);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForDepartmenByMonth(backstepMonth);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
