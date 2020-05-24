@@ -6,6 +6,7 @@ import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.DiceService;
+import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -22,18 +23,33 @@ public class DiceController implements Serializable {
     private static final long serialVersionUID = 5325687687622577315L;
 
     private final DiceService diceService;
+    private final UserService userService;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
     private Dice dice;
     private Collection<Dice> dices;
 
-    public DiceController(DiceService diceService, ProdigaUserLoginManager prodigaUserLoginManager) {
+    public DiceController(DiceService diceService, ProdigaUserLoginManager prodigaUserLoginManager, UserService userService) {
         this.diceService = diceService;
+        this.userService = userService;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
 
-    public Dice getDice(){
+    public Dice getDice()
+    {
         return this.dice;
+    }
+
+    public String getDiceUser()
+    {
+        if(this.dice.getUser() == null) return "";
+        return this.dice.getUser().getUsername();
+    }
+
+    public void setDiceUser(String user)
+    {
+        if(user == null || user.isEmpty()) this.dice.setUser(null);
+        this.dice.setUser(userService.loadUser(user));
     }
 
     public void setDice(Dice dice){
@@ -98,6 +114,7 @@ public class DiceController implements Serializable {
      * @throws Exception when save fails
      */
     public void doSaveDice() throws Exception {
+        //fix user if null selected
         diceService.save(dice);
         SnackbarHelper.getInstance().showSnackBar("Dice " + dice.getInternalId() + " saved!", MessageType.INFO);
     }
@@ -153,9 +170,6 @@ public class DiceController implements Serializable {
     public void loadDiceById(Long diceId) throws ProdigaGeneralExpectedException {
         if (diceId != null) {
             this.dice = diceService.loadDice(diceId);
-            if(dice.getUser() == null) {
-                dice.setUser(prodigaUserLoginManager.getCurrentUser());
-            }
         } else {
             this.dice = diceService.createDice();
             this.dice.setUser(new User());

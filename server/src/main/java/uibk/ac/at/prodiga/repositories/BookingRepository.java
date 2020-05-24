@@ -22,15 +22,28 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     Booking findFirstByDiceOrderByActivityEndDateDesc(Dice d);
 
     /**
-     * Gets all bookings of a given user in a given timespan, specifically, considering the timespans should be start of days
-     *  - Any booking which lies between beginDate and endDate
+     * Gets all bookings of a given user in a given timespan, specifically any overlapping between start/end-date and the booking
      * @param user The user to check
      * @param beginDate The timespan beginDate
      * @param endDate The timespan endDate
      * @return All matching bookings
      */
     @Query("Select b FROM Booking b WHERE " +
-            "b.dice.user = :user AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
+            "b.dice.user = :user AND " +
+            "(" +
+            //activity is fully covered by timespan
+            "(b.activityStartDate >= :beginDate AND b.activityEndDate <= :endDate) OR " +
+            //timespan is fully covered by activity
+            "(:beginDate >= b.activityStartDate AND :endDate <= b.activityEndDate) OR " +
+            //timespan starts somewhere in the activity
+            "(:beginDate >= b.activityStartDate AND :beginDate <= b.activityEndDate) OR " +
+            //timespan ends somewhere in the activity
+            "(:endDate >= b.activityStartDate AND :endDate <= b.activityEndDate) OR " +
+            //activity begins somewhere in the timespan
+            "(b.activityStartDate >= :beginDate AND b.activityStartDate <= :endDate) OR " +
+            //activity ends somewhere in the timespan
+            "(b.activityEndDate >= :beginDate AND b.activityEndDate <= :endDate)" +
+            ")")
     Collection<Booking> findUsersBookingInRange(@Param("user") User user, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
     @Query("Select b FROM Booking b WHERE " +

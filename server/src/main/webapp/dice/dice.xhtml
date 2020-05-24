@@ -38,7 +38,8 @@
                                     <p:outputLabel for="user" value="User: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
-                                    <p:selectOneMenu id="user" value="#{diceController.dice.user.username}" style="width:100%" >
+                                    <p:selectOneMenu id="user" value="#{diceController.diceUser}" style="width:100%" >
+                                        <f:selectItem itemValue="" itemLabel="Not assigned" />
                                         <f:selectItems value="#{userListController.users}" var="user" itemLabel="#{user.username}" itemValue="#{user.username}"/>
                                     </p:selectOneMenu>
                                 </div>
