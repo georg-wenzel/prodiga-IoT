@@ -401,6 +401,8 @@ namespace Prodiga.SQLFileGenerator
                     {"ROLES", role}
                 };
 
+                i++;
+
                 if (!role.Equals("EMPLOYEE"))
                 {
                     AllData["user_user_role"][i] = new Dictionary<string, object>
