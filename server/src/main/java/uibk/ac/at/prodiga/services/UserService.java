@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
+import io.micrometer.core.instrument.util.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -129,6 +130,12 @@ public class UserService {
 
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
+
+            if(!StringUtils.isEmpty(user.getPassword()) && !dbUser.getPassword().equals(user.getPassword())) {
+                user.setPassword(Constants.PASSWORD_ENCODER.encode(user.getPassword()));
+            } else {
+                user.setPassword(dbUser.getPassword());
+            }
         }
 
         if(user.getRoles() != null) {
