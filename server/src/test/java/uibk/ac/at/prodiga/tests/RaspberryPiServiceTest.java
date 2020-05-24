@@ -208,7 +208,7 @@ public class RaspberryPiServiceTest {
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
                 raspberryPiService.delete(rapsi),
-                "Raspi saved with assigned cubes!");
+                "Raspi saved with assigned dices!");
     }
 
     @DirtiesContext

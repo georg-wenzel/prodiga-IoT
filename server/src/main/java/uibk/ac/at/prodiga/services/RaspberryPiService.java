@@ -209,7 +209,7 @@ public class RaspberryPiService {
         List<Dice> assignedDices = diceService.getAllByRaspberryPi(raspi);
         if(!assignedDices.isEmpty()) {
             throw new ProdigaGeneralExpectedException(
-                    "Cannot delete Raspberry Pi because there are still cubes assigned.",
+                    "Cannot delete Raspberry Pi because there are still dices assigned.",
                     MessageType.ERROR);
         }
 
