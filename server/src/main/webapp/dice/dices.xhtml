@@ -23,9 +23,10 @@
                                       filterBy="#{dice.internalId}" sortBy="#{dice.internalId}">
                                 <h:outputText value="#{dice.internalId}" />
                             </p:column>
-                            <p:column headerText="Assigend User" style="width: 15%; text-align: center" filterMatchMode="contains"
+                            <p:column headerText="Assigned User" style="width: 15%; text-align: center" filterMatchMode="contains"
                                       filterBy="#{dice.user.username}" sortBy="#{dice.user.username}">
-                                <h:outputText value="#{dice.user.username}" />
+                                <h:outputText rendered="#{dice.user != null}" value="#{dice.user.username}" />
+                                <h:outputText rendered="#{dice.user == null}" value="Not Assigned" />
                             </p:column>
                             <p:column headerText="Assigned Raspberry Pi" style="width: 15%; text-align: center" filterMatchMode="contains"
                                       filterBy="#{dice.assignedRaspberry.internalId}" sortBy="#{dice.assignedRaspberry.internalId}">
