@@ -1,34 +1,51 @@
 #!/bin/sh
 
-if [ $# -eq 0 ]; then
-    echo "start_client.sh <path_to_client_root>"
+conf_path="$HOME/.config/prodiga"
+
+if [ ! -d $conf_path ]; then
+    echo "The config path doesn't exist"
+    echo "Did you run the setup.sh"
+    echo "You could also make it manually in $HOME/.config/prodiga"
     exit 1
 fi
 
-if [ -z "$1" ]; then
-    echo "start_client.sh <path_to_client_root>"
+conf_file="$HOME/.config/prodiga/prodigarc"
+
+if [ ! -f $conf_file ]; then
+    echo "The config file doesn't exist"
+    echo "Did you run the setup.sh"
+    echo "You could also make it manually in $HOME/.config/prodiga/prodigarc"
     exit 1
 fi
 
-if [ ! -d $1 ]; then
+client_path=$(cat "$HOME/.config/prodiga/prodigarc")
+
+if [ -z "$client_path" ]; then
+    echo "Client path doesn't exist"
+    echo "Did you run the setup.sh"
+    echo "You could also add it manually in $HOME/.config/prodiga/prodigarc"
+    exit 1
+fi
+
+if [ ! -d "$client_path" ]; then
     echo "path to client must link to valid path"
-    echo "start_client.sh <path_to_client_root>"
+    echo "To fix it manually change it in $HOME/.config/prodiga/prodigarc"
     exit 1
 fi
 
-FILE=$1/pom.xml
-if [ ! -f $FILE ]; then
-    echo "path doesn't link to project root"
-    echo "start_client.sh <path_to_client_root>"
+FILE=$client_path/pom.xml
+if [ ! -f "$client_path" ]; then
+    echo "path to client must link to valid client root"
+    echo "To fix it manually change it in $HOME/.config/prodiga/prodigarc"
     exit 1
 fi
 
-TARGET=$1/target
+TARGET=$client_path/target
 if [ ! -d $TARGET ]; then
     mvn clean install
 fi
 
-cd $1
+cd $client_path
 
 # password und ip wird dan generiert
 sudo java -cp target/prodiga_client-1.0.0.jar:./lib/tinyb.jar:./target/lib/* uibk.ac.at.prodigaclient.Client http://10.0.0.166:8080/ password
