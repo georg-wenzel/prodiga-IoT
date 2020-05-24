@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -103,6 +104,8 @@ public class UserService {
                 throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
             }
 
+            user.setPassword(Constants.PASSWORD_ENCODER.encode(user.getPassword()));
+
             user.setCreateDate(new Date());
             user.setCreateUser(getAuthenticatedUser());
         }
@@ -126,6 +129,10 @@ public class UserService {
 
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
+        }
+
+        if(user.getRoles() != null) {
+            user.getRoles().add(UserRole.EMPLOYEE);
         }
 
         User result = userRepository.save(user);

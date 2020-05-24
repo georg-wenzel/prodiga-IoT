@@ -64,6 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Sonar claims we use a plan text Password encoder which is not the case
         // See below
         auth.jdbcAuthentication().dataSource(dataSource) //NOSONAR
+                .passwordEncoder(passwordEncoder())
                 .usersByUsernameQuery("select username, password, enabled from user where username=?")
                 .authoritiesByUsernameQuery("select user_username, roles from user_user_role where user_username=?");
     }
