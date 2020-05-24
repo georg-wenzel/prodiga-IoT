@@ -222,7 +222,7 @@ public class DepartmentController implements Serializable {
         Team userTeam = user.getAssignedTeam();
         if(userTeam != null) {
             User teamLeader = userService.getTeamLeaderOf(userTeam);
-            if(teamLeader.getUsername().equals(user.getUsername())) {
+            if(teamLeader != null &&  teamLeader.getUsername().equals(user.getUsername())) {
                 return false;
             }
         }

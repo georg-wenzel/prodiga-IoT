@@ -9,8 +9,8 @@ namespace Prodiga.SQLFileGenerator
     {
         #region fields
 
-        private readonly int _roomAmount = 10;
-        private readonly int _departmentAmount = 10;
+        private readonly int _roomAmount = 4;
+        private readonly int _departmentAmount = 4;
         private readonly int _teamAmount;
         private readonly int _bookingCategoriesAmount = 12;
         private readonly int _raspiAmount;
@@ -32,7 +32,7 @@ namespace Prodiga.SQLFileGenerator
         {
             UserData = new Dictionary<string, Dictionary<string, object>>();
             AllData = new Dictionary<string, Dictionary<int, Dictionary<string, object>>>();
-            _teamAmount = _departmentAmount * 4;
+            _teamAmount = _departmentAmount * 2;
             _raspiAmount = _roomAmount * 2;
         }
 
@@ -124,7 +124,7 @@ namespace Prodiga.SQLFileGenerator
                     value["internal_id"] = "testDice" + i;
                     AllData["dice"][i] = value;
 
-                    if (i % (userAmount / _raspiAmount) == 0)
+                    if (i % (userAmount / _raspiAmount) == 0 && i < _raspiAmount)
                     {
                         currentRaspi++;
                     }
