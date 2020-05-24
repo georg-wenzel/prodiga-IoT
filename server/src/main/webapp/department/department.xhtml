@@ -46,6 +46,10 @@
                                                  label="Department name" style="width:100%"/>
                                 </div>
 
+                                <p:outputPanel styleClass="ui-g-8 ui-g-offset-4 input-form"
+                                               rendered="#{userListController.getAllUsersInDepartment(departmentController.department).size() eq 0}">
+                                    To assign a department leader, first please add users to the department.
+                                </p:outputPanel>
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="departmentLeader" value="Department leader: "/>
                                 </div>

@@ -35,6 +35,10 @@
                                                  label="Team name"/>
                                 </div>
 
+                                <p:outputPanel styleClass="ui-g-8 ui-g-offset-4 input-form"
+                                               rendered="#{userListController.getAllUsersInTeam(teamController.team).size() eq 0}">
+                                    To assign a team leader, first please add users to the team.
+                                </p:outputPanel>
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="teamLeader" value="Team leader: "/>
                                 </div>
