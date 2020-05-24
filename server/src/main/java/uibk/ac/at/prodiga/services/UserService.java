@@ -215,6 +215,15 @@ public class UserService {
     }
 
     /**
+     * Returns all users with an assigned department
+     * @return A list with users
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
+    public Collection<User> getUsersWithDepartment(){
+        return Lists.newArrayList(userRepository.findAllWithDepartment());
+    }
+
+    /**
      * Get all users in the same department as the calling user
      * @return A list of users
      */

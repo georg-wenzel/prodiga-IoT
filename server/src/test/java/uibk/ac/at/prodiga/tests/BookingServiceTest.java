@@ -3,7 +3,6 @@ package uibk.ac.at.prodiga.tests;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +16,6 @@ import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -1135,7 +1133,7 @@ public class BookingServiceTest
 
         //get ranges
         Collection<Booking> daybookings = bookingService.getUsersBookingInRangeByDay(u1, 1);
-        Collection<Booking> weekbookings = bookingService.getUsersBookingInRangeByWeek(u1, 1);
+        Collection<Booking> weekbookings = bookingService.getUserBookingInRangeByWeek(u1, 1);
         Collection<Booking> monthbookings = bookingService.getUsersBookingInRangeByMonth(u1, 1);
 
         //asserts
@@ -1150,8 +1148,8 @@ public class BookingServiceTest
 
         //get second ranges
         daybookings = bookingService.getUsersBookingInRangeByDay(u1, 2);
-        weekbookings = bookingService.getUsersBookingInRangeByWeek(u1, 2);
-        monthbookings = bookingService.getUsersBookingInRangeByMonth(u1, 2);
+        weekbookings = bookingService.getUserBookingInRangeByWeek(u1, 2);
+        monthbookings = bookingService.getUserBookingInRangeByMonth(u1, 2);
 
         //asserts
         Assertions.assertFalse(daybookings.contains(daybooking), "Collection returned incorrect results.");

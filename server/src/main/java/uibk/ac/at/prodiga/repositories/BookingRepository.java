@@ -5,6 +5,7 @@ import uibk.ac.at.prodiga.model.*;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * DB Repository for managing Booking Types
@@ -39,4 +40,10 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     @Query("Select b FROM Booking b WHERE " +
             "b.dice.user = :user AND b.bookingCategory = :category AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
     Collection<Booking> findUsersBookingWithCategoryInRange(@Param("user") User user, @Param("category") BookingCategory category, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
+
+    @Query("SELECT b FROM Booking b " +
+            "JOIN Dice d ON d = b.dice " +
+            "WHERE b.activityStartDate > :beginDate AND b.activityEndDate < :endDate " +
+            "AND d.user IN :users")
+    Collection<Booking> getBookingsByUsersInRange(@Param("users") Collection<User> users, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 }

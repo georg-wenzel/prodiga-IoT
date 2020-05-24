@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
+import org.javatuples.Pair;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import javax.xml.crypto.Data;
 import java.awt.print.Book;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -352,40 +354,59 @@ public class BookingService
      * @param backstepWeek how many weeks ago(i.e. backstepWeek = 1 is last week)
      * @return collection of bookings
      */
-    public Collection<Booking> getUsersBookingInRangeByWeek(User user, int backstepWeek){
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.add(Calendar.DATE, -(7*backstepWeek));
-        Date start = c.getTime();
-        c.add(Calendar.DATE, 7);
-        Date end = c.getTime();
-        return getBookingInRangeForUser(user, start, end);
+    public Collection<Booking> getUserBookingInRangeByWeek(User user, int backstepWeek){
+        Pair<Date, Date> startEnd = getWeekStartAndEnd(backstepWeek);
+        return getBookingInRangeForUser(user, startEnd.getValue0(), startEnd.getValue1());
     }
 
     /**
-     * Searches for a collections of bookings for a given user and backstepMonth months ago
+     * Searches for a collections of bookings for a given users and backstepWeek weeks ago
+     *
+     * @param users users that have done the bookings
+     * @param backstepWeek how many weeks ago(i.e. backstepWeek = 1 is last week)
+     * @return collection of bookings
+     */
+    public Collection<Booking> getUsersBookingInRangeByWeek(Collection<User> users, int backstepWeek){
+        Pair<Date, Date> startEnd = getWeekStartAndEnd(backstepWeek);
+        return getBookingsByUsersInRange(users, startEnd.getValue0(), startEnd.getValue1());
+    }
+
+    /**
+     * Searches for a collections of bookings for the given users and backstepMonth months ago
+     *
+     * @param users users that have done the bookings
+     * @param backstepMonth how many months ago(i.e. backstepMonth = 1 is last month)
+     * @return collection of bookings
+     */
+    public Collection<Booking> getUsersBookingInRangeByMonth(Collection<User> users ,int backstepMonth){
+        Pair<Date, Date> startEnd = getMonthStartAndEnd(backstepMonth);
+        return getBookingsByUsersInRange(users, startEnd.getValue0(), startEnd.getValue1());
+    }
+
+    /**
+     * Searches for a collections of bookings for the given user and backstepMonth months ago
      *
      * @param user user that has done the bookings
      * @param backstepMonth how many months ago(i.e. backstepMonth = 1 is last month)
      * @return collection of bookings
      */
-    public Collection<Booking> getUsersBookingInRangeByMonth(User user,int backstepMonth){
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.DAY_OF_MONTH, 1);
-        c.add(Calendar.MONTH, -backstepMonth);
-        Date start = c.getTime();
-        c.add(Calendar.MONTH, 1);
-        Date end = c.getTime();
-        return getBookingInRangeForUser(user, start, end);
+    public Collection<Booking> getUserBookingInRangeByMonth(User user ,int backstepMonth) {
+        Pair<Date, Date> startEnd = getMonthStartAndEnd(backstepMonth);
+        return getBookingInRangeForUser(user, startEnd.getValue0(), startEnd.getValue1());
+    }
+
+    /**
+     * Returns all bookings by the given users in the given range
+     * @param users The users
+     * @param begin The begin date
+     * @param end The end date
+     * @return A list of bookings
+     */
+    public Collection<Booking> getBookingsByUsersInRange(Collection<User> users, Date begin, Date end) {
+        if(users.size() == 0) {
+            return new ArrayList<>();
+        }
+        return bookingRepository.getBookingsByUsersInRange(users, begin, end);
     }
 
      /* Searches for a collections of bookings for a given booking category and period of time
@@ -439,5 +460,34 @@ public class BookingService
         else{
             return false;
         }
+    }
+
+    private Pair<Date, Date> getMonthStartAndEnd(int backstepMonth) {
+        Calendar c = getStartOfWeek();
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        c.add(Calendar.MONTH, -backstepMonth);
+        Date start = c.getTime();
+        c.add(Calendar.MONTH, 1);
+        Date end = c.getTime();
+        return new Pair<>(start, end);
+    }
+
+    private Pair<Date, Date> getWeekStartAndEnd(int backstepWeek) {
+        Calendar c = getStartOfWeek();
+        c.add(Calendar.DATE, -(7*backstepWeek));
+        Date start = c.getTime();
+        c.add(Calendar.DATE, 7);
+        Date end = c.getTime();
+        return new Pair<>(start, end);
+    }
+
+    private Calendar getStartOfWeek() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        return c;
     }
 }

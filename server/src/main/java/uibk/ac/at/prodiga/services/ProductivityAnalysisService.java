@@ -8,9 +8,8 @@ import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -44,133 +43,69 @@ public class ProductivityAnalysisService {
     }
 
     public HashMap<BookingCategory, Double> getStatisticForUserByDay(int backstepDay, User user){
-        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
-        double hours;
-        for(Booking booking: bookingService.getUsersBookingInRangeByDay(user,backstepDay)){
-            hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime())/(10*60*60.0)) / 100.0;
-            if(hashMap.containsKey(booking.getBookingCategory())){
-                double before = hashMap.get(booking.getBookingCategory());
-                hashMap.put(booking.getBookingCategory(),before+hours);
-            }
-            else{
-                hashMap.put(booking.getBookingCategory(),hours);
-            }
-        }
-        return hashMap;
+        return getStatisticDataFromBookings(bookingService.getUsersBookingInRangeByDay(user, backstepDay));
     }
 
     public HashMap<BookingCategory,Double> getStatisticForUserByWeek(int backstepWeek, User user) {
-        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
-        double hours;
-        for(Booking booking: bookingService.getUsersBookingInRangeByWeek(user,backstepWeek)){
-            hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) /(10*60*60.0)) / 100.0;;
-            if(hashMap.containsKey(booking.getBookingCategory())){
-                double before = hashMap.get(booking.getBookingCategory());
-                hashMap.put(booking.getBookingCategory(),before+hours);
-            }
-            else{
-                hashMap.put(booking.getBookingCategory(),hours);
-            }
-        }
-        return hashMap;
+        return getStatisticDataFromBookings(bookingService.getUserBookingInRangeByWeek(user, backstepWeek));
     }
 
     public HashMap<BookingCategory,Double> getStatisticForUserByMonth(int backstepMonth, User user){
-        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
-        double hours;
-        for(Booking booking: bookingService.getUsersBookingInRangeByMonth(user,backstepMonth)){
-            hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) /(10*60*60.0)) / 100.0;
-            if(hashMap.containsKey(booking.getBookingCategory())){
-                double before = hashMap.get(booking.getBookingCategory());
-                hashMap.put(booking.getBookingCategory(),before+hours);
-            }
-            else{
-                hashMap.put(booking.getBookingCategory(),hours);
-            }
-        }
-        return hashMap;
+        return getStatisticDataFromBookings(bookingService.getUserBookingInRangeByMonth(user, backstepMonth));
     }
-
-
 
     public HashMap<BookingCategory,Double> getStatisticForTeamByWeek(int backstepWeek){
-        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
         Team myTeam = user.getAssignedTeam();
-        double hours = 0;
-        double before = 0;
-        if(user.getRoles().contains(UserRole.TEAMLEADER))
-        {
-            for(User teamMember: userService.getUsersByTeam(myTeam)) {
-                for (Booking booking : bookingService.getUsersBookingInRangeByWeek(teamMember, backstepWeek)) {
-                    hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (10 * 60 * 60.0)) / 100.0;
-                    if (hashMap.containsKey(booking.getBookingCategory())) {
-                        before = hashMap.get(booking.getBookingCategory());
-                        hashMap.put(booking.getBookingCategory(), before + hours);
-                    } else {
-                        hashMap.put(booking.getBookingCategory(), hours);
-                    }
-                }
-            }
+
+        if(user.getRoles().contains(UserRole.TEAMLEADER))  {
+            return getStatisticDataFromBookings(bookingService.getUsersBookingInRangeByWeek(userService.getUsersByTeam(myTeam), backstepWeek));
         }
-        return hashMap;
+        return new HashMap<>();
     }
+
     public HashMap<BookingCategory,Double> getStatisticForTeamByMonth(int backstepMonth){
-        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
         Team myTeam = user.getAssignedTeam();
-        double hours = 0;
-        double before = 0;
+
         if(user.getRoles().contains(UserRole.TEAMLEADER)){
-            for(User teamMember: userService.getUsersByTeam(myTeam)) {
-                for (Booking booking : bookingService.getUsersBookingInRangeByMonth(teamMember, backstepMonth)) {
-                    hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (10 * 60 * 60.0)) / 100.0;
-                    if (hashMap.containsKey(booking.getBookingCategory())) {
-                        before = hashMap.get(booking.getBookingCategory());
-                        hashMap.put(booking.getBookingCategory(), before + hours);
-                    } else {
-                        hashMap.put(booking.getBookingCategory(), hours);
-                    }
-                }
-            }
+            return getStatisticDataFromBookings(bookingService.getUsersBookingInRangeByMonth(userService.getUsersByTeam(myTeam), backstepMonth));
         }
-        return hashMap;
+        return new HashMap<>();
     }
 
     public HashMap<BookingCategory,Double> getStatisticForDepartmenByMonth(int backstepMonth){
-        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
         User user = userLoginManager.getCurrentUser();
-        double hours = 0;
-        double before = 0;
 
-        Map<String, User> userPerName = new HashMap<>();
+        List<User> users = new ArrayList<>();
 
         if(user.getRoles().contains(UserRole.ADMIN)) {
-            departmentService.getAllDepartments().forEach(x -> {
-                userService.getUsersByDepartment(x).forEach(y -> {
-                    userPerName.put(y.getUsername(), y);
-                });
-            });
-
-
+            users.addAll(userService.getUsersWithDepartment());
         } else if(user.getRoles().contains(UserRole.DEPARTMENTLEADER)) {
             Department myDepartment = user.getAssignedDepartment();
-            userService.getUsersByDepartment(myDepartment).forEach(x -> {
-                userPerName.put(x.getUsername(), x);
-            });
+            users.addAll(userService.getUsersByDepartment(myDepartment));
         }
 
-        for(User departmentMember: userPerName.values()) {
-            for (Booking booking : bookingService.getUsersBookingInRangeByMonth(departmentMember, backstepMonth)) {
-                hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (10 * 60 * 60.0)) / 100.0;
-                if (hashMap.containsKey(booking.getBookingCategory())) {
-                    before = hashMap.get(booking.getBookingCategory());
-                    hashMap.put(booking.getBookingCategory(), before + hours);
-                } else {
-                    hashMap.put(booking.getBookingCategory(), hours);
-                }
+        users = users.stream().distinct().collect(Collectors.toList());
+
+        return getStatisticDataFromBookings(bookingService.getUsersBookingInRangeByMonth(users, backstepMonth));
+    }
+
+    private HashMap<BookingCategory, Double> getStatisticDataFromBookings(Collection<Booking> bookings) {
+        HashMap<BookingCategory, Double> hashMap = new HashMap<>();
+
+        double hours = 0.0;
+
+        for (Booking booking : bookings) {
+            hours = Math.round((booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime()) / (10 * 60 * 60.0)) / 100.0;
+            Double before = hashMap.getOrDefault(booking.getBookingCategory(), null);
+            if (before != null) {
+                hashMap.put(booking.getBookingCategory(), before + hours);
+            } else {
+                hashMap.put(booking.getBookingCategory(), hours);
             }
         }
+
         return hashMap;
     }
 
