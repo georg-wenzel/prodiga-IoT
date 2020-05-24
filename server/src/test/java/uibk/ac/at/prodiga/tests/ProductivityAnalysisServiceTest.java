@@ -106,9 +106,9 @@ public class ProductivityAnalysisServiceTest {
         Date startTime2 = Date.from(LocalDate.now().minusDays(2).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,d1,bookingRepository);
 
-        HashMap<BookingCategory,Long> dailyStatistic = new HashMap<>();
-        dailyStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisicForCurrentUserByDay(1));
+        HashMap<BookingCategory,Double> dailyStatistic = new HashMap<>();
+        dailyStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisticForCurrentUserByDay(1));
 
     }
 
@@ -125,10 +125,10 @@ public class ProductivityAnalysisServiceTest {
         Date startTime2 = Date.from(LocalDate.now().minusDays(1).atTime(9,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,d1,bookingRepository);
 
-        HashMap<BookingCategory,Long> dailyStatistic = new HashMap<>();
-        dailyStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        dailyStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) / (1000*60*60));
-        Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisicForCurrentUserByDay(1));
+        HashMap<BookingCategory,Double> dailyStatistic = new HashMap<>();
+        dailyStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        dailyStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) / (1000*60*60.0));
+        Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisticForCurrentUserByDay(1));
     }
 
     @DirtiesContext
@@ -147,13 +147,13 @@ public class ProductivityAnalysisServiceTest {
         Date startTime3 = Date.from(LocalDate.now().minusDays(3).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u1,d1,bookingRepository);
 
-        HashMap<BookingCategory,Long> backstep1Statistic = new HashMap<>();
-        backstep1Statistic.put(cat1, (endTime2.getTime()-startTime2.getTime()) / (1000*60*60));
-        HashMap<BookingCategory,Long> backstep2Statistic = new HashMap<>();
-        backstep2Statistic.put(cat2, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
+        HashMap<BookingCategory,Double> backstep1Statistic = new HashMap<>();
+        backstep1Statistic.put(cat1, (endTime2.getTime()-startTime2.getTime()) / (1000*60*60.0));
+        HashMap<BookingCategory,Double> backstep2Statistic = new HashMap<>();
+        backstep2Statistic.put(cat2, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
 
-        Assertions.assertEquals(backstep1Statistic,productivityAnalysisService.getStatisicForCurrentUserByDay(1));
-        Assertions.assertEquals(backstep2Statistic, productivityAnalysisService.getStatisicForCurrentUserByDay(2));
+        Assertions.assertEquals(backstep1Statistic,productivityAnalysisService.getStatisticForCurrentUserByDay(1));
+        Assertions.assertEquals(backstep2Statistic, productivityAnalysisService.getStatisticForCurrentUserByDay(2));
     }
 
     @DirtiesContext
@@ -168,9 +168,9 @@ public class ProductivityAnalysisServiceTest {
         Date startTime2 = Date.from(LocalDate.now().minusDays(14).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking2 = DataHelper.createBooking(cat1,endTime2,endTime2,u1,d1,bookingRepository);
 
-        HashMap<BookingCategory,Long> thisWeekStatistic = new HashMap<>();
-        thisWeekStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        Assertions.assertEquals(thisWeekStatistic, productivityAnalysisService.getStatisicForCurrentUserByWeek(1));
+        HashMap<BookingCategory,Double> thisWeekStatistic = new HashMap<>();
+        thisWeekStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        Assertions.assertEquals(thisWeekStatistic, productivityAnalysisService.getStatisticForCurrentUserByWeek(1));
     }
 
     @DirtiesContext
@@ -207,15 +207,15 @@ public class ProductivityAnalysisServiceTest {
         Date startTime3 = Date.from(LocalDate.now().minusMonths(2).atTime(5,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking3 = DataHelper.createBooking(cat1, startTime3, endTime3, u1, d1, bookingRepository);
 
-        HashMap<BookingCategory,Long> prevMonthStatistics = new HashMap<>();
-        prevMonthStatistics.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        prevMonthStatistics.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60));
+        HashMap<BookingCategory,Double> prevMonthStatistics = new HashMap<>();
+        prevMonthStatistics.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        prevMonthStatistics.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60.0));
 
-        HashMap<BookingCategory,Long> twoMonthStatistic = new HashMap<>();
-        twoMonthStatistic.put(cat1, (endTime3.getTime()-startTime3.getTime()) / (1000*60*60));
+        HashMap<BookingCategory,Double> twoMonthStatistic = new HashMap<>();
+        twoMonthStatistic.put(cat1, (endTime3.getTime()-startTime3.getTime()) / (1000*60*60.0));
 
-        Assertions.assertEquals(prevMonthStatistics, productivityAnalysisService.getStatisicForCurrentUserByMonth(1));
-        Assertions.assertEquals(twoMonthStatistic, productivityAnalysisService.getStatisicForCurrentUserByMonth(2));
+        Assertions.assertEquals(prevMonthStatistics, productivityAnalysisService.getStatisticForCurrentUserByMonth(1));
+        Assertions.assertEquals(twoMonthStatistic, productivityAnalysisService.getStatisticForCurrentUserByMonth(2));
     }
 
 
@@ -236,10 +236,10 @@ public class ProductivityAnalysisServiceTest {
         Date startTime3 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
-        HashMap<BookingCategory,Long> teamWeekStatistic = new HashMap<>();
-        teamWeekStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        teamWeekStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60));
-        Assertions.assertEquals(teamWeekStatistic, productivityAnalysisService.getStatisicForTeamByWeek(1));
+        HashMap<BookingCategory,Double> teamWeekStatistic = new HashMap<>();
+        teamWeekStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        teamWeekStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60.0));
+        Assertions.assertEquals(teamWeekStatistic, productivityAnalysisService.getStatisticForTeamByWeek(1));
     }
 
     @DirtiesContext
@@ -285,11 +285,11 @@ public class ProductivityAnalysisServiceTest {
         }
         Booking booking3 = DataHelper.createBooking(cat1,startTime3,endTime3,u3,d3,bookingRepository);
 
-        HashMap<BookingCategory,Long> thisMonthStatistic = new HashMap<>();
-        thisMonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForCurrentUserByMonth(1));
-        thisMonthStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60));
-        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForTeamByMonth(1));
+        HashMap<BookingCategory,Double> thisMonthStatistic = new HashMap<>();
+        thisMonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisticForCurrentUserByMonth(1));
+        thisMonthStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60.0));
+        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisticForTeamByMonth(1));
     }
 
     @DirtiesContext
@@ -335,10 +335,10 @@ public class ProductivityAnalysisServiceTest {
         }
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
-        HashMap<BookingCategory,Long> backstep1MonthStatistic = new HashMap<>();
-        backstep1MonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        backstep1MonthStatistic.put(cat2, ((endTime2.getTime()-startTime2.getTime()) + (endTime3.getTime()-startTime3.getTime())) /(1000*60*60));
-        Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisicForDepartmenByMonth(1));
+        HashMap<BookingCategory,Double> backstep1MonthStatistic = new HashMap<>();
+        backstep1MonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        backstep1MonthStatistic.put(cat2, ((endTime2.getTime()-startTime2.getTime()) + (endTime3.getTime()-startTime3.getTime())) /(1000*60*60.0));
+        Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisticForDepartmenByMonth(1));
 
     }
 
@@ -384,11 +384,11 @@ public class ProductivityAnalysisServiceTest {
         }
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
-        HashMap<BookingCategory,Long> backstep1MonthStatistic = new HashMap<>();
-        backstep1MonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
-        backstep1MonthStatistic.put(cat2, ((endTime2.getTime()-startTime2.getTime()) + (endTime3.getTime()-startTime3.getTime())) /(1000*60*60));
+        HashMap<BookingCategory,Double> backstep1MonthStatistic = new HashMap<>();
+        backstep1MonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60.0));
+        backstep1MonthStatistic.put(cat2, ((endTime2.getTime()-startTime2.getTime()) + (endTime3.getTime()-startTime3.getTime())) /(1000*60*60.0));
 
-        Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisicForDepartmenByMonth(1));
+        Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisticForDepartmenByMonth(1));
 
     }
 }
