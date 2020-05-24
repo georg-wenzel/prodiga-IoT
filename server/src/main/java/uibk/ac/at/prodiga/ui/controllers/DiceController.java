@@ -61,7 +61,9 @@ public class DiceController implements Serializable {
      * @return A list with dices
      */
     public Collection<Dice> getAllDices() {
-        dices = this.diceService.getAllDice();
+        if(dices == null) {
+            dices = this.diceService.getAllDice();
+        }
         return dices;
     }
 
@@ -183,6 +185,7 @@ public class DiceController implements Serializable {
      */
     public void deleteDice(Dice dice) throws Exception {
         this.diceService.deleteDice(dice);
+        dices = null;
         SnackbarHelper.getInstance()
                 .showSnackBar("Dice \"" + dice.getInternalId() + "\" deleted!", MessageType.ERROR);
     }

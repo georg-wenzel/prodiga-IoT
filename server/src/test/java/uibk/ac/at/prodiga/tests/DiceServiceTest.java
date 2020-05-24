@@ -503,11 +503,8 @@ public class DiceServiceTest {
         BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
         DataHelper.createDiceSide(d, bc, 1, admin, diceSideRepository);
 
-        Assertions.assertEquals(1, Lists.newArrayList(bookingRepository.findAll()).size());
-
         diceService.deleteDice(d);
 
         Assertions.assertEquals(0, diceService.getAllDice().size());
-        Assertions.assertEquals(0, Lists.newArrayList(diceSideRepository.findAll()).size());
     }
 }

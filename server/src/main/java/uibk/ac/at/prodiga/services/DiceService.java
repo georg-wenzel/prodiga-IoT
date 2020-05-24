@@ -32,7 +32,6 @@ public class DiceService {
     private final BookingCategoryService bookingCategoryService;
     private final RaspberryPiService raspberryPiService;
 
-    private List<Dice> activeDice;
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
     private final Map<Pair<UUID, String>, Instant> survivingTimerMap = new HashMap<>();
@@ -53,21 +52,17 @@ public class DiceService {
      */
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public List<Dice> getAllDice() {
-        if(activeDice == null)
-        {
-            User currentUser = prodigaUserLoginManager.getCurrentUser();
-            if(currentUser.getRoles().contains(UserRole.ADMIN)) {
-                activeDice = Lists.newArrayList(diceRepository.findAll());
+        User currentUser = prodigaUserLoginManager.getCurrentUser();
+        if(currentUser.getRoles().contains(UserRole.ADMIN)) {
+            return Lists.newArrayList(diceRepository.findAll());
+        } else {
+            Dice d = getDiceByUser(currentUser);
+            if(d != null) {
+                return Lists.newArrayList(d);
             } else {
-                Dice d = getDiceByUser(currentUser);
-                if(d != null) {
-                    activeDice = Lists.newArrayList(d);
-                } else {
-                    activeDice = new ArrayList<>();
-                }
+                return new ArrayList<>();
             }
         }
-        return activeDice;
     }
 
     /**
@@ -283,7 +278,6 @@ public class DiceService {
         clearDiceData(dice);
 
         diceRepository.delete(dice);
-        activeDice = null;
         logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
     }
 
