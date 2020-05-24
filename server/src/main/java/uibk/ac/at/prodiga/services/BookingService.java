@@ -48,20 +48,20 @@ public class BookingService
     }
 
     /**
-     * Returns a collection of all bookings for a dice.
-     * @return A collection of all bookings for the given dice.
+     * Returns a collection of all bookings for a user.
+     * @return A collection of all bookings for the given user.
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
-    public Collection<Booking> getAllBookingsByDice(Dice dice)
+    public Collection<Booking> getAllBookingsByUser(User user)
     {
         User currentUser = userLoginManager.getCurrentUser();
 
         if((currentUser != null && !currentUser.getRoles().contains(UserRole.ADMIN)) &&
-                !diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) {
+                !currentUser.equals(user)) {
             throw new RuntimeException("Illegal attempt to load dice data from other user.");
         }
 
-        return Lists.newArrayList(bookingRepository.findAllByDice(dice));
+        return Lists.newArrayList(bookingRepository.findAllByUser(user));
     }
 
     /**
@@ -71,28 +71,16 @@ public class BookingService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Booking> getAllBookingsByCurrentUser()
     {
-        Dice dice = diceService.getDiceByUser(userLoginManager.getCurrentUser());
-        return Lists.newArrayList(bookingRepository.findAllByDice(dice));
+        return Lists.newArrayList(bookingRepository.findAllByUser(userLoginManager.getCurrentUser()));
     }
 
     /**
-     * Returns the last booking for the given dice
-     * @param d The dice
+     * Returns the last booking for the given user
+     * @param u The user
      * @return The last booking for this dice, i.e. the one furthest in the future
      */
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public Booking getLastBookingForDiceWithAuth(Dice d) {
-        if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(d)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
-        return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
-    }
-
-    /**
-     * Returns the last booking for the given dice
-     * @param d The dice
-     * @return The last booking for this dice, i.e. the one furthest in the future
-     */
-    public Booking getLastBookingForDice(Dice d) {
-        return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
+    public Booking getLastBookingForUser(User u) {
+        return bookingRepository.findFirstByUserOrderByActivityEndDateDesc(u);
     }
 
     /**
@@ -174,7 +162,7 @@ public class BookingService
         {
             throw new ProdigaGeneralExpectedException("Cannot set activity data for the future.", MessageType.ERROR);
         }
-        if(!booking.getDice().getUser().equals(u))
+        if(!booking.getUser().equals(u))
         {
             throw new RuntimeException("User may only modify his own activities.");
         }
@@ -216,9 +204,9 @@ public class BookingService
             {
                 throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
             };
-            if(!db_booking.getDice().equals(booking.getDice()))
+            if(!db_booking.getUser().equals(booking.getUser()))
             {
-                throw new RuntimeException("The dice of an activity may not be changed, as it is tied to the user.");
+                throw new RuntimeException("The user of an activity may not be changed, as it is tied to the user.");
             }
 
             booking.setObjectChangedDateTime(new Date());
@@ -241,7 +229,7 @@ public class BookingService
     public Booking loadBooking(long id)
     {
         Booking b = bookingRepository.findFirstById(id);
-        if(b.getDice().getUser().equals(userLoginManager.getCurrentUser())) return b;
+        if(b.getUser().equals(userLoginManager.getCurrentUser())) return b;
         throw new RuntimeException("Illegal attempt to load booking from other user.");
     }
 
@@ -259,7 +247,7 @@ public class BookingService
             booking = bookingRepository.findFirstById(booking.getId());
             if(booking == null) return;
 
-            if(!booking.getDice().getUser().equals(u))
+            if(!booking.getUser().equals(u))
             {
                 throw new RuntimeException("User cannot delete other user's bookings.");
             }
@@ -277,15 +265,15 @@ public class BookingService
     }
 
     /**
-     * Deletes all bookings for the given dice
-     * @param d The dice
+     * Deletes all bookings for the given user
+     * @param u The user
      */
-    public void deleteBookingsForDice(Dice d) throws ProdigaGeneralExpectedException {
-        if(d == null) {
+    public void deleteBookingsForUser(User u) throws ProdigaGeneralExpectedException {
+        if(u == null) {
             return;
         }
 
-        Collection<Booking> bookings = getAllBookingsByDice(d);
+        Collection<Booking> bookings = getAllBookingsByUser(u);
         if(bookings.size() > 0) {
             for(Booking b : bookings) {
                 deleteBooking(b, true);

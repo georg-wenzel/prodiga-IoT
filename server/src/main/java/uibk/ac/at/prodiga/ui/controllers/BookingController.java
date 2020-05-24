@@ -83,8 +83,8 @@ public class BookingController implements Serializable
     public void doSaveBooking() throws ProdigaGeneralExpectedException
     {
         //set fields if not already present
-        if(this.booking.getDice() == null)
-            this.booking.setDice(diceService.getDiceByUser(user));
+        if(this.booking.getUser() == null)
+            this.booking.setUser(user);
         if(this.booking.getTeam() == null)
             this.booking.setTeam(user.getAssignedTeam());
         if(this.booking.getDept() == null)
@@ -119,7 +119,7 @@ public class BookingController implements Serializable
 
     public Collection<Booking> getUserBookings()
     {
-        userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
+        userBookings = bookingService.getAllBookingsByUser(user);
         return userBookings;
     }
 

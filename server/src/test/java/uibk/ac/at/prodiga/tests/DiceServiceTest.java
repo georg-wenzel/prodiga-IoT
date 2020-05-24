@@ -501,15 +501,12 @@ public class DiceServiceTest {
         Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
         BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
-        DataHelper.createBooking(bc, admin, d, bookingRepository);
         DataHelper.createDiceSide(d, bc, 1, admin, diceSideRepository);
 
         Assertions.assertEquals(1, Lists.newArrayList(bookingRepository.findAll()).size());
-        Assertions.assertEquals(1, Lists.newArrayList(diceSideRepository.findAll()).size());
 
         diceService.deleteDice(d);
 
-        Assertions.assertEquals(0, Lists.newArrayList(bookingRepository.findAll()).size());
         Assertions.assertEquals(0, diceService.getAllDice().size());
         Assertions.assertEquals(0, Lists.newArrayList(diceSideRepository.findAll()).size());
     }

@@ -68,15 +68,14 @@ public class BookingServiceTest
         //Data setup
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d = DataHelper.createDice("testdice", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b = DataHelper.createBooking(cat, u1, d, bookingRepository);
+        Booking b = DataHelper.createBooking(cat, u1, bookingRepository);
 
         Booking booking_service = bookingService.loadBooking(b.getId());
 
         Assertions.assertEquals(b.getActivityStartDate(), booking_service.getActivityStartDate(), "Activity start date was not properly stored in DB.");
         Assertions.assertEquals(b.getActivityEndDate(), booking_service.getActivityEndDate(), "Activity end date was not stored properly in DB.");
-        Assertions.assertEquals(d, booking_service.getDice(), "Dice was not properly stored in DB.");
+        Assertions.assertEquals(u1, booking_service.getUser(), "User was not properly stored in DB.");
         Assertions.assertEquals(cat, booking_service.getBookingCategory(), "Category was not properly stored in DB.");
         Assertions.assertNull(booking_service.getObjectChangedDateTime(), "Booking changed date time should be null, but is not");
         Assertions.assertNull(booking_service.getObjectChangedUser(), "Booking changed user should be null, but is not");
@@ -111,7 +110,7 @@ public class BookingServiceTest
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Dice d = DataHelper.createDice("testdice", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b = DataHelper.createBooking(cat, u2, d, bookingRepository);
+        Booking b = DataHelper.createBooking(cat, u2, bookingRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.loadBooking(b.getId());
@@ -130,25 +129,23 @@ public class BookingServiceTest
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
 
         //Create two bookings for booking_test_user1 and one booking for booking_test_user2
-        Booking b1 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(cat2, u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(cat, u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat2, u1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat, u2, bookingRepository);
 
         //Load bookings of user 1
-        Collection<Booking> bookings = bookingService.getAllBookingsByDice(d1);
+        Collection<Booking> bookings = bookingService.getAllBookingsByUser(u1);
         Assertions.assertTrue(bookings.contains(b1), "Booking 1 was not found in bookings collection.");
         Assertions.assertTrue(bookings.contains(b2), "Booking 2 was not found in bookings collection.");
         Assertions.assertFalse(bookings.contains(b3), "Booking 3 was found in bookings collection of wrong user.");
 
         //Try loading bookings of user 2 -> should give error
         Assertions.assertThrows(RuntimeException.class, () -> {
-            bookingService.getAllBookingsByDice(d2);
+            bookingService.getAllBookingsByUser(u2);
         }, "Bookings loaded from different user successfully.");
     }
 
@@ -161,7 +158,7 @@ public class BookingServiceTest
     public void load_booking_by_dice_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            bookingService.getAllBookingsByDice(new Dice());
+            bookingService.getAllBookingsByUser(new User());
         }, "Booking loaded despite lacking authorization of EMPLOYEE.");
     }
 
@@ -180,14 +177,12 @@ public class BookingServiceTest
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.DEPARTMENTLEADER),admin, dept, null, userRepository);
         User u2 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, null, userRepository);
         User u3 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept2, null, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u3, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         //Create two bookings for user in department and one booking for user outside of department
-        Booking b1 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(cat, u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, u2, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat, u3, bookingRepository);
 
         //Load bookings of dept
         Collection<Booking> bookings = bookingService.getAllBookingsByDepartment(dept);
@@ -230,14 +225,12 @@ public class BookingServiceTest
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.TEAMLEADER),admin, dept, team1, userRepository);
         User u2 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team1, userRepository);
         User u3 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE), admin, dept, team2, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u3, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         //Create two bookings for user in team and one booking for user outside of team
-        Booking b1 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(cat, u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(cat, u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, u2, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat, u3, bookingRepository);
 
         //Load bookings of team
         Collection<Booking> bookings = bookingService.getAllBookingsByTeam(team1);
@@ -277,11 +270,10 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
-        b1.setDice(d1);
+        b1.setUser(u1);
         b1.setBookingCategory(cat);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
@@ -296,7 +288,7 @@ public class BookingServiceTest
         Assertions.assertEquals(team, b1.getTeam(), "Team was not returned properly.");
         Assertions.assertEquals(dept, b1.getDept(), "Department was not returned properly.");
         Assertions.assertEquals(cat, b1.getBookingCategory(), "Booking category was not returned properly.");
-        Assertions.assertEquals(d1, b1.getDice(), "Dice was not returned properly.");
+        Assertions.assertEquals(u1, b1.getUser(), "Dice was not returned properly.");
     }
 
     /**
@@ -311,11 +303,10 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
-        b1.setDice(d1);
+        b1.setUser(u1);
         b1.setBookingCategory(cat);
         //set activity end time to 30 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*30);
@@ -341,11 +332,10 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
-        b1.setDice(d1);
+        b1.setUser(u1);
         b1.setBookingCategory(cat);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
@@ -372,11 +362,10 @@ public class BookingServiceTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b2 = new Booking();
-        b2.setDice(d2);
+        b2.setUser(u2);
         b2.setBookingCategory(cat);
         //set activity end time to 5 minutes before current time.
         Date endingTime = new Date(new Date().getTime() - 60*1000*5);
@@ -402,11 +391,10 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
-        b1.setDice(d1);
+        b1.setUser(u1);
         b1.setBookingCategory(cat);
         //set activity end time to 5 minutes after current time.
         Date endingTime = new Date(new Date().getTime() + 60*1000*5);
@@ -431,11 +419,10 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
-        b1.setDice(d1);
+        b1.setUser(u1);
         b1.setBookingCategory(cat);
         //set activity end time to 15 days before current time.
         Date endingTime = new Date(new Date().getTime() - 1000*60*60*24*15);
@@ -463,11 +450,10 @@ public class BookingServiceTest
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         u1.setMayEditHistoricData(true);
         u1 = userRepository.save(u1);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Booking b1 = new Booking();
-        b1.setDice(d1);
+        b1.setUser(u1);
         b1.setBookingCategory(cat);
         //set activity end time to 15 days before current time.
         Date endingTime = new Date(new Date().getTime() - 1000*60*60*24*15);
@@ -491,7 +477,6 @@ public class BookingServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         Vacation v1 = DataHelper.createVacation(-4, -1, u1, vacationRepository);
@@ -499,7 +484,7 @@ public class BookingServiceTest
 
         Booking b1 = new Booking();
         b1.setBookingCategory(cat);
-        b1.setDice(d1);
+        b1.setUser(u1);
         long currentEpoch = new Date().toInstant().toEpochMilli();
 
         //4 days ago, covered by vacation
@@ -550,10 +535,9 @@ public class BookingServiceTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         Team team2 = DataHelper.createRandomTeam(dept2, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
 
         //Change users team and department -> should not change the team and department of the booking
         u1.setAssignedTeam(team2);
@@ -588,12 +572,11 @@ public class BookingServiceTest
             Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
             Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
             User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-            Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
-            Dice d2 = DataHelper.createDice("testdice2", null, admin, null, diceRepository, raspberryPiRepository, roomRepository);
+            User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
             BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-            Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
+            Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
 
-            b1.setDice(d2);
+            b1.setUser(u2);
 
             Assertions.assertThrows(RuntimeException.class, () -> {
                 bookingService.saveBooking(b1);
@@ -611,9 +594,8 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
 
         //set activity end time to 15 days before current time.
         Date endingTime = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 15);
@@ -638,9 +620,8 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
 
         u1.setMayEditHistoricData(true);
         userRepository.save(u1);
@@ -669,10 +650,9 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), u1, bookingRepository);
 
         b1.setBookingCategory(cat2);
         //Changing the activity time FROM an earlier date TO an allowed date should not allow the user to save the booking, since the original booking was too long ago.
@@ -700,10 +680,9 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), u1, bookingRepository);
 
 
         u1.setMayEditHistoricData(true);
@@ -735,10 +714,9 @@ public class BookingServiceTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d2 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, admin, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u2, bookingRepository);
 
 
         b1.setBookingCategory(cat2);
@@ -760,9 +738,8 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u1, bookingRepository);
 
         Assertions.assertDoesNotThrow(() -> {
             bookingService.deleteBooking(b1, false);
@@ -795,9 +772,8 @@ public class BookingServiceTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, u2, bookingRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.deleteBooking(b1, false);
@@ -817,9 +793,8 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), u1, bookingRepository);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
             bookingService.deleteBooking(b1, false);
@@ -838,9 +813,8 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), admin, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15.2)), new Date(new Date().getTime() - (long)(1000 * 60 * 60 * 24 * 15)), u1, bookingRepository);
 
         u1.setMayEditHistoricData(true);
         userRepository.save(u1);
@@ -862,16 +836,15 @@ public class BookingServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
 
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("test_category_02", admin, bookingCategoryRepository);
 
         for(int i=0;i<5;i++)
-            DataHelper.createBooking(cat, admin, d1, bookingRepository);
+            DataHelper.createBooking(cat, u1, bookingRepository);
 
         for(int i=0;i<10;i++)
-            DataHelper.createBooking(cat2, admin, d1, bookingRepository);
+            DataHelper.createBooking(cat2, u1, bookingRepository);
 
         Assertions.assertEquals(5, bookingService.getNumberOfBookingsWithCategory(cat), "Number of bookings was not properly returned for category 1.");
         Assertions.assertEquals(10, bookingService.getNumberOfBookingsWithCategory(cat2), "Number of bookings was not properly returned for category 2.");
@@ -903,23 +876,19 @@ public class BookingServiceTest
         Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
         Team team2 = DataHelper.createRandomTeam(dept, admin, teamRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE, UserRole.TEAMLEADER),admin, dept, team, userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
         User u3 = DataHelper.createUserWithRoles("booking_test_user3", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team2, userRepository);
-        Dice d3 = DataHelper.createDice("testdice3", null, admin, u3, diceRepository, raspberryPiRepository, roomRepository);
-
 
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         for(int i=0;i<5;i++)
-            DataHelper.createBooking(cat, admin, d1, bookingRepository);
+            DataHelper.createBooking(cat, u1, bookingRepository);
 
         for(int i=0;i<10;i++)
-            DataHelper.createBooking(cat, admin, d2, bookingRepository);
+            DataHelper.createBooking(cat, u2, bookingRepository);
 
         for(int i=0;i<10;i++)
-            DataHelper.createBooking(cat, admin, d3, bookingRepository);
+            DataHelper.createBooking(cat, u3, bookingRepository);
 
         Assertions.assertEquals(15, bookingService.getNumberOfTeamBookingsWithCategory(cat), "Number of bookings was not properly returned for category.");
     }
@@ -945,56 +914,14 @@ public class BookingServiceTest
     @WithMockUser(username = "empl", authorities = {"EMPLOYEE"})
     public void get_last_booking_by_dice()
     {
-        User admin = DataHelper.createAdminUser("adminuser", userRepository);
-
         User u = DataHelper.createUserWithRoles("empl", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Room r = DataHelper.createRoom("testroom", admin, roomRepository);
-        RaspberryPi raspi = DataHelper.createRaspi("raspi", u, r, raspberryPiRepository, roomRepository);
-        Dice d = DataHelper.createDice("anydice", raspi, admin, u, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("testcat1", u, bookingCategoryRepository);
 
-        DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(60)), Date.from(Instant.now().plusSeconds(70)), u, d, bookingRepository);
-        DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(70)), Date.from(Instant.now().plusSeconds(80)), u, d, bookingRepository);
-        Booking last = DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(80)), Date.from(Instant.now().plusSeconds(90)), u, d, bookingRepository);
+        DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(60)), Date.from(Instant.now().plusSeconds(70)), u, bookingRepository);
+        DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(70)), Date.from(Instant.now().plusSeconds(80)), u, bookingRepository);
+        Booking last = DataHelper.createBooking(cat, Date.from(Instant.now().plusSeconds(80)), Date.from(Instant.now().plusSeconds(90)), u, bookingRepository);
 
-        Assertions.assertEquals(last, bookingService.getLastBookingForDiceWithAuth(d));
-    }
-
-    /**
-     * Tests getting the last booking of another users dice
-     */
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "empl", authorities = {"EMPLOYEE"})
-    public void get_last_booking_by_dice_other_user()
-    {
-        User admin = DataHelper.createAdminUser("adminuser", userRepository);
-
-        User u = DataHelper.createUserWithRoles("empl", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        User u2 = DataHelper.createUserWithRoles("emp2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-
-        Room r = DataHelper.createRoom("testroom", admin, roomRepository);
-        RaspberryPi raspi = DataHelper.createRaspi("raspi", u, r, raspberryPiRepository, roomRepository);
-
-        Dice d = DataHelper.createDice("anydice", raspi, admin, u, diceRepository, raspberryPiRepository, roomRepository);
-        Dice d2 = DataHelper.createDice("anydice2", raspi, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
-
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            bookingService.getLastBookingForDiceWithAuth(d2);
-        }, "User was able to access method to get last booking from another dice.");
-    }
-
-    /**
-     * Tests getting last booking without EMPLOYEE privileges
-     */
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "admin", authorities = {"ADMIN", "DEPARTMENTLEADER", "TEAMLEADER"})
-    public void get_last_booking_by_dice_unauthorized()
-    {
-        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            bookingService.getLastBookingForDiceWithAuth(new Dice());
-        }, "User was able to access last booking method despite lacking authorization of EMPLOYEE.");
+        Assertions.assertEquals(last, bookingService.getLastBookingForUser(u));
     }
 
     /**
@@ -1007,18 +934,16 @@ public class BookingServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
 
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
 
         BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
 
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b4 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b4 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u2, bookingRepository);
 
         Collection<Booking> lastWeekCat = bookingService.getBookingInRangeByCategoryAndByUser(u1, cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 10), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 5));
 
@@ -1038,18 +963,16 @@ public class BookingServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
 
         User u2 = DataHelper.createUserWithRoles("booking_test_user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d2 = DataHelper.createDice("testdice2", null, admin, u2, diceRepository, raspberryPiRepository, roomRepository);
 
         BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
 
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b4 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u2, d2, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b4 = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u2, bookingRepository);
 
         Collection<Booking> lastWeekCat = bookingService.getBookingInRangeByCategory(cat, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 10), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 5));
 
@@ -1069,12 +992,11 @@ public class BookingServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
 
-        DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000*60*60*24*4), new Date(new Date().getTime() - 1000*60*60*24*4 + 1000*60*30), u1, d1, bookingRepository);
+        Booking b = DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000*60*60*24*7), new Date(new Date().getTime() - 1000*60*60*24*7 + 1000*60*30), u1, bookingRepository);
         Assertions.assertTrue(bookingService.isBookingLongerThan2DaysAgo(u1), "Last booking was not shown as being longer than 2 days ago, but was.");
-        DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000*60*60), new Date(new Date().getTime() - 1000*60*30), u1, d1, bookingRepository);
+        DataHelper.createBooking(cat, new Date(new Date().getTime() - 1000*60*60), new Date(new Date().getTime() - 1000*60*30), u1, bookingRepository);
         Assertions.assertFalse(bookingService.isBookingLongerThan2DaysAgo(u1), "Last booking was shown to be longer than 2 days ago, but was not.");
     }
 
@@ -1088,15 +1010,14 @@ public class BookingServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("testcat", admin, bookingCategoryRepository);
         BookingCategory cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
 
         LocalDate lastWeek = LocalDate.now().minusWeeks(1);
 
-        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
-        Booking b2 = DataHelper.createBooking(cat, Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), u1, d1, bookingRepository);
-        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 6), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, d1, bookingRepository);
+        Booking b1 = DataHelper.createBooking(cat, new Date(new Date().getTime() + 1000 * 60 * 60 * 24), new Date(new Date().getTime() + 1000 * 60 * 60 * 24 + 1000 * 60 * 60 * 30), u1, bookingRepository);
+        Booking b2 = DataHelper.createBooking(cat, Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), u1, bookingRepository);
+        Booking b3 = DataHelper.createBooking(cat2, new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 6), new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 7 + 1000 * 60 * 60 * 30), u1, bookingRepository);
 
         Collection<Booking> lastWeekCat = bookingService.getBookingInRangeByCategoryForLastWeek(cat);
 
@@ -1115,7 +1036,6 @@ public class BookingServiceTest
     {
         User admin = DataHelper.createAdminUser("admin", userRepository);
         User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        Dice d1 = DataHelper.createDice("testdice1", null, admin, u1, diceRepository, raspberryPiRepository, roomRepository);
         BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
 
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -1123,14 +1043,14 @@ public class BookingServiceTest
         LocalDate lastMonth = LocalDate.now().minusMonths(1);
 
         //create bookings centered around these dates
-        Booking daybooking = DataHelper.createBooking(cat, Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
-        Booking weekbooking = DataHelper.createBooking(cat, Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), u1, d1, bookingRepository);
-        Booking monthbooking = DataHelper.createBooking(cat, Date.from(lastMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+        Booking daybooking = DataHelper.createBooking(cat, Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(yesterday.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, bookingRepository);
+        Booking weekbooking = DataHelper.createBooking(cat, Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), u1, bookingRepository);
+        Booking monthbooking = DataHelper.createBooking(cat, Date.from(lastMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, bookingRepository);
 
         //Create a second set two days/weeks/months ago
-        Booking daybooking2 = DataHelper.createBooking(cat, Date.from(yesterday.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(yesterday.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
-        Booking weekbooking2 = DataHelper.createBooking(cat, Date.from(lastWeek.minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
-        Booking monthbooking2 = DataHelper.createBooking(cat, Date.from(lastMonth.minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastMonth.minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, d1, bookingRepository);
+        Booking daybooking2 = DataHelper.createBooking(cat, Date.from(yesterday.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(yesterday.minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, bookingRepository);
+        Booking weekbooking2 = DataHelper.createBooking(cat, Date.from(lastWeek.minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastWeek.minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, bookingRepository);
+        Booking monthbooking2 = DataHelper.createBooking(cat, Date.from(lastMonth.minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*5)), Date.from(lastMonth.minusMonths(1).atStartOfDay(ZoneId.systemDefault()).toInstant().plusSeconds(60*60*7)), u1, bookingRepository);
 
         //get ranges
         Collection<Booking> daybookings = bookingService.getUsersBookingInRangeByDay(u1, 1);

@@ -426,7 +426,7 @@ public class UserServiceTest {
         d = diceRepository.save(d);
 
         BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
-        DataHelper.createBooking(bc, notAdmin, d, bookingRepository);
+        DataHelper.createBooking(bc, notAdmin, bookingRepository);
 
         Assertions.assertEquals(1, Lists.newArrayList(bookingRepository.findAll()).size());
         Assertions.assertEquals(1, Lists.newArrayList(diceRepository.findAll()).size());

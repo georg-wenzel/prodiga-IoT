@@ -86,7 +86,7 @@ public class DiceRestController {
             int seconds = entry.entry.getSeconds();
 
             // First we check the last users booking
-            Booking lastBooking = bookingService.getLastBookingForDice(dice);
+            Booking lastBooking = bookingService.getLastBookingForUser(user);
 
             Instant newStartDate = null;
 
@@ -114,12 +114,14 @@ public class DiceRestController {
                 newStartDate = Instant.now().minus(Duration.ofMinutes(sumSeconds));
             }
 
+            newStartDate = newStartDate.plusSeconds(60);
+
             // The end Date stays the same (independent of existing or non existing bookings)
             // It's just the start date + the seconds
             Instant newEndDate = newStartDate.plus(Duration.ofSeconds(seconds));
 
             Booking b = new Booking();
-            b.setDice(dice);
+            b.setUser(user);
             b.setActivityEndDate(Date.from(newEndDate));
             b.setActivityStartDate(Date.from(newStartDate));
             b.setBookingCategory(bookingCategory);

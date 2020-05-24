@@ -14,12 +14,12 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
 {
     //Magic methods
     Booking findFirstById(Long id);
-    Collection<Booking> findAllByDice(Dice d);
+    Collection<Booking> findAllByUser(User u);
     Collection<Booking> findAllByTeam(Team team);
     Collection<Booking> findAllByDept(Department department);
     Collection<Booking> findAllByBookingCategory(BookingCategory category);
     Collection<Booking> findAllByBookingCategoryAndTeam(BookingCategory category, Team team);
-    Booking findFirstByDiceOrderByActivityEndDateDesc(Dice d);
+    Booking findFirstByUserOrderByActivityEndDateDesc(User u);
 
     /**
      * Gets all bookings of a given user in a given timespan, specifically any overlapping between start/end-date and the booking
@@ -29,7 +29,7 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
      * @return All matching bookings
      */
     @Query("Select b FROM Booking b WHERE " +
-            "b.dice.user = :user AND " +
+            "b.user = :user AND " +
             "(" +
             //activity is fully covered by timespan
             "(b.activityStartDate >= :beginDate AND b.activityEndDate <= :endDate) OR " +
@@ -51,12 +51,11 @@ public interface BookingRepository extends AbstractRepository<Booking, Long>
     Collection<Booking> findBookingWithCategoryInRange(@Param("category") BookingCategory category, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
     @Query("Select b FROM Booking b WHERE " +
-            "b.dice.user = :user AND b.bookingCategory = :category AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
+            "b.user = :user AND b.bookingCategory = :category AND b.activityStartDate > :beginDate AND b.activityEndDate < :endDate")
     Collection<Booking> findUsersBookingWithCategoryInRange(@Param("user") User user, @Param("category") BookingCategory category, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 
     @Query("SELECT b FROM Booking b " +
-            "JOIN Dice d ON d = b.dice " +
             "WHERE b.activityStartDate > :beginDate AND b.activityEndDate < :endDate " +
-            "AND d.user IN :users")
+            "AND b.user IN :users")
     Collection<Booking> getBookingsByUsersInRange(@Param("users") Collection<User> users, @Param("beginDate") Date beginDate, @Param("endDate") Date endDate);
 }

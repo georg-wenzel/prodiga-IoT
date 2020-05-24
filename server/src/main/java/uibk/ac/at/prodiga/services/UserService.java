@@ -162,14 +162,13 @@ public class UserService {
         checkForUserDeletionOrDeactivation(user);
 
         Dice d = diceService.getDiceByUser(user);
-
         if(d != null) {
-            bookingService.deleteBookingsForDice(d);
             d.setActive(false);
             d.setUser(null);
             diceService.save(d);
         }
 
+        bookingService.deleteBookingsForUser(user);
         badgeDBService.deleteBadgesForUser(user);
 
         userRepository.delete(user);

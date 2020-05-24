@@ -76,7 +76,6 @@ public class BookingControllerTest
 
     User admin;
     User employee;
-    Dice employeeDice;
     BookingCategory testCategory;
     BookingController controller;
 
@@ -85,7 +84,6 @@ public class BookingControllerTest
     {
         admin = DataHelper.createAdminUser("admin", userRepository);
         employee = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
-        employeeDice = DataHelper.createDice("testdice1", null, admin, employee, diceRepository, raspberryPiRepository, roomRepository);
         testCategory = DataHelper.createBookingCategory("testcat1", admin, bookingCategoryRepository);
         controller = new BookingController(prodigaUserLoginManager, bookingService, bookingCategoryService,diceService);
     }
@@ -98,9 +96,9 @@ public class BookingControllerTest
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void booking_longer_than_2_days()
     {
-        DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24*4), new Date(new Date().getTime() - 1000*60*60*24*4 + 1000*60*30), employee, employeeDice, bookingRepository);
+        DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24*7), new Date(new Date().getTime() - 1000*60*60*24*7 + 1000*60*30), employee, bookingRepository);
         Assertions.assertTrue(controller.getLastBookingLongerThan2DaysAgo(), "Last booking was not shown as being longer than 2 days ago, but was.");
-        DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60), new Date(new Date().getTime() - 1000*60*30), employee, employeeDice, bookingRepository);
+        DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60), new Date(new Date().getTime() - 1000*60*30), employee, bookingRepository);
         Assertions.assertFalse(controller.getLastBookingLongerThan2DaysAgo(), "Last booking was shown to be longer than 2 days ago, but was not.");
     }
 
@@ -112,7 +110,7 @@ public class BookingControllerTest
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void booking_is_editable()
     {
-        Booking b1 = DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24*16), new Date(new Date().getTime() - 1000*60*60*24*16 + 1000*60*30), employee, employeeDice, bookingRepository);
+        Booking b1 = DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24*16), new Date(new Date().getTime() - 1000*60*60*24*16 + 1000*60*30), employee, bookingRepository);
         Assertions.assertFalse(controller.isBookingEditable(b1), "Booking that was longer than 2 weeks ago was shown to be editable.");
 
         employee.setMayEditHistoricData(true);
@@ -138,7 +136,7 @@ public class BookingControllerTest
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void hour_minute_split()
     {
-        Booking b1 = DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24*16), new Date(new Date().getTime() - 1000*60*60*24*16 + 1000*60*348), employee, employeeDice, bookingRepository);
+        Booking b1 = DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24*16), new Date(new Date().getTime() - 1000*60*60*24*16 + 1000*60*348), employee, bookingRepository);
         Assertions.assertEquals(5, controller.getFullHours(b1), "Hours of 348 minute long booking should be 5.");
         Assertions.assertEquals(48, controller.getRemainingMinutes(b1), "Minutes of 348 minute long booking should be 48.");
     }
@@ -152,7 +150,7 @@ public class BookingControllerTest
     @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
     public void delete_booking() throws ProdigaGeneralExpectedException
     {
-        Booking b1 = DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24), new Date(new Date().getTime() - 1000*60*60*24 + 1000*60*30), employee, employeeDice, bookingRepository);
+        Booking b1 = DataHelper.createBooking(testCategory, new Date(new Date().getTime() - 1000*60*60*24), new Date(new Date().getTime() - 1000*60*60*24 + 1000*60*30), employee, bookingRepository);
         Assertions.assertEquals(b1, bookingRepository.findFirstById(b1.getId()), "Could not properly set up test: Booking was not properly created.");
         controller.deleteBooking(b1);
         Assertions.assertNull(bookingRepository.findFirstById(b1.getId()), "Booking was not properly deleted.");
@@ -191,7 +189,7 @@ public class BookingControllerTest
         Assertions.assertEquals(b1.getBookingCategory(), db_booking.getBookingCategory(), "Category of activity does not match.");
         Assertions.assertEquals(t, db_booking.getTeam(),"Team was not properly set automatically.");
         Assertions.assertEquals(d, db_booking.getDept(), "Department was not properly set automatically.");
-        Assertions.assertEquals(employeeDice, db_booking.getDice(), "Dice was not properly set automatically.");
+        Assertions.assertEquals(employee, db_booking.getUser(), "User was not properly set automatically.");
 
     }
 }
