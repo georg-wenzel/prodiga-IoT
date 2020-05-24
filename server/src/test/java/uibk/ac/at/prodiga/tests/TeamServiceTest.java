@@ -247,6 +247,9 @@ public class TeamServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team team = DataHelper.createRandomTeam(dept, dept_leader, teamRepository);
 
+        dept_leader.setAssignedDepartment(dept);
+        userRepository.save(dept_leader);
+
         teamService.deleteTeam(team);
 
         Assert.isNull(teamRepository.findFirstById(team.getId()), "Team was not deleted properly.");

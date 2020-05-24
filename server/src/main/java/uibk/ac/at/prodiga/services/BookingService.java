@@ -17,7 +17,8 @@ import javax.xml.crypto.Data;
 import java.awt.print.Book;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.*;
+import java.time.temporal.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,8 +81,17 @@ public class BookingService
      * @return The last booking for this dice, i.e. the one furthest in the future
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')")
-    public Booking getLastBookingForDice(Dice d) {
+    public Booking getLastBookingForDiceWithAuth(Dice d) {
         if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(d)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
+    }
+
+    /**
+     * Returns the last booking for the given dice
+     * @param d The dice
+     * @return The last booking for this dice, i.e. the one furthest in the future
+     */
+    public Booking getLastBookingForDice(Dice d) {
         return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
     }
 
@@ -427,15 +437,8 @@ public class BookingService
      * @return collection of bookings
      */
     public Collection<Booking> getBookingInRangeByCategoryForLastWeek(BookingCategory bookingCategory) {
-        Date date = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        int i = c.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
-        c.add(Calendar.DATE, -i - 7);
-        Date start = c.getTime();
-        c.add(Calendar.DATE, 6);
-        Date end = c.getTime();
-        return getBookingInRangeByCategory(bookingCategory, start, end);
+        Pair<Date, Date> startEnd = getWeekStartAndEnd(1);
+        return getBookingInRangeByCategory(bookingCategory, startEnd.getValue0(), startEnd.getValue1());
     }
 
     public Boolean isBookingLongerThan2DaysAgo(User user){
@@ -463,31 +466,32 @@ public class BookingService
     }
 
     private Pair<Date, Date> getMonthStartAndEnd(int backstepMonth) {
-        Calendar c = getStartOfWeek();
-        c.set(Calendar.DAY_OF_MONTH, 1);
-        c.add(Calendar.MONTH, -backstepMonth);
-        Date start = c.getTime();
-        c.add(Calendar.MONTH, 1);
-        Date end = c.getTime();
+        ZonedDateTime firstInMonth = getStartOfMonth();
+        ZonedDateTime firstInMonth1MonthAgo = firstInMonth.minus(backstepMonth, ChronoUnit.MONTHS);
+        firstInMonth = firstInMonth.minus(backstepMonth - 1, ChronoUnit.MONTHS);
+        Date start = Date.from(firstInMonth1MonthAgo.toInstant());
+        Date end = Date.from(firstInMonth.toInstant());
         return new Pair<>(start, end);
     }
 
     private Pair<Date, Date> getWeekStartAndEnd(int backstepWeek) {
-        Calendar c = getStartOfWeek();
-        c.add(Calendar.DATE, -(7*backstepWeek));
-        Date start = c.getTime();
-        c.add(Calendar.DATE, 7);
-        Date end = c.getTime();
+        ZonedDateTime monday = getStartOfWeek();
+        ZonedDateTime previousMonday = monday.minus(7 * backstepWeek, ChronoUnit.DAYS);
+        monday = monday.minus(7 * (backstepWeek - 1), ChronoUnit.DAYS);
+        Date start = Date.from(previousMonday.toInstant());
+        Date end = Date.from(monday.toInstant());
         return new Pair<>(start, end);
     }
 
-    private Calendar getStartOfWeek() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        return c;
+    private ZonedDateTime getStartOfWeek() {
+        LocalDateTime now = LocalDate.now().atTime(0, 0, 0, 0);
+        LocalDateTime monday =  now.with(WeekFields.of(Locale.GERMANY).dayOfWeek(), 1);
+        return ZonedDateTime.of(monday, ZoneId.systemDefault());
+    }
+
+    private ZonedDateTime getStartOfMonth() {
+        LocalDateTime now = LocalDate.now().atTime(0, 0, 0, 0);
+        LocalDateTime firstInMonth = now.with(TemporalAdjusters.firstDayOfMonth());
+        return ZonedDateTime.of(firstInMonth, ZoneId.systemDefault());
     }
 }

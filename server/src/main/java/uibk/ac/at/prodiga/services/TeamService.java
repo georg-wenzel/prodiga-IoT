@@ -166,7 +166,7 @@ public class TeamService
         }
 
         //check if dept matches
-        if(!u.getRoles().contains(UserRole.ADMIN) && !u.getAssignedDepartment().equals(team.getDepartment()))
+        if(!u.getRoles().contains(UserRole.ADMIN) && (u.getAssignedDepartment() == null || !u.getAssignedDepartment().equals(team.getDepartment())))
         {
             throw new RuntimeException("Dept. leader attempted to access team outside of own department.");
         }

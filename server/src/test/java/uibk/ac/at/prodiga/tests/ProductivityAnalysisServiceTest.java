@@ -232,8 +232,8 @@ public class ProductivityAnalysisServiceTest {
         Date startTime2 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,d2,bookingRepository);
 
-        Date endTime3 = Date.from(LocalDate.now().minusDays(7).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
-        Date startTime3 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date endTime3 = Date.from(LocalDate.now().minusDays(6).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime3 = Date.from(LocalDate.now().minusDays(6).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
         HashMap<BookingCategory,Double> teamWeekStatistic = new HashMap<>();
