@@ -50,7 +50,7 @@ echo "java is installed"
 install_apt_dependencies 'maven'
 
 # install dependencies for BlueZ
-install_apt_dependencies 'libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline6-dev'
+install_apt_dependencies 'libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline-dev'
 
 echo "installed blueZ dependencies"
 
@@ -98,6 +98,7 @@ fi
 #(probably einbauen)
 #sudo systemctl status bluetooth | grep "daemon"
 
+echo "blueZ installed"
 
 # install tinyB dependency
 install_apt_dependencies 'graphviz doxygen'
@@ -123,4 +124,9 @@ if [ ! -d "$HOME/binary_files/tinyb" ]; then
     sudo make
     sudo make install
 fi
+
+echo "tinyB installed"
+
+echo "Everything installed successfully"
+
 
