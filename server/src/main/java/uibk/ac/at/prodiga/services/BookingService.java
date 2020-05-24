@@ -180,6 +180,12 @@ public class BookingService
             throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
         }
 
+        //check if any other bookings of the user overlap
+        if(!bookingRepository.findUsersBookingInRange(u, booking.getActivityStartDate(), booking.getActivityEndDate()).isEmpty())
+        {
+            throw new ProdigaGeneralExpectedException("A booking already exists for this timespan.", MessageType.ERROR);
+        }
+
         //set appropriate fields
         if(booking.isNew())
         {
