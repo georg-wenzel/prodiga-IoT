@@ -3,30 +3,51 @@
 # change to home directory
 cd ~
 
-# sudo -s
-
 # update the system
 sudo apt-get update
 sudo apt-get upgrade
 
 # install git
-sudo apt-get install git
+git_installed=$(which git | wc -l)
+
+if [ "$git" -eq 0 ]; then
+  echo "installing git"
+  sudo apt-get install git
+fi
+
+echo "git is installed"
 
 # install cmake
-sudo apt-get install cmake
+cmake=$(which cmake | wc -l)
 
-# purge every available jdk becaus we need a specific one
-sudo apt-get purge openjdk*
+if [ "$cmake" -eq 0 ]; then
+  echo "installing cmake"
+  sudo apt-get install cmake
+fi
+
+echo "cmake is installed"
 
 # install java jdk-8
-# sudo find / -name java-8-openjdk-armhf # looks if java is installed correctly
-sudo apt-get install openjdk-8-jdk
+java_installed=$(which java | wc -l)
+java_version=$(sudo find "/" -name "java-8-openjdk-armhf" | wc -l)
 
-# export environment variable for JAVA_HOME
-echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
+if [ "$java_installed" -eq 0 ] || [ "$java_version" -eq 0 ]; then
+  echo "installing right java version"
 
-# reload bash session
-bash
+  # purge every available jdk becaus we need a specific one
+  sudo apt-get purge openjdk*
+
+  # sudo find / -name java-8-openjdk-armhf # looks if java is installed correctly
+  sudo apt-get install openjdk-8-jdk
+
+  # export environment variable for JAVA_HOME
+  echo "\nexport JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf/" >> ~/.bashrc
+
+  # reload bash session
+  bash
+fi
+
+echo "java is installed"
 
 # install maven
 sudo apt-get install maven
