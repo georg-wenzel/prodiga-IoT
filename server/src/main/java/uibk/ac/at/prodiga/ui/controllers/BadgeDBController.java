@@ -23,13 +23,16 @@ public class BadgeDBController implements Serializable
     private final BadgeDBService badgeDBService;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
 
+    private Collection<BadgeDB> badges;
+
     public BadgeDBController(BadgeDBService badgeDBService, ProdigaUserLoginManager prodigaUserLoginManager) {
         this.badgeDBService = badgeDBService;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
     public Collection<BadgeDB> getBadgesByUser(){
-        return this.badgeDBService.getAllBadgesByUser(prodigaUserLoginManager.getCurrentUser());
+        if(badges == null) badges = this.badgeDBService.getAllBadgesByUser(prodigaUserLoginManager.getCurrentUser());
+        return badges;
     }
 
     public int getBadgesByUserNum(){
@@ -41,7 +44,8 @@ public class BadgeDBController implements Serializable
     }
 
     public Collection<BadgeDB> getBadgesByDepartment() {
-        return this.badgeDBService.getAllBadgesByDepartment(prodigaUserLoginManager.getCurrentUser().getAssignedDepartment());
+        if(badges == null) badges = this.badgeDBService.getAllBadgesByDepartment(prodigaUserLoginManager.getCurrentUser().getAssignedDepartment());
+        return badges;
     }
 
     public int getBadgesByDepartmentNum(){

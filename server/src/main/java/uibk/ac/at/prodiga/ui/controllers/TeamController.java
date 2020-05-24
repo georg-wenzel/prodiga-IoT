@@ -199,6 +199,7 @@ public class TeamController implements Serializable {
 
     public void doDeleteTeam() throws Exception {
         this.teamService.deleteTeam(team);
+        this.teams = null;
         SnackbarHelper.getInstance()
                 .showSnackBar("Team \"" + team.getName() + "\" deleted!", MessageType.ERROR);
     }

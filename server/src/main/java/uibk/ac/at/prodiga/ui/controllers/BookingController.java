@@ -103,6 +103,7 @@ public class BookingController implements Serializable
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
         bookingService.deleteBooking(booking, false);
+        userBookings = null;
     }
 
     //////GETTERS & SETTERS
@@ -119,7 +120,7 @@ public class BookingController implements Serializable
 
     public Collection<Booking> getUserBookings()
     {
-        userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
+        if(userBookings == null) userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
         return userBookings;
     }
 

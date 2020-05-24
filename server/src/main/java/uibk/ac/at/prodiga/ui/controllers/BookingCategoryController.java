@@ -52,6 +52,7 @@ public class BookingCategoryController implements Serializable
         cat.setName(newCategoryName);
         bookingCategoryService.save(cat);
         newCategoryName = "";
+        this.bookingCategories = null;
     }
 
     /**
@@ -61,6 +62,7 @@ public class BookingCategoryController implements Serializable
     public void doDeleteCategory() throws ProdigaGeneralExpectedException
     {
         bookingCategoryService.delete(deleteCategory);
+        bookingCategories = null;
     }
 
     /**
