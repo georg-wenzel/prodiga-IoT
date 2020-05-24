@@ -21,7 +21,8 @@
                 <div class="card">
                     <h1>#{userDetailController.user.username}</h1>
                     <h:form id="userForm">
-                        <p:messages id="msgs" for="msgs"/>
+                        <p:messages id="msgs" for="msgs" autoUpdate="true" showDetail="true"/>
+                        <p:messages id="msgs2" for="password" autoUpdate="true" showDetail="true"/>
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
@@ -34,6 +35,35 @@
                                                  required="true"
                                                  label="Username"  style="width:100%"/>
                                 </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel styleClass="input-form" for="password" value="Password: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:password id="password"
+                                                value="#{userDetailController.user.password}"
+                                                required="false"
+                                                label="Password"
+                                                style="width:100%"
+                                                match="confirmPassword"/>
+                                </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel styleClass="input-form" for="confirmPassword" value="Confirm Password: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:password id="confirmPassword"
+                                                value="#{userDetailController.user.password}"
+                                                required="false"
+                                                label="Confirm Password"
+                                                style="width:100%"
+                                                match="confirmPassword"/>
+                                </div>
+                            </div>
+                        </div>
+                        <p:separator />
+                        <div class="ui-g">
+                            <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="firstname" value="First Name: "/>
                                 </div>
@@ -55,15 +85,6 @@
                             <div class="ui-g-1">
                             </div>
                             <div class="ui-g-5">
-
-                                <div class="ui-g-3 input-form">
-                                    <p:outputLabel styleClass="input-form" for="password" value="Password: " />
-                                </div>
-                                <div class="ui-g-8 input-form">
-                                    <p:password id="password" value="#{userDetailController.user.password}" required="false"
-                                                 label="Password"  style="width:100%"/>
-                                </div>
-
                                 <div class="ui-g-3 input-form">
                                     <p:outputLabel for="lastname" value="Last Name: "/>
                                 </div>
@@ -82,6 +103,7 @@
                                 </div>
                             </div>
                         </div>
+                        <p:separator />
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
@@ -170,6 +192,7 @@
 
                             </p:row>
                         </p:panelGrid>
+                        <p:separator />
                         <br/><br/>
                         <div class="ui-g">
                             <div class="ui-g-6">
@@ -188,7 +211,7 @@
                                                  ajax="true"
                                                  icon="fa fa-fw fa-save"
                                                  validateClient="true"
-                                                 update="growl msgs">
+                                                 update="growl msgs msgs2">
                                 </p:commandButton>
                             </div>
                         </div>
