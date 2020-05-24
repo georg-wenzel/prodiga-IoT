@@ -41,13 +41,11 @@ public class TeamController implements Serializable {
      */
     public Collection<Team> getAllTeams()
     {
-        if(teams == null)
-        {
-            if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN))
-                teams = teamService.getAllTeams();
+        if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN)) {
+            teams = teamService.getAllTeams();
 
-            else
-                teams = teamService.findTeamsOfDepartment();
+        } else {
+            teams = teamService.findTeamsOfDepartment();
         }
         return teams;
     }
