@@ -5,16 +5,16 @@ Made with :beers: in Innsbruck!
 ## Structure
 
 ### scripts
-Contains usefull SQL scripts. 
+Contains usefull SQL scripts.
 - `create_prodiga_user.sql` is needed to create the `prodiga` user which is
  the sa account for this project.
- 
+
 ### docs
 Contains all project documentation.
 - `Konzeptbeschreibung - Final.pdf`: Final version of the projects concept
  document.
 - Timesheets: Contains the students timesheets.
- 
+
  ### src
 Actual source code.
 
@@ -52,7 +52,7 @@ A docker-compose file is provided for you. Run `docker-compose up` to start the 
 
 #### Alternative: Manual setup
 ##### Setting up a network
-Create a network to connect MySQL Database and Server App by using the docker network command, like so:  
+Create a network to connect MySQL Database and Server App by using the docker network command, like so:
 `docker network create prodiga`
 ##### MySQL Dockerfile
 You can pull the MySQL dockerfile using `docker pull mysql:latest`
@@ -64,9 +64,9 @@ docker run -p 3306:3306 --env MYSQL_USER=prodiga --env 'MYSQL_PASSWORD=SuperGehe
 This will create the correct user and database for the server to run. Make sure all needed environment variables are present and the password is properly escaped.
 
 ##### Prodiga Server Dockerfile
-To start only the server, build the Dockerfile provided, e.g. with  
- `docker image build --tag prodiga_server:1.0 .`   
- while in the root directory. 
+To start only the server, build the Dockerfile provided, e.g. with
+ `docker image build --tag prodiga_server:1.0 .`
+ while in the root directory.
 
 You can then start the image. Make sure the database is running before starting the server container.
 
@@ -82,7 +82,7 @@ The database must be running before running the server.
 
 #### Potential Problems:
 
-On Windows Home, directories can not be simply mounted using Docker Toolbox.  The following [StackOverflow question](https://stackoverflow.com/questions/57756835/docker-toolbox-volume-mounting-not-working-on-windows-10) explains in detail how to add a directory to the VirtualBox shared directories, in order to properly mount the directory. 
+On Windows Home, directories can not be simply mounted using Docker Toolbox.  The following [StackOverflow question](https://stackoverflow.com/questions/57756835/docker-toolbox-volume-mounting-not-working-on-windows-10) explains in detail how to add a directory to the VirtualBox shared directories, in order to properly mount the directory.
 > 1.  In Virtual Box under 'Settings' -> 'Shared Folders' added 'projects' and pointed it to the location I want to mount. In my case
 > this is 'D:\projects' (Auto-mount and Make Permanent enabled)
 > 2.  Start Docker Quickstart Terminal
@@ -103,3 +103,43 @@ On Windows Home, directories can not be simply mounted using Docker Toolbox.  Th
 
 
 On Windows Home, there can also be problems using named volumes, so when using docker-compose, make sure your VM user has permission to access the directory of the created named volume.
+
+## Setup Client
+
+For the client setup you should have a Raspberry Pi running raspbian, with a
+working internet connection.
+
+### Skript
+
+#### First time install
+
+If you are running the file for the first time you have to run the
+`setup.sh` under the directory `client/script`. You have to provide the path to
+the root of the client projekt as a commandline argument.
+
+This script than installs all dependencies creats a config file under
+`$HOME/.config/prodiga/prodigarc` where the path to the projekt root will be
+stored.
+
+Next it compiles the projekt (provided the right project root) and will start
+it.
+
+#### Start the client
+
+If you only want to start the client (meaning you have installed all dependencies)
+you can run the `start_client.sh` file. It compiles the client if needed and
+starts it.
+
+#### Potential Problems
+
+Some potential problems may occure:
+
+* The dependencies skript was interrupted: If this happens try to restart the
+  `setup.sh` skirpt. If it won't work you may have to start from a new
+  installation of raspbian.
+* Your internet connection broke during downloading: If this happens try to
+  restart the `setup.sh` skript. If it won't work you may have to start from a
+  new installation of raspbian.
+* The config file doesn't exist/wasn't created correctly: If this happens try to
+  create it manually under `$HOME/.config/prodiga/prodigarc` and insert a single
+  line containing the path to the project root. (Eg `$HOME/Documents/client`).
