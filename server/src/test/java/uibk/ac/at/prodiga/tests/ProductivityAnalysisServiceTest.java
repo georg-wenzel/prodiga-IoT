@@ -19,6 +19,8 @@ import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,19 +98,16 @@ public class ProductivityAnalysisServiceTest {
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
     public void statistic_user_backstepDay1_1booking(){
-        //end 1 hour ago
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60);
-        //start 3 hours ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*180);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
-        //end 25 days ago
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*25);
-        //start 50 days ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*30);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u1,d1,bookingRepository);
+        Date endTime1 = Date.from(LocalDate.now().minusDays(1).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime1 = Date.from(LocalDate.now().minusDays(1).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
+
+        Date endTime2 = Date.from(LocalDate.now().minusDays(2).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime2 = Date.from(LocalDate.now().minusDays(2).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,d1,bookingRepository);
 
         HashMap<BookingCategory,Long> dailyStatistic = new HashMap<>();
-        dailyStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        dailyStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
         Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisicForCurrentUserByDay(1));
 
     }
@@ -116,21 +115,19 @@ public class ProductivityAnalysisServiceTest {
     @DirtiesContext
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
-    public void statistic_user_backstepDay1_2bookings(){
-        //set activity end time to 1 hour before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60);
-        //set activity start time to 3 hours ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*180);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+    public void statistic_user_backstepDay1_2bookings()
+    {
+        Date endTime1 = Date.from(LocalDate.now().minusDays(1).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime1 = Date.from(LocalDate.now().minusDays(1).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 5 minutes before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*5);
-        //set activity start time to 30 minutes ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*30);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u1,d1,bookingRepository);
+        Date endTime2 = Date.from(LocalDate.now().minusDays(1).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime2 = Date.from(LocalDate.now().minusDays(1).atTime(9,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,d1,bookingRepository);
+
         HashMap<BookingCategory,Long> dailyStatistic = new HashMap<>();
-        dailyStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
-        dailyStatistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) / (1000*60*60));
+        dailyStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
+        dailyStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) / (1000*60*60));
         Assertions.assertEquals(dailyStatistic, productivityAnalysisService.getStatisicForCurrentUserByDay(1));
     }
 
@@ -138,24 +135,22 @@ public class ProductivityAnalysisServiceTest {
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
     public void statistic_user_backstepDays(){
-        //set activity end time to 25 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*25);
-        //set activity start time to 30 hours ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*30);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+        Date endTime1 = Date.from(LocalDate.now().minusDays(1).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime1 = Date.from(LocalDate.now().minusDays(1).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 5 minutes before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*5);
-        //set activity start time to 30 minutes ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*30);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2, endingTime2,u1,d1,bookingRepository);
+        Date endTime2 = Date.from(LocalDate.now().minusDays(2).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime2 = Date.from(LocalDate.now().minusDays(2).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,d1,bookingRepository);
 
-        Booking booking3 = DataHelper.createBooking(cat2,startingTime2, endingTime2,u2,d2,bookingRepository);
+        Date endTime3 = Date.from(LocalDate.now().minusDays(3).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime3 = Date.from(LocalDate.now().minusDays(3).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u1,d1,bookingRepository);
 
         HashMap<BookingCategory,Long> backstep1Statistic = new HashMap<>();
-        backstep1Statistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) / (1000*60*60));
+        backstep1Statistic.put(cat1, (endTime2.getTime()-startTime2.getTime()) / (1000*60*60));
         HashMap<BookingCategory,Long> backstep2Statistic = new HashMap<>();
-        backstep2Statistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        backstep2Statistic.put(cat2, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
 
         Assertions.assertEquals(backstep1Statistic,productivityAnalysisService.getStatisicForCurrentUserByDay(1));
         Assertions.assertEquals(backstep2Statistic, productivityAnalysisService.getStatisicForCurrentUserByDay(2));
@@ -165,14 +160,16 @@ public class ProductivityAnalysisServiceTest {
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
     public void statistic_user_backstepWeek(){
-        //set activity end time to 3 days 22 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
-        //set activity start time to 4 days ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+        Date endTime1 = Date.from(LocalDate.now().minusDays(7).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime1 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
+
+        Date endTime2 = Date.from(LocalDate.now().minusDays(14).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime2 = Date.from(LocalDate.now().minusDays(14).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking2 = DataHelper.createBooking(cat1,endTime2,endTime2,u1,d1,bookingRepository);
 
         HashMap<BookingCategory,Long> thisWeekStatistic = new HashMap<>();
-        thisWeekStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        thisWeekStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
         Assertions.assertEquals(thisWeekStatistic, productivityAnalysisService.getStatisicForCurrentUserByWeek(1));
     }
 
@@ -180,113 +177,167 @@ public class ProductivityAnalysisServiceTest {
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"EMPLOYEE"})
     public void statistic_user_backstepMonth(){
-        //set activity end time to 3 days 22 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
-        //set activity start time to 4 days ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+        Date endTime1, startTime1, endTime2, startTime2;
 
-        //set activity end time to 20 days before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*20);
-        //set activity start time to 25 days ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*25);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u1,d1,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(7).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 32 days before current time.
-        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*32);
-        //set activity start time to 35 days ago
-        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*35);
-        Booking booking3 = DataHelper.createBooking(cat1,startingTime3,endingTime3,u1,d1,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(10).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,d1,bookingRepository);
 
-        HashMap<BookingCategory,Long> thisMonthStatistic = new HashMap<>();
-        thisMonthStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
-        thisMonthStatistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) /(1000*60*60));
-        Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForCurrentUserByMonth(1));
+        Date endTime3 = Date.from(LocalDate.now().minusMonths(2).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime3 = Date.from(LocalDate.now().minusMonths(2).atTime(5,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking3 = DataHelper.createBooking(cat1, startTime3, endTime3, u1, d1, bookingRepository);
+
+        HashMap<BookingCategory,Long> prevMonthStatistics = new HashMap<>();
+        prevMonthStatistics.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
+        prevMonthStatistics.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60));
+
+        HashMap<BookingCategory,Long> twoMonthStatistic = new HashMap<>();
+        twoMonthStatistic.put(cat1, (endTime3.getTime()-startTime3.getTime()) / (1000*60*60));
+
+        Assertions.assertEquals(prevMonthStatistics, productivityAnalysisService.getStatisicForCurrentUserByMonth(1));
+        Assertions.assertEquals(twoMonthStatistic, productivityAnalysisService.getStatisicForCurrentUserByMonth(2));
     }
 
 
     @DirtiesContext
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"TEAMLEADER"})
-    public void statistic_team_backstepWeek(){
-        //set activity end time to 3 days 22 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
-        //set activity start time to 4 days ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+    public void statistic_team_backstepWeek()
+    {
+        Date endTime1 = Date.from(LocalDate.now().minusDays(7).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime1 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 2 days before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*2);
-        //set activity start time to 3 days ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*3);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u2,d2,bookingRepository);
+        Date endTime2 = Date.from(LocalDate.now().minusDays(7).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime2 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,d2,bookingRepository);
 
-        //set activity end time to 5 days before current time.
-        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*5);
-        //set activity start time to 6 days ago
-        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*6);
-        Booking booking3 = DataHelper.createBooking(cat1,startingTime3,endingTime3,u3,d3,bookingRepository);
+        Date endTime3 = Date.from(LocalDate.now().minusDays(7).atTime(11,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Date startTime3 = Date.from(LocalDate.now().minusDays(7).atTime(10,0,0).atZone(ZoneId.systemDefault()).toInstant());
+        Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
-        HashMap<BookingCategory,Long> teamMonthstatistic = new HashMap<>();
-        teamMonthstatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
-        teamMonthstatistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) /(1000*60*60));
-        Assertions.assertEquals(teamMonthstatistic, productivityAnalysisService.getStatisicForTeamByWeek(1));
+        HashMap<BookingCategory,Long> teamWeekStatistic = new HashMap<>();
+        teamWeekStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
+        teamWeekStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60));
+        Assertions.assertEquals(teamWeekStatistic, productivityAnalysisService.getStatisicForTeamByWeek(1));
     }
 
     @DirtiesContext
     @Test
     @WithMockUser(username = "statistic_test_user1", authorities = {"TEAMLEADER"})
     public void statistic_team_backstepMonth(){
-        //set activity end time to 3 days 22 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
-        //set activity start time to 4 days ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 20 days before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*20);
-        //set activity start time to 25 days ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*25);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u2,d2,bookingRepository);
+        Date endTime1, endTime2, endTime3, startTime1, startTime2, startTime3;
 
-        //set activity end time to 29 days before current time.
-        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*29);
-        //set activity start time to 30 days ago
-        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*30);
-        Booking booking3 = DataHelper.createBooking(cat1,startingTime3,endingTime3,u1,d1,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(7).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
+
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(10).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,d2,bookingRepository);
+
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(5).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime3 = Date.from(LocalDate.now().minusMonths(1).minusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().minusMonths(1).minusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime3 = Date.from(LocalDate.now().plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking3 = DataHelper.createBooking(cat1,startTime3,endTime3,u3,d3,bookingRepository);
 
         HashMap<BookingCategory,Long> thisMonthStatistic = new HashMap<>();
-        thisMonthStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
+        thisMonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
         Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForCurrentUserByMonth(1));
-        thisMonthStatistic.put(cat2, (endingTime2.getTime()-startingTime2.getTime()) /(1000*60*60));
+        thisMonthStatistic.put(cat2, (endTime2.getTime()-startTime2.getTime()) /(1000*60*60));
         Assertions.assertEquals(thisMonthStatistic, productivityAnalysisService.getStatisicForTeamByMonth(1));
     }
 
     @DirtiesContext
     @Test
     @WithMockUser(username = "statistic_test_user2", authorities = {"DEPARTMENTLEADER"})
-    public void statistic_department_backstepMonth(){
-        //set activity end time to 3 days 22 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
-        //set activity start time to 4 days ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+    public void statistic_department_backstepMonth()
+    {
+        Date endTime1, endTime2, endTime3, startTime1, startTime2, startTime3;
 
-        //set activity end time to 20 days before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*20);
-        //set activity start time to 24 days ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*24);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u2,d2,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(7).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 20 days before current time.
-        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*20);
-        //set activity start time to 21 days ago
-        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*21);
-        Booking booking3 = DataHelper.createBooking(cat2,startingTime3,endingTime3,u3,d3,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(10).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,d2,bookingRepository);
+
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(5).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime3 = Date.from(LocalDate.now().minusMonths(1).minusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().minusMonths(1).minusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime3 = Date.from(LocalDate.now().plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
         HashMap<BookingCategory,Long> backstep1MonthStatistic = new HashMap<>();
-        backstep1MonthStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
-        backstep1MonthStatistic.put(cat2, ((endingTime2.getTime()-startingTime2.getTime()) + (endingTime3.getTime()-startingTime3.getTime())) /(1000*60*60));
+        backstep1MonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
+        backstep1MonthStatistic.put(cat2, ((endTime2.getTime()-startTime2.getTime()) + (endTime3.getTime()-startTime3.getTime())) /(1000*60*60));
         Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisicForDepartmenByMonth(1));
 
     }
@@ -295,27 +346,47 @@ public class ProductivityAnalysisServiceTest {
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void statistic_departmentAsAdmin_backstepMonth(){
-        //set activity end time to 3 days 22 hours before current time.
-        Date endingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4 + 60*1000*180);
-        //set activity start time to 4 days ago
-        Date startingTime1 = new Date(new Date().getTime() - 60*1000*60*24*4);
-        Booking booking1 = DataHelper.createBooking(cat1,startingTime1,endingTime1,u1,d1,bookingRepository);
+        Date endTime1, endTime2, endTime3, startTime1, startTime2, startTime3;
 
-        //set activity end time to 20 days before current time.
-        Date endingTime2 = new Date(new Date().getTime() - 60*1000*60*24*20);
-        //set activity start time to 24 days ago
-        Date startingTime2 = new Date(new Date().getTime() - 60*1000*60*24*24);
-        Booking booking2 = DataHelper.createBooking(cat2,startingTime2,endingTime2,u2,d2,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(7).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).minusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime1 = Date.from(LocalDate.now().minusMonths(1).plusDays(7).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking1 = DataHelper.createBooking(cat1,startTime1,endTime1,u1,d1,bookingRepository);
 
-        //set activity end time to 20 days before current time.
-        Date endingTime3 = new Date(new Date().getTime() - 60*1000*60*24*20);
-        //set activity start time to 21 days ago
-        Date startingTime3 = new Date(new Date().getTime() - 60*1000*60*24*21);
-        Booking booking3 = DataHelper.createBooking(cat2,startingTime3,endingTime3,u3,d2,bookingRepository);
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(10).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).minusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,d2,bookingRepository);
+
+        //make sure month matches 1 month ago
+        if(LocalDate.now().minusMonths(1).minusDays(5).getMonth() == LocalDate.now().minusMonths(1).getMonth()) {
+            endTime3 = Date.from(LocalDate.now().minusMonths(1).minusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().minusMonths(1).minusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else
+        {
+            endTime3 = Date.from(LocalDate.now().plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,d3,bookingRepository);
 
         HashMap<BookingCategory,Long> backstep1MonthStatistic = new HashMap<>();
-        backstep1MonthStatistic.put(cat1, (endingTime1.getTime()-startingTime1.getTime()) / (1000*60*60));
-        backstep1MonthStatistic.put(cat2, ((endingTime2.getTime()-startingTime2.getTime()) + (endingTime3.getTime()-startingTime3.getTime())) /(1000*60*60));
+        backstep1MonthStatistic.put(cat1, (endTime1.getTime()-startTime1.getTime()) / (1000*60*60));
+        backstep1MonthStatistic.put(cat2, ((endTime2.getTime()-startTime2.getTime()) + (endTime3.getTime()-startTime3.getTime())) /(1000*60*60));
 
         Assertions.assertEquals(backstep1MonthStatistic, productivityAnalysisService.getStatisicForDepartmenByMonth(1));
 
