@@ -25,4 +25,9 @@ public class RoomListController implements Serializable {
         if(rooms == null) rooms = roomService.getAllRooms();
         return rooms;
     }
+
+    public void forceRefresh()
+    {
+        this.rooms = null;
+    }
 }

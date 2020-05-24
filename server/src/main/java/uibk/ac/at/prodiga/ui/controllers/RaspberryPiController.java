@@ -77,7 +77,7 @@ public class RaspberryPiController implements Serializable {
      * @return A list of raspberry pis
      */
     public Collection<RaspberryPi> getAllPendingRaspberryPis() {
-        pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
+        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
         return pendingRaspis;
     }
 
@@ -86,7 +86,7 @@ public class RaspberryPiController implements Serializable {
      * @return A list of raspberry pis
      */
     public Collection<RaspberryPi> getAllConfiguredRaspberryPis() {
-        configuredRaspis = this.raspberryPiService.getAllConfiguredRaspberryPis();
+        if(configuredRaspis == null) configuredRaspis = this.raspberryPiService.getAllConfiguredRaspberryPis();
         return configuredRaspis;
     }
 
@@ -98,8 +98,8 @@ public class RaspberryPiController implements Serializable {
         if(raspi == null) {
             return;
         }
-
         raspberryPiService.tryDeletePendingRaspberry(raspi);
+        pendingRaspis = null;
     }
 
     /**
@@ -128,6 +128,7 @@ public class RaspberryPiController implements Serializable {
      */
     public void delete(RaspberryPi raspi) throws Exception {
         this.raspberryPiService.delete(raspi);
+        configuredRaspis = null;
     }
 
     public void createRaspiByInternalId(String internalId) {

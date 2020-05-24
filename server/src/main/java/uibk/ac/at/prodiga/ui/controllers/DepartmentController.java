@@ -26,6 +26,7 @@ public class DepartmentController implements Serializable {
 
     private final DepartmentService departmentService;
     private Department department;
+    private Collection<Department> departments;
     private final UserService userService;
     private User departmentLeader;
     private TeamService teamService;
@@ -41,7 +42,8 @@ public class DepartmentController implements Serializable {
      * @return A collection of all departments
      */
     public Collection<Department> getAllDepartments() {
-        return departmentService.getAllDepartments();
+        if(departments == null) departments = departmentService.getAllDepartments();
+        return departments;
     }
 
 
@@ -166,6 +168,7 @@ public class DepartmentController implements Serializable {
      */
     public void doDeleteDepartment() throws Exception {
         this.departmentService.deleteDepartment(department);
+        departments = null;
         SnackbarHelper.getInstance()
                 .showSnackBar("Department \"" + department.getName() + "\" deleted!", MessageType.ERROR);
     }
