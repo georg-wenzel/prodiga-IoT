@@ -1,18 +1,24 @@
 #!/bin/sh
 
-install_apt_dependencies()
-{
-dependencies=$1
-for element in $dependencies;do
-    if ! dpkg -s $element >/dev/null 2>&1; then
-        sudo apt-get install $element
-    fi
-    echo "$element installed"
-done
-}
+#install_apt_dependencies()
+#{
+#dependencies=$1
+#for element in $dependencies;do
+#    if ! dpkg -s $element >/dev/null 2>&1; then
+#        echo "$element not installed"
+#    else
+#        echo "$element installed"
+#    fi
+#done
+#}
+#
+#
+#install_apt_dependencies 'blueZ'
 
-
-install_apt_dependencies 'libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline6 libreadline-dev'
+running=$(sudo systemctl status bluetooth | grep "daemon" | wc -l)
+if [ $running -eq 0 ]; then
+    echo test
+fi
 
 #if ! dpkg -s $dependencies >/dev/null 2>&1; then
 #  echo $dependencies

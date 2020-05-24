@@ -55,41 +55,49 @@ install_apt_dependencies 'libglib2.0-dev libdbus-1-dev libudev-dev libical-dev l
 echo "installed blueZ dependencies"
 
 # ensure that you are in the home directory
-cd ~ 
+cd $HOME
 
-# make binary_files folder
-mkdir binary_files && cd binary_files
+if [ ! -d "$HOME/binary_files" ]; then
+    # make binary_files folder
+    mkdir binary_files
+fi
 
-# download blueZ source_code
-wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.47.tar.xz
+cd binary_files
 
-# extract blueZ
-tar -xf bluez-5.47.tar.xz && cd bluez-5.47
+if ! dpkg -s blueZ >/dev/null 2>&1; then
+    # download blueZ source_code
+    wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.47.tar.xz
 
-# configure blueZ
-./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc -- localstatedir=/var
+    # extract blueZ
+    tar -xf bluez-5.47.tar.xz && cd bluez-5.47
 
-# build blueZ
-make
-sudo make install
+    # configure blueZ
+    ./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc -- localstatedir=/var
 
-# check if version 5.47
-#/usr/libexec/bluetooth/bluetoothd --version
+    # build blueZ
+    make
+    sudo make install
 
-# input policy group for bluetooth
-sudo sed '0,/<\/policy>/s//<\/policy>\n\n  <policy group="bluetooth">\n    <allow send_destination="org.bluez"\/>\n  <\/policy>/'
+    # check if version 5.47
+    #/usr/libexec/bluetooth/bluetoothd --version
 
-# Add user to openhab
-sudo adduser --system --no-create-home --group --disabled-login openhab
-sudo usermod -a -G bluetooth openhab
+    # input policy group for bluetooth
+    sudo sed '0,/<\/policy>/s//<\/policy>\n\n  <policy group="bluetooth">\n    <allow send_destination="org.bluez"\/>\n  <\/policy>/'
 
-# reload system definition
-sudo systemctl daemon-reload
+    # Add user to openhab
+    sudo adduser --system --no-create-home --group --disabled-login openhab
+    sudo usermod -a -G bluetooth openhab
 
-# reload blueZ
-sudo systemctl restart bluetooth
+    # reload system definition
+    sudo systemctl daemon-reload
 
+    # reload blueZ
+    sudo systemctl restart bluetooth
+fi
+
+#(probably einbauen)
 #sudo systemctl status bluetooth | grep "daemon"
+
 
 # install tinyB dependency
 install_apt_dependencies 'graphviz doxygen'
@@ -97,21 +105,22 @@ install_apt_dependencies 'graphviz doxygen'
 # change to standard binary files directory
 cd ~/binary_files 
 
-# clone tinyB from github
-git clone https://github.com/intel-iot-devkit/tinyb.git && cd tinyb
 
-# make build directory
-mkdir build
+if [ ! -d "$HOME/binary_files/tinyb" ]; then
+    # clone tinyB from github
+    git clone https://github.com/intel-iot-devkit/tinyb.git && cd tinyb
 
-# change to build directory
-cd build
+    # make build directory
+    mkdir build
 
-# build tinyB with cmake
-sudo -E cmake -DBUILDJAVA=ON -DCMAKE_INSTALL_PREFIX=/usr ..
+    # change to build directory
+    cd build
 
-# make and make install of tinyB
-sudo make
-sudo make install
+    # build tinyB with cmake
+    sudo -E cmake -DBUILDJAVA=ON -DCMAKE_INSTALL_PREFIX=/usr ..
 
-# exit
+    # make and make install of tinyB
+    sudo make
+    sudo make install
+fi
 
