@@ -299,33 +299,33 @@ public class StatisticsController implements Serializable {
         return monthlyDepartmentAnalysisBar;
     }
 
-    public List<Map.Entry<BookingCategory, Long>> getStatisticForCurrentUserByDay(){
-        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForCurrentUserByDay(backstepDays).entrySet();
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForCurrentUserByDay(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForCurrentUserByDay(backstepDays).entrySet();
         return new ArrayList<>(set);
     }
 
-    public List<Map.Entry<BookingCategory, Long>> getStatisticForCurrentUserByWeek(){
-        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForCurrentUserByWeek(backstepWeeks).entrySet();
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForCurrentUserByWeek(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForCurrentUserByWeek(backstepWeeks).entrySet();
         return new ArrayList<>(set);
     }
 
-    public List<Map.Entry<BookingCategory, Long>> getStatisticForCurrentUserByMonth(){
-        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForCurrentUserByMonth(backstepMonths).entrySet();
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForCurrentUserByMonth(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForCurrentUserByMonth(backstepMonths).entrySet();
         return new ArrayList<>(set);
     }
 
-    public List<Map.Entry<BookingCategory, Long>> getStatisticForTeamByWeek(){
-        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForTeamByWeek(backstepWeeks).entrySet();
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForTeamByWeek(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForTeamByWeek(backstepWeeks).entrySet();
         return new ArrayList<>(set);
     }
 
-    public List<Map.Entry<BookingCategory, Long>> getStatisticForTeamByMonth(){
-        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForTeamByMonth(backstepMonths).entrySet();
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForTeamByMonth(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForTeamByMonth(backstepMonths).entrySet();
         return new ArrayList<>(set);
     }
 
-    public List<Map.Entry<BookingCategory, Long>> getStatisticForDepartmenByMonth(){
-        Set<Map.Entry<BookingCategory, Long>> set = productivityAnalysisService.getStatisicForDepartmenByMonth(backstepMonths).entrySet();
+    public List<Map.Entry<BookingCategory, Double>> getStatisticForDepartmenByMonth(){
+        Set<Map.Entry<BookingCategory, Double>> set = productivityAnalysisService.getStatisticForDepartmenByMonth(backstepMonths).entrySet();
         return new ArrayList<>(set);
     }
 
@@ -346,8 +346,8 @@ public class StatisticsController implements Serializable {
         barDataSet.setLabel("My First Dataset");
         List<Number> values = new ArrayList<>();
         List<String> labelsBar = new ArrayList<>();
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByWeek(backstepWeek);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForCurrentUserByWeek(backstepWeek);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory.containsKey(entry.getKey().getName())){
@@ -391,8 +391,8 @@ public class StatisticsController implements Serializable {
         List<String> mycolors = new ArrayList<>();
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        Map<BookingCategory, Long> map = productivityAnalysisService.getStatisicForCurrentUserByDay(backstepDay);
-        for (Map.Entry<BookingCategory, Long> entry : map.entrySet()) {
+        Map<BookingCategory, Double> map = productivityAnalysisService.getStatisticForCurrentUserByDay(backstepDay);
+        for (Map.Entry<BookingCategory, Double> entry : map.entrySet()) {
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -434,8 +434,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForCurrentUserByMonth(backstepMonth);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForCurrentUserByMonth(backstepMonth);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -476,8 +476,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByWeek(backstepWeek);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForTeamByWeek(backstepWeek);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -520,8 +520,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForTeamByMonth(backstepMonth);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForTeamByMonth(backstepMonth);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
@@ -562,8 +562,8 @@ public class StatisticsController implements Serializable {
         List<Number> hours = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        Map<BookingCategory,Long> map = productivityAnalysisService.getStatisicForDepartmenByMonth(backstepMonth);
-        for(Map.Entry<BookingCategory,Long> entry : map.entrySet()){
+        Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForDepartmenByMonth(backstepMonth);
+        for(Map.Entry<BookingCategory,Double> entry : map.entrySet()){
             hours.add(entry.getValue());
             labels.add(entry.getKey().getName());
             if(colorByCategory != null && colorByCategory.containsKey(entry.getKey().getName())){
