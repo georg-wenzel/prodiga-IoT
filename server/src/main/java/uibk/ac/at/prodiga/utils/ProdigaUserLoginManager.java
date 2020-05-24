@@ -17,10 +17,6 @@ public class ProdigaUserLoginManager {
 
     private final UserService userService;
 
-    /**
-     * Attribute to cache the current user.
-     */
-    private User currentUser;
 
     public ProdigaUserLoginManager(@Lazy UserService userService) {
         this.userService = userService;
@@ -33,14 +29,8 @@ public class ProdigaUserLoginManager {
      * @return
      */
     public User getCurrentUser() {
-        if (currentUser == null) {
             String currentUserName = getCurrentUserName();
-            if (currentUserName.isEmpty()) {
-                return null;
-            }
-            currentUser = userService.loadUser(currentUserName);
-        }
-        return currentUser;
+            return userService.loadUser(currentUserName);
     }
 
     /**

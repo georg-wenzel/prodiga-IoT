@@ -150,6 +150,8 @@ public class TeamService
     @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
     public void deleteTeam(Team team) throws ProdigaGeneralExpectedException
     {
+        User u = userLoginManager.getCurrentUser();
+
         //check if this team has no users
         if(!userRepository.findAllByAssignedTeam(team).isEmpty())
         {
@@ -161,6 +163,12 @@ public class TeamService
         if(dbTeam == null)
         {
             throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.WARNING);
+        }
+
+        //check if dept matches
+        if(!u.getRoles().contains(UserRole.ADMIN) && !u.getAssignedDepartment().equals(team.getDepartment()))
+        {
+            throw new RuntimeException("Dept. leader attempted to access team outside of own department.");
         }
 
         //delete team
@@ -230,7 +238,8 @@ public class TeamService
      * @return new created team
      */
     @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
-    public Team createTeam(){
+    public Team createTeam()
+    {
         Team team = new Team();
         Department d = new Department();
         d.setId(null);
@@ -243,8 +252,15 @@ public class TeamService
      * @param teamId teamId of the team to load
      * @return the team with the given teamId
      */
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    public Team loadTeam(Long teamId){
-        return teamRepository.findFirstById(teamId);
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
+    public Team loadTeam(Long teamId)
+    {
+        User u = userLoginManager.getCurrentUser();
+
+        Team team = teamRepository.findFirstById(teamId);
+        if(team == null) return null;
+        if(!team.getDepartment().equals(u.getAssignedDepartment()) && !u.getRoles().contains(UserRole.ADMIN))
+            throw new RuntimeException("Dept. leader attempted to access team outside his own department.");
+        return team;
     }
 }

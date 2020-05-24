@@ -44,7 +44,7 @@
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="/team/team"
-                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
                                     <f:param name="team" value="#{team.id}" />
                                 </p:linkButton>
                                 <p:commandButton action="#{teamController.doDeleteTeam()}" icon="fa fa-fw fa-trash" title="Delete" update=":teamForm:teamTable growl" style="margin-left:5px;">

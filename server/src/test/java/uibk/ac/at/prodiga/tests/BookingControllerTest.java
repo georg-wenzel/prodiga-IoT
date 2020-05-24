@@ -174,8 +174,7 @@ public class BookingControllerTest
         userRepository.save(employee);
 
         //refresh necessary services
-        ProdigaUserLoginManager newManager = new ProdigaUserLoginManager(userService);
-        controller = new BookingController(newManager, new BookingService(bookingRepository, newManager, diceRepository, vacationService, logInformationService), bookingCategoryService, diceService);
+        controller = new BookingController(prodigaUserLoginManager, new BookingService(bookingRepository, diceService, prodigaUserLoginManager, diceRepository, userRepository, vacationService, logInformationService), bookingCategoryService, diceService);
 
         Booking b1 = new Booking();
         b1.setActivityStartDate(new Date(new Date().getTime() - 1000*60*60*24));
