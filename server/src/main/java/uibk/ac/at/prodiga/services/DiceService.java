@@ -2,6 +2,7 @@ package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
 import org.javatuples.Pair;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
 import uibk.ac.at.prodiga.rest.dtos.DeviceType;
 import uibk.ac.at.prodiga.rest.dtos.FeedAction;
+import uibk.ac.at.prodiga.rest.dtos.PendingDiceDTO;
 import uibk.ac.at.prodiga.utils.*;
 
 import java.time.Duration;
@@ -28,17 +30,22 @@ public class DiceService {
     private final LogInformationService logInformationService;
     private final DiceSideService diceSideService;
     private final BookingCategoryService bookingCategoryService;
+    private final RaspberryPiService raspberryPiService;
+    private final BookingService bookingService;
 
     private final Map<String, DiceConfigurationWrapper> diceConfigurationWrapperDict = new HashMap<>();
     private final Map<UUID, Consumer<Pair<UUID, DiceConfigurationWrapper>>> onNewDiceSideCallBackDict = new HashMap<>();
     private final Map<Pair<UUID, String>, Instant> survivingTimerMap = new HashMap<>();
+    private final List<Dice> pendingDices = Collections.synchronizedList(new ArrayList<>());
 
-    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService) {
+    public DiceService(DiceRepository diceRepository, ProdigaUserLoginManager prodigaUserLoginManager, DiceSideService diceSideService, LogInformationService logInformationService, BookingCategoryService bookingCategoryService, @Lazy RaspberryPiService raspberryPiService, @Lazy BookingService bookingService) {
         this.diceRepository = diceRepository;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
         this.diceSideService = diceSideService;
         this.logInformationService = logInformationService;
         this.bookingCategoryService = bookingCategoryService;
+        this.raspberryPiService = raspberryPiService;
+        this.bookingService = bookingService;
     }
 
     /**
@@ -110,6 +117,15 @@ public class DiceService {
     }
 
     /**
+     * Gets the dice with the given id
+     * @param id The dices id
+     * @return An Optional with the dice
+     */
+    public Optional<Dice> getDiceById(Long id) {
+        return diceRepository.findById(id);
+    }
+
+    /**
      * Returns all dice which are a signed to teh given raspi
      * @param raspi The raspi
      * @return A list with dices
@@ -133,14 +149,27 @@ public class DiceService {
     /**
      * Saves the given dice
      * @param dice The dice to save
-     * @return The saved dice
      * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
      */
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE')") //NOSONAR
     public Dice save(Dice dice) throws ProdigaGeneralExpectedException {
         checkAccessDiceAndThrow(dice);
 
+        Dice result = saveWithoutAuth(dice, prodigaUserLoginManager.getCurrentUser());
 
+        tryDeletePendingDice(result.getInternalId());
+
+        return result;
+    }
+
+    /**
+     * Saves the given dice
+     * @param dice The dice to save
+     * @param user The user which saves the dice
+     * @return The saved dice
+     * @throws ProdigaGeneralExpectedException Either the dice does'nt have a assigned raspi, user or internalId
+     */
+    public Dice saveWithoutAuth(Dice dice, User user) throws ProdigaGeneralExpectedException {
         if(dice.isActive()) {
 
             if(StringUtils.isEmpty(dice.getInternalId())) {
@@ -162,9 +191,23 @@ public class DiceService {
 
         if(dice.isNew()) {
             dice.setObjectCreatedDateTime(new Date());
-            dice.setObjectCreatedUser(prodigaUserLoginManager.getCurrentUser());
+            dice.setObjectCreatedUser(user);
         } else {
-            dice.setObjectChangedUser(prodigaUserLoginManager.getCurrentUser());
+
+            // Here we check if the newly saved dice has a different user than previously
+            // First get the dice
+            Optional<Dice> oDice = getDiceById(dice.getId());
+
+            if(oDice.isPresent()) {
+                Dice dbDice = oDice.get();
+
+                // If the dice needs to be cleared (see impl) we clear all bookings and dice sides
+                if(diceNeedsToBeCleared(dice, dbDice)) {
+                    clearDiceData(dice);
+                }
+            }
+
+            dice.setObjectChangedUser(user);
             dice.setObjectChangedDateTime(new Date());
         }
 
@@ -184,16 +227,84 @@ public class DiceService {
     }
 
     /**
+     * Adds the given dices to the pending dices
+     * @param diceRaspiMapping The dice internalIds
+     */
+    public void addDicesToPending(List<PendingDiceDTO> diceRaspiMapping) {
+        for(PendingDiceDTO entry : diceRaspiMapping) {
+            if(pendingDices.stream().anyMatch(x -> x.getInternalId().equals(entry.getDiceInternalId()))) {
+                logInformationService.logForCurrentUser("Cannot add Dice " + entry.getDiceInternalId() + " to pending because it already exists");
+                continue;
+            }
+
+            if(getDiceByInternalId(entry.getDiceInternalId()) != null) {
+                logInformationService.logForCurrentUser("Dice " + entry.getDiceInternalId() + " already exists.");
+                continue;
+            }
+
+            Optional<RaspberryPi> raspi = raspberryPiService.findByInternalId(entry.getRaspiInternalId());
+
+            if(!raspi.isPresent()) {
+                logInformationService.logForCurrentUser("Dice " + entry.getDiceInternalId() + " cannot be added because Raspberry Pi " + entry.getRaspiInternalId() + " does not exist");
+                continue;
+            }
+
+            Dice d = new Dice();
+            d.setInternalId(entry.getDiceInternalId());
+            d.setAssignedRaspberry(raspi.get());
+            pendingDices.add(d);
+            logInformationService.logForCurrentUser("Added Dice " + entry.getDiceInternalId() + " to pending dices");
+        }
+    }
+
+    /**
+     * Returns all pending dices
+     * @return A list with all pending dices
+     */
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    public List<Dice> getPendingDices() {
+        return new ArrayList<>(pendingDices);
+    }
+
+    /**
      * Deletes the dice.
      *
      * @param dice the dice to delete
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    public void deleteDice(Dice dice) {
+    public void deleteDice(Dice dice) throws ProdigaGeneralExpectedException {
+        if(dice == null) {
+            return;
+        }
+
+        clearDiceData(dice);
+
         diceRepository.delete(dice);
         logInformationService.logForCurrentUser("Dice " + dice.getInternalId() + " was deleted!");
     }
 
+    /**
+     * Gets the battery status for the given user
+     * @param u The user
+     * @return The battery status
+     */
+    public String getDiceBatteryStatusForUser(User u) {
+        if(u == null) {
+            return null;
+        }
+
+        Dice d = getDiceByUser(u);
+
+        if(d == null) {
+            return null;
+        }
+
+        if(d.getLastBatteryStatus() == null){
+            return "n/a";
+        }
+
+        return d.getLastBatteryStatus().toString() + "%";
+    }
 
     /**
      * Returns the number of dice of users who are in the same team as the calling user, that have the corresponding Category set as one of their sides.
@@ -218,12 +329,14 @@ public class DiceService {
             DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict.get(internalId);
             wrapper.setCurrentSide(side);
 
-            Pair<Integer, BookingCategory> value = wrapper.getCompletedSides().getOrDefault(side, null);
+            Integer value = wrapper.getVisitedSites().getOrDefault(side, null);
 
             if(value != null) {
-                wrapper.setCurrentSideFriendlyName(value.getValue0());
+                wrapper.setCurrentSideFriendlyName(value);
             } else {
-                wrapper.setCurrentSideFriendlyName(wrapper.getCurrentSideFriendlyName() + 1);
+                int newFriendlySide = wrapper.getCurrentSideFriendlyName() + 1;
+                wrapper.setCurrentSideFriendlyName(newFriendlySide);
+                wrapper.getVisitedSites().put(side, newFriendlySide);
             }
 
             onNewDiceSideCallBackDict.forEach((key, v) -> v.accept(Pair.with(key, wrapper)));
@@ -259,13 +372,17 @@ public class DiceService {
     /**
      * Unregisters the service with the given id from the newSide Callback
      * @param id The services id
+     * @param internalId The dices internal id
      */
-    public void unregisterNewSideCallback(UUID id) {
+    public void unregisterNewSideCallback(UUID id, String internalId) {
         if(id == null) {
             return;
         }
 
+        // Remove dice from config mode, unregister callback and send message to client
         onNewDiceSideCallBackDict.remove(id);
+        diceConfigurationWrapperDict.remove(internalId);
+        FeedManager.getInstance().addToFeed(internalId, DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
 
         logInformationService.logForCurrentUser("Unregistered " + id.toString() + " from Dice Side Listener");
     }
@@ -332,11 +449,7 @@ public class DiceService {
             diceSideService.onNewConfiguredDiceSide(key, value.getValue0(), value.getValue1(), wrapper.getDice());
         });
 
-        diceConfigurationWrapperDict.remove(wrapper.getDice().getInternalId());
-
-        FeedManager.getInstance().completeFeedItem(wrapper.getFeedId());
-
-        FeedManager.getInstance().addToFeed(wrapper.getDice().getInternalId(), DeviceType.CUBE, FeedAction.LEAVE_CONFIG_MODE);
+        removeDiceInConfigMode(wrapper);
 
         logInformationService.logForCurrentUser("Dice " + d.getInternalId() + " left configuration mode");
     }
@@ -376,7 +489,7 @@ public class DiceService {
         for (Map.Entry<Pair<UUID, String>, Instant> entry: notSurviving) {
             survivingTimerMap.remove(entry.getKey());
 
-            unregisterNewSideCallback(entry.getKey().getValue0());
+            unregisterNewSideCallback(entry.getKey().getValue0(), entry.getKey().getValue1());
 
             DiceConfigurationWrapper wrapper = diceConfigurationWrapperDict
                     .getOrDefault(entry.getKey().getValue1(), null);
@@ -404,9 +517,49 @@ public class DiceService {
             throw new ProdigaGeneralExpectedException("Only admins can edit dices without users",
                     MessageType.ERROR);
         } else if(d.getUser() != null
-                && !currentUser.getUsername().equals(d.getUser().getUsername())) {
+                && !currentUser.getUsername().equals(d.getUser().getUsername()) && !currentUser.getRoles().contains(UserRole.ADMIN)) {
             throw new ProdigaGeneralExpectedException("You cannot save someone else's dice",
                     MessageType.ERROR);
         }
+    }
+
+    private void tryDeletePendingDice(String internalId){
+        pendingDices.stream()
+                .filter(x -> x.getInternalId().equals(internalId))
+                .findFirst().ifPresent(diceInList -> {
+                    pendingDices.remove(diceInList);
+                    logInformationService.logForCurrentUser("Removed Dice " + diceInList.getInternalId() + " from pending dices");
+        });
+    }
+
+    /**
+     * Removes all data associated with the given dice - currently bookings and dice Sides
+     * @param d The dice
+     * @throws ProdigaGeneralExpectedException Can occur when deleting bookings
+     */
+    private void clearDiceData(Dice d) throws ProdigaGeneralExpectedException {
+        bookingService.deleteBookingsForDice(d);
+        diceSideService.deleteForDice(d);
+    }
+
+    /**
+     * Returns whether the given dice and the dice in the db need to be cleared
+     * @param dice The dice to save
+     * @param dbDice The dice in the db
+     * @return Whether the dice needs to be cleared
+     */
+    private boolean diceNeedsToBeCleared(Dice dice, Dice dbDice) {
+        // If the current dice and the dice in the DB both have a user and the user is different
+        // we delete all data from the dice
+        return (
+                dice.getUser() != null && dbDice.getUser() != null &&
+                        !dbDice.getUser().getUsername().equals(dice.getUser().getUsername())
+                )
+                ||
+                // if the current dice does not have an user and the dice in the DB has a user we know
+                // the user is unassigned - clear all data
+                (
+                    dice.getUser() == null && dbDice.getUser() != null
+                );
     }
 }

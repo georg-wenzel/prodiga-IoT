@@ -7,7 +7,9 @@ import org.primefaces.model.ScheduleEvent;
 import org.primefaces.model.ScheduleModel;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.Vacation;
+import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.VacationService;
 
 import java.io.Serializable;
@@ -26,11 +28,12 @@ public class CalendarController implements Serializable {
     private ScheduleEvent event = new DefaultScheduleEvent();
     private String locale = "de";
 
-    public CalendarController(VacationService vacationService) {
+    public CalendarController(VacationService vacationService, BookingService bookingService) {
 
         eventModel = new DefaultScheduleModel();
 
         Collection<Vacation> vacations = vacationService.getAllVacations();
+        Collection<Booking> bookings = bookingService.getAllBookingsByCurrentUser();
 
         vacations.forEach(x ->
         {
@@ -40,6 +43,16 @@ public class CalendarController implements Serializable {
             DefaultScheduleEvent vacation = new DefaultScheduleEvent("Vacation", x.getBeginDate(), newEnd, true);
             vacation.setData(x);
             eventModel.addEvent(vacation);
+        });
+
+        bookings.forEach(x ->
+        {
+            Instant endInstant = x.getActivityEndDate().toInstant();
+            Date newEnd = Date.from(endInstant.plus(1, ChronoUnit.DAYS));
+
+            DefaultScheduleEvent booking = new DefaultScheduleEvent(x.getBookingCategory().getName(), x.getActivityStartDate(), newEnd, true);
+            booking.setData(x);
+            eventModel.addEvent(booking);
         });
     }
 

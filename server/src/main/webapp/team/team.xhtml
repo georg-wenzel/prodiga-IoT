@@ -35,6 +35,10 @@
                                                  label="Team name"/>
                                 </div>
 
+                                <p:outputPanel styleClass="ui-g-8 ui-g-offset-4 input-form"
+                                               rendered="#{userListController.getAllUsersInTeam(teamController.team).size() eq 0}">
+                                    To assign a team leader, first please add users to the team.
+                                </p:outputPanel>
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="teamLeader" value="Team leader: "/>
                                 </div>
@@ -66,7 +70,7 @@
                                                  ajax="true"
                                                  icon="fa fa-fw fa-save"
                                                  validateClient="true"
-                                                 update="growl msgs">
+                                                 update=":teamForm:usersInTeamTable growl msgs">
                                 </p:commandButton>
                             </div>
                         </div>
@@ -93,16 +97,30 @@
                                 <h:outputText value="#{u.lastName}" />
                             </p:column>
                             <p:column style="text-align: center"
-                                      width="5%"
+                                      width="7%"
                                       rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="/user/user">
                                     <f:param name="username" value="#{u.username}"/>
                                 </p:linkButton>
+                                <p:commandButton action="#{teamController.deleteUserFromTeam(u)}"
+                                                 icon="fa fa-fw fa-trash"
+                                                 title="Delete"
+                                                 update=":teamForm :teamForm:usersInTeamTable"
+                                                 style="margin-left:5px;"
+                                                 disabled="#{not teamController.mayBeDeleteFromTeam(u, teamController.team)}">
+                                    <p:confirm header="Confirmation" message="Are you sure you want to remove the user from the team." icon="ui-icon-alert" />
+                                </p:commandButton>
                             </p:column>
                         </p:dataTable>
                     </div>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
+
                 </h:form>
             </div>
         </div>

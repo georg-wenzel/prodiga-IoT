@@ -45,11 +45,15 @@
                                                 <f:selectItems value="#{bookingController.availableCategories}" var="cat" itemLabel="#{cat.name}" itemValue="#{cat.id}"/>
                                             </p:selectOneMenu>
                                             <p:outputLabel for="department" value="Department: " />
-                                            <h:outputText id="department" rendered="#{bookingController.getEditing()}" value="#{bookingController.booking.dept}" />
-                                            <h:outputText id="department_new" rendered="#{!bookingController.getEditing()}" value="#{bookingController.user.assignedDepartment}" />
+                                            <h:outputText id="department" rendered="#{bookingController.getEditing() and bookingController.booking.dept != null}" value="#{bookingController.booking.dept}" />
+                                            <h:outputText id="department_notset" rendered="#{bookingController.getEditing() and bookingController.booking.dept == null}" value="None" />
+                                            <h:outputText id="department_new" rendered="#{!bookingController.getEditing() and bookingController.user.assignedDepartment != null}" value="#{bookingController.user.assignedDepartment}" />
+                                            <h:outputText id="department_new_notset" rendered="#{!bookingController.getEditing() and bookingController.user.assignedDepartment == null}" value="None" />
                                             <p:outputLabel for="team" value="Team: " />
-                                            <h:outputText id="team" rendered="#{bookingController.getEditing()}" value="#{bookingController.booking.team}" />
-                                            <h:outputText id="team_new" rendered="#{!bookingController.getEditing()}" value="#{bookingController.user.assignedTeam}" />
+                                            <h:outputText id="team" rendered="#{bookingController.getEditing() and bookingController.booking.team != null}" value="#{bookingController.booking.team}" />
+                                            <h:outputText id="team_notset" rendered="#{bookingController.getEditing() and bookingController.booking.team == null}" value="None" />
+                                            <h:outputText id="team_new" rendered="#{!bookingController.getEditing() and bookingController.user.assignedTeam != null}" value="#{bookingController.user.assignedTeam}" />
+                                            <h:outputText id="team_new_notset" rendered="#{!bookingController.getEditing() and bookingController.user.assignedTeam == null}" value="None" />
                                         </h:panelGrid>
                                     </div>
                                 </div>

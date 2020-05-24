@@ -46,6 +46,10 @@
                                                  label="Department name" style="width:100%"/>
                                 </div>
 
+                                <p:outputPanel styleClass="ui-g-8 ui-g-offset-4 input-form"
+                                               rendered="#{userListController.getAllUsersInDepartment(departmentController.department).size() eq 0}">
+                                    To assign a department leader, first please add users to the department.
+                                </p:outputPanel>
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="departmentLeader" value="Department leader: "/>
                                 </div>
@@ -112,13 +116,21 @@
                                               value="No Team assigned" />
                             </p:column>
                             <p:column style="text-align: center"
-                                      width="5%"
+                                      width="7%"
                                       rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Edit"
                                               outcome="/user/user">
                                     <f:param name="username" value="#{u.username}"/>
                                 </p:linkButton>
+                                <p:commandButton action="#{departmentController.deleteUserFromDepartment(u)}"
+                                                 icon="fa fa-fw fa-trash"
+                                                 title="Delete"
+                                                 update=":departmentForm :departmentForm:usersInDepartmentTable :departmentForm:teamTable"
+                                                 style="margin-left:5px;"
+                                                 disabled="#{not departmentController.mayBeDeleteFromDepartment(u, departmentController.department)}">
+                                    <p:confirm header="Confirmation" message="Are you sure you want to remove the user from the department." icon="ui-icon-alert" />
+                                </p:commandButton>
                             </p:column>
                         </p:dataTable>
                     </div>
@@ -152,6 +164,11 @@
                             </p:column>
                         </p:dataTable>
                     </div>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                    </p:confirmDialog>
                 </h:form>
             </div>
         </div>

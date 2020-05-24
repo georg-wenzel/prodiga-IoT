@@ -27,36 +27,19 @@
                                 <h:outputText value="#{raspberry_pi.internalId}"/>
                             </p:column>
 
-                            <p:column headerText="Configure Raspberry Pi" style="text-align: center;width:100px;">
+                            <p:column headerText="" style="text-align: center;width:100px;">
                                 <p:linkButton icon="fa fa-fw fa-edit"
                                               title="Configure"
                                               outcome="raspberry_pi_pend">
                                     <f:param name="id" value="#{raspberry_pi.internalId}"/>
                                 </p:linkButton>
+                                <p:commandButton action="#{raspberryPiController.deletePendingRaspberry(raspberry_pi)}" icon="fa fa-fw fa-trash" title="Delete" update=":raspberryForm:raspberryTable" style="margin-left:5px;">
+                                    <f:setPropertyActionListener value="#{raspberry_pi}" target="#{raspberryPiController.raspberryPi}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this Raspberry Pi? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
                             </p:column>
                             
                         </p:dataTable>
-                        <br/><br/>
-                        <p:separator/>
-                        <br/>
-                        <div class="ui-g-12 input-form">
-                            <h2>Add pending Raspberry Pi</h2>
-                            <p:outputLabel for="raspiInternalId" value="Raspberry Pi Internal Id: " style="margin-right:10px;"/>
-                            <p:inputText id="raspiInternalId"
-                                         value="#{raspberryPiController.pendingRasPiInternalId}"
-                                         disabled="false"
-                                         required="true"
-                                         label="Flightnumber"/>
-                            <br/>
-                        </div>
-
-                        <p:commandButton value="Add"
-                                         action="#{raspberryPiController.addPendingRaspberry}"
-                                         ajax="true"
-                                         validateClient="true"
-                                         icon="fa fa-fw fa-save"
-                                         update="growl msgs raspberryForm">
-                        </p:commandButton>
                     </h:form>
 
 

@@ -41,13 +41,11 @@ public class TeamController implements Serializable {
      */
     public Collection<Team> getAllTeams()
     {
-        if(teams == null)
-        {
-            if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN))
-                teams = teamService.getAllTeams();
+        if(userLoginManager.getCurrentUser().getRoles().contains(UserRole.ADMIN)) {
+            teams = teamService.getAllTeams();
 
-            else
-                teams = teamService.findTeamsOfDepartment();
+        } else {
+            teams = teamService.findTeamsOfDepartment();
         }
         return teams;
     }
@@ -142,6 +140,37 @@ public class TeamController implements Serializable {
         if(team != null && !team.isNew()) {
             teamLeader = getTeamLeaderOf(team);
         }
+    }
+
+    /**
+     * Removes the given user from the team
+     * @param user The user to delete
+     * @throws ProdigaGeneralExpectedException When deleting is not possible
+     */
+    public void deleteUserFromTeam(User user) throws ProdigaGeneralExpectedException {
+        if(user == null) {
+            return;
+        }
+        userService.assignTeam(user, null);
+    }
+
+    /**
+     * Returns whether the given user may be deleted from the given team
+     * @param user The user to check
+     * @param t The team to check
+     * @return Whether the user can be deleted
+     */
+    public boolean mayBeDeleteFromTeam(User user, Team t) {
+        if(t == null || user == null) {
+            return false;
+        }
+
+        User teamLeader = getTeamLeaderOf(t);
+        if(teamLeader == null) {
+            return true;
+        }
+
+        return !teamLeader.getUsername().equals(user.getUsername());
     }
 
     public Team getTeam() {

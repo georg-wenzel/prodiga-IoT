@@ -7,17 +7,17 @@ import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
+import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
+import java.awt.print.Book;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for accessing and manipulating bookings.
@@ -28,15 +28,19 @@ public class BookingService
 {
     private final BookingRepository bookingRepository;
     private final VacationService vacationService;
+    private final DiceService diceService;
     private final DiceRepository diceRepository;
     private final ProdigaUserLoginManager userLoginManager;
+    private final UserRepository userRepository;
     private final LogInformationService logInformationService;
 
-    public BookingService(BookingRepository bookingRepository, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, VacationService vacationService, LogInformationService logInformationService) {
+    public BookingService(BookingRepository bookingRepository, DiceService diceService, ProdigaUserLoginManager userLoginManager, DiceRepository diceRepository, UserRepository userRepository, VacationService vacationService, LogInformationService logInformationService) {
         this.bookingRepository = bookingRepository;
+        this.diceService = diceService;
         this.userLoginManager = userLoginManager;
         this.diceRepository = diceRepository;
         this.vacationService = vacationService;
+        this.userRepository = userRepository;
         this.logInformationService = logInformationService;
     }
 
@@ -47,7 +51,24 @@ public class BookingService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Booking> getAllBookingsByDice(Dice dice)
     {
-        if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        User currentUser = userLoginManager.getCurrentUser();
+
+        if((currentUser != null && !currentUser.getRoles().contains(UserRole.ADMIN)) &&
+                !diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(dice)) {
+            throw new RuntimeException("Illegal attempt to load dice data from other user.");
+        }
+
+        return Lists.newArrayList(bookingRepository.findAllByDice(dice));
+    }
+
+    /**
+     * Returns a collection of all bookings for a dice.
+     * @return A collection of all bookings for the given dice.
+     */
+    @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
+    public Collection<Booking> getAllBookingsByCurrentUser()
+    {
+        Dice dice = diceService.getDiceByUser(userLoginManager.getCurrentUser());
         return Lists.newArrayList(bookingRepository.findAllByDice(dice));
     }
 
@@ -59,7 +80,7 @@ public class BookingService
     @PreAuthorize("hasAuthority('EMPLOYEE')")
     public Booking getLastBookingForDice(Dice d) {
         if(!diceRepository.findFirstByUser(userLoginManager.getCurrentUser()).equals(d)) throw new RuntimeException("Illegal attempt to load dice data from other user.");
-        return bookingRepository.findFirstByDiceOrderByObjectCreatedDateTimeDesc(d);
+        return bookingRepository.findFirstByDiceOrderByActivityEndDateDesc(d);
     }
 
     /**
@@ -125,6 +146,9 @@ public class BookingService
      */
     public Booking saveBooking(Booking booking, User u, boolean useAuth) throws ProdigaGeneralExpectedException
     {
+        //refresh user
+        u = userRepository.findFirstByUsername(u.getUsername());
+
         //check fields
         if(booking.getActivityEndDate().before(booking.getActivityStartDate()))
         {
@@ -209,26 +233,46 @@ public class BookingService
      * @throws ProdigaGeneralExpectedException Thrown if the user is trying to delete a booking from longer than 2 weeks ago, but does not have permissions.
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
-    public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
+    public void deleteBooking(Booking booking, boolean isHardDelete) throws ProdigaGeneralExpectedException
     {
-        User u = userLoginManager.getCurrentUser();
+        if(!isHardDelete) {
+            User u = userLoginManager.getCurrentUser();
 
-        booking = bookingRepository.findFirstById(booking.getId());
-        if(booking == null) return;
+            booking = bookingRepository.findFirstById(booking.getId());
+            if(booking == null) return;
 
-        if(!booking.getDice().getUser().equals(u))
-        {
-            throw new RuntimeException("User cannot delete other user's bookings.");
+            if(!booking.getDice().getUser().equals(u))
+            {
+                throw new RuntimeException("User cannot delete other user's bookings.");
+            }
+
+            if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
+            {
+                throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
+            }
         }
 
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
-        {
-            throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
-        }
 
         bookingRepository.delete(booking);
 
         logInformationService.logForCurrentUser("Booking " + booking.getId() + " deleted");
+    }
+
+    /**
+     * Deletes all bookings for the given dice
+     * @param d The dice
+     */
+    public void deleteBookingsForDice(Dice d) throws ProdigaGeneralExpectedException {
+        if(d == null) {
+            return;
+        }
+
+        Collection<Booking> bookings = getAllBookingsByDice(d);
+        if(bookings.size() > 0) {
+            for(Booking b : bookings) {
+                deleteBooking(b, true);
+            }
+        }
     }
 
     /**
@@ -284,13 +328,16 @@ public class BookingService
      * Searches for a collections of bookings for a given user and backstepDay days ago
      *
      * @param user user that has done the bookings
-     * @param backstepDay how many months ago(i.e. backstepDay = 1 is 1 day ago)
+     * @param backstepDay how many days ago(i.e. backstepDay = 1 is yesterday)
      * @return collection of bookings
      */
     public Collection<Booking> getUsersBookingInRangeByDay(User user, int backstepDay){
         Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
         c.add(Calendar.DATE, -backstepDay);
         Date start = c.getTime();
         c.add(Calendar.DATE, 1);
@@ -302,13 +349,16 @@ public class BookingService
      * Searches for a collections of bookings for a given user and backstepWeek weeks ago
      *
      * @param user user that has done the bookings
-     * @param backstepWeek how many months ago(i.e. backstepWeek = 1 is 1 week ago)
+     * @param backstepWeek how many weeks ago(i.e. backstepWeek = 1 is last week)
      * @return collection of bookings
      */
     public Collection<Booking> getUsersBookingInRangeByWeek(User user, int backstepWeek){
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
-        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
         c.add(Calendar.DATE, -(7*backstepWeek));
         Date start = c.getTime();
         c.add(Calendar.DATE, 7);
@@ -320,13 +370,17 @@ public class BookingService
      * Searches for a collections of bookings for a given user and backstepMonth months ago
      *
      * @param user user that has done the bookings
-     * @param backstepMonth how many months ago(i.e. backstepMonth = 1 is 1 month ago)
+     * @param backstepMonth how many months ago(i.e. backstepMonth = 1 is last month)
      * @return collection of bookings
      */
     public Collection<Booking> getUsersBookingInRangeByMonth(User user,int backstepMonth){
         Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.DAY_OF_MONTH, 1);
         c.add(Calendar.MONTH, -backstepMonth);
         Date start = c.getTime();
         c.add(Calendar.MONTH, 1);

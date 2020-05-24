@@ -38,6 +38,9 @@ namespace Prodiga.SQLFileGenerator
                 "INSERT INTO user (enabled, first_name, last_name, password, username, create_user_username," +
                 $" create_date) VALUES(TRUE, 'Admin', 'Istrator', '{DefaultData.DEFAULT_PASSWORD}'," +
                 $" '{DefaultData.ADMIN_USERNAME}', 'admin', '2016-01-01 00:00:00');");
+
+            builder.AppendLine("INSERT INTO user_user_role(user_username, ROLES) VALUES ('admin', 'ADMIN');");
+            builder.AppendLine("INSERT INTO user_user_role(user_username, ROLES) VALUES ('admin', 'EMPLOYEE');");
         }
 
         private static void genateDataTable(string tableName, Dictionary<string, Dictionary<int, Dictionary<string, object>>> entries, StringBuilder builder)

@@ -105,6 +105,23 @@ public class BadgeDBService {
     }
 
     /**
+     * Deletes all badges for the given user
+     * @param u The users to delete badges
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteBadgesForUser(User u) {
+        if(u == null) {
+            return;
+        }
+
+        Collection<BadgeDB> badges = getAllBadgesByUser(u);
+
+        if(badges.size() > 0) {
+            badges.forEach(this::deleteBadge);
+        }
+    }
+
+    /**
      * Returns the first badge with a matching name (unique identifier)
      * @param name The name of the badge
      * @return The first badge with a matching name, or null if none was found
@@ -150,5 +167,19 @@ public class BadgeDBService {
         cal2.add(Calendar.DATE, 6);
 
         return cal2;
+    }
+
+    /**
+     * Deletes the given Badge
+     * @param b The badge to delete
+     */
+    private void deleteBadge(BadgeDB b){
+        if(b == null) {
+            return;
+        }
+
+        badgeDBRepository.delete(b);
+
+        logInformationService.logForCurrentUser("Badge " + b.getId() + " was deleted!");
     }
 }

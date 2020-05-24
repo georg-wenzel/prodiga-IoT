@@ -62,6 +62,21 @@ public class DiceSideService {
     }
 
     /**
+     * Deletes all dicesides for the given dice
+     * @param d The dice
+     */
+    public void deleteForDice(Dice d) {
+        if(d == null) {
+            return;
+        }
+
+        Collection<DiceSide> diceSides = findByDice(d);
+        if(diceSides.size() > 0) {
+            diceSides.forEach(this::delete);
+        }
+    }
+
+    /**
      * Handles when a dice side gets configured
      * @param side The side on the dice
      * @param category The assigned category

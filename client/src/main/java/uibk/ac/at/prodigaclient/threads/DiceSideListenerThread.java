@@ -15,7 +15,7 @@ import uibk.ac.at.prodigaclient.utils.ProdigaCallback;
 public class DiceSideListenerThread implements Runnable{
 
     private final Logger logger = LogManager.getLogger();
-    private final CubeControllerApi cubeControllerApi;
+    private CubeControllerApi cubeControllerApi;
     private final String internalId;
     private final Object lock = new Object();
     private volatile boolean running = false;
@@ -34,7 +34,9 @@ public class DiceSideListenerThread implements Runnable{
         try {
             while(true) {
                 try {
-                    logger.info("Feed Thread has awoken");
+                    cubeControllerApi = Constants.getCubeControllerApi();
+
+                    logger.info("Dice Side Listener Thread has awoken");
 
                     ManualResetEventSlim mre = new ManualResetEventSlim(false);
 

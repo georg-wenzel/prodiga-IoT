@@ -4,9 +4,7 @@ import org.javatuples.Pair;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.Dice;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 public class DiceConfigurationWrapper {
@@ -16,9 +14,19 @@ public class DiceConfigurationWrapper {
     private int currentSideFriendlyName;
     private Map<Integer, Pair<Integer, BookingCategory>> completedSides;
     private UUID feedId;
+    private Map<Integer, Integer> visitedSites;
 
     public DiceConfigurationWrapper() {
         completedSides = new HashMap<>();
+        visitedSites = new HashMap<>();
+    }
+
+    public Map<Integer, Integer> getVisitedSites() {
+        return visitedSites;
+    }
+
+    public void setVisitedSites(Map<Integer, Integer> visitedSites) {
+        this.visitedSites = visitedSites;
     }
 
     public Dice getDice() {

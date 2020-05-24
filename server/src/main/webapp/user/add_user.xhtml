@@ -48,6 +48,19 @@
                             </div>
                         </div>
 
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="ui-g-3">
+                                    <p:outputLabel for="addPassword" value="Password: "/>
+                                </div>
+                                <div class="ui-g-3">
+                                    <p:password id="addPassword" required="true" requiredMessage="Please add a password"
+                                                 maxlength="99"
+                                                 value="#{userDetailController.user.password}"/>
+                                </div>
+                            </div>
+                        </div>
+
                         <p:separator/>
 
                         <div class="ui-g">

@@ -35,17 +35,17 @@
                                 <h:outputText value="#{user.roles}" />
                             </p:column>
                             <p:column headerText="Edit historic data" rendered="#{(prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') || prodigaUserLoginManager.hasRole('TEAMLEADER')) and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
-                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}">
+                                <p:selectBooleanCheckbox value="#{user.mayEditHistoricData}" valueChangeListener="#{userListController.editBoxChanged}">
                                     <f:attribute name="userToEdit" value="#{user.username}" />
-                                    <f:ajax listener="#{userListController.editBoxChanged}" />
+                                    <f:ajax />
                                 </p:selectBooleanCheckbox>
                             </p:column>
                             <p:column headerText="Team" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') and !prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center;">
-                                <p:selectOneMenu value="#{userListController.userTeams[user.username]}" style="width:100%;" partialSubmit="true">
+                                <p:selectOneMenu value="#{userListController.userTeams[user.username]}" style="width:100%;" partialSubmit="true" valueChangeListener="#{userListController.selectMenuChanged}">
                                     <f:selectItem value="#{null}" itemLabel="None" />
                                     <f:selectItems value="#{userListController.departmentTeams}" var="team" itemLabel="#{team}" itemValue="#{team.id}" />
                                     <f:attribute name="userToEdit" value="#{user.username}" />
-                                    <f:ajax event="change" listener="#{userListController.selectMenuChanged}"/>
+                                    <f:ajax />
                                 </p:selectOneMenu>
                             </p:column>
                             <p:column headerText="Enabled" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" style="text-align:center; width:50px;">

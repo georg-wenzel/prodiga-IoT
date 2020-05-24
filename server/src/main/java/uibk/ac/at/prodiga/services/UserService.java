@@ -1,17 +1,17 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
+import io.micrometer.core.instrument.util.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.Department;
-import uibk.ac.at.prodiga.model.Team;
-import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -29,12 +29,18 @@ public class UserService {
     private final LogInformationService logInformationService;
     private final TeamRepository teamRepository;
     private final ProdigaUserLoginManager userLoginManager;
+    private final DiceService diceService;
+    private final BookingService bookingService;
+    private final BadgeDBService badgeDBService;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, @Lazy DiceService diceService, @Lazy BookingService bookingService, @Lazy BadgeDBService badgeDBService) {
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
         this.logInformationService = logInformationService;
+        this.diceService = diceService;
+        this.bookingService = bookingService;
+        this.badgeDBService = badgeDBService;
     }
 
     /**
@@ -75,7 +81,7 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #user.username") //NOSONAR
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
         if(user.getUsername() == null || user.getUsername().isEmpty())
@@ -98,6 +104,8 @@ public class UserService {
             if(!user.getEmail().isEmpty() && userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
                 throw new ProdigaGeneralExpectedException("User with same email already exists.", MessageType.WARNING);
             }
+
+            user.setPassword(Constants.PASSWORD_ENCODER.encode(user.getPassword()));
 
             user.setCreateDate(new Date());
             user.setCreateUser(getAuthenticatedUser());
@@ -122,6 +130,16 @@ public class UserService {
 
             user.setUpdateDate(new Date());
             user.setUpdateUser(getAuthenticatedUser());
+
+            if(!StringUtils.isEmpty(user.getPassword()) && !dbUser.getPassword().equals(user.getPassword())) {
+                user.setPassword(Constants.PASSWORD_ENCODER.encode(user.getPassword()));
+            } else {
+                user.setPassword(dbUser.getPassword());
+            }
+        }
+
+        if(user.getRoles() != null) {
+            user.getRoles().add(UserRole.EMPLOYEE);
         }
 
         User result = userRepository.save(user);
@@ -138,7 +156,22 @@ public class UserService {
      */
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteUser(User user) throws Exception {
+        if(user == null) {
+            return;
+        }
         checkForUserDeletionOrDeactivation(user);
+
+        Dice d = diceService.getDiceByUser(user);
+
+        if(d != null) {
+            bookingService.deleteBookingsForDice(d);
+            d.setActive(false);
+            d.setUser(null);
+            diceService.save(d);
+        }
+
+        badgeDBService.deleteBadgesForUser(user);
+
         userRepository.delete(user);
         logInformationService.logForCurrentUser("User " + user.getUsername() + " was deleted!");
     }
@@ -289,7 +322,12 @@ public class UserService {
         dbUser.setAssignedDepartment(department);
         User result = this.saveUser(dbUser);
 
-        logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Department " + department.getName());
+        if(department == null) {
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " unassigned from department");
+        } else {
+            logInformationService.logForCurrentUser("User " + user.getUsername() + " assigned to Department " + department.getName());
+
+        }
 
         return result;
     }
@@ -337,7 +375,6 @@ public class UserService {
      * Returns a collection of all user roles in the system
      * @return A collection of all user roles
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
     public Collection<UserRole> getAllUserRoles()
     {
         return Arrays.asList(UserRole.values());

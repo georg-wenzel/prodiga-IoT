@@ -92,10 +92,13 @@ public class UserDetailController implements Serializable {
      * Action to save the currently displayed user.
      */
     public void doSaveUser() throws Exception {
-        if(userDepartmentId != null) this.user.setAssignedDepartment(departmentService.loadDepartment(userDepartmentId));
-        else this.user.setAssignedDepartment(null);
-        if(userTeamId != null) this.user.setAssignedTeam(teamService.loadTeam(userTeamId));
-        else this.user.setAssignedTeam(null);
+
+        if(userLoginManager.hasRole("ADMIN")) {
+            if(userDepartmentId != null) this.user.setAssignedDepartment(departmentService.loadDepartment(userDepartmentId));
+            else this.user.setAssignedDepartment(null);
+            if(userTeamId != null) this.user.setAssignedTeam(teamService.loadTeam(userTeamId));
+            else this.user.setAssignedTeam(null);
+        }
 
         user = this.userService.saveUser(user);
         SnackbarHelper.getInstance()

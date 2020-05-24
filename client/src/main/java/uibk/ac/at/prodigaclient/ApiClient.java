@@ -43,14 +43,7 @@ public class ApiClient {
   public ApiClient(String[] authNames) {
     this();
     for(String authName : authNames) {
-      Interceptor auth;
-      if ("JWT".equals(authName)) {
-        auth = new ApiKeyAuth("header", "Authorization");
-      } else {
-        throw new RuntimeException("auth name \"" + authName + "\" not found in available auth names");
-      }
-
-      addAuthorization(authName, auth);
+      setAuth(authName);
     }
   }
 
@@ -267,6 +260,17 @@ public class ApiClient {
       }
     }
     return this;
+  }
+
+  public void setAuth(String authName) {
+    Interceptor auth;
+    if ("JWT".equals(authName)) {
+      auth = new ApiKeyAuth("header", "Authorization");
+    } else {
+      throw new RuntimeException("auth name \"" + authName + "\" not found in available auth names");
+    }
+
+    addAuthorization(authName, auth);
   }
 
   /**
