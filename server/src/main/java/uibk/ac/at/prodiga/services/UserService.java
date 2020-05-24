@@ -80,7 +80,7 @@ public class UserService {
         return userRepository.findFirstByUsername(username);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #user.username") //NOSONAR
     public User saveUser(User user) throws ProdigaGeneralExpectedException
     {
         if(user.getUsername() == null || user.getUsername().isEmpty())
