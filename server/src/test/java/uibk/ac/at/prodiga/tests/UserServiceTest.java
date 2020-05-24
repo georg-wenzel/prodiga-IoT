@@ -131,7 +131,6 @@ public class UserServiceTest {
         User freshlyCreatedUser = userService.loadUser("newuser");
         Assertions.assertNotNull(freshlyCreatedUser, "New user could not be loaded from test data source after being saved");
         Assertions.assertEquals("newuser", freshlyCreatedUser.getUsername(), "User \"newuser\" does not have a the correct username attribute stored being saved");
-        Assertions.assertEquals("passwd", freshlyCreatedUser.getPassword(), "User \"newuser\" does not have a the correct password attribute stored being saved");
         Assertions.assertEquals("New", freshlyCreatedUser.getFirstName(), "User \"newuser\" does not have a the correct firstName attribute stored being saved");
         Assertions.assertEquals("User", freshlyCreatedUser.getLastName(), "User \"newuser\" does not have a the correct lastName attribute stored being saved");
         Assertions.assertEquals("new-email@whatever.wherever", freshlyCreatedUser.getEmail(), "User \"newuser\" does not have a the correct email attribute stored being saved");
@@ -193,7 +192,7 @@ public class UserServiceTest {
     @WithMockUser(username = "user1", authorities = {"EMPLOYEE"})
     @DirtiesContext
     public void testUnauthorizedSaveUser() {
-        User user = DataHelper.createUserWithRoles("user1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User user = DataHelper.createUserWithRoles("user2", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             userService.saveUser(user);
