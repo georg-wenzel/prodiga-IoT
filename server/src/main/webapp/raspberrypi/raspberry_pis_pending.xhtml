@@ -40,32 +40,6 @@
                             </p:column>
                             
                         </p:dataTable>
-                        <br/><br/>
-                        <p:separator/>
-                        <br/>
-                        <div class="ui-g-12 input-form">
-                            <h2>Add pending Raspberry Pi</h2>
-                            <p:outputLabel for="raspiInternalId" value="Raspberry Pi Internal Id: " style="margin-right:10px;"/>
-                            <p:inputText id="raspiInternalId"
-                                         value="#{raspberryPiController.pendingRasPiInternalId}"
-                                         disabled="false"
-                                         required="true"
-                                         label="Flightnumber"/>
-                            <br/>
-                        </div>
-
-                        <p:commandButton value="Add"
-                                         action="#{raspberryPiController.addPendingRaspberry}"
-                                         ajax="true"
-                                         validateClient="true"
-                                         icon="fa fa-fw fa-save"
-                                         update="growl msgs raspberryForm">
-                        </p:commandButton>
-
-                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
-                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
-                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
-                        </p:confirmDialog>
                     </h:form>
 
 
