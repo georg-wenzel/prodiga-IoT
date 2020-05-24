@@ -111,10 +111,10 @@ INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (24,NOW() - INTERVAL 2 HOUR, NOW() - INTERVAL 9 HOUR , NOW(), 'admin', 6,1,1,1);
 INSERT INTO booking (id, activity_end_date, activity_start_date, object_created_date_time, object_created_user_username, booking_category_id, dept_id, dice_id, team_id) VALUES (25,NOW() - INTERVAL 3 HOUR, NOW() - INTERVAL 7 HOUR , NOW(), 'admin', 7,1,1,1);
 
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(1, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin', 'Most hours debugging');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(2, 'Code Raptor Georg', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'admin', 'Most hours implementation');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(3, 'Bugsimilian', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1', 'Most hours debugging');
-INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(4, 'Frontend Laura', DATE(NOW() - INTERVAL 7 DAY), DATE(NOW()), 'user1', 'Most hours frontend');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(1, 'Bugsimilian', DATE(NOW() - INTERVAL 5 DAY), DATE(NOW()), 'admin', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(2, 'Code Raptor Georg', DATE(NOW() - INTERVAL 5 DAY), DATE(NOW()), 'admin', 'Most hours implementation');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(3, 'Bugsimilian', DATE(NOW() - INTERVAL 5 DAY), DATE(NOW()), 'user1', 'Most hours debugging');
+INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(4, 'Frontend Laura', DATE(NOW() - INTERVAL 5 DAY), DATE(NOW()), 'user1', 'Most hours frontend');
 
 
 INSERT INTO badgedb (id, badge_name, from_date, to_date, user_username, explanation) values(5, 'Bugsimilian', DATE(NOW() - INTERVAL 13 DAY), DATE(NOW() - INTERVAL 8 DAY), 'user2', 'Most hours debugging');

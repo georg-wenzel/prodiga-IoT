@@ -150,7 +150,7 @@ public class BadgeDBService {
 
     public Calendar getWeekBeginning(){
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -160,7 +160,7 @@ public class BadgeDBService {
 
     public Calendar getWeekEnd(){
         Calendar cal2 = Calendar.getInstance();
-        cal2.set(Calendar.DAY_OF_WEEK, cal2.getFirstDayOfWeek());
+        cal2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         cal2.set(Calendar.HOUR_OF_DAY, 23);
         cal2.set(Calendar.MINUTE, 59);
         cal2.set(Calendar.SECOND, 0);

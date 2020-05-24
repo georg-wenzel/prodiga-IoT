@@ -430,7 +430,7 @@ public class BookingService
         Date date = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        int i = c.get(Calendar.DAY_OF_WEEK) - c.getFirstDayOfWeek();
+        int i = c.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY;
         c.add(Calendar.DATE, -i - 7);
         Date start = c.getTime();
         c.add(Calendar.DATE, 6);
@@ -484,7 +484,7 @@ public class BookingService
     private Calendar getStartOfWeek() {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
-        c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+        c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         c.set(Calendar.HOUR_OF_DAY, 0);
         c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
