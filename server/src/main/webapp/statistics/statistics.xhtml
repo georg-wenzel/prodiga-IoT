@@ -360,7 +360,7 @@
 
                     <h1 class="centerText">Daily Pie Chart User</h1>
                     <p:pieChart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true" rendered="#{statisticsController.showDaily}"/>
-                    <o:outputText rendered="#{not statisticsController.showDaily}" value="No data available"/>
+                    <o:outputText rendered="#{not statisticsController.showDaily}" value="No statistically data available in this time frame."/>
 
                 </div>
             </div>
@@ -368,14 +368,14 @@
                 <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Weekly Pie Chart User</h1>
                     <p:pieChart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true" rendered="#{statisticsController.showWeekly}"/>
-                    <o:outputText rendered="#{not statisticsController.showWeekly}" value="No data available"/>
+                    <o:outputText rendered="#{not statisticsController.showWeekly}" value="No statistically data available in this time frame."/>
                 </div>
             </div>
             <div class="ui-g-5">
                 <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Monthly Pie Chart User</h1>
                     <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthly}"/>
-                    <o:outputText rendered="#{not statisticsController.showMonthly}" value="No data available"/>
+                    <o:outputText rendered="#{not statisticsController.showMonthly}" value="No statistically data available in this time frame."/>
                 </div>
             </div>
             <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}">
@@ -383,14 +383,14 @@
                 <div class="card" style="min-height: 360px;">
                     <h1 class="centerText" >Weekly Pie Chart Team</h1>
                     <p:pieChart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true" rendered="#{statisticsController.showWeeklyTeam}"/>
-                    <o:outputText rendered="#{not statisticsController.showWeeklyTeam}" value="No data available"/>
+                    <o:outputText rendered="#{not statisticsController.showWeeklyTeam}" value="No statistically data available in this time frame."/>
                 </div>
             </p:outputPanel>
             <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastMonth}">
                 <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Monthly Pie Chart Team</h1>
                     <p:pieChart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthlyTeam}"/>
-                    <o:outputText rendered="#{not statisticsController.showMonthlyTeam}" value="No data available"/>
+                    <o:outputText rendered="#{not statisticsController.showMonthlyTeam}" value="No statistically data available in this time frame."/>
                 </div>
             </p:outputPanel>
             </h:panelGroup>
@@ -399,7 +399,7 @@
                 <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Monthly Pie Chart Department</h1>
                     <p:pieChart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthlyDepartment}"/>
-                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No data available"/>
+                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No statistically data available in this time frame."/>
                 </div>
             </p:outputPanel>
             </h:panelGroup>

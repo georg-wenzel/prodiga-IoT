@@ -154,10 +154,6 @@ public class BookingService
         {
             throw new ProdigaGeneralExpectedException("Activity cannot start before ending.", MessageType.ERROR);
         }
-        if(booking.getActivityEndDate().getTime() - booking.getActivityStartDate().getTime() > 1000 * 60 * 60 * 8)
-        {
-            throw new ProdigaGeneralExpectedException("Activity may not last longer than 8 hours at once.", MessageType.ERROR);
-        }
         if(booking.getActivityEndDate().after(new Date()))
         {
             throw new ProdigaGeneralExpectedException("Cannot set activity data for the future.", MessageType.ERROR);
@@ -181,8 +177,7 @@ public class BookingService
         }
 
         //check if any other bookings of the user overlap
-        if(!bookingRepository.findUsersBookingInRange(u, booking.getActivityStartDate(), booking.getActivityEndDate()).isEmpty())
-        {
+        if(hasOverlappingBooking(booking, u)) {
             throw new ProdigaGeneralExpectedException("A booking already exists for this timespan.", MessageType.ERROR);
         }
 
@@ -487,5 +482,22 @@ public class BookingService
         LocalDateTime now = LocalDate.now().atTime(0, 0, 0, 0);
         LocalDateTime firstInMonth = now.with(TemporalAdjusters.firstDayOfMonth());
         return ZonedDateTime.of(firstInMonth, ZoneId.systemDefault());
+    }
+
+    private boolean hasOverlappingBooking(Booking booking, User u) {
+        if(booking == null) {
+            return false;
+        }
+
+        Date start = new Date(booking.getActivityStartDate().getTime() + (1000 * 60));
+        Date end = new Date(booking.getActivityEndDate().getTime() - (1000 * 60));
+
+        // get all bookings in the same time frame
+        Collection<Booking> bookingsSameTime = bookingRepository.findUsersBookingInRange(u, start, end);
+
+        // if there are any
+        // and the booking is new or the booking is a different booking
+        return bookingsSameTime.size() > 0 &&
+                (booking.isNew() || bookingsSameTime.stream().anyMatch(x -> !x.getId().equals(booking.getId())));
     }
 }
