@@ -51,6 +51,7 @@
                                                      label="Team leader"
                                                      style="width: 100%"
                                                      converter="userConverter">
+                                        <f:selectItem itemValue="#{null}" itemLabel="Not assigned" />
                                         <f:selectItems value="#{userListController.getAllUsersInTeam(teamController.team)}"
                                                        var="u"
                                                        itemValue="#{u}"
