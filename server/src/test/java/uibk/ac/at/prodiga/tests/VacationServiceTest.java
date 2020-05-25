@@ -596,7 +596,7 @@ public class VacationServiceTest
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Vacation v1 = DataHelper.createVacation(5,10, u1, vacationRepository);
 
-        vacationService.deleteVacation(v1);
+        vacationService.deleteVacation(v1, false);
 
         Assertions.assertNull(vacationService.getVacationById(v1.getId()), "Vacation was not properly deleted.");
     }
@@ -614,7 +614,7 @@ public class VacationServiceTest
         Vacation v1 = DataHelper.createVacation(5,10, u2, vacationRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
-            vacationService.deleteVacation(v1);;
+            vacationService.deleteVacation(v1, false);
         }, "Vacation deleted despite being from another user.");
     }
 
@@ -630,7 +630,7 @@ public class VacationServiceTest
         Vacation v1 = DataHelper.createVacation(-6,5, u1, vacationRepository);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            vacationService.deleteVacation(v1);
+            vacationService.deleteVacation(v1, false);
         }, "Vacation deleted despite having started already.");
     }
 
@@ -642,7 +642,7 @@ public class VacationServiceTest
     public void delete_vacation_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            vacationService.deleteVacation(new Vacation());
+            vacationService.deleteVacation(new Vacation(), false);
         }, "Vacation deleted despite lacking authorization of EMPLOYEE");
     }
 

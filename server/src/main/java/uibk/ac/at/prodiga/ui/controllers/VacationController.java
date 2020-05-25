@@ -135,7 +135,7 @@ public class VacationController implements Serializable
      */
     public void doDeleteVacation() throws Exception
     {
-        this.vacationService.deleteVacation(vacation);
+        this.vacationService.deleteVacation(vacation, false);
         this.currentVacations.remove(vacation);
         SnackbarHelper.getInstance()
                 .showSnackBar("Vacation \"" + vacation.getId() + "\" deleted!", MessageType.ERROR);
