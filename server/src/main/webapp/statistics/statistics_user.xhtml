@@ -3,6 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:o="http://java.sun.com/jsf/html"
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="title">Prodiga User Statistics</ui:define>
@@ -68,12 +69,14 @@
 
                                 <p:tab title="Barchart">
                                     <br/>
-                                    <p:barChart id="bar1" type="bar" model="#{statisticsController.dailyAnalysisBar}" responsive="true"/>
+                                    <p:barChart id="bar1" type="bar" model="#{statisticsController.dailyAnalysisBar}" responsive="true" rendered="#{statisticsController.showDaily}"/>
+                                    <o:outputText rendered="#{not statisticsController.showDaily}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                                 <p:tab title="Piechart" hide="true">
                                     <br/>
-                                    <p:pieChart id="pie1" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
+                                    <p:pieChart id="pie1" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true" rendered="#{statisticsController.showDaily}"/>
+                                    <o:outputText rendered="#{not statisticsController.showDaily}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                             </p:tabView>
@@ -93,12 +96,14 @@
                                 </p:tab>
                                 <p:tab title="Barchart">
                                     <br/>
-                                    <p:barChart id="bar1" type="bar" model="#{statisticsController.weeklyAnalysisBar}" responsive="true"/>
+                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.weeklyAnalysisBar}" responsive="true" rendered="#{statisticsController.showWeekly}"/>
+                                    <o:outputText rendered="#{not statisticsController.showWeekly}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                                 <p:tab title="Piechart" hide="true">
                                     <br/>
-                                    <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
+                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true" rendered="#{statisticsController.showWeekly}"/>
+                                    <o:outputText rendered="#{not statisticsController.showWeekly}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                             </p:tabView>
@@ -118,12 +123,14 @@
                                 </p:tab>
                                 <p:tab title="Barchart">
                                     <br/>
-                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyAnalysisBar}" responsive="true"/>
+                                    <p:barChart id="bar3" type="bar" model="#{statisticsController.monthlyAnalysisBar}" responsive="true" rendered="#{statisticsController.showMonthly}"/>
+                                    <o:outputText rendered="#{not statisticsController.showMonthly}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                                 <p:tab title="Piechart" hide="true">
                                     <br/>
-                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
+                                    <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthly}"/>
+                                    <o:outputText rendered="#{not statisticsController.showMonthly}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                             </p:tabView>

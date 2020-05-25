@@ -3,6 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:o="http://java.sun.com/jsf/html"
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="title">Prodiga Department Statistics</ui:define>
@@ -64,12 +65,14 @@
                                 </p:tab>
                                 <p:tab title="Barchart">
                                     <br/>
-                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
+                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true" rendered="#{statisticsController.showMonthlyDepartment}"/>
+                                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                                 <p:tab title="Piechart" hide="true">
                                     <br/>
-                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthlyDepartment}"/>
+                                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                             </p:tabView>
