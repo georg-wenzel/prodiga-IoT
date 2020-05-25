@@ -23,10 +23,11 @@
                     <h1>Add User</h1>
                     <h:form id="addUserForm" prependId="false">
                         <p:messages id="msgs" for="msgs"/>
+                        <p:messages id="msgs2" for="addPassword" autoUpdate="true" showDetail="true"/>
 
                         <div class="ui-g">
                             <div class="ui-g-5">
-                                <div class="ui-g-3">
+                                <div class="ui-g-4">
                                     <p:outputLabel styleClass="input-form" for="isAdmin" value=" Is Admin: " />
                                 </div>
                                 <div class="ui-g-3">
@@ -37,7 +38,7 @@
 
                         <div class="ui-g">
                             <div class="ui-g-5">
-                                <div class="ui-g-3">
+                                <div class="ui-g-4">
                                     <p:outputLabel for="addUsername" value="Username: "/>
                                 </div>
                                 <div class="ui-g-3">
@@ -50,13 +51,32 @@
 
                         <div class="ui-g">
                             <div class="ui-g-5">
-                                <div class="ui-g-3">
+                                <div class="ui-g-4">
                                     <p:outputLabel for="addPassword" value="Password: "/>
                                 </div>
-                                <div class="ui-g-3">
-                                    <p:password id="addPassword" required="true" requiredMessage="Please add a password"
-                                                 maxlength="99"
-                                                 value="#{userDetailController.user.password}"/>
+                                <div class="ui-g-8">
+                                    <p:password id="addPassword"
+                                                required="true"
+                                                requiredMessage="Please add a password"
+                                                maxlength="99"
+                                                value="#{userDetailController.user.password}"
+                                                match="conformPassword"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                <div class="ui-g-4">
+                                    <p:outputLabel for="conformPassword" value="Confirm Password: "/>
+                                </div>
+                                <div class="ui-g-8">
+                                    <p:password id="conformPassword"
+                                                required="true"
+                                                requiredMessage="Please add a password"
+                                                maxlength="99"
+                                                value="#{userDetailController.user.password}"
+                                                match="conformPassword"/>
                                 </div>
                             </div>
                         </div>
@@ -125,7 +145,7 @@
                                                  ajax="true"
                                                  icon="fa fa-fw fa-save"
                                                  validateClient="true"
-                                                 update="growl msgs">
+                                                 update="growl msgs msgs2">
                                 </p:commandButton>
                             </div>
                         </div>
