@@ -42,6 +42,13 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
 
+    private boolean showDaily = true;
+    private boolean showWeekly = true;
+    private boolean showMonthly = true;
+    private boolean showWeeklyTeam = true;
+    private boolean showMonthlyTeam = true;
+    private boolean showMonthlyDepartment = true;
+
     private Date selectedDate;
     private int backstepDays;
     private int backstepWeeks;
@@ -329,6 +336,29 @@ public class StatisticsController implements Serializable {
         return new ArrayList<>(set);
     }
 
+    public boolean isShowDaily() {
+        return showDaily;
+    }
+
+    public boolean isShowWeekly() {
+        return showWeekly;
+    }
+
+    public boolean isShowMonthly() {
+        return showMonthly;
+    }
+
+    public boolean isShowWeeklyTeam() {
+        return showWeeklyTeam;
+    }
+
+    public boolean isShowMonthlyTeam() {
+        return showMonthlyTeam;
+    }
+
+    public boolean isShowMonthlyDepartment() {
+        return showMonthlyDepartment;
+    }
 
     private void createWeeklyAnalysisPie(int backstepWeek) {
         weeklyAnalysisPie = new PieChartModel();
@@ -361,6 +391,8 @@ public class StatisticsController implements Serializable {
             labelsBar.add(entry.getKey().getName());
         }
         dataSet.setData(hours);
+
+        showWeekly = hours.size() > 0;
 
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
@@ -410,6 +442,8 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         dailyAnalysisPie.setData(data);
 
+        showDaily = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
@@ -453,6 +487,8 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         monthlyAnalysisPie.setData(data);
 
+        showMonthly = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
@@ -494,6 +530,8 @@ public class StatisticsController implements Serializable {
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         weeklyTeamAnalysisPie.setData(data);
+
+        showWeeklyTeam = hours.size() > 0;
 
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
@@ -539,6 +577,8 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         monthlyTeamAnalysisPie.setData(data);
 
+        showMonthlyTeam = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
@@ -580,6 +620,8 @@ public class StatisticsController implements Serializable {
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
         monthlyDepartmentAnalysisPie.setData(data);
+
+        showMonthlyDepartment = hours.size() > 0;
 
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
