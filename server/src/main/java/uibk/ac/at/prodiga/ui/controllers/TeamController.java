@@ -77,9 +77,8 @@ public class TeamController implements Serializable {
             this.team.setDepartment(userLoginManager.getCurrentUser().getAssignedDepartment());
 
         this.team = teamService.saveTeam(team);
-        if(saveTeamLeader()) {
-            setTeamLeader(team, teamLeader);
-        }
+        setTeamLeader(team, teamLeader);
+
         SnackbarHelper.getInstance().showSnackBar("Team " + team.getId() + " saved!", MessageType.INFO);
     }
 
@@ -190,11 +189,6 @@ public class TeamController implements Serializable {
 
     public void setTeamLeader(User teamLeader) {
         this.teamLeader = teamLeader;
-    }
-
-    private boolean saveTeamLeader() {
-        return teamLeader != null
-            && !teamLeader.getRoles().contains(UserRole.TEAMLEADER);
     }
 
     public void doDeleteTeam() throws Exception {
