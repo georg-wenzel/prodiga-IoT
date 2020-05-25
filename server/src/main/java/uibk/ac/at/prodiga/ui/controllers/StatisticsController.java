@@ -13,13 +13,10 @@ import uibk.ac.at.prodiga.services.ProductivityAnalysisService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 @Component
@@ -66,6 +63,18 @@ public class StatisticsController implements Serializable {
 
     private int calculateBackstepDays()
     {
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime target = this.selectedDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .plusHours(1);
+        WeekFields weekFields = WeekFields.of(Locale.GERMANY);
+
+        if(now.get(weekFields.weekOfYear()) == target.get(weekFields.weekOfYear())
+                && now.get(weekFields.dayOfWeek()) < target.get(weekFields.dayOfWeek())) {
+            return -1;
+        }
+
         Calendar c = Calendar.getInstance();
         Date date = new Date();
         c.setTime(date);
