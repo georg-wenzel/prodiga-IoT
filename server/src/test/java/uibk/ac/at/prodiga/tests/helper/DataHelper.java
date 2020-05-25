@@ -29,7 +29,7 @@ public class DataHelper {
      * @return The newly created username
      */
     public static User createRandomUser(UserRepository userRepository) {
-        String username = createRandomString(30);
+        String username = createRandomString(15);
 
         return createUserWithRoles(username, Sets.newSet(UserRole.EMPLOYEE), userRepository);
     }
@@ -79,7 +79,7 @@ public class DataHelper {
      */
     public static User createUserWithRoles(Set<UserRole> roles, User createUser, Department dept, Team team, UserRepository userRepository)
     {
-        return createUserWithRoles(createRandomString(30), roles, createUser, dept, team, userRepository);
+        return createUserWithRoles(createRandomString(15), roles, createUser, dept, team, userRepository);
     }
 
     /**
@@ -120,7 +120,7 @@ public class DataHelper {
      */
     public static Department createRandomDepartment(User createUser, DepartmentRepository departmentRepository)
     {
-        String name = createRandomString(30);
+        String name = createRandomString(15);
 
         Department dept = new Department();
         dept.setName(name);
@@ -137,7 +137,7 @@ public class DataHelper {
      */
     public static BadgeDB createRandomBadge(User user, BadgeDBRepository badgeDBRepository)
     {
-        String name = createRandomString(30);
+        String name = createRandomString(15);
 
         BadgeDB badgeDB = new BadgeDB();
         badgeDB.setBadgeName(name);
@@ -156,7 +156,7 @@ public class DataHelper {
      * @return The ranomly generated team.
      */
     public static Team createRandomTeam(Department dept,  User createUser, TeamRepository teamRepository) {
-        String name = createRandomString(30);
+        String name = createRandomString(15);
 
         Team team = new Team();
         team.setName(name);
