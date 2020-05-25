@@ -1,18 +1,17 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 
-import org.primefaces.PrimeFaces;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.services.RaspberryPiService;
+import uibk.ac.at.prodiga.utils.ConfigDownloader;
 import uibk.ac.at.prodiga.utils.MessageType;
+import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
-import javax.faces.application.FacesMessage;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -29,6 +28,9 @@ public class RaspberryPiController implements Serializable {
     private RaspberryPi raspberryPi;
 
     private String pendingRasPiInternalId;
+
+    private String passwordForDownload;
+    private RaspberryPi raspberryPiToDownload;
 
     public RaspberryPiController(RaspberryPiService raspberryPiService) {
         this.raspberryPiService = raspberryPiService;
@@ -168,6 +170,21 @@ public class RaspberryPiController implements Serializable {
         }
     }
 
+    public String getPasswordForDownload() {
+        return passwordForDownload;
+    }
+
+    public void setPasswordForDownload(String passwordForDownload) {
+        this.passwordForDownload = passwordForDownload;
+    }
+
+    public RaspberryPi getRaspberryPiToDownload() {
+        return raspberryPiToDownload;
+    }
+
+    public void setRaspberryPiToDownload(RaspberryPi raspberryPiToDownload) {
+        this.raspberryPiToDownload = raspberryPiToDownload;
+    }
 
     public String getPendingRasPiInternalId() {
         return pendingRasPiInternalId;
@@ -185,9 +202,9 @@ public class RaspberryPiController implements Serializable {
         this.raspberryPi = raspberryPi;
     }
 
-    public void showMessage() {
-        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "What we do in life", "Echoes in eternity.");
-
-        PrimeFaces.current().dialog().showMessageDynamic(message);
+    public void downloadConfig() throws ProdigaGeneralExpectedException {
+        if(raspberryPiToDownload != null) {
+            ConfigDownloader.downloadConfig(passwordForDownload, raspberryPiToDownload.getInternalId());
+        }
     }
 }
