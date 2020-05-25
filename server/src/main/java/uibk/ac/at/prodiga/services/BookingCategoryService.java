@@ -116,6 +116,10 @@ public class BookingCategoryService
             throw new ProdigaGeneralExpectedException("Name may not be null", MessageType.ERROR);
         }
 
+        if(cat.getName().length() < 2 || cat.getName().length() > 20) {
+            throw new ProdigaGeneralExpectedException("Name must be between 2 and 20 characters.", MessageType.ERROR);
+        }
+
         if(cat.getId() != null && cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) throw new ProdigaGeneralExpectedException("The category " + cat.getName() + " is a mandatory category and may not be edited.", MessageType.ERROR);
 
         if(cat.isNew()) {
