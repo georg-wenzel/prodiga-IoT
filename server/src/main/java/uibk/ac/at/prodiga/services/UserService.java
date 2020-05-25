@@ -89,7 +89,7 @@ public class UserService {
             throw new ProdigaGeneralExpectedException("Username cannot be empty.", MessageType.ERROR);
         }
 
-        if(user.getUsername().length() < 2 || user.getUsername().length() > 20) {
+        if(user.getUsername().length() < 2 || user.getUsername().length() > 37) {
             throw new ProdigaGeneralExpectedException("Username must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
