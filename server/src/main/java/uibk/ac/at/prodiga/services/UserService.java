@@ -93,6 +93,14 @@ public class UserService {
             throw new ProdigaGeneralExpectedException("Username must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
+        if(user.getFirstName() != null && (user.getFirstName().length() < 2 || user.getFirstName().length() > 20)) {
+            throw new ProdigaGeneralExpectedException("First name must be between 2 and 20 characters.", MessageType.ERROR);
+        }
+
+        if(user.getLastName() != null && (user.getLastName().length() < 2 || user.getLastName().length() > 20)) {
+            throw new ProdigaGeneralExpectedException("Last name must be between 2 and 20 characters.", MessageType.ERROR);
+        }
+
         //Check team and department consistency
         if(user.getAssignedTeam() != null && !user.getAssignedTeam().getDepartment().equals(user.getAssignedDepartment()))
         {
