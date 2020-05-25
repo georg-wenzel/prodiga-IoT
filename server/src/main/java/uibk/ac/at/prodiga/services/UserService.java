@@ -32,8 +32,9 @@ public class UserService {
     private final DiceService diceService;
     private final BookingService bookingService;
     private final BadgeDBService badgeDBService;
+    private final VacationService vacationService;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, @Lazy DiceService diceService, @Lazy BookingService bookingService, @Lazy BadgeDBService badgeDBService) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, @Lazy DiceService diceService, @Lazy BookingService bookingService, @Lazy BadgeDBService badgeDBService, @Lazy VacationService vacationService) {
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
@@ -41,6 +42,7 @@ public class UserService {
         this.diceService = diceService;
         this.bookingService = bookingService;
         this.badgeDBService = badgeDBService;
+        this.vacationService = vacationService;
     }
 
     /**
@@ -182,6 +184,7 @@ public class UserService {
 
         bookingService.deleteBookingsForUser(user);
         badgeDBService.deleteBadgesForUser(user);
+        vacationService.deleteVacationsForUser(user);
 
         userRepository.delete(user);
         logInformationService.logForCurrentUser("User " + user.getUsername() + " was deleted!");

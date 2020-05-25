@@ -55,6 +55,16 @@ public class VacationService
     }
 
     /**
+     * Returns all vacation by the given user
+     * @param u The user
+     * @return A list with vacations
+      */
+    @PreAuthorize("hasAuthority('ADMIN') or #principal.username eq u.username")
+    public Collection<Vacation> getAllVacationsByUser(User u) {
+        return vacationRepository.findAllByUser(u);
+    }
+
+    /**
      * Saves a vacation in the database. If an object with this ID already exists, overwrites the object's data at this ID
      * @param vacation The vacation to save
      * @return The new state of the object in the database.
@@ -148,20 +158,41 @@ public class VacationService
      * @param vacation the vacation to delete
      */
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
-    public void deleteVacation(Vacation vacation) throws ProdigaGeneralExpectedException
+    public void deleteVacation(Vacation vacation, boolean hardDelete) throws ProdigaGeneralExpectedException
     {
-        Vacation v = vacationRepository.findFirstById(vacation.getId());
-        if(!v.getUser().equals(userLoginManager.getCurrentUser()))
-        {
-            throw new RuntimeException("Attempted to delete vacation from different user.");
-        }
-        if(v.getBeginDate().before(new Date()))
-        {
-            throw new ProdigaGeneralExpectedException("Cannot delete vacations that have already begun or ended.", MessageType.ERROR);
+        Vacation v = vacation;
+        if(!hardDelete) {
+            v = vacationRepository.findFirstById(vacation.getId());
+            if(!v.getUser().equals(userLoginManager.getCurrentUser()))
+            {
+                throw new RuntimeException("Attempted to delete vacation from different user.");
+            }
+            if(v.getBeginDate().before(new Date()))
+            {
+                throw new ProdigaGeneralExpectedException("Cannot delete vacations that have already begun or ended.", MessageType.ERROR);
+            }
         }
         vacationRepository.delete(v);
 
         logInformationService.logForCurrentUser("Vacation " + v.getId() + " was deleted");
+    }
+
+    /**
+     * Deletes all vacations for the given user
+     * @param u The user
+     */
+    @PreAuthorize("hasAuthority('ADMIN') or #principal.username eq #u.username")
+    public void deleteVacationsForUser(User u) throws ProdigaGeneralExpectedException {
+        if(u == null) {
+            return;
+        }
+        Collection<Vacation> vacations = getAllVacationsByUser(u);
+
+        if(vacations.size() > 0) {
+            for(Vacation v : vacations) {
+                deleteVacation(v, true);
+            }
+        }
     }
 
     /**
