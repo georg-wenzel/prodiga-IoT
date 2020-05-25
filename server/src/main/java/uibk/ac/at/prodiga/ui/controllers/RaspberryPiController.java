@@ -1,15 +1,17 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.services.RaspberryPiService;
 import uibk.ac.at.prodiga.utils.ConfigDownloader;
 import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Optional;
@@ -31,6 +33,7 @@ public class RaspberryPiController implements Serializable {
 
     private String passwordForDownload;
     private RaspberryPi raspberryPiToDownload;
+    private StreamedContent config;
 
     public RaspberryPiController(RaspberryPiService raspberryPiService) {
         this.raspberryPiService = raspberryPiService;
@@ -202,9 +205,18 @@ public class RaspberryPiController implements Serializable {
         this.raspberryPi = raspberryPi;
     }
 
-    public void downloadConfig() throws ProdigaGeneralExpectedException {
+    public StreamedContent getConfig() throws Exception {
         if(raspberryPiToDownload != null) {
-            ConfigDownloader.downloadConfig(passwordForDownload, raspberryPiToDownload.getInternalId());
+            DefaultStreamedContent content = new DefaultStreamedContent();
+            content.setName(raspberryPiToDownload.getInternalId() + ".zip");
+            content.setContentType("application/zip");
+            content.setStream(new FileInputStream(ConfigDownloader.downloadConfig(passwordForDownload, raspberryPiToDownload.getInternalId()).getAbsolutePath()));
+            return content;
         }
+        return null;
+    }
+
+    public void setConfig(StreamedContent config) {
+        this.config = config;
     }
 }

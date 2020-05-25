@@ -48,5 +48,5 @@ fi
 cd $client_path
 
 # password und ip wird dan generiert
-sudo java -cp target/prodiga_client-1.0.0.jar:./lib/tinyb.jar:./target/lib/* uibk.ac.at.prodigaclient.Client http://10.0.0.166:8080/ password
+sudo java -cp target/prodiga_client-1.0.0.jar:./lib/tinyb.jar:./target/lib/* uibk.ac.at.prodigaclient.Client @ipAddress @password
 

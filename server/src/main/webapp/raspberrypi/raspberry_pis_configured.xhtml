@@ -63,7 +63,13 @@
                             <p:outputLabel value="Raspberry Pi Password: " style="margin-right: 5px;" />
                             <p:password id="Password" value="#{raspberryPiController.passwordForDownload}" />
                             <br />
-                            <p:commandButton style="margin-top: 10px;" value="Download" icon="fa fa-fw fa-download" action="#{raspberryPiController.downloadConfig}" />
+                            <p:commandButton style="margin-top: 10px;"
+                                             value="Download"
+                                             icon="fa fa-fw fa-download"
+                                             ajax="false"
+                                             oncomplete="PF('downloadDialog').hide()">
+                                <p:fileDownload value="#{raspberryPiController.config}" />
+                            </p:commandButton>
                         </p:dialog>
                     </h:form>
 
