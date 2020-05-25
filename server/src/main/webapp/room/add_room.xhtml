@@ -1,0 +1,64 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Add Room</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/room/add_room">Add Room</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <f:metadata>
+            <f:viewParam name="roomid" value="#{roomDetailController.roomById}"/>
+        </f:metadata>
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Add Room</h1>
+                    <h:form id="addRoomForm" prependId="false">
+                        <p:messages id="msgs" for="msgs"/>
+                        <div class="ui-g">
+                        <div class="ui-g-5">
+                        <div class="card">
+                        <p:panelGrid id="roomCredentialCreationGrid" columns="2" cellpadding="5" layout="grid">
+                            <p:outputLabel for="addRoomname" value="Room name: "/>
+                            <p:inputText id="addRoomname" required="true" requiredMessage="Please add a roomname"
+                                         maxlength="99"
+                                         value="#{roomDetailController.room.name}"/>
+                        </p:panelGrid>
+                        </div>
+                        </div>
+                        </div>
+                        <p:spacer/>
+
+                        <br></br>
+                        <div class="ui-g">
+                            <div class="ui-g-6">
+                                <p:linkButton outcome="/room/rooms" value="Back to room overview" icon="fa fa-fw fa-arrow-left"  style="margin-right:20px;"/>
+                            </div>
+                            <div class="ui-g-6" align="right">
+                                <p:commandButton value="Save"
+                                                 action="#{roomDetailController.doSaveRoom()}"
+                                                 ajax="true"
+                                                 icon="fa fa-fw fa-save"
+                                                 validateClient="true"
+                                                 update="growl msgs">
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </h:form>
+
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

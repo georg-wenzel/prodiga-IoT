@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Teams</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/team/teams">Teams</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Teams</h1>
+                    <h:form id="teamForm">
+                        <p:dataTable id="teamTable" var="team" scrollable="true" scrollHeight="500" value="#{teamController.allTeams}">
+                            <p:column headerText="Team name" filterMatchMode="contains"
+                                      filterBy="#{team.name}" sortBy="#{team.name}">
+                            <h:outputText value="#{team.name}"/>
+                            </p:column>
+
+                            <p:column headerText="Team leader" filterMatchMode="contains"
+                                      filterBy="#{teamController.getTeamLeaderOf(team).firstName} #{teamController.getTeamLeaderOf(team).lastName}" sortBy="#{teamController.getTeamLeaderOf(team).firstName}">
+                                <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).firstName} "/>
+                                <h:outputText rendered="#{teamController.getTeamLeaderOf(team) != null}" value="#{teamController.getTeamLeaderOf(team).lastName}"/>
+                                <h:outputText rendered="#{teamController.getTeamLeaderOf(team) == null}" value="No team leader"/>
+                            </p:column>
+
+                            <p:column headerText="Number of users" filterMatchMode="contains"
+                                      filterBy="#{userListController.getAllUsersInTeam(team).size()}" sortBy="#{userListController.getAllUsersInTeam(team).size()}">
+                                <h:outputText value="#{userListController.getAllUsersInTeam(team).size()}" />
+                            </p:column>
+
+                            <p:column headerText="Department" filterMatchMode="contains" filterBy="#{team.department.name}" sortBy="#{team.department.name}">
+                                <h:outputText value="#{team.department.name}" />
+                            </p:column>
+
+                            <p:column style="width:100px;text-align: center">
+                                <p:linkButton icon="fa fa-fw fa-edit"
+                                              title="Edit"
+                                              outcome="/team/team"
+                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
+                                    <f:param name="team" value="#{team.id}" />
+                                </p:linkButton>
+                                <p:commandButton action="#{teamController.doDeleteTeam()}" icon="fa fa-fw fa-trash" title="Delete" update=":teamForm:teamTable growl" style="margin-left:5px;">
+                                    <f:setPropertyActionListener value="#{team}" target="#{teamController.team}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this team? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

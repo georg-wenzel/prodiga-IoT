@@ -2,6 +2,7 @@ package uibk.ac.at.prodigaclient;
 
 import tinyb.*;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
@@ -34,39 +35,6 @@ public class BluetoothTest {
                 return cube;
             }
             Thread.sleep(4000);
-        }
-        return null;
-    }
-
-    static BluetoothGattService getService(BluetoothDevice device, String UUID) throws InterruptedException {
-        System.out.println("Services exposed by device:");
-        BluetoothGattService specificBluetoothService = null;
-        List<BluetoothGattService> bluetoothServices = null;
-
-        do {
-            bluetoothServices = device.getServices();
-            if (bluetoothServices == null)
-                return null;
-
-            for (BluetoothGattService service : bluetoothServices) {
-                System.out.println("UUID: " + service.getUUID());
-                if (service.getUUID().equals(UUID))
-                    specificBluetoothService = service;
-            }
-            Thread.sleep(4000);
-        } while (bluetoothServices.isEmpty() && running);
-
-        return specificBluetoothService;
-    }
-
-    static BluetoothGattCharacteristic getCharacteristic(BluetoothGattService service, String UUID) {
-        List<BluetoothGattCharacteristic> characteristics = service.getCharacteristics();
-        if (characteristics == null)
-            return null;
-
-        for (BluetoothGattCharacteristic characteristic : characteristics) {
-            if (characteristic.getUUID().equals(UUID))
-                return characteristic;
         }
         return null;
     }
@@ -146,9 +114,11 @@ public class BluetoothTest {
             }
         }));
 
+        System.out.println("TEST: ");
+        BluetoothGattService facetService = cube.find("f1196f50-71a4-11e6-bdf4-0800200c9a66", Duration.ofSeconds(10)); // TimeFlip Service
+        System.out.println("Test end: ");
 
-        BluetoothGattService facetService = getService(cube, "f1196f50-71a4-11e6-bdf4-0800200c9a66"); // TimeFlip Service
-        BluetoothGattService batteryService = getService(cube, "0000180f-0000-1000-8000-00805f9b34fb"); // TimeFlip get battery
+        BluetoothGattService batteryService = cube.find("0000180f-0000-1000-8000-00805f9b34fb"); // TimeFlip get battery
 
         if (facetService == null) {
             System.err.println("This device does not have the facet service we are looking for. Mabe its not a time flip cube");
@@ -158,11 +128,11 @@ public class BluetoothTest {
 
         System.out.println("Found service " + facetService.getUUID());
 
-        BluetoothGattCharacteristic batteryChar = getCharacteristic(batteryService, "00002a19-0000-1000-8000-00805f9b34fb"); // get battery
-        BluetoothGattCharacteristic passwordChar = getCharacteristic(facetService, "f1196f57-71a4-11e6-bdf4-0800200c9a66"); // Password {0x30, 0x30, 0x30, 0x30, 0x30, 0x30}
-        BluetoothGattCharacteristic facetChar = getCharacteristic(facetService, "f1196f52-71a4-11e6-bdf4-0800200c9a66"); // Facet
-        BluetoothGattCharacteristic commandOutputChar = getCharacteristic(facetService, "f1196f53-71a4-11e6-bdf4-0800200c9a66"); // command output characteristic used to read the history
-        BluetoothGattCharacteristic commandInputChar = getCharacteristic(facetService, "f1196f54-71a4-11e6-bdf4-0800200c9a66"); // command input characteristic
+        BluetoothGattCharacteristic batteryChar = batteryService.find("00002a19-0000-1000-8000-00805f9b34fb"); // get battery
+        BluetoothGattCharacteristic passwordChar = facetService.find("f1196f57-71a4-11e6-bdf4-0800200c9a66"); // Password {0x30, 0x30, 0x30, 0x30, 0x30, 0x30}
+        BluetoothGattCharacteristic facetChar = facetService.find("f1196f52-71a4-11e6-bdf4-0800200c9a66"); // Facet
+        BluetoothGattCharacteristic commandOutputChar = facetService.find("f1196f53-71a4-11e6-bdf4-0800200c9a66"); // command output characteristic used to read the history
+        BluetoothGattCharacteristic commandInputChar = facetService.find("f1196f54-71a4-11e6-bdf4-0800200c9a66"); // command input characteristic
 
         if (passwordChar == null) {
             System.err.println("Could not find password service. Something went wrong");

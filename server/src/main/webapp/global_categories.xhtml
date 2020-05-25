@@ -13,6 +13,7 @@
     </ui:define>
 
     <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
         <div class="ui-g">
             <div class="ui-g-12">
                 <div class="card">
@@ -52,7 +53,7 @@
                     <h1>Current Booking Categories</h1>
                     Please keep in mind booking categories may not be deleted if any teams are still using them, or they were used previously in any bookings. Categories marked with a * symbol are mandatory to be available to all employees and may not be edited or deleted.
                     <h:form id="categoriesForm">
-                        <p:dataTable id="categoryTable" var="category" scrollable="true" style="width:100%; margin-top:30px;" scrollHeight="500" value="#{bookingCategoryController.allBookingCategories}">
+                        <p:dataTable id="categoryTable" var="category" scrollable="true" style="width:100%; margin-top:30px;" styleClass="scroll-fixed" scrollHeight="500" value="#{bookingCategoryController.allBookingCategories}">
                             <p:column headerText="ID" style="width:50px" filterMatchMode="contains"
                                       filterBy="#{category.id}" sortBy="#{category.id}">
                                 <h:outputText value="#{category.id}" />
@@ -69,13 +70,12 @@
                             </p:column>
 
                             <p:column headerText="Used by teams" filterMatchMode="contains"
-                                      filterBy="#{category.teams}" sortBy="#{category.teams}">
+                                      filterBy="#{category.teams}">
                                 <h:outputText value="#{category.teams}" rendered="#{category.id != bookingCategoryController.mandatoryCategory}" />
                                 <h:outputText value="All" rendered="#{category.id == bookingCategoryController.mandatoryCategory}"/>
                             </p:column>
 
-                            <p:column headerText="Number of Bookings" style="width:150px" filterMatchMode="contains"
-                                      filterBy="#{bookingCategoryController.getUsedInBookings(category)}" sortBy="#{bookingCategoryController.getUsedInBookings(category)}">
+                            <p:column headerText="Number of Bookings" style="width:100px" sortBy="#{bookingCategoryController.getUsedInBookings(category)}">
                                 <h:outputText value="#{bookingCategoryController.getUsedInBookings(category)}" />
                             </p:column>
 

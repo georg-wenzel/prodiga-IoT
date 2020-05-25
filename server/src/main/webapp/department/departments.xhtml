@@ -1,0 +1,66 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Departments</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/department/departments">Departments</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Departments</h1>
+                    <h:form id="departmentForm">
+                        <p:dataTable id="departmentTable" var="department" scrollable="true"  styleClass="short-table" scrollHeight="500" value="#{departmentController.allDepartments}">
+                            <p:column headerText="Department name" filterMatchMode="contains"
+                                      filterBy="#{department.name}" sortBy="#{department.name}">
+                                <h:outputText value="#{department.name}"/>
+                            </p:column>
+
+                            <p:column headerText="Department leader" filterMatchMode="contains"
+                                      filterBy="#{departmentController.getDepartmentLeaderOf(department).firstName} #{departmentController.getDepartmentLeaderOf(department).lastName}}" sortBy="#{departmentController.getDepartmentLeaderOf(department).firstName}}">
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).firstName} "/>
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) != null}" value="#{departmentController.getDepartmentLeaderOf(department).lastName}"/>
+                                <h:outputText rendered="#{departmentController.getDepartmentLeaderOf(department) == null}" value="No department leader"/>
+                            </p:column>
+
+                            <p:column headerText="Number of users" filterMatchMode="contains"
+                                      filterBy="#{userListController.getAllUsersInDepartment(department).size()}" sortBy="#{userListController.getAllUsersInDepartment(department).size()}">
+                                <h:outputText value="#{userListController.getAllUsersInDepartment(department).size()}" />
+                            </p:column>
+
+                            <p:column style="width:100px;text-align: center">
+                                <p:linkButton icon="fa fa-fw fa-edit"
+                                              title="Edit"
+                                              outcome="/department/department"
+                                              rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <f:param name="department" value="#{department.id}" />
+                                </p:linkButton>
+                                <p:commandButton action="#{departmentController.doDeleteDepartment()}" icon="fa fa-fw fa-trash" title="Delete" update=":departmentForm:departmentTable" style="margin-left:5px;">
+                                    <f:setPropertyActionListener value="#{department}" target="#{departmentController.department}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this department? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
+                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                        </p:confirmDialog>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

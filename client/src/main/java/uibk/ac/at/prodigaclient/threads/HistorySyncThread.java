@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class HistorySyncThread implements Runnable {
 
-    private final CubeControllerApi cubeControllerApi;
+    private CubeControllerApi cubeControllerApi;
     private final Logger logger = LogManager.getLogger();
 
     public HistorySyncThread() {
@@ -34,18 +34,22 @@ public class HistorySyncThread implements Runnable {
         try{
             while (true) {
                 try {
+                    this.cubeControllerApi = Constants.getCubeControllerApi();
+
                     Set<String> connectedIds = CubeManager.getInstance().getCubeIDList();
 
                     logger.info("Found " + connectedIds.size() + " cubes");
 
                     for(String str : connectedIds) {
                         List<HistoryEntry> historyEntry = CubeManager.getInstance().getHistory(str);
-                        List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream().map(x -> {
-                            HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
-                            historyEntryDTO.setCubeInternalId(str);
-                            historyEntryDTO.setSeconds(x.getSeconds());
-                            historyEntryDTO.setSide(x.getID());
-                            return historyEntryDTO;
+                        List<HistoryEntryDTO> historyEntryDTOS = historyEntry.stream()
+                                .filter(x -> x.getSeconds() > 60) // Ignore entries smaller than a minute
+                                .map(x -> {
+                                    HistoryEntryDTO historyEntryDTO = new HistoryEntryDTO();
+                                    historyEntryDTO.setCubeInternalId(str);
+                                    historyEntryDTO.setSeconds(x.getSeconds());
+                                    historyEntryDTO.setSide(x.getID());
+                                    return historyEntryDTO;
                         }).collect(Collectors.toList());
 
                         logger.info("Syncing " + historyEntryDTOS.size() + " History Entries for Cube " + str);
@@ -57,6 +61,8 @@ public class HistorySyncThread implements Runnable {
                         cubeControllerApi.addBookingUsingPOST(historyEntryDTOS).enqueue(callback);
 
                         mre.waitDefaultAndLog("Error while waiting for server request on syncing history entries", logger);
+
+                        connectedIds.forEach(x -> CubeManager.getInstance().deleteHistory(x));
 
                         logger.info("Finished Syncing History Entries for Cube " + str);
                     }

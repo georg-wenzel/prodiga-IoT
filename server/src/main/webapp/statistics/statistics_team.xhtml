@@ -1,0 +1,111 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Team Statistics</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/statistics/statistics_team">Team Statistics</p:link></li>
+    </ui:define>
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{statisticsController.teamPageInit}"/>
+    </f:metadata>
+
+    <ui:define name="content">
+        <script>
+            PrimeFaces.locales['en_GB'] = {
+                firstDay : 1
+            };
+        </script>
+
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>#{prodigaUserLoginManager.getCurrentUser().getAssignedTeam().getName()} Statistics</h1>
+                    <h:form id="dateSelectForm">
+                        <div class="ui-g">
+                            <div class="ui-g-5">
+                                Select a date below to update the statistics charts with data from that period. (Week / Month). When you press the "Save and Reload" button, the statistics will be updated to reflect the given time period. For your team's statistics, you have to pick a date that lies at least in the previous week. <strong>If the date lies in the current month, only the weekly statistic is available.</strong>
+                                <h:panelGrid columns="2" style="margin-top:15px;">
+                                    <p:outputLabel for="selectDate" value="Date:" />
+                                    <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" disabledWeekends="true" locale="en_GB"/>
+                                </h:panelGrid>
+                            </div>
+                        </div>
+
+                        <div class="ui-g">
+                            <div class="ui-g-10" align="right">
+                                <p:commandButton value="Save and Reload"
+                                                 action="#{statisticsController.verifyBackstepTeam()}"
+                                                 ajax="true"
+                                                 validateClient="true"
+                                                 icon="fa fa-fw fa-refresh"
+                                                 update="growl statistics">
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </h:form>
+
+                    <p:separator style="margin-top:20px;margin-bottom:20px;"/>
+
+                    <p:tabView id="statistics">
+                        <p:tab title="Weekly" >
+                            <p:tabView orientation="right" headerAlignment="center" id="weeklyStatistics">
+                                <p:tab title="Table">
+                                    <p:dataTable id="weeklyTable" var="entry" value="#{statisticsController.statisticForTeamByWeek}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                        <p:column headerText="Booking category">
+                                            <h:outputText value="#{entry.key.name}" />
+                                        </p:column>
+                                        <p:column headerText="Time in hours">
+                                            <h:outputText value="#{entry.value}" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:tab>
+                                <p:tab title="Barchart">
+                                    <br/>
+                                    <p:barChart id="bar1" type="bar" model="#{statisticsController.weeklyTeamAnalysisBar}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                                <p:tab title="Piechart" hide="true">
+                                    <br/>
+                                    <p:pieChart id="pie1" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                        <p:tab title="Monthly" id="monthlyStatistics" rendered="#{statisticsController.atLeastLastMonth}">
+                            <p:tabView orientation="right" headerAlignment="center">
+                                <p:tab title="Table">
+                                    <p:dataTable id="monthlyTable" var="entry" value="#{statisticsController.statisticForTeamByMonth}" reflow="true" paginator="false" scrollable="true" scrollHeight="500">
+                                        <p:column headerText="Booking category">
+                                            <h:outputText value="#{entry.key.name}" />
+                                        </p:column>
+                                        <p:column headerText="Time in hours">
+                                            <h:outputText value="#{entry.value}" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </p:tab>
+                                <p:tab title="Barchart">
+                                    <br/>
+                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyTeamAnalysisBar}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                                <p:tab title="Piechart" hide="true">
+                                    <br/>
+                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
+                                    <br/>
+                                </p:tab>
+                            </p:tabView>
+                        </p:tab>
+                    </p:tabView><br/><br/>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

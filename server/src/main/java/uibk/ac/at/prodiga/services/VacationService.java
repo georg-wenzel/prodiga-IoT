@@ -1,13 +1,16 @@
 package uibk.ac.at.prodiga.services;
 
 import com.google.common.collect.Lists;
-import de.jollyday.*;
+import de.jollyday.Holiday;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
-import uibk.ac.at.prodiga.model.Vacation;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.Vacation;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.VacationRepository;
 import uibk.ac.at.prodiga.utils.MessageType;
@@ -15,12 +18,10 @@ import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * Service for accessing and manipulating vacations.
@@ -32,12 +33,14 @@ public class VacationService
     private final VacationRepository vacationRepository;
     private final ProdigaUserLoginManager userLoginManager;
     private final BookingRepository bookingRepository;
+    private final LogInformationService logInformationService;
 
-    public VacationService(VacationRepository vacationRepository, ProdigaUserLoginManager userLoginManager, BookingRepository bookingRepository)
+    public VacationService(VacationRepository vacationRepository, ProdigaUserLoginManager userLoginManager, BookingRepository bookingRepository, LogInformationService logInformationService)
     {
         this.vacationRepository = vacationRepository;
         this.userLoginManager = userLoginManager;
         this.bookingRepository = bookingRepository;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -113,7 +116,11 @@ public class VacationService
         }
 
         //Save method if no exception has been thrown so far
-        return vacationRepository.save(vacation);
+        Vacation result = vacationRepository.save(vacation);
+
+        logInformationService.logForCurrentUser("Vacation " + result.getId() + " was saved");
+
+        return result;
     }
 
     /**
@@ -153,6 +160,8 @@ public class VacationService
             throw new ProdigaGeneralExpectedException("Cannot delete vacations that have already begun or ended.", MessageType.ERROR);
         }
         vacationRepository.delete(v);
+
+        logInformationService.logForCurrentUser("Vacation " + v.getId() + " was deleted");
     }
 
     /**
@@ -182,7 +191,7 @@ public class VacationService
         LocalDate beginDate = toLocalDate(booking.getActivityStartDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
         LocalDate endDate = toLocalDate(booking.getActivityEndDate()).atStartOfDay(ZoneId.systemDefault()).toLocalDate();
 
-        Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), userLoginManager.getCurrentUser());
+        Vacation v = vacationRepository.findVacationCoveringDate(toDate(beginDate), u);
         if (v != null) return v;
 
         return vacationRepository.findVacationCoveringDate(toDate(endDate), u);
@@ -288,7 +297,7 @@ public class VacationService
      * @param endDate The end date of the vacation.
      * @return The vacation days excluding weekends and national holidays.
      */
-    private int getCountVacationDays(LocalDate beginDate, LocalDate endDate)
+    public int getCountVacationDays(LocalDate beginDate, LocalDate endDate)
     {
         HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
 

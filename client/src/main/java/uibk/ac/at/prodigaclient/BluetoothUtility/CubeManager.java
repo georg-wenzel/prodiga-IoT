@@ -41,6 +41,17 @@ public class CubeManager implements Manager {
     }
 
     /**
+     * Special constructor for testing
+     * This is testable using reflection
+     * Not the nicest way but its possible XD
+     */
+    private CubeManager(BluetoothManager bluetoothManager) {
+        manager = bluetoothManager;
+        listOfCubes = new HashMap<>();
+        discoveryStarted = manager.startDiscovery();
+    }
+
+    /**
      * Cube manager should only exists once
      * This is the private Singelton class which takes care of it
      */
@@ -60,6 +71,7 @@ public class CubeManager implements Manager {
      * When closing the manager this should be called to stop the discovery mode
      */
     public void closeManager() {
+        discoveryStarted = false;
         manager.stopDiscovery();
     }
 
@@ -68,7 +80,15 @@ public class CubeManager implements Manager {
      * @return list of cube id's
      */
     public Set<String> getCubeIDList() {
-        return listOfCubes.keySet();
+        Set<String> cubeIDs = null;
+
+        updateDeviceList();
+
+        if (listOfCubes != null) {
+            cubeIDs = listOfCubes.keySet();
+        }
+
+        return cubeIDs;
     }
 
     /**
@@ -95,13 +115,15 @@ public class CubeManager implements Manager {
      */
     public List<HistoryEntry> getHistory(String cubeID) {
         Cube cube = listOfCubes.get(cubeID);
-        List<HistoryEntry> historyEntryList;
+        List<HistoryEntry> historyEntryList = null;
 
-        cube.failsafeConnect();
+        if (cube != null) {
+            cube.failsafeConnect();
 
-        historyEntryList = cube.getHistory();
+            historyEntryList = cube.getHistory();
 
-        cube.failsafeDisconnect();
+            cube.failsafeDisconnect();
+        }
 
         return historyEntryList;
     }
@@ -114,13 +136,15 @@ public class CubeManager implements Manager {
      */
     public int getBattery(String cubeID) {
         Cube cube = listOfCubes.get(cubeID);
-        int batteryPercent;
+        int batteryPercent = -1;
 
-        cube.failsafeConnect();
+        if (cube != null) {
+            cube.failsafeConnect();
 
-        batteryPercent = cube.getBattery();
+            batteryPercent = cube.getBattery();
 
-        cube.failsafeDisconnect();
+            cube.failsafeDisconnect();
+        }
 
         return batteryPercent;
     }
@@ -133,11 +157,13 @@ public class CubeManager implements Manager {
     public void deleteHistory(String cubeID) {
         Cube cube = listOfCubes.get(cubeID);
 
-        cube.failsafeConnect();
+        if (cube != null) {
+            cube.failsafeConnect();
 
-        cube.deleteHistory();
+            cube.deleteHistory();
 
-        cube.failsafeDisconnect();
+            cube.failsafeDisconnect();
+        }
     }
 
     /**
@@ -148,9 +174,11 @@ public class CubeManager implements Manager {
      */
     public int getCurrentSide(String cubeID) {
         Cube cube = listOfCubes.get(cubeID);
-        int currentSide;
+        int currentSide = -1;
 
-        currentSide = cube.getCurrentSide();
+        if (cube != null) {
+            currentSide = cube.getCurrentSide();
+        }
 
         return currentSide;
     }
@@ -162,7 +190,10 @@ public class CubeManager implements Manager {
      */
     public void connectToCube(String cubeID) {
         Cube cube = listOfCubes.get(cubeID);
-        cube.failsafeConnect();
+
+        if (cube != null) {
+            cube.failsafeConnect();
+        }
     }
 
     /**
@@ -172,6 +203,9 @@ public class CubeManager implements Manager {
      */
     public void disconnectFromCube(String cubeID) {
         Cube cube = listOfCubes.get(cubeID);
-        cube.failsafeDisconnect();
+
+        if (cube != null) {
+            cube.failsafeDisconnect();
+        }
     }
 }

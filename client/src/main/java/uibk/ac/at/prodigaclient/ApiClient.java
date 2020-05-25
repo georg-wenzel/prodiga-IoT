@@ -43,14 +43,7 @@ public class ApiClient {
   public ApiClient(String[] authNames) {
     this();
     for(String authName : authNames) {
-      Interceptor auth;
-      if ("JWT".equals(authName)) {
-        auth = new ApiKeyAuth("header", "Authorization");
-      } else {
-        throw new RuntimeException("auth name \"" + authName + "\" not found in available auth names");
-      }
-
-      addAuthorization(authName, auth);
+      setAuth(authName);
     }
   }
 
@@ -101,18 +94,22 @@ public class ApiClient {
   }
 
   public void createDefaultAdapter() {
+    createDefaultAdapter("http://localhost:8080/");
+  }
+
+  public void createDefaultAdapter(String address) {
     json = new JSON();
     okBuilder = new OkHttpClient.Builder();
 
-    String baseUrl = "http://localhost:8080/";
+    String baseUrl = address;
     if (!baseUrl.endsWith("/"))
       baseUrl = baseUrl + "/";
 
     adapterBuilder = new Retrofit
-      .Builder()
-      .baseUrl(baseUrl)
-      .addConverterFactory(ScalarsConverterFactory.create())
-      .addConverterFactory(GsonCustomConverterFactory.create(json.getGson()));
+            .Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonCustomConverterFactory.create(json.getGson()));
   }
 
   public <S> S createService(Class<S> serviceClass) {
@@ -263,6 +260,17 @@ public class ApiClient {
       }
     }
     return this;
+  }
+
+  public void setAuth(String authName) {
+    Interceptor auth;
+    if ("JWT".equals(authName)) {
+      auth = new ApiKeyAuth("header", "Authorization");
+    } else {
+      throw new RuntimeException("auth name \"" + authName + "\" not found in available auth names");
+    }
+
+    addAuthorization(authName, auth);
   }
 
   /**

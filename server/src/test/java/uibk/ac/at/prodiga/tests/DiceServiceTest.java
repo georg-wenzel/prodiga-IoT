@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.tests;
 
 import org.assertj.core.util.Lists;
+import org.javatuples.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,8 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.rest.controller.DiceRestController;
 import uibk.ac.at.prodiga.rest.dtos.NewDiceSideRequestDTO;
+import uibk.ac.at.prodiga.rest.dtos.PendingDiceDTO;
+import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.Constants;
@@ -58,6 +61,9 @@ public class DiceServiceTest {
 
     @Autowired
     DiceRestController diceRestController;
+
+    @Autowired
+    BookingRepository bookingRepository;
 
     User admin = null;
     User notAdmin = null;
@@ -306,10 +312,10 @@ public class DiceServiceTest {
     public void diceService_completeConfigurationWithInvalidSides_throws() {
         Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
         DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
-        Map<Integer, BookingCategory> sides = new HashMap<>();
+        Map<Integer, Pair<Integer, BookingCategory>> sides = new HashMap<>();
 
         for(int i = 0; i < 5; i++) {
-            sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
+            sides.put(i, new Pair<>(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository)));
         }
 
         sides.remove(0);
@@ -326,10 +332,10 @@ public class DiceServiceTest {
         Dice d = DataHelper.createDice("1234", null, admin, diceRepository, raspberryPiRepository, roomRepository);
 
         DiceConfigurationWrapper wrapper = diceService.addDiceToConfiguration(d);
-        Map<Integer, BookingCategory> sides = new HashMap<>();
+        Map<Integer, Pair<Integer, BookingCategory>> sides = new HashMap<>();
 
-        for(int i = 0; i < 12; i++) {
-            sides.put(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository));
+        for(int i = 0; i < 5; i++) {
+            sides.put(i, new Pair<>(i, DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository)));
         }
 
         wrapper.setCompletedSides(sides);
@@ -338,7 +344,7 @@ public class DiceServiceTest {
 
         ArrayList<DiceSide> all = Lists.newArrayList(diceSideRepository.findAll());
 
-        Assertions.assertEquals(12, all.size());
+        Assertions.assertEquals(5, all.size());
 
         Assertions.assertTrue(all.stream().allMatch(x -> x.getDice().getId().equals(d.getId())));
 
@@ -368,10 +374,9 @@ public class DiceServiceTest {
             Optional<BookingCategory> mandatoryCat = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
             if(wrapper.getCurrentSide() == 12 && mandatoryCat.isPresent())
             {
-                wrapper.getCompletedSides().put(wrapper.getCurrentSide(),
-                        mandatoryCat.get());
+                wrapper.getCompletedSides().put(wrapper.getCurrentSide(), new Pair<>(wrapper.getCurrentSide(), mandatoryCat.get()));
             }
-            wrapper.getCompletedSides().put(wrapper.getCurrentSide(), cats[wrapper.getCurrentSide() - 1]);
+            wrapper.getCompletedSides().put(wrapper.getCurrentSide(), new Pair<>(wrapper.getCurrentSide(), cats[wrapper.getCurrentSide() - 1]));
         });
 
 
@@ -393,5 +398,113 @@ public class DiceServiceTest {
         Assertions.assertTrue(all.stream().allMatch(x -> x.getDice().getId().equals(d.getId())));
 
         Assertions.assertFalse(diceService.diceInConfigurationMode(d.getInternalId()), "Dice in configuration mode");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPending_inPending(){
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice not in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingWhichExists_notInPending(){
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice not in pending list");
+
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice added to list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingWhichExistsInDB_notInPending(){
+        DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingWhichNoRaspi_notInPending(){
+        DataHelper.createDice("123",null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_addToPendingAndSave_notInPending() throws ProdigaGeneralExpectedException {
+        DataHelper.createRaspi("test", admin, null, raspberryPiRepository, roomRepository);
+
+        List<PendingDiceDTO> pendings = new ArrayList<>();
+        PendingDiceDTO p = new PendingDiceDTO();
+        p.setDiceInternalId("123");
+        p.setRaspiInternalId("test");
+        pendings.add(p);
+        diceRestController.register(pendings);
+
+        Assertions.assertEquals(1, diceService.getPendingDices().size(), "Dice not in pending list");
+
+        Dice d = diceService.getPendingDices().get(0);
+
+        d.setActive(false);
+
+        diceService.save(d);
+
+        Assertions.assertEquals(0, diceService.getPendingDices().size(), "Dice in pending list");
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_deleteDiceWithBookings_diceDeletedNoBookings() throws ProdigaGeneralExpectedException {
+        Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+
+        BookingCategory bc = DataHelper.createBookingCategory("Test", admin, bookingCategoryRepository);
+        DataHelper.createDiceSide(d, bc, 1, admin, diceSideRepository);
+
+        diceService.deleteDice(d);
+
+        Assertions.assertEquals(0, diceService.getAllDice().size());
     }
 }

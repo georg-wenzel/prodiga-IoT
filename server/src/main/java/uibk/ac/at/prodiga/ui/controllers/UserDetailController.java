@@ -1,10 +1,15 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
+import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.FrequencyType;
+import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.services.DepartmentService;
+import uibk.ac.at.prodiga.services.TeamService;
 import uibk.ac.at.prodiga.services.UserService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
@@ -22,6 +27,8 @@ public class UserDetailController implements Serializable {
     private static final long serialVersionUID = 5325687687692128315L;
 
     private final UserService userService;
+    private final TeamService teamService;
+    private final DepartmentService departmentService;
     private final ProdigaUserLoginManager userLoginManager;
 
     /**
@@ -29,8 +36,13 @@ public class UserDetailController implements Serializable {
      */
     private User user;
 
-    public UserDetailController(UserService userService, ProdigaUserLoginManager userLoginManager) {
+    private Long userDepartmentId;
+    private Long userTeamId;
+
+    public UserDetailController(UserService userService, TeamService teamService, DepartmentService departmentService, ProdigaUserLoginManager userLoginManager) {
         this.userService = userService;
+        this.teamService = teamService;
+        this.departmentService = departmentService;
         this.userLoginManager = userLoginManager;
     }
 
@@ -66,12 +78,28 @@ public class UserDetailController implements Serializable {
         } else {
             this.user = userService.createNewUser();
         }
+        this.userDepartmentId = (user.getAssignedDepartment() != null) ? user.getAssignedDepartment().getId() : null;
+        this.userTeamId = (user.getAssignedTeam() != null) ? user.getAssignedTeam().getId() : null;
+    }
+
+    public Collection<Team> getAvailableTeamList()
+    {
+        if(userDepartmentId == null) return new ArrayList<>();
+        return teamService.findTeamsOfDepartment(departmentService.loadDepartment(userDepartmentId));
     }
 
     /**
      * Action to save the currently displayed user.
      */
     public void doSaveUser() throws Exception {
+
+        if(userLoginManager.hasRole("ADMIN")) {
+            if(userDepartmentId != null) this.user.setAssignedDepartment(departmentService.loadDepartment(userDepartmentId));
+            else this.user.setAssignedDepartment(null);
+            if(userTeamId != null) this.user.setAssignedTeam(teamService.loadTeam(userTeamId));
+            else this.user.setAssignedTeam(null);
+        }
+
         user = this.userService.saveUser(user);
         SnackbarHelper.getInstance()
                 .showSnackBar("User " + user.getUsername() + " saved!", MessageType.INFO);
@@ -104,16 +132,14 @@ public class UserDetailController implements Serializable {
         return userRoleList;
     }
 
-    /**
-     * Returns a list of all existing user roles
-     * @return list of all existing user roles
-     */
-    public List<String> getAllRolesTotal() {
-        List<String> userRoleList = new LinkedList<>();
-        userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
-        userRoleList.add(UserRole.TEAMLEADER.getLabel());
-        userRoleList.add(UserRole.EMPLOYEE.getLabel());
-        return userRoleList;
+    public List<UserRole> getUserRoles()
+    {
+        return userService.getAllUserRoles().stream().filter(x -> this.user.getRoles().contains(x)).collect(Collectors.toList());
+    }
+
+    public List<UserRole> getAllUserRoles()
+    {
+        return Lists.newArrayList(userService.getAllUserRoles());
     }
 
     public void setUserRolesAsString(Set<String> roleList){
@@ -195,4 +221,24 @@ public class UserDetailController implements Serializable {
         return this.user.getRoles().contains(UserRole.ADMIN);
     }
 
+    public Long getUserDepartmentId() {
+        return userDepartmentId;
+    }
+
+    public void setUserDepartmentId(Long userDepartmentId)
+    {
+        this.userDepartmentId = userDepartmentId;
+        if(userDepartmentId == null)
+        {
+            this.userTeamId = null;
+        }
+    }
+
+    public Long getUserTeamId() {
+        return userTeamId;
+    }
+
+    public void setUserTeamId(Long userTeamId) {
+        this.userTeamId = userTeamId;
+    }
 }

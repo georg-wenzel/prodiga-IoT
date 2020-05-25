@@ -15,7 +15,7 @@ namespace Prodiga.SQLFileGenerator
 
             using var client = new NamesAPiClient();
             
-            var resultTask = client.GetNamesAsync(100);
+            var resultTask = client.GetNamesAsync(20);
 
             model.GenerateDataForBookingCategories();
             model.GenerateDataForRooms();
@@ -45,7 +45,7 @@ namespace Prodiga.SQLFileGenerator
             }
 
             FileInfo dataFile = new FileInfo(Path.Combine(currentDir.FullName,
-                "server", "src", "main", "resources", "data_generated.sql"));
+                "server", "src", "main", "resources", "data_generated_small.sql"));
 
             if (!dataFile.Exists)
             {

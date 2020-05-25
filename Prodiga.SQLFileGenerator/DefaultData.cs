@@ -9,7 +9,8 @@ namespace Prodiga.SQLFileGenerator
     {
         public static readonly string ADMIN_USERNAME = "admin";
 
-        public static readonly string DEFAULT_PASSWORD = "$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC";
+        public static readonly string DEFAULT_PASSWORD =
+            "$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC";
 
         public static readonly Dictionary<int, string> DEFAULT_BOOKING_CAT_NAMES = new Dictionary<int, string>
         {

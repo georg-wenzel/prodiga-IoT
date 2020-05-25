@@ -1,5 +1,9 @@
 package uibk.ac.at.prodiga.tests.helper;
 
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
+import org.assertj.core.util.Arrays;
 import org.mockito.internal.util.collections.Sets;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.Team;
@@ -7,11 +11,10 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.model.*;
-import uibk.ac.at.prodiga.utils.badge.Badge;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Random;
 import java.util.Set;
@@ -168,11 +171,10 @@ public class DataHelper {
      * Creates a booking given the specified data and with a random task duration. Task duration will always lie in legal values (less than 7 days ago, less than 8 hours long, longer than 30 minutes)
      * @param category The category of the booking
      * @param createUser User who saves the activity
-     * @param dice Dice which the activity is connected to
      * @param bookingRepository The repository to store the entry with.
      * @return The booking entry after being stored in the database.
      */
-    public static Booking createBooking(BookingCategory category, User createUser, Dice dice, BookingRepository bookingRepository)
+    public static Booking createBooking(BookingCategory category, User createUser, BookingRepository bookingRepository)
     {
         Random r = new Random();
         //offset for date endtime (from 0 minutes to (24*6)*60 minutes = 6 days ago)
@@ -183,7 +185,7 @@ public class DataHelper {
         Date endDate = new Date(new Date().getTime() - offset * 60 * 1000);
         Date startDate = new Date(endDate.getTime() - duration * 60 * 1000);
 
-        return createBooking(category, startDate, endDate, createUser, dice, bookingRepository);
+        return createBooking(category, startDate, endDate, createUser, bookingRepository);
     }
 
     /**
@@ -192,19 +194,18 @@ public class DataHelper {
      * @param startDate Start of the activity
      * @param endDate End of the activity
      * @param createUser User who saves the activity
-     * @param dice Dice which the activity is connected to
      * @param bookingRepository The repository to store the entry with.
      * @return The booking entry after being stored in the database.
      */
-    public static Booking createBooking(BookingCategory category, Date startDate, Date endDate, User createUser, Dice dice, BookingRepository bookingRepository)
+    public static Booking createBooking(BookingCategory category, Date startDate, Date endDate, User createUser, BookingRepository bookingRepository)
     {
         Booking booking = new Booking();
         booking.setActivityStartDate(startDate);
         booking.setActivityEndDate(endDate);
-        booking.setDice(dice);
+        booking.setUser(createUser);
         booking.setBookingCategory(category);
-        booking.setDept(dice.getUser().getAssignedDepartment());
-        booking.setTeam(dice.getUser().getAssignedTeam());
+        booking.setDept(createUser.getAssignedDepartment());
+        booking.setTeam(createUser.getAssignedTeam());
         booking.setObjectCreatedDateTime(new Date());
         booking.setObjectCreatedUser(createUser);
         return bookingRepository.save(booking);
@@ -249,6 +250,65 @@ public class DataHelper {
         vacation.setObjectCreatedDateTime(new Date());
         vacation.setObjectCreatedUser(forUser);
         return vacationRepository.save(vacation);
+    }
+
+    /**
+     * Returns a vacation which has a true duration of trueDuration days, i.e. has that many days that are not weekend days nor holidays.
+     * @param startDate The start date (LocalDate) of the vacation
+     * @param trueDuration The true duration in days the vacation should last
+     * @param forUser The user that should have the vacation
+     * @return The vacation which satisfies the trueDuration requirement.
+     * @throws IllegalArgumentException Thrown when trueDuration is <= 0
+     */
+    public static Vacation returnTrueVacation(LocalDate startDate, int trueDuration, User forUser) throws IllegalArgumentException
+    {
+        if(trueDuration <= 0) throw new IllegalArgumentException("trueDuration must be greater than 0.");
+
+        HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
+        LocalDate endDate = startDate.minusDays(1);
+        int vacationDays = 0;
+
+        while(vacationDays < trueDuration)
+        {
+            //increase end date by one day
+            endDate = endDate.plusDays(1);
+
+            //check if date is weekend day
+            if(endDate.getDayOfWeek() != DayOfWeek.SATURDAY && endDate.getDayOfWeek() != DayOfWeek.SUNDAY)
+            {
+                //convert to joda date
+                org.joda.time.LocalDate jodaDate = org.joda.time.LocalDate.fromDateFields(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                //check if date is a holiday in holiday manager
+                if(!m.isHoliday(jodaDate))
+                {
+                    //if neither weekend day nor holiday, it counts as a proper vacation day
+                    vacationDays++;
+                }
+            }
+        }
+
+        //create vacation for user and return
+        Vacation vacation = new Vacation();
+        vacation.setBeginDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setEndDate(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        vacation.setUser(forUser);
+        return vacation;
+    }
+
+    /**
+     * Creates a vacation which has a true duration of trueDuration days, i.e. has that many days that are not weekend days nor holidays, and stores it in the database.
+     * @param startDate The start date (LocalDate) of the vacation
+     * @param trueDuration The true duration in days the vacation should last
+     * @param forUser The user that should have the vacation
+     * @param vacationRepository The vacation repository
+     * @return The vacation stored in the database.
+     */
+    public static Vacation createTrueVacation(LocalDate startDate, int trueDuration, User forUser, VacationRepository vacationRepository)
+    {
+        Vacation v = returnTrueVacation(startDate, trueDuration, forUser);
+        v.setObjectCreatedDateTime(new Date());
+        v.setObjectCreatedUser(forUser);
+        return vacationRepository.save(v);
     }
 
      /**
@@ -408,5 +468,4 @@ public class DataHelper {
 
         return sb.toString();
     }
-
 }

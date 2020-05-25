@@ -9,8 +9,8 @@ namespace Prodiga.SQLFileGenerator
     {
         #region fields
 
-        private readonly int _roomAmount = 10;
-        private readonly int _departmentAmount = 10;
+        private readonly int _roomAmount = 4;
+        private readonly int _departmentAmount = 4;
         private readonly int _teamAmount;
         private readonly int _bookingCategoriesAmount = 12;
         private readonly int _raspiAmount;
@@ -32,7 +32,7 @@ namespace Prodiga.SQLFileGenerator
         {
             UserData = new Dictionary<string, Dictionary<string, object>>();
             AllData = new Dictionary<string, Dictionary<int, Dictionary<string, object>>>();
-            _teamAmount = _departmentAmount * 4;
+            _teamAmount = _departmentAmount * 2;
             _raspiAmount = _roomAmount * 2;
         }
 
@@ -124,7 +124,7 @@ namespace Prodiga.SQLFileGenerator
                     value["internal_id"] = "testDice" + i;
                     AllData["dice"][i] = value;
 
-                    if (i % (userAmount / _raspiAmount) == 0)
+                    if (i % (userAmount / _raspiAmount) == 0 && i < _raspiAmount)
                     {
                         currentRaspi++;
                     }
@@ -142,6 +142,7 @@ namespace Prodiga.SQLFileGenerator
                 {
                     Dictionary<string, object> value = getDefaultValues(id);
                     value["side"] = j;
+                    value["side_friendly_name"] = j;
                     value["booking_category_id"] = j;
                     value["dice_id"] = i + 1;
                     AllData["dice_side"][id] = value;
@@ -201,7 +202,6 @@ namespace Prodiga.SQLFileGenerator
                 Dictionary<string, object> userData = UserData.Skip(i - 1).First().Value;
 
                 string username = (string) userData["username"];
-                int diceID = i;
                 int deptID = (int) userData["assigned_department_id"];
                 int teamID = (int) userData["assigned_team_id"];
 
@@ -232,7 +232,7 @@ namespace Prodiga.SQLFileGenerator
 
                     // 08:00 - 11:00
                     DateTime end = start.AddHours(3);
-                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, diceID, start, end);
+                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, start, end);
 
                     index++;
 
@@ -243,7 +243,7 @@ namespace Prodiga.SQLFileGenerator
                     // 11:00 - 12:00
                     start = end;
                     end = start.AddHours(1);
-                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, diceID, start, end);
+                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, start, end);
 
                     index++;
 
@@ -254,7 +254,7 @@ namespace Prodiga.SQLFileGenerator
                     // 13:00 - 15:00
                     start = end.AddHours(1);
                     end = start.AddHours(2);
-                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, diceID, start, end);
+                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, start, end);
 
                     index++;
 
@@ -265,7 +265,7 @@ namespace Prodiga.SQLFileGenerator
                     // 15:00 - 17:00
                     start = end;
                     end = start.AddHours(2);
-                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, diceID, start, end);
+                    AllData["booking"][index] = getBookingValues(index, username, catID, deptID, teamID, start, end);
 
                     addToBadgeData(badgeData, username, catID, 2);
 
@@ -401,6 +401,17 @@ namespace Prodiga.SQLFileGenerator
                 };
 
                 i++;
+
+                if (!role.Equals("EMPLOYEE"))
+                {
+                    AllData["user_user_role"][i] = new Dictionary<string, object>
+                    {
+                        {"user_username", username},
+                        {"ROLES", "EMPLOYEE"}
+                    };
+                }
+
+                i++;
             }
         }
 
@@ -448,7 +459,7 @@ namespace Prodiga.SQLFileGenerator
         }
 
         private Dictionary<string, object> getBookingValues(int index, string username, int catID, int deptID,
-            int teamID, int diceID, DateTime start, DateTime end)
+            int teamID, DateTime start, DateTime end)
         {
             return new Dictionary<string, object>()
             {
@@ -457,7 +468,7 @@ namespace Prodiga.SQLFileGenerator
                 {"object_created_user_username", username},
                 {"booking_category_id", catID},
                 {"dept_id", deptID},
-                {"dice_id", diceID},
+                {"user_username", username},
                 {"team_id", teamID},
                 {"activity_start_date", start},
                 {"activity_end_date", end},

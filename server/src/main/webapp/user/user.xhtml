@@ -21,7 +21,8 @@
                 <div class="card">
                     <h1>#{userDetailController.user.username}</h1>
                     <h:form id="userForm">
-                        <p:messages id="msgs" for="msgs"/>
+                        <p:messages id="msgs" for="msgs" autoUpdate="true" showDetail="true"/>
+                        <p:messages id="msgs2" for="password" autoUpdate="true" showDetail="true"/>
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
@@ -34,6 +35,35 @@
                                                  required="true"
                                                  label="Username"  style="width:100%"/>
                                 </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel styleClass="input-form" for="password" value="Password: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:password id="password"
+                                                value="#{userDetailController.user.password}"
+                                                required="false"
+                                                label="Password"
+                                                style="width:100%"
+                                                match="confirmPassword"/>
+                                </div>
+
+                                <div class="ui-g-4 input-form">
+                                    <p:outputLabel styleClass="input-form" for="confirmPassword" value="Confirm Password: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:password id="confirmPassword"
+                                                value="#{userDetailController.user.password}"
+                                                required="false"
+                                                label="Confirm Password"
+                                                style="width:100%"
+                                                match="confirmPassword"/>
+                                </div>
+                            </div>
+                        </div>
+                        <p:separator />
+                        <div class="ui-g">
+                            <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
                                     <p:outputLabel for="firstname" value="First Name: "/>
                                 </div>
@@ -43,7 +73,19 @@
                                                  required="#{userDetailController.user['new']}"
                                                  label="Firstname"  style="width:100%"/>
                                 </div>
+
                                 <div class="ui-g-4 input-form">
+                                    <p:outputLabel styleClass="input-form" for="email" value="Email: " />
+                                </div>
+                                <div class="ui-g-8 input-form">
+                                    <p:inputText id="email" value="#{userDetailController.user.email}" required="false"
+                                                 label="email"  style="width:100%"/>
+                                </div>
+                            </div>
+                            <div class="ui-g-1">
+                            </div>
+                            <div class="ui-g-5">
+                                <div class="ui-g-3 input-form">
                                     <p:outputLabel for="lastname" value="Last Name: "/>
                                 </div>
                                 <div class="ui-g-8 input-form">
@@ -51,18 +93,6 @@
                                                  value="#{userDetailController.user.lastName}"
                                                  required="#{userDetailController.user['new']}"
                                                  label="Lastname"  style="width:100%"/>
-                                </div>
-                            </div>
-                            <div class="ui-g-1">
-                            </div>
-                            <div class="ui-g-5">
-
-                                <div class="ui-g-3 input-form">
-                                    <p:outputLabel styleClass="input-form" for="email" value="Email: " />
-                                </div>
-                                <div class="ui-g-8 input-form">
-                                    <p:inputText id="email" value="#{userDetailController.user.email}" required="false"
-                                                 label="email"  style="width:100%"/>
                                 </div>
 
                                 <div class="ui-g-3 input-form">
@@ -73,31 +103,34 @@
                                 </div>
                             </div>
                         </div>
+                        <p:separator />
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel styleClass="input-form" for="teams" value="Team: " rendered="#{userDetailController.user.assignedTeam != null}"/>
+                                    <p:outputLabel styleClass="input-form" for="departments" value="Department: "/>
                                 </div>
-                                <p:outputPanel styleClass="ui-g-8 input-form"  rendered="#{prodigaUserLoginManager.hasRole('ADMIN') or prodigaUserLoginManager.hasRole('DEPARTMENTLEADER')}">
-                                    <p:selectOneMenu id="teams" value="#{userDetailController.user.assignedTeam.name}" style="width:250px" rendered="#{userDetailController.user.assignedTeam != null}">
-                                        <f:selectItem itemLabel="#{userDetailController.user.assignedTeam.name}" itemValue="#{userDetailController.user.assignedTeam}" />
-                                        <f:selectItems value="#{teamController.allTeams}" var="team" itemLabel="#{team.name}" itemValue="#{team}"/>
+                                <h:outputText styleClass="ui-g-8 input-form" rendered="#{userDetailController.user.assignedDepartment != null and !prodigaUserLoginManager.hasRole('ADMIN')}" value="#{userDetailController.user.assignedDepartment.name}"/>
+                                <h:outputText styleClass="ui-g-8 input-form" rendered="#{userDetailController.user.assignedDepartment == null and !prodigaUserLoginManager.hasRole('ADMIN')}" value="No Department Assigned"/>
+
+                                <p:outputPanel class="ui-g-8 input-form" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" >
+                                    <p:selectOneMenu id="departments" value="#{userDetailController.userDepartmentId}" style="width:100%">
+                                        <f:selectItem value="#{null}" itemLabel="None" />
+                                        <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department.id}"/>
+                                        <p:ajax event="change" update=":userForm:teamPanel" />
                                     </p:selectOneMenu>
-                                </p:outputPanel>
-                                <p:outputPanel  class="ui-g-8 input-form"  rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}">
-                                    <h:outputText value="#{userDetailController.user.assignedTeam.name}" />
                                 </p:outputPanel>
 
                                 <div class="ui-g-4 input-form">
-                                    <p:outputLabel styleClass="input-form" for="departments" value="Department: " rendered="#{userDetailController.user.assignedDepartment != null}"/>
+                                    <p:outputLabel styleClass="input-form" for="teams" value="Team: "/>
                                 </div>
-                                <p:outputPanel class="ui-g-8 input-form" rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}" >
-                                    <p:selectOneMenu id="departments" value="#{userDetailController.user.assignedDepartment.id}" style="width:100%" rendered="#{userDetailController.user.assignedDepartment != null}">
-                                        <f:selectItems value="#{departmentController.allDepartments}" var="department" itemLabel="#{department.name}" itemValue="#{department.id}"/>
+                                <h:outputText styleClass="ui-g-8 input-form" rendered="#{userDetailController.user.assignedTeam != null and !prodigaUserLoginManager.hasRole('ADMIN')}" value="#{userDetailController.user.assignedTeam.name}"/>
+                                <h:outputText styleClass="ui-g-8 input-form" rendered="#{userDetailController.user.assignedTeam == null and !prodigaUserLoginManager.hasRole('ADMIN')}" value="No Team Assigned"/>
+
+                                <p:outputPanel id="teamPanel" styleClass="ui-g-8 input-form"  rendered="#{prodigaUserLoginManager.hasRole('ADMIN')}">
+                                    <p:selectOneMenu id="teams" value="#{userDetailController.userTeamId}" style="width:100%;" disabled="#{userDetailController.userDepartmentId == null}">
+                                        <f:selectItem value="#{null}" itemLabel="None" />
+                                        <f:selectItems value="#{userDetailController.availableTeamList}" var="team" itemLabel="#{team.name}" itemValue="#{team.id}"/>
                                     </p:selectOneMenu>
-                                </p:outputPanel>
-                                <p:outputPanel  class="ui-g-8 input-form" rendered="#{!prodigaUserLoginManager.hasRole('ADMIN')}">
-                                    <h:outputText value="#{userDetailController.user.assignedDepartment}" />
                                 </p:outputPanel>
                             </div>
                         </div>
@@ -130,9 +163,9 @@
                                     <p:outputLabel for="roles" value="Roles: " />
                                 </div>
                                 <div class="ui-g-10 input-form">
-                                    <p:selectManyButton id="roles" disabled="#{!prodigaUserLoginManager.hasRole('ADMIN')}"
-                                                        value="#{userDetailController.userRolesAsString}">
-                                        <f:selectItems value="#{userDetailController.allRolesTotal}" var="role" itemLabel="#{role}" itemValue="#{role}" />
+                                    <p:selectManyButton id="roles" disabled="true"
+                                                        value="#{userDetailController.userRoles}">
+                                        <f:selectItems value="#{userDetailController.allUserRoles}" var="role" itemLabel="#{role}" itemValue="#{role}" />
                                     </p:selectManyButton>
                                 </div>
                             </div>
@@ -159,6 +192,7 @@
 
                             </p:row>
                         </p:panelGrid>
+                        <p:separator />
                         <br/><br/>
                         <div class="ui-g">
                             <div class="ui-g-6">
@@ -177,7 +211,7 @@
                                                  ajax="true"
                                                  icon="fa fa-fw fa-save"
                                                  validateClient="true"
-                                                 update="growl msgs">
+                                                 update="growl msgs msgs2">
                                 </p:commandButton>
                             </div>
                         </div>

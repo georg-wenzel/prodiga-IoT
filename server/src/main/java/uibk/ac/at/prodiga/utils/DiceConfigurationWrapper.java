@@ -1,22 +1,32 @@
 package uibk.ac.at.prodiga.utils;
 
+import org.javatuples.Pair;
 import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.Dice;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 public class DiceConfigurationWrapper {
 
     private Dice dice;
     private int currentSide;
-    private Map<Integer, BookingCategory> completedSides;
+    private int currentSideFriendlyName;
+    private Map<Integer, Pair<Integer, BookingCategory>> completedSides;
     private UUID feedId;
+    private Map<Integer, Integer> visitedSites;
 
     public DiceConfigurationWrapper() {
         completedSides = new HashMap<>();
+        visitedSites = new HashMap<>();
+    }
+
+    public Map<Integer, Integer> getVisitedSites() {
+        return visitedSites;
+    }
+
+    public void setVisitedSites(Map<Integer, Integer> visitedSites) {
+        this.visitedSites = visitedSites;
     }
 
     public Dice getDice() {
@@ -35,11 +45,11 @@ public class DiceConfigurationWrapper {
         this.currentSide = currentSide;
     }
 
-    public Map<Integer, BookingCategory> getCompletedSides() {
+    public Map<Integer, Pair<Integer, BookingCategory>> getCompletedSides() {
         return completedSides;
     }
 
-    public void setCompletedSides(Map<Integer, BookingCategory> completedSides) {
+    public void setCompletedSides(Map<Integer, Pair<Integer, BookingCategory>> completedSides) {
         this.completedSides = completedSides;
     }
 
@@ -49,5 +59,13 @@ public class DiceConfigurationWrapper {
 
     public void setFeedId(UUID feedId) {
         this.feedId = feedId;
+    }
+
+    public int getCurrentSideFriendlyName() {
+        return currentSideFriendlyName;
+    }
+
+    public void setCurrentSideFriendlyName(int currentSideFriendlyName) {
+        this.currentSideFriendlyName = currentSideFriendlyName;
     }
 }

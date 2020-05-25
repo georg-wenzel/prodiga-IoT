@@ -7,7 +7,6 @@ import uibk.ac.at.prodigaclient.api.CubeControllerApi;
 import uibk.ac.at.prodigaclient.api.IntrinsicsControllerApi;
 import uibk.ac.at.prodigaclient.utils.Action;
 
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 
 public class Constants {
@@ -21,6 +20,7 @@ public class Constants {
     private static AuthControllerApi authControllerApi = null;
     private static IntrinsicsControllerApi intrinsicsControllerApi = null;
     private static CubeControllerApi cubeControllerApi = null;
+    private static String serverAddress = null;
 
     public static final int DEFAULT_WAIT_TIMEOUT_MILLIS = 20000;
 
@@ -29,9 +29,8 @@ public class Constants {
     public static String getInternalId() {
         if(macAddress == null) {
             try {
-                InetAddress ip = InetAddress.getLocalHost();
-
-                NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+                // always get the first network interface.
+                NetworkInterface network = NetworkInterface.getNetworkInterfaces().nextElement();
 
                 byte[] mac = network.getHardwareAddress();
 
@@ -52,7 +51,8 @@ public class Constants {
 
     public static ApiClient getClient() {
         if(client == null) {
-            client = new ApiClient("JWT");
+            client = new ApiClient();
+            client.createDefaultAdapter(serverAddress);
         }
         synchronized (jwtLock) {
             return client;
@@ -68,8 +68,18 @@ public class Constants {
     public static void setJwt(String newJwt) {
         synchronized (jwtLock) {
             Constants.jwt = newJwt;
-            client.setApiKey("Bearer " + jwt);
+            if(!client.getApiAuthorizations().containsKey("JWT")) {
+                client.setAuth("JWT");
+            }
+            client = client.setApiKey("Bearer " + jwt);
+            authControllerApi = null;
+            cubeControllerApi = null;
+            intrinsicsControllerApi = null;
         }
+    }
+
+    public static void setServerAddress(String address) {
+        serverAddress = address;
     }
 
     public static String getPassword() {
@@ -89,22 +99,28 @@ public class Constants {
     }
 
     public static AuthControllerApi getAuthControllerApi() {
-        if(authControllerApi == null) {
-            authControllerApi = getClient().createService(AuthControllerApi.class);
+        synchronized (jwtLock) {
+            if(authControllerApi == null) {
+                authControllerApi = getClient().createService(AuthControllerApi.class);
+            }
         }
         return authControllerApi;
     }
 
     public static CubeControllerApi getCubeControllerApi() {
-        if(cubeControllerApi == null) {
-            cubeControllerApi = getClient().createService(CubeControllerApi.class);
+        synchronized (jwtLock) {
+            if(cubeControllerApi == null) {
+                cubeControllerApi = getClient().createService(CubeControllerApi.class);
+            }
         }
         return cubeControllerApi;
     }
 
     public static IntrinsicsControllerApi getIntrinsicsControllerApi() {
-        if(intrinsicsControllerApi == null) {
-            intrinsicsControllerApi = getClient().createService(IntrinsicsControllerApi.class);
+        synchronized (jwtLock) {
+            if(intrinsicsControllerApi == null) {
+                intrinsicsControllerApi = getClient().createService(IntrinsicsControllerApi.class);
+            }
         }
         return intrinsicsControllerApi;
     }

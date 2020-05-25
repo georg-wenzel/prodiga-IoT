@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.BookingCategory;
+import uibk.ac.at.prodiga.model.Dice;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
@@ -38,6 +39,14 @@ public class BookingController implements Serializable
     }
 
     /**
+     * Returns whether or not a booking is editable
+     * @return true if the last booking of the user is longer than 2 days ago
+     */
+    public Boolean getLastBookingLongerThan2DaysAgo() {
+        return bookingService.isBookingLongerThan2DaysAgo(user);
+    }
+
+    /**
      * Returns whether or not user may edit a booking
      * @param booking The booking to check
      * @return Returns true when the booking is not before the previous week or the user has permissions to edit data before the previous week, otherwise false
@@ -67,33 +76,51 @@ public class BookingController implements Serializable
         return (int) (Math.floorDiv(booking.getActivityEndDate().toInstant().toEpochMilli() - booking.getActivityStartDate().toInstant().toEpochMilli(), 1000 * 60) - getFullHours(booking) * 60);
     }
 
+    /**
+     * Saves the current booking stored in the controller
+     * @throws ProdigaGeneralExpectedException If saving the booking causes an exception (propagated by the service)
+     */
     public void doSaveBooking() throws ProdigaGeneralExpectedException
     {
         //set fields if not already present
-        if(this.booking.getDice() == null)
-            this.booking.setDice(diceService.getDiceByUser(user));
+        if(this.booking.getUser() == null)
+            this.booking.setUser(user);
         if(this.booking.getTeam() == null)
             this.booking.setTeam(user.getAssignedTeam());
         if(this.booking.getDept() == null)
             this.booking.setDept(user.getAssignedDepartment());
 
-        bookingService.saveBooking(this.booking);
-        SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
+        this.booking = bookingService.saveBooking(this.booking);
+        if(SnackbarHelper.getInstance().facesContextExists())
+            SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
     }
 
+    /**
+     * Deletes given booking
+     * @param booking The booking to delete
+     * @throws ProdigaGeneralExpectedException If deleting the booking causes an exception (propagated by the service)
+     */
     public void deleteBooking(Booking booking) throws ProdigaGeneralExpectedException
     {
-        bookingService.deleteBooking(booking);
+        bookingService.deleteBooking(booking, false);
+        userBookings = null;
     }
 
+    //////GETTERS & SETTERS
     public User getUser()
     {
         return user;
     }
 
+    public Dice getDice()
+    {
+        if(user == null) return null;
+        return diceService.getDiceByUser(user);
+    }
+
     public Collection<Booking> getUserBookings()
     {
-        if(userBookings == null) userBookings = bookingService.getAllBookingsByDice(diceService.getDiceByUser(user));
+        if(userBookings == null) userBookings = bookingService.getAllBookingsByUser(user);
         return userBookings;
     }
 

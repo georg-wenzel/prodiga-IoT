@@ -30,13 +30,15 @@ public class TeamService
     private final UserRepository userRepository;
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
+    private final LogInformationService logInformationService;
 
-    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository)
+    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository, LogInformationService logInformationService)
     {
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.logInformationService = logInformationService;
     }
 
     /**
@@ -63,6 +65,15 @@ public class TeamService
     public Collection<Team> findTeamsOfDepartment(Department department) {
         return Lists.newArrayList(teamRepository.findTeamOfDepartment(department));
     }
+
+    /**
+     * Find teams with the same department as the calling user
+     * @return All teams of the same department as the calling user
+     */
+    @PreAuthorize("hasAuthority('DEPARTMENTLEADER')")
+    public Collection<Team> findTeamsOfDepartment(){
+        return Lists.newArrayList(teamRepository.findTeamOfDepartment(userLoginManager.getCurrentUser().getAssignedDepartment()));
+}
 
     /**
      * Gets the FIRST team with the specified team name.
@@ -124,7 +135,12 @@ public class TeamService
                 throw new ProdigaGeneralExpectedException("A team's department cannot be changed.", MessageType.ERROR);
             }
         }
-        return teamRepository.save(team);
+
+        Team result = teamRepository.save(team);
+
+        logInformationService.logForCurrentUser("Team " + team.getName() + " was saved");
+
+        return result;
     }
 
     /**
@@ -134,6 +150,8 @@ public class TeamService
     @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
     public void deleteTeam(Team team) throws ProdigaGeneralExpectedException
     {
+        User u = userLoginManager.getCurrentUser();
+
         //check if this team has no users
         if(!userRepository.findAllByAssignedTeam(team).isEmpty())
         {
@@ -147,8 +165,16 @@ public class TeamService
             throw new ProdigaGeneralExpectedException("Could not find team with this ID in DB", MessageType.WARNING);
         }
 
+        //check if dept matches
+        if(!u.getRoles().contains(UserRole.ADMIN) && (u.getAssignedDepartment() == null || !u.getAssignedDepartment().equals(team.getDepartment())))
+        {
+            throw new RuntimeException("Dept. leader attempted to access team outside of own department.");
+        }
+
         //delete team
         teamRepository.delete(team);
+
+        logInformationService.logForCurrentUser("Team " + team.getName() + " was deleted");
     }
 
     /**
@@ -184,12 +210,16 @@ public class TeamService
             roles.remove(UserRole.TEAMLEADER);
             oldLeader.setRoles(roles);
             userRepository.save(oldLeader);
+
+            logInformationService.logForCurrentUser("User " + oldLeader.getUsername() + " demoted from Team Leader Role");
         }
         //Set new leader role to teamleader
         Set<UserRole> roles = newLeader.getRoles();
         roles.add(UserRole.TEAMLEADER);
         newLeader.setRoles(roles);
         userRepository.save(newLeader);
+
+        logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Team Leader Role");
     }
 
 
@@ -203,8 +233,13 @@ public class TeamService
         return team.equals(teamRepository.findFirstById(team.getId()));
     }
 
+    /**
+     * Creates a new team
+     * @return new created team
+     */
     @PreAuthorize("hasAuthority('DEPARTMENTLEADER') || hasAuthority('ADMIN')") //NOSONAR
-    public Team createTeam(){
+    public Team createTeam()
+    {
         Team team = new Team();
         Department d = new Department();
         d.setId(null);
@@ -212,8 +247,20 @@ public class TeamService
         return team;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    public Team loadTeam(Long teamId){
-        return teamRepository.findFirstById(teamId);
+    /**
+     * Loads team by its teamId
+     * @param teamId teamId of the team to load
+     * @return the team with the given teamId
+     */
+    @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER')") //NOSONAR
+    public Team loadTeam(Long teamId)
+    {
+        User u = userLoginManager.getCurrentUser();
+
+        Team team = teamRepository.findFirstById(teamId);
+        if(team == null) return null;
+        if(!team.getDepartment().equals(u.getAssignedDepartment()) && !u.getRoles().contains(UserRole.ADMIN))
+            throw new RuntimeException("Dept. leader attempted to access team outside his own department.");
+        return team;
     }
 }

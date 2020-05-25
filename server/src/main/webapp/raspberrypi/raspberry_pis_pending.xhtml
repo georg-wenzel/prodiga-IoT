@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">Prodiga Raspberry Pis</ui:define>
+    <ui:define name="viewname">
+        <li>Pages</li>
+        <li>/</li>
+        <li><p:link outcome="/raspberrypi/raspberry_pis_pending">Raspberry Pis</p:link></li>
+    </ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet name = "tables.css" library="css" />
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card">
+                    <h1>Pending Raspberry Pis <p:graphicImage style="width: 20px" name="images/raspi_white.png" library="ecuador-layout" /></h1>
+                    <h:form id="raspberryForm">
+                        <p:messages id="msgs" for="msgs"/>
+                        <p:dataTable id="raspberryTable" var="raspberry_pi" scrollable="true" styleClass="shorter-table" scrollHeight="500" value="#{raspberryPiController.allPendingRaspberryPis}">
+
+                            <p:column headerText="RasPi Internal ID" filterMatchMode="contains"
+                                      filterBy="#{raspberry_pi.internalId}" sortBy="#{raspberry_pi.internalId}">
+                                <h:outputText value="#{raspberry_pi.internalId}"/>
+                            </p:column>
+
+                            <p:column headerText="" style="text-align: center;width:100px;">
+                                <p:linkButton icon="fa fa-fw fa-edit"
+                                              title="Configure"
+                                              outcome="raspberry_pi_pend">
+                                    <f:param name="id" value="#{raspberry_pi.internalId}"/>
+                                </p:linkButton>
+                                <p:commandButton action="#{raspberryPiController.deletePendingRaspberry(raspberry_pi)}" icon="fa fa-fw fa-trash" title="Delete" update=":raspberryForm:raspberryTable" style="margin-left:5px;">
+                                    <f:setPropertyActionListener value="#{raspberry_pi}" target="#{raspberryPiController.raspberryPi}" />
+                                    <p:confirm header="Confirmation" message="Are you sure that you want to delete this Raspberry Pi? You cannot undo this operation." icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:column>
+                            
+                        </p:dataTable>
+                    </h:form>
+
+
+
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

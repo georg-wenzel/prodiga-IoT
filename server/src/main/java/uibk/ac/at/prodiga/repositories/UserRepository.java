@@ -37,6 +37,9 @@ public interface UserRepository extends AbstractRepository<User, String> {
     @Query("SELECT u FROM User u WHERE u.assignedDepartment = :department")
     List<User> findDepartmentMemberOf(@Param("department") Department department);
 
+    @Query("SELECT u FROM User u WHERE u.assignedDepartment is not null")
+    List<User> findAllWithDepartment();
+
     /**
      * Returns the first user with the given email
      * @param email The email
