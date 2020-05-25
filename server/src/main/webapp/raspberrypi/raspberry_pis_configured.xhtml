@@ -49,11 +49,11 @@
                                 </p:commandButton>
                             </p:column>
 
+                            <p:column style="text-align: center;width:100px;">
+                                <p:commandButton value="Download" icon="fa fa-fw fa-download" action="#{raspberryPiController.showMessage}" />
+                            </p:column>
+
                         </p:dataTable>
-                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
-                            <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
-                            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
-                        </p:confirmDialog>
                     </h:form>
 
                 </div>

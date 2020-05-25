@@ -1,6 +1,7 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 
+import org.primefaces.PrimeFaces;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.RaspberryPi;
@@ -8,6 +9,7 @@ import uibk.ac.at.prodiga.services.RaspberryPiService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import javax.faces.application.FacesMessage;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -181,5 +183,11 @@ public class RaspberryPiController implements Serializable {
 
     public void setRaspberryPi(RaspberryPi raspberryPi) {
         this.raspberryPi = raspberryPi;
+    }
+
+    public void showMessage() {
+        FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "What we do in life", "Echoes in eternity.");
+
+        PrimeFaces.current().dialog().showMessageDynamic(message);
     }
 }
