@@ -121,6 +121,7 @@ INSERT INTO booking_category_teams(booking_category_id, teams_id) VALUES (9, 8);
 INSERT INTO booking_category_teams(booking_category_id, teams_id) VALUES (10, 8);
 INSERT INTO booking_category_teams(booking_category_id, teams_id) VALUES (11, 8);
 INSERT INTO booking_category_teams(booking_category_id, teams_id) VALUES (12, 8);
+INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date) VALUES (True, 'Wuerfel', 'Los', 'WuerfelLos', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00');
 INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES (True, 'Chewbacca Revan', 'Windu Antilles', 'Chewbacca Revan_Windu Antilles', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00', 5, 3);
 INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES (True, 'Exar Jarael', 'Rex Ventress', 'Exar Jarael_Rex Ventress', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00', 7, 4);
 INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES (True, 'Captain Chewbacca', 'Kota Daala', 'Captain Chewbacca_Kota Daala', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00', 5, 3);
@@ -141,6 +142,7 @@ INSERT INTO user(enabled, first_name, last_name, username, password, create_user
 INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES (True, 'Padmé Joruus', 'Nihilus Marr', 'Padmé Joruus_Nihilus Marr', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00', 5, 3);
 INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES (True, 'Exar Zayne', 'C''Baoth Kenobi', 'Exar Zayne_C''Baoth Kenobi', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00', 1, 1);
 INSERT INTO user(enabled, first_name, last_name, username, password, create_user_username, create_date, assigned_team_id, assigned_department_id) VALUES (True, 'Cade Jacen', 'Solo Commander Cody', 'Cade Jacen_Solo Commander Cody', '$2a$10$d8cQ7Euz2hM43HOHWolUGeCEZSS/ltJVJYiJAmczl1X5FKzCjg6PC', 'admin', '1997-08-23 00:00:00', 6, 3);
+INSERT INTO user_user_role(user_username, ROLES) VALUES ('WuerfelLos', 'EMPLOYEE');
 INSERT INTO user_user_role(user_username, ROLES) VALUES ('Chewbacca Revan_Windu Antilles', 'DEPARTMENTLEADER');
 INSERT INTO user_user_role(user_username, ROLES) VALUES ('Chewbacca Revan_Windu Antilles', 'EMPLOYEE');
 INSERT INTO user_user_role(user_username, ROLES) VALUES ('Exar Jarael_Rex Ventress', 'DEPARTMENTLEADER');

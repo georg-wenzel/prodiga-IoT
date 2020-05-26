@@ -25,7 +25,6 @@ public class BookingCategoryController implements Serializable
 
     private final BookingCategoryService bookingCategoryService;
     private final BookingService bookingService;
-    private final ProdigaUserLoginManager userLoginManager;
 
     private String newCategoryName;
     private String editCategoryName;
@@ -35,11 +34,10 @@ public class BookingCategoryController implements Serializable
     private boolean isEditing = false;
     private Map<BookingCategory, Integer> usedInBookings = new HashMap<BookingCategory, Integer>();
 
-    public BookingCategoryController(BookingCategoryService bookingCategoryService, ProdigaUserLoginManager userLoginManager, BookingService bookingService)
+    public BookingCategoryController(BookingCategoryService bookingCategoryService, BookingService bookingService)
     {
         this.bookingService = bookingService;
         this.bookingCategoryService = bookingCategoryService;
-        this.userLoginManager = userLoginManager;
     }
 
     /**
