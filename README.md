@@ -143,3 +143,19 @@ Some potential problems may occure:
 * The config file doesn't exist/wasn't created correctly: If this happens try to
   create it manually under `$HOME/.config/prodiga/prodigarc` and insert a single
   line containing the path to the project root. (Eg `$HOME/Documents/client`).
+
+## Add Cube to the System
+
+Adding a cube to the system requires three steps.
+
+1) Add a raspberry pi to the system: Run the client setup and start the client.
+   If you followed the Setup Client correctly the skript should automatically
+   connect to the server. On the server you should see a new pending raspberry
+   pi under "Raspberry Pi/pending". Configure it by confiming the password you
+   specified and selecting the room the raspberry pi is in. Now you have added
+   the raspberry pi.
+2) Add the cube to the system: Put the cube near the running raspberry pi. If
+   the cube wasn't added to the system the cube will appear (in max 2 minutes)
+   in the "Dices/pending" section. From there we can add it by clicking add
+   button. Now the cube is in the "Dices/overview" section where we can assign a
+   user to the cube.
