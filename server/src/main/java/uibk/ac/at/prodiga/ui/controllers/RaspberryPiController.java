@@ -39,52 +39,12 @@ public class RaspberryPiController implements Serializable {
         this.raspberryPiService = raspberryPiService;
     }
 
-
-    /**
-     * Finds the raspberry pi by the given internal id
-     * @param internalId The internal id
-     * @return An Optional with the found raspberry
-     */
-    public Optional<RaspberryPi> findByInternalIdWithAuth(String internalId){
-        return this.raspberryPiService.findByInternalIdWithAuth(internalId);
-    }
-
-    /**
-     * Finds the given raspberry and throws a exception when it could not be found
-     * @param internalId The given internal id
-     * @return The raspberry
-     * @throws Exception Exception which is thrown when the raspberry could not be found
-     */
-
-    public RaspberryPi findByInternalIdWithAuthAndThrow(String internalId) throws Exception {
-        return this.raspberryPiService.findByInternalIdWithAuthAndThrow(internalId);
-    }
-
-    /**
-     * Finds the raspberry pi by the given internal id
-     * @param internalId The internal id
-     * @return An Optional with the found raspberry
-     */
-    public Optional<RaspberryPi> findByInternalId(String internalId) {
-        return this.raspberryPiService.findByInternalId(internalId);
-    }
-
-    /**
-     * Finds the given raspberry and throws a exception when it could not be found
-     * @param internalId The given internal id
-     * @return The raspberry
-     * @throws Exception Exception which is thrown when the raspberry could not be found
-     */
-    public RaspberryPi findByInternalIdAndThrow(String internalId) throws Exception {
-        return this.raspberryPiService.findByInternalIdAndThrow(internalId);
-    }
-
     /**
      * Returns all raspberry pis which are not configured
      * @return A list of raspberry pis
      */
     public Collection<RaspberryPi> getAllPendingRaspberryPis() {
-        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
+        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();
         return pendingRaspis;
     }
 
@@ -107,17 +67,6 @@ public class RaspberryPiController implements Serializable {
         }
         raspberryPiService.tryDeletePendingRaspberry(raspi);
         pendingRaspis = null;
-    }
-
-    /**
-     * Adds a new raspberry to the pending list
-     *
-     */
-    public void addPendingRaspberry() {
-        this.raspberryPiService.tryAddPendingRaspberry(this.pendingRasPiInternalId);
-        //refresh data
-        this.pendingRaspis = null;
-        getAllPendingRaspberryPis();
     }
 
     /**
@@ -187,14 +136,6 @@ public class RaspberryPiController implements Serializable {
 
     public void setRaspberryPiToDownload(RaspberryPi raspberryPiToDownload) {
         this.raspberryPiToDownload = raspberryPiToDownload;
-    }
-
-    public String getPendingRasPiInternalId() {
-        return pendingRasPiInternalId;
-    }
-
-    public void setPendingRasPiInternalId(String pendingRasPiInternalId) {
-        this.pendingRasPiInternalId = pendingRasPiInternalId;
     }
 
     public RaspberryPi getRaspberryPi() {
