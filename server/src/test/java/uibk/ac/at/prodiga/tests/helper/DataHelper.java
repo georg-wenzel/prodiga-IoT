@@ -466,6 +466,7 @@ public class DataHelper {
         DiceSide ds = new DiceSide();
         ds.setBookingCategory(category);
         ds.setSide(side);
+        ds.setSideFriendlyName(side);
         ds.setDice(d);
         ds.setObjectCreatedUser(u);
         ds.setObjectCreatedDateTime(new Date());

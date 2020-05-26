@@ -17,7 +17,6 @@ import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
-import uibk.ac.at.prodiga.ui.controllers.BookingCategoryController;
 import uibk.ac.at.prodiga.ui.controllers.TeamBookingCategoryController;
 import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;

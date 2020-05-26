@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -50,13 +51,13 @@ public class UserDetailControllerTest {
     @BeforeEach
     public void init() {
         admin = DataHelper.createAdminUser("admin", userRepository);
-        teamLeader = DataHelper.createUserWithRoles("team", Set.of(UserRole.TEAMLEADER), userRepository);
-        deptLeader = DataHelper.createUserWithRoles("dept", Set.of(UserRole.DEPARTMENTLEADER), userRepository);
+        teamLeader = DataHelper.createUserWithRoles("team", Sets.newSet(UserRole.TEAMLEADER), userRepository);
+        deptLeader = DataHelper.createUserWithRoles("dept", Sets.newSet(UserRole.DEPARTMENTLEADER), userRepository);
 
         dept = DataHelper.createRandomDepartment(admin, departmentRepository);
         t = DataHelper.createRandomTeam(dept, admin, teamRepository);
-        u1 = DataHelper.createUserWithRoles("test1", Set.of(UserRole.EMPLOYEE), admin, dept, t, userRepository);
-        DataHelper.createUserWithRoles("test2", Set.of(UserRole.EMPLOYEE), admin, dept, t, userRepository);
+        u1 = DataHelper.createUserWithRoles("test1", Sets.newSet(UserRole.EMPLOYEE), admin, dept, t, userRepository);
+        DataHelper.createUserWithRoles("test2", Sets.newSet(UserRole.EMPLOYEE), admin, dept, t, userRepository);
     }
 
     @DirtiesContext
