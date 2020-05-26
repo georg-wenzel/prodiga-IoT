@@ -60,21 +60,6 @@ public class RoomService {
     }
 
     /**
-     * Gets the FIRST room with the specified room name.
-     * @param name the name of the room
-     * @return The first room in the database which has this name, or null if none exists
-     */
-    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
-    public Room getFirstByName(String name){
-        return roomRepository.findFirstByName(name);
-    }
-
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Room getManagedInstance(Room room){
-        return this.roomRepository.findFirstById(room.getId());
-    }
-
-    /**
      * Saves the current room in the database. If room with this ID already exists, overwrites data of existing room in the database.
      * @param room The room to save
      * @return The new state of the room after saving in the DB
@@ -125,31 +110,9 @@ public class RoomService {
      * @param roomname roomname to search for
      * @return a room with the given roomname
      */
-    @PreAuthorize("hasAuthority('ADMIN') or principal.roomname eq #roomname") //NOSONAR
+    @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public Room loadRoom(String roomname) {
         return roomRepository.findFirstByName(roomname);
-    }
-
-    /**
-     * Loads a room by its roomId
-     * @param roomId roomId to search for
-     * @return a room with the given roomId
-     */
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Room loadRoom(Long roomId){
-        return roomRepository.findFirstById(roomId);
-    }
-
-    /**
-     * Creates a new room
-     * @return a new room
-     */
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Room createRoom(){
-        Room room = new Room();
-        room.setObjectCreatedDateTime(new Date());
-        room.setObjectCreatedUser(new User());
-        return room;
     }
 
     /**
@@ -159,14 +122,6 @@ public class RoomService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Room createNewRoom() {
         return new Room();
-    }
-
-    /**
-     * Returns the amount of rooms in the db
-     * @return the amount of rooms
-     */
-    public long getRoomCount(){
-        return roomRepository.count();
     }
 
 
