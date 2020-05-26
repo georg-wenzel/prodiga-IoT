@@ -63,7 +63,7 @@ public class BookingCategoryControllerTest
         cat1 = DataHelper.createBookingCategory("testcat1", admin, bookingCategoryRepository);
         cat2 = DataHelper.createBookingCategory("testcat2", admin, bookingCategoryRepository);
 
-        controller = new BookingCategoryController(bookingCategoryService, userLoginManager, bookingService);
+        controller = new BookingCategoryController(bookingCategoryService, bookingService);
     }
 
     /**
