@@ -79,7 +79,7 @@ public class VacationController implements Serializable
         Vacation save_vacation = vacationService.saveVacation(vacation);
         //update if vacation was saved successfully
         if(save_vacation != null) vacation = save_vacation;
-        if(SnackbarHelper.getInstance().facesContextExists()) SnackbarHelper.getInstance().showSnackBar("Vacation from " + this.vacationService.toLocalDate(vacation.getBeginDate()) + " to " + this.vacationService.toLocalDate(vacation.getEndDate()) + " saved!", MessageType.INFO);
+        SnackbarHelper.getInstance().showSnackBar("Vacation from " + this.vacationService.toLocalDate(vacation.getBeginDate()) + " to " + this.vacationService.toLocalDate(vacation.getEndDate()) + " saved!", MessageType.INFO);
     }
 
     /**
@@ -137,7 +137,7 @@ public class VacationController implements Serializable
     {
         this.vacationService.deleteVacation(vacation, false);
         this.currentVacations.remove(vacation);
-        if(SnackbarHelper.getInstance().facesContextExists()) SnackbarHelper.getInstance()
+        SnackbarHelper.getInstance()
                 .showSnackBar("Vacation \"" + vacation.getId() + "\" deleted!", MessageType.ERROR);
     }
 
@@ -177,16 +177,6 @@ public class VacationController implements Serializable
     public boolean hasStarted(Vacation vacation)
     {
         return vacation.getBeginDate().after(new Date());
-    }
-
-    /**
-     * Returns whether or not the vacation has already ended
-     * @param vacation The vacation to check
-     * @return true if the vacation has already ended
-     */
-    public boolean hasEnded(Vacation vacation)
-    {
-        return vacation.getEndDate().after(new Date());
     }
 
     /**

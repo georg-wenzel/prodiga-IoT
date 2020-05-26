@@ -57,6 +57,9 @@ public class SnackbarHelper {
                 severity = FacesMessage.SEVERITY_INFO;
         }
 
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, message, ""));
+        if(FacesContext.getCurrentInstance() != null) {
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, message, ""));
+        }
+
     }
 }
