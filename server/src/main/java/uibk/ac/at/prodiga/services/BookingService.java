@@ -171,13 +171,13 @@ public class BookingService
             throw new ProdigaGeneralExpectedException("Cannot store this booking because it is covered by a vacation from " + formatter.format(vacationCoveringBooking.getBeginDate()) + " to " + formatter.format(vacationCoveringBooking.getEndDate()), MessageType.ERROR);
         }
         //if activity start date is before the previous week, check historic data flag
-        if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
+        if(useAuth && isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
         {
             throw new ProdigaGeneralExpectedException("User is not allowed to edit data from before the previous week.", MessageType.ERROR);
         }
 
         //check if any other bookings of the user overlap
-        if(hasOverlappingBooking(booking, u)) {
+        if(useAuth && hasOverlappingBooking(booking, u)) {
             throw new ProdigaGeneralExpectedException("A booking already exists for this timespan.", MessageType.ERROR);
         }
 
