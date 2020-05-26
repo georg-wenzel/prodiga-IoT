@@ -369,7 +369,9 @@ public class DiceServiceTest {
 
         diceService.addDiceToConfiguration(d);
 
-        diceService.registerNewSideCallback(UUID.randomUUID(), x -> {
+        UUID id = UUID.randomUUID();
+
+        diceService.registerNewSideCallback(id, x -> {
             DiceConfigurationWrapper wrapper = x.getValue1();
             Optional<BookingCategory> mandatoryCat = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID);
             if(wrapper.getCurrentSide() == 12 && mandatoryCat.isPresent())
@@ -390,6 +392,8 @@ public class DiceServiceTest {
         }
 
         diceService.completeConfiguration(d);
+
+        diceService.unregisterNewSideCallback(id, "123");
 
         ArrayList<DiceSide> all = Lists.newArrayList(diceSideRepository.findAll());
 
@@ -506,5 +510,23 @@ public class DiceServiceTest {
         diceService.deleteDice(d);
 
         Assertions.assertEquals(0, diceService.getAllDice().size());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void diceService_getBatteryStatusForUser_correctValueReturned() {
+        Dice d = DataHelper.createDice("123", null, admin, diceRepository, raspberryPiRepository, roomRepository);
+        User u = DataHelper.createUserWithRoles("test", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+
+        Assertions.assertNull(diceService.getDiceBatteryStatusForUser(null));
+        Assertions.assertNull(diceService.getDiceBatteryStatusForUser(u));
+
+        Assertions.assertEquals("n/a", diceService.getDiceBatteryStatusForUser(admin));
+
+        d.setLastBatteryStatus(10);
+        diceRepository.save(d);
+
+        Assertions.assertEquals("10%", diceService.getDiceBatteryStatusForUser(admin));
     }
 }

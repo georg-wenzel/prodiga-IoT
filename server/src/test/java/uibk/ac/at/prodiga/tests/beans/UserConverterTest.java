@@ -34,5 +34,4 @@ public class UserConverterTest {
 
         Assertions.assertEquals(u, userConverter.getAsObject(null, null, "admin"));
     }
-
 }
