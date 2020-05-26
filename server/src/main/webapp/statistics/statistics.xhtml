@@ -299,6 +299,7 @@
 
     <ui:define name="content">
         <h:form id="colorForm">
+            <p:messages id="msgs" autoUpdate="true" showDetail="true"/>
             <div class="ui-g">
 
             <div class="ui-g-5">
@@ -336,7 +337,7 @@
 
                     <h:panelGrid columns="2" cellpadding="5">
                         <p:outputLabel for="selectDate" value="Select a Day:" />
-                        <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="false" disabledWeekends="false" locale="en_GB"/>
+                        <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" label="date" disabledWeekends="false" locale="en_GB"/>
                     </h:panelGrid>
                 </div>
             </div>
@@ -347,7 +348,7 @@
                                  action="#{statisticsController.verifyBackstepUser()}"
                                  ajax="true"
                                  icon="fa fa-fw fa-refresh"
-                                 update="growl colorForm">
+                                 update="growl colorForm msgs">
                     </p:commandButton>
                 </div>
             </div>
