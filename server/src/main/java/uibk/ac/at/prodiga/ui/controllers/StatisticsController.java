@@ -27,7 +27,6 @@ import java.util.*;
 @SuppressWarnings("Duplicates")
 public class StatisticsController implements Serializable {
     private final ProductivityAnalysisService productivityAnalysisService;
-    private final BookingCategoryController bookingCategoryController;
     private PieChartModel dailyAnalysisPie;
     private PieChartModel weeklyAnalysisPie;
     private PieChartModel monthlyAnalysisPie;
@@ -54,9 +53,6 @@ public class StatisticsController implements Serializable {
     private int backstepWeeks;
     private int backstepMonths;
 
-    private boolean firstInit = true;
-
-    private final Legend legend;
     private final BarChartOptions barChartOptions;
 
     public Date getSelectedDate() {
@@ -215,9 +211,7 @@ public class StatisticsController implements Serializable {
         }
     }
 
-    private HashMap<String,String> colorByCategory = new HashMap<String, String>(){{
-
-    }};
+    private HashMap<String,String> colorByCategory = new HashMap<String, String>();
     private HashMap<String,String> defaultColor = new HashMap<String,String>(){{
         put("Pause / Vacation","#e02365");
         put("Conceptualizing","#2D8EE3");
@@ -257,11 +251,10 @@ public class StatisticsController implements Serializable {
         this.bookingName = bookingName;
     }
 
-    public StatisticsController(ProductivityAnalysisService productivityAnalysisService, BookingCategoryController bookingCategoryController) {
+    public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
         this.productivityAnalysisService = productivityAnalysisService;
-        this.bookingCategoryController = bookingCategoryController;
 
-        this.legend = new Legend();
+        Legend legend = new Legend();
         legend.setDisplay(false);
         this.barChartOptions = new BarChartOptions();
         this.barChartOptions.setLegend(legend);
