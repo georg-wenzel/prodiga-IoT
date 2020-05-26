@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.utils;
 
+import java.util.HashMap;
 import java.util.Map;
 import javax.faces.context.FacesContext;
 import org.springframework.beans.factory.ObjectFactory;
@@ -10,7 +11,10 @@ public class ViewScope implements Scope {
     @Override
     public Object get(String name, ObjectFactory<?> objectFactory) {
         // retrieve the view map of the faces context
-        Map<String, Object> viewMap = FacesContext.getCurrentInstance().getViewRoot().getViewMap();
+        Map<String, Object> viewMap = new HashMap<>();
+        if(FacesContext.getCurrentInstance() != null) {
+            viewMap = FacesContext.getCurrentInstance().getViewRoot().getViewMap();
+        }
 
         // get the bean by its name from the view map
         Object bean = viewMap.get(name);

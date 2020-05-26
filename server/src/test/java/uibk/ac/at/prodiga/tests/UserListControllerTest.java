@@ -1,5 +1,6 @@
 package uibk.ac.at.prodiga.tests;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,8 @@ public class UserListControllerTest {
     User admin = null;
     User teamLeader = null;
     User deptLeader = null;
+    Department dept = null;
+    Team t = null;
 
     @BeforeEach
     public void init() {
@@ -48,17 +51,67 @@ public class UserListControllerTest {
         teamLeader = DataHelper.createUserWithRoles("team", Set.of(UserRole.TEAMLEADER), userRepository);
         deptLeader = DataHelper.createUserWithRoles("dept", Set.of(UserRole.DEPARTMENTLEADER), userRepository);
 
-        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
-        DataHelper.createUserWithRoles("test1", Set.of(UserRole.EMPLOYEE), admin, dept, team, userRepository);
-        DataHelper.createUserWithRoles("test2", Set.of(UserRole.EMPLOYEE), admin, dept, team, userRepository);
+        dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        t = DataHelper.createRandomTeam(dept, admin, teamRepository);
+        DataHelper.createUserWithRoles("test1", Set.of(UserRole.EMPLOYEE), admin, dept, t, userRepository);
+        DataHelper.createUserWithRoles("test2", Set.of(UserRole.EMPLOYEE), admin, dept, t, userRepository);
     }
 
     @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void UserListController_getUserAsAdmin_allUsersReturned() {
-        System.out.println(userListController.getUsers());
+        Assertions.assertEquals(5, userListController.getUsers().size());
+        Assertions.assertEquals(5, userListController.getUserTeams().size());
     }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "team", authorities = {"TEAMLEADER"})
+    public void UserListController_getUserAsTeamleader_allUsersReturned() {
+        Assertions.assertEquals(3, userListController.getUsers().size());
+        Assertions.assertEquals(3, userListController.getUserTeams().size());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "dept", authorities = {"DEPARTMENTLEADER"})
+    public void UserListController_getUserAsDepartmentLeader_allUsersReturned() {
+        Assertions.assertEquals(3, userListController.getUsers().size());
+        Assertions.assertEquals(3, userListController.getUserTeams().size());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void UserListController_getAllUsersInDepartment_returnsCorrectAmount() {
+        Assertions.assertEquals(0, userListController.getAllUsersInDepartment(null).size());
+        Assertions.assertEquals(0, userListController.getAllUsersInDepartment(new Department()).size());
+        Assertions.assertEquals(2, userListController.getAllUsersInDepartment(dept).size());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void UserListController_getAllUsersInTeam_returnsCorrectAmount() {
+        Assertions.assertEquals(0, userListController.getAllUsersInTeam(null).size());
+        Assertions.assertEquals(0, userListController.getAllUsersInTeam(new Team()).size());
+        Assertions.assertEquals(2, userListController.getAllUsersInTeam(t).size());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"admin"})
+    public void UserListController_getDepartmentTeamsAdmin_returnsEmpty() {
+        Assertions.assertNull(userListController.getDepartmentTeams());
+    }
+
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "dept", authorities = {"DEPARTMENTLEADER"})
+    public void UserListController_getDepartmentTeamsDepartmentLeader_returnsCorrectAmount() {
+        Assertions.assertEquals(0, userListController.getDepartmentTeams().size());
+    }
+
 
 }
