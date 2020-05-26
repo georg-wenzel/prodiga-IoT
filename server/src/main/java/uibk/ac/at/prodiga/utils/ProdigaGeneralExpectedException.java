@@ -1,7 +1,5 @@
 package uibk.ac.at.prodiga.utils;
 
-import java.util.concurrent.Future;
-
 public class ProdigaGeneralExpectedException extends Exception {
 
     private MessageType type;
@@ -32,35 +30,17 @@ public class ProdigaGeneralExpectedException extends Exception {
         switch (type) {
             case INFO:
                 this.severity = "Info";
+                break;
             case WARNING:
                 this.severity = "Warning";
+                break;
             case ERROR:
                 this.severity = "Error";
+                break;
         }
     }
 
     public String getSeverity() {
         return severity;
-    }
-
-    public void setSeverity(String severity) {
-        this.severity = severity;
-    }
-
-    /**
-     * Checks if the given exception wrappes a {@link ProdigaGeneralExpectedException}
-     * @param ex The exception to check
-     * @throws Exception Either a {@link ProdigaGeneralExpectedException} if wrapped otherwise {@param ex}
-     */
-    public static void throwWrappedException(Exception ex) throws Exception {
-        if(ex instanceof ProdigaGeneralExpectedException) {
-            throw ex;
-        }
-
-        if(ex.getCause() instanceof ProdigaGeneralExpectedException) {
-            throw (ProdigaGeneralExpectedException) ex.getCause();
-        }
-
-        throw ex;
     }
 }

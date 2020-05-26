@@ -13,14 +13,6 @@ import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 @Scope("session")
 public class ExceptionHelperBean {
 
-    private final ProdigaUserLoginManager prodigaUserLoginManager;
-    private final MailService mailService;
-
-    public ExceptionHelperBean(ProdigaUserLoginManager prodigaUserLoginManager, MailService mailService) {
-        this.prodigaUserLoginManager = prodigaUserLoginManager;
-        this.mailService = mailService;
-    }
-
     /**
      * Gets the specific ui Severity
      * @param ex The exception to handle
@@ -81,24 +73,6 @@ public class ExceptionHelperBean {
         } else {
             return ex.getClass().getName();
         }
-    }
-
-    public void sendException(Exception ex) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Error Report!\n\n");
-
-        User loggedInUser = prodigaUserLoginManager.getCurrentUser();
-
-        builder.append("Reported by: ").append(loggedInUser == null ? "Unknown User" : loggedInUser.getUsername()).append("\n\n");
-
-        if(ex != null){
-            builder.append("Full Stacktrace:\n\n");
-            builder.append(ex.toString());
-        } else {
-            builder.append("No exception Information!");
-        }
-
-        mailService.sendMail(Constants.DEFAULT_EMAIL_RECEIVER, "New Error Report!", builder.toString(), null, null);
     }
 
 }
