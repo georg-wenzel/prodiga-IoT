@@ -15,6 +15,7 @@ import uibk.ac.at.prodiga.model.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.Set;
@@ -67,6 +68,7 @@ public class DataHelper {
 
         return userRepository.save(u);
     }
+
 
     /**
      * Creates a user with a random user name and roles, as well as a certain department and team
@@ -144,6 +146,25 @@ public class DataHelper {
         badgeDB.setUser(user);
         badgeDB.setToDate(new Date());
         badgeDB.setFromDate(new Date());
+        badgeDB.setExplanation("Test");
+        return badgeDBRepository.save(badgeDB);
+    }
+
+    /**
+     * Creates a random badge for last week
+     * @param user The user who receives the batch
+     * @param badgeDBRepository The repository to save the badge.
+     * @return The randomly generated badge.
+     */
+    public static BadgeDB createRandomBadgeLastWeek(User user, BadgeDBRepository badgeDBRepository)
+    {
+        String name = createRandomString(15);
+
+        BadgeDB badgeDB = new BadgeDB();
+        badgeDB.setBadgeName(name);
+        badgeDB.setUser(user);
+        badgeDB.setToDate(lastWeekEnd());
+        badgeDB.setFromDate(lastWeekBeginning());
         badgeDB.setExplanation("Test");
         return badgeDBRepository.save(badgeDB);
     }
@@ -467,5 +488,27 @@ public class DataHelper {
         }
 
         return sb.toString();
+    }
+
+    public static Date lastWeekBeginning(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 1);
+        cal.set(Calendar.SECOND, 0);
+        cal.add(Calendar.DATE, -7);
+
+        return cal.getTime();
+    }
+
+    public static Date lastWeekEnd(){
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        cal2.set(Calendar.HOUR_OF_DAY, 23);
+        cal2.set(Calendar.MINUTE, 58);
+        cal2.set(Calendar.SECOND, 0);
+        cal2.add(Calendar.DATE, 6);
+        cal2.add(Calendar.DATE, -7);
+        return cal2.getTime();
     }
 }
