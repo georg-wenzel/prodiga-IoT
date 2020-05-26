@@ -59,15 +59,6 @@ public class TeamController implements Serializable {
     }
 
     /**
-     * Returns the first team with a matching name (unique identifier)
-     * @param name The name of the team
-     * @return The first (and only) team with a matching name, or null if none was found
-     */
-    public Team getFirstByName(String name){
-        return teamService.getFirstByName(name);
-    }
-
-    /**
      * Saves currently selected team
      * @throws Exception when save fails
      */
@@ -80,15 +71,6 @@ public class TeamController implements Serializable {
         setTeamLeader(team, teamLeader);
 
         SnackbarHelper.getInstance().showSnackBar("Team " + team.getId() + " saved!", MessageType.INFO);
-    }
-
-    /**
-     * Returns true if the team is the same as the database state
-     * @param team The team to check
-     * @return True if the team is the same as in the database, false otherwise.
-     */
-    public boolean isTeamUnchanged(Team team){
-        return teamService.isTeamUnchanged(team);
     }
 
     /**
