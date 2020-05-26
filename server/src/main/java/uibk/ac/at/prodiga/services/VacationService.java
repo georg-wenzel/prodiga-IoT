@@ -59,7 +59,7 @@ public class VacationService
      * @param u The user
      * @return A list with vacations
       */
-    @PreAuthorize("hasAuthority('ADMIN') or #principal.username eq u.username")
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #u.username")
     public Collection<Vacation> getAllVacationsByUser(User u) {
         return vacationRepository.findAllByUser(u);
     }
@@ -181,7 +181,7 @@ public class VacationService
      * Deletes all vacations for the given user
      * @param u The user
      */
-    @PreAuthorize("hasAuthority('ADMIN') or #principal.username eq #u.username")
+    @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #u.username")
     public void deleteVacationsForUser(User u) throws ProdigaGeneralExpectedException {
         if(u == null) {
             return;
