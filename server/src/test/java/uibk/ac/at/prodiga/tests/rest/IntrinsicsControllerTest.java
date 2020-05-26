@@ -117,7 +117,7 @@ public class IntrinsicsControllerTest {
 
     @Test
     @DirtiesContext
-    public void intrinsicsController_getFeedForRaspi_corretFeedReturned() {
+    public void intrinsicsController_getFeedForRaspi_corretFeedReturned() throws Exception {
         String id1 = UUID.randomUUID().toString();
         String id2 = UUID.randomUUID().toString();
         FeedManager.getInstance().addToFeed(id1, DeviceType.RAPSI, FeedAction.ENTER_CONFIG_MODE);
@@ -127,8 +127,8 @@ public class IntrinsicsControllerTest {
 
         Assertions.assertEquals(2, response.size());
 
-        FeedDTO first = response.stream().filter(x -> x.getInternalId().equals(id1)).findFirst().orElseThrow();
-        FeedDTO second = response.stream().filter(x -> x.getInternalId().equals(id2)).findFirst().orElseThrow();
+        FeedDTO first = response.stream().filter(x -> x.getInternalId().equals(id1)).findFirst().orElseThrow(()->new Exception());
+        FeedDTO second = response.stream().filter(x -> x.getInternalId().equals(id2)).findFirst().orElseThrow(()->new Exception());
 
         Assertions.assertEquals(first.getDeviceType(), DeviceType.RAPSI);
         Assertions.assertEquals(first.getFeedAction(), FeedAction.ENTER_CONFIG_MODE);
