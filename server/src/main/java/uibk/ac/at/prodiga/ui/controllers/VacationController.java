@@ -79,7 +79,7 @@ public class VacationController implements Serializable
         Vacation save_vacation = vacationService.saveVacation(vacation);
         //update if vacation was saved successfully
         if(save_vacation != null) vacation = save_vacation;
-        SnackbarHelper.getInstance().showSnackBar("Vacation from " + this.vacationService.toLocalDate(vacation.getBeginDate()) + " to " + this.vacationService.toLocalDate(vacation.getEndDate()) + " saved!", MessageType.INFO);
+        if(SnackbarHelper.getInstance().facesContextExists()) SnackbarHelper.getInstance().showSnackBar("Vacation from " + this.vacationService.toLocalDate(vacation.getBeginDate()) + " to " + this.vacationService.toLocalDate(vacation.getEndDate()) + " saved!", MessageType.INFO);
     }
 
     /**
@@ -137,7 +137,7 @@ public class VacationController implements Serializable
     {
         this.vacationService.deleteVacation(vacation, false);
         this.currentVacations.remove(vacation);
-        SnackbarHelper.getInstance()
+        if(SnackbarHelper.getInstance().facesContextExists()) SnackbarHelper.getInstance()
                 .showSnackBar("Vacation \"" + vacation.getId() + "\" deleted!", MessageType.ERROR);
     }
 
