@@ -182,25 +182,8 @@ public class BadgeDBControllerTest {
     @WithMockUser(username = "test_admin", authorities = {"ADMIN"})
     public void badges_last_week_user() {
         User user = DataHelper.createUserWithRoles("test_admin", Sets.newSet(UserRole.ADMIN), userRepository);
+        BadgeDB badgeDB1 = DataHelper.createRandomBadgeLastWeek(user, badgeDBRepository);
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.add(Calendar.DATE, -7);
-        Date start = cal.getTime();
-
-        Calendar cal2 = Calendar.getInstance();
-        cal2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        cal2.set(Calendar.HOUR_OF_DAY, 23);
-        cal2.set(Calendar.MINUTE, 59);
-        cal2.set(Calendar.SECOND, 0);
-        cal2.add(Calendar.DATE, 6);
-        cal2.add(Calendar.DATE, -7);
-        Date end = cal2.getTime();
-
-        BadgeDB badgeDB1 = DataHelper.createRandomBadgeLastWeek(user, start, end, badgeDBRepository);
         Collection<BadgeDB> badgeDBS = controller.getLastWeeksBadgesByUser();
         Assertions.assertEquals(badgeDB1.getBadgeName(), badgeDBS.iterator().next().getBadgeName(), "Different Badge in Repository");
         Collection<BadgeDB> badgeDBS2 = controller.getLastWeeksBadges();
