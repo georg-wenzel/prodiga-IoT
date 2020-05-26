@@ -18,6 +18,8 @@ import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
+import java.util.Date;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @WebAppConfiguration
@@ -248,14 +250,49 @@ public class BookingCategoryServiceTest {
                 bookingCategoryService.disallowForTeam(doesNotExist), "disallowForTeam does not throw when DB entry is not found.");
     }
 
-        @Test
+    @Test
     @DirtiesContext
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
-    public void bookingCategoryService_saveWithoutName_throws() {
+    public void bookingCategoryService_invalidNames_throws() {
         BookingCategory cat = new BookingCategory();
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
                 bookingCategoryService.save(cat), "Saving without name does not throw");
+
+        cat.setName("a");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                bookingCategoryService.save(cat), "Saving with too short name does not throw");
+
+        cat.setName("aaaaaaaaaaaaaaaaaaaaaa");
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () ->
+                bookingCategoryService.save(cat), "Saving with too long name does not throw");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void bookingCategoryService_saveNull_returnsNull() throws ProdigaGeneralExpectedException
+    {
+        Assertions.assertNull(bookingCategoryService.save(null), "Saving a null value does not return null");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void bookingCategoryService_editCategory_setsValues() throws ProdigaGeneralExpectedException
+    {
+        BookingCategory cat = DataHelper.createBookingCategory("test", admin, bookingCategoryRepository);
+        //prevent it from being the mandatory category
+        if(cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) cat = DataHelper.createBookingCategory("test2", admin, bookingCategoryRepository);
+
+        cat.setName("test123");
+        cat = bookingCategoryService.save(cat);
+
+        Assertions.assertEquals("test123", cat.getName(), "Edited Booking Category does not store new name.");
+        Assertions.assertEquals(admin, cat.getObjectChangedUser(), "Edit user was not properly set to admin.");
+        Assertions.assertTrue(cat.getObjectChangedDateTime().toInstant().toEpochMilli() - new Date().toInstant().toEpochMilli() < 1000 * 60, "Edit date was not set properly to now.");
     }
 
     @Test
@@ -271,6 +308,20 @@ public class BookingCategoryServiceTest {
                 .findFirst().orElse(null);
 
         Assertions.assertNotNull(dbCat, "Booking Category was not saved");
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void bookingCategoryService_deleteValid() throws ProdigaGeneralExpectedException
+    {
+        BookingCategory cat = DataHelper.createBookingCategory("test", admin, bookingCategoryRepository);
+        //prevent it from being the mandatory category
+        if(cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) cat = DataHelper.createBookingCategory("test2", admin, bookingCategoryRepository);
+
+        bookingCategoryService.delete(cat);
+
+        Assertions.assertFalse(bookingCategoryRepository.findById(cat.getId()).isPresent(), "Category was not properly deleted.");
     }
 
     @Test
