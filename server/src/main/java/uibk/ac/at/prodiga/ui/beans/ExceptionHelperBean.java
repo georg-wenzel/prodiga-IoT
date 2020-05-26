@@ -22,28 +22,6 @@ public class ExceptionHelperBean {
     }
 
     /**
-     * Determines whether to show the exception in the UI
-     * @param ex The exception
-     * @return True if the exception should be shown
-     */
-    public boolean displayException(Exception ex) {
-        if(ex == null) {
-            return false;
-        }
-        if(ex instanceof ProdigaGeneralExpectedException) {
-            ProdigaGeneralExpectedException pEx = (ProdigaGeneralExpectedException) ex;
-
-            switch (pEx.getType()) {
-                case WARNING:
-                case INFO:
-                    return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Gets the specific ui Severity
      * @param ex The exception to handle
      * @return The Severity used by the client

@@ -2,13 +2,9 @@ package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
-import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.services.RoomService;
 import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.io.Serializable;
