@@ -70,7 +70,7 @@ public class TeamController implements Serializable {
         this.team = teamService.saveTeam(team);
         setTeamLeader(team, teamLeader);
 
-        SnackbarHelper.getInstance().showSnackBar("Team " + team.getId() + " saved!", MessageType.INFO);
+        SnackbarHelper.getInstance().showSnackBar("Team " + team.getName() + " saved!", MessageType.INFO);
     }
 
     /**
