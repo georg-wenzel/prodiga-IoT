@@ -68,6 +68,7 @@ public class DataHelper {
         return userRepository.save(u);
     }
 
+
     /**
      * Creates a user with a random user name and roles, as well as a certain department and team
      * @param roles The roles to use
@@ -144,6 +145,25 @@ public class DataHelper {
         badgeDB.setUser(user);
         badgeDB.setToDate(new Date());
         badgeDB.setFromDate(new Date());
+        badgeDB.setExplanation("Test");
+        return badgeDBRepository.save(badgeDB);
+    }
+
+    /**
+     * Creates a random badge for last week
+     * @param user The user who receives the batch
+     * @param badgeDBRepository The repository to save the badge.
+     * @return The randomly generated badge.
+     */
+    public static BadgeDB createRandomBadgeLastWeek(User user, Date start, Date end, BadgeDBRepository badgeDBRepository)
+    {
+        String name = createRandomString(15);
+
+        BadgeDB badgeDB = new BadgeDB();
+        badgeDB.setBadgeName(name);
+        badgeDB.setUser(user);
+        badgeDB.setToDate(start);
+        badgeDB.setFromDate(end);
         badgeDB.setExplanation("Test");
         return badgeDBRepository.save(badgeDB);
     }
