@@ -3,6 +3,7 @@
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui"
+                xmlns:o="http://java.sun.com/jsf/html"
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="title">Prodiga Department Statistics</ui:define>
@@ -27,7 +28,7 @@
                                 Select a date below to update the statistics charts with data from that period. (Month). When you press the "Save and Reload" button, the statistics will be updated to reflect the given time period. For your department's statistics, you have to pick a date that lies at least in the previous month.
                                 <h:panelGrid columns="2" style="margin-top:15px;">
                                     <p:outputLabel for="selectDate" value="Date:" />
-                                    <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" disabledWeekends="true" locale="en_GB"/>
+                                    <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" disabledWeekends="false" locale="en_GB"/>
                                 </h:panelGrid>
                             </div>
                         </div>
@@ -64,12 +65,14 @@
                                 </p:tab>
                                 <p:tab title="Barchart">
                                     <br/>
-                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true"/>
+                                    <p:barChart id="bar2" type="bar" model="#{statisticsController.monthlyDepartmentAnalysisBar}" responsive="true" rendered="#{statisticsController.showMonthlyDepartment}"/>
+                                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                                 <p:tab title="Piechart" hide="true">
                                     <br/>
-                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthlyDepartment}"/>
+                                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No statistically data available in this time frame."/>
                                     <br/>
                                 </p:tab>
                             </p:tabView>

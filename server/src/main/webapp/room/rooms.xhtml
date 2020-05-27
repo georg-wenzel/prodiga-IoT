@@ -40,23 +40,6 @@
                             </p:column>
                         </p:dataTable>
 
-                        <p:dialog header="Edit Room" id="roomEditDialog" widgetVar="roomEditDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
-                            <p:outputPanel id="roomData" rendered="#{not empty roomDetailController.room}">
-                                <h:panelGrid columns="2">
-                                    <p:outputLabel for="name" value="Roomname: " />
-                                    <p:inputText id="name" value="#{roomDetailController.room.name}" disabled="true"/>
-                                </h:panelGrid>
-                                <p:separator />
-
-
-                                <h:panelGrid columns="3">
-                                    <p:commandButton value="Save" ajax="true" action="#{roomDetailController.doSaveRoom()}" oncomplete="PF('testDialog').hide()" update=":roomForm:roomsTable"/>
-                                    <p:commandButton value="Reload" action="#{roomDetailController.doReloadRoom(roomDetailController.room)}" update=":roomForm:roomData"/>
-                                    <p:commandButton value="Abort" onclick="PF('roomEditDialog').hide()"/>
-                                </h:panelGrid>
-                            </p:outputPanel>
-                        </p:dialog>
-
                         <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
                             <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
                             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />

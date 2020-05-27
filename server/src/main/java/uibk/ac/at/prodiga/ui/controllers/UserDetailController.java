@@ -53,7 +53,7 @@ public class UserDetailController implements Serializable {
      *
      * @param user
      */
-    public void setUser(User user) throws Exception {
+    public void setUser(User user) {
         this.user = user;
         doReloadUser(user.getUsername());
     }
@@ -72,7 +72,7 @@ public class UserDetailController implements Serializable {
      *
      * @param username The name of the user to reload
      */
-    public void doReloadUser(String username) throws Exception {
+    public void doReloadUser(String username) {
         if (username != null && !username.trim().isEmpty()) {
             this.user = userService.loadUser(username);
         } else {
@@ -114,24 +114,6 @@ public class UserDetailController implements Serializable {
                 .showSnackBar("User " + user.getUsername() + " deleted!", MessageType.ERROR);
     }
 
-    public List<String> getAllRoles() {
-        List<String> userRoleList = new LinkedList<>();
-
-        if(this.user.getRoles().contains(UserRole.ADMIN)){
-            userRoleList.add(UserRole.ADMIN.getLabel());
-        }
-        if(this.user.getRoles().contains(UserRole.DEPARTMENTLEADER)){
-            userRoleList.add(UserRole.DEPARTMENTLEADER.getLabel());
-        }
-        if(this.user.getRoles().contains(UserRole.TEAMLEADER)){
-            userRoleList.add(UserRole.TEAMLEADER.getLabel());
-        }
-        if(this.user.getRoles().contains(UserRole.EMPLOYEE)){
-            userRoleList.add(UserRole.EMPLOYEE.getLabel());
-        }
-        return userRoleList;
-    }
-
     public List<UserRole> getUserRoles()
     {
         return userService.getAllUserRoles().stream().filter(x -> this.user.getRoles().contains(x)).collect(Collectors.toList());
@@ -140,20 +122,6 @@ public class UserDetailController implements Serializable {
     public List<UserRole> getAllUserRoles()
     {
         return Lists.newArrayList(userService.getAllUserRoles());
-    }
-
-    public void setUserRolesAsString(Set<String> roleList){
-        if(user.getRoles().contains(UserRole.ADMIN)){
-            roleList.add(UserRole.ADMIN.getLabel());
-        }
-        else{
-            roleList.remove(UserRole.ADMIN.getLabel());
-        }
-        user.setRolesAsString(roleList);
-    }
-
-    public Set<String> getUserRolesAsString(){
-        return this.user.getRolesAsString();
     }
 
     /**
@@ -215,7 +183,7 @@ public class UserDetailController implements Serializable {
      * @return true if user is admin
      */
     public boolean getIsAdmin() {
-        if(user.isNew()){
+        if(user == null || user.isNew()){
             return false;
         }
         return this.user.getRoles().contains(UserRole.ADMIN);

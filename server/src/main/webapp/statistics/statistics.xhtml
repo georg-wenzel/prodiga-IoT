@@ -2,7 +2,7 @@
                 xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui"
+                xmlns:p="http://primefaces.org/ui" xmlns:o="http://java.sun.com/jsf/html"
                 template="/WEB-INF/template.xhtml">
 
     <ui:define name="title">Prodiga Statistics</ui:define>
@@ -299,6 +299,7 @@
 
     <ui:define name="content">
         <h:form id="colorForm">
+            <p:messages id="msgs" autoUpdate="true" showDetail="true"/>
             <div class="ui-g">
 
             <div class="ui-g-5">
@@ -336,7 +337,7 @@
 
                     <h:panelGrid columns="2" cellpadding="5">
                         <p:outputLabel for="selectDate" value="Select a Day:" />
-                        <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="false" disabledWeekends="true" locale="en_GB"/>
+                        <p:calendar id="selectDate" value="#{statisticsController.selectedDate}" required="true" label="date" disabledWeekends="false" locale="en_GB"/>
                     </h:panelGrid>
                 </div>
             </div>
@@ -347,7 +348,7 @@
                                  action="#{statisticsController.verifyBackstepUser()}"
                                  ajax="true"
                                  icon="fa fa-fw fa-refresh"
-                                 update="growl colorForm">
+                                 update="growl colorForm msgs">
                     </p:commandButton>
                 </div>
             </div>
@@ -356,44 +357,50 @@
 
         <div class="ui-g">
             <div class="ui-g-5">
-                <div class="card">
+                <div class="card" style="min-height: 360px;">
 
                     <h1 class="centerText">Daily Pie Chart User</h1>
-                    <p:pieChart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie" type="pie" model="#{statisticsController.dailyAnalysisPie}" responsive="true" rendered="#{statisticsController.showDaily}"/>
+                    <o:outputText rendered="#{not statisticsController.showDaily}" value="No statistically data available in this time frame."/>
 
                 </div>
             </div>
             <div class="ui-g-5">
-                <div class="card">
+                <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Weekly Pie Chart User</h1>
-                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie2" type="pie" model="#{statisticsController.weeklyAnalysisPie}" responsive="true" rendered="#{statisticsController.showWeekly}"/>
+                    <o:outputText rendered="#{not statisticsController.showWeekly}" value="No statistically data available in this time frame."/>
                 </div>
             </div>
             <div class="ui-g-5">
-                <div class="card">
+                <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Monthly Pie Chart User</h1>
-                    <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie3" type="pie" model="#{statisticsController.monthlyAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthly}"/>
+                    <o:outputText rendered="#{not statisticsController.showMonthly}" value="No statistically data available in this time frame."/>
                 </div>
             </div>
             <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('TEAMLEADER')}">
             <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastWeek}">
-                <div class="card">
+                <div class="card" style="min-height: 360px;">
                     <h1 class="centerText" >Weekly Pie Chart Team</h1>
-                    <p:pieChart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie4" type="pie" model="#{statisticsController.weeklyTeamAnalysisPie}" responsive="true" rendered="#{statisticsController.showWeeklyTeam}"/>
+                    <o:outputText rendered="#{not statisticsController.showWeeklyTeam}" value="No statistically data available in this time frame."/>
                 </div>
             </p:outputPanel>
             <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastMonth}">
-                <div class="card">
+                <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Monthly Pie Chart Team</h1>
-                    <p:pieChart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie5" type="pie" model="#{statisticsController.monthlyTeamAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthlyTeam}"/>
+                    <o:outputText rendered="#{not statisticsController.showMonthlyTeam}" value="No statistically data available in this time frame."/>
                 </div>
             </p:outputPanel>
             </h:panelGroup>
             <h:panelGroup layout="block" rendered="#{prodigaUserLoginManager.hasRole('DEPARTMENTLEADER') or prodigaUserLoginManager.hasRole('ADMIN')}">
             <p:outputPanel class="ui-g-5" rendered="#{statisticsController.atLeastLastMonth}">
-                <div class="card">
+                <div class="card" style="min-height: 360px;">
                     <h1 class="centerText">Monthly Pie Chart Department</h1>
-                    <p:pieChart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true"/>
+                    <p:pieChart id="pie6" type="pie" model="#{statisticsController.monthlyDepartmentAnalysisPie}" responsive="true" rendered="#{statisticsController.showMonthlyDepartment}"/>
+                    <o:outputText rendered="#{not statisticsController.showMonthlyDepartment}" value="No statistically data available in this time frame."/>
                 </div>
             </p:outputPanel>
             </h:panelGroup>

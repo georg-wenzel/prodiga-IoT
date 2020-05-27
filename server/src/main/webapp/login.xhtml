@@ -78,9 +78,8 @@
                      summary="#{exceptionHelperBean.getDisplaySeverity(pfExceptionHandler.exception)}"
                      detail="#{exceptionHelperBean.getDisplayMessage(pfExceptionHandler.exception)}" escape="true" />
     <p:separator />
-    <p:commandButton value="Report Error"
+    <p:commandButton value="Close"
                      icon="fa fa-fw fa-bug"
-                     action="#{exceptionHelperBean.sendException(pfExceptionHandler.exception)}"
                      oncomplete="PF('exceptionDialog').hide();"/>
     </h:form>
 </p:dialog>

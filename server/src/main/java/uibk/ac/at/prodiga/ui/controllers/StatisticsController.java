@@ -4,6 +4,9 @@ package uibk.ac.at.prodiga.ui.controllers;
 import org.primefaces.model.charts.ChartData;
 import org.primefaces.model.charts.bar.BarChartDataSet;
 import org.primefaces.model.charts.bar.BarChartModel;
+import org.primefaces.model.charts.bar.BarChartOptions;
+import org.primefaces.model.charts.optionconfig.legend.Legend;
+import org.primefaces.model.charts.optionconfig.tooltip.Tooltip;
 import org.primefaces.model.charts.pie.PieChartDataSet;
 import org.primefaces.model.charts.pie.PieChartModel;
 import org.springframework.context.annotation.Scope;
@@ -13,13 +16,10 @@ import uibk.ac.at.prodiga.services.ProductivityAnalysisService;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
-import javax.annotation.PostConstruct;
-import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 @Component
@@ -27,7 +27,6 @@ import java.util.*;
 @SuppressWarnings("Duplicates")
 public class StatisticsController implements Serializable {
     private final ProductivityAnalysisService productivityAnalysisService;
-    private final BookingCategoryController bookingCategoryController;
     private PieChartModel dailyAnalysisPie;
     private PieChartModel weeklyAnalysisPie;
     private PieChartModel monthlyAnalysisPie;
@@ -42,12 +41,19 @@ public class StatisticsController implements Serializable {
     private BarChartModel monthlyTeamAnalysisBar;
     private BarChartModel monthlyDepartmentAnalysisBar;
 
+    private boolean showDaily = true;
+    private boolean showWeekly = true;
+    private boolean showMonthly = true;
+    private boolean showWeeklyTeam = true;
+    private boolean showMonthlyTeam = true;
+    private boolean showMonthlyDepartment = true;
+
     private Date selectedDate;
     private int backstepDays;
     private int backstepWeeks;
     private int backstepMonths;
 
-    private boolean firstInit = true;
+    private final BarChartOptions barChartOptions;
 
     public Date getSelectedDate() {
         return selectedDate;
@@ -59,6 +65,18 @@ public class StatisticsController implements Serializable {
 
     private int calculateBackstepDays()
     {
+        LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
+        LocalDateTime target = this.selectedDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+                .plusHours(1);
+        WeekFields weekFields = WeekFields.of(Locale.GERMANY);
+
+        if(now.get(weekFields.weekOfYear()) == target.get(weekFields.weekOfYear())
+                && now.get(weekFields.dayOfWeek()) < target.get(weekFields.dayOfWeek())) {
+            return -1;
+        }
+
         Calendar c = Calendar.getInstance();
         Date date = new Date();
         c.setTime(date);
@@ -193,9 +211,7 @@ public class StatisticsController implements Serializable {
         }
     }
 
-    private HashMap<String,String> colorByCategory = new HashMap<String, String>(){{
-
-    }};
+    private HashMap<String,String> colorByCategory = new HashMap<String, String>();
     private HashMap<String,String> defaultColor = new HashMap<String,String>(){{
         put("Pause / Vacation","#e02365");
         put("Conceptualizing","#2D8EE3");
@@ -235,10 +251,13 @@ public class StatisticsController implements Serializable {
         this.bookingName = bookingName;
     }
 
-    public StatisticsController(ProductivityAnalysisService productivityAnalysisService, BookingCategoryController bookingCategoryController) {
+    public StatisticsController(ProductivityAnalysisService productivityAnalysisService) {
         this.productivityAnalysisService = productivityAnalysisService;
-        this.bookingCategoryController = bookingCategoryController;
 
+        Legend legend = new Legend();
+        legend.setDisplay(false);
+        this.barChartOptions = new BarChartOptions();
+        this.barChartOptions.setLegend(legend);
     }
 
     public void init()
@@ -329,6 +348,29 @@ public class StatisticsController implements Serializable {
         return new ArrayList<>(set);
     }
 
+    public boolean isShowDaily() {
+        return showDaily;
+    }
+
+    public boolean isShowWeekly() {
+        return showWeekly;
+    }
+
+    public boolean isShowMonthly() {
+        return showMonthly;
+    }
+
+    public boolean isShowWeeklyTeam() {
+        return showWeeklyTeam;
+    }
+
+    public boolean isShowMonthlyTeam() {
+        return showMonthlyTeam;
+    }
+
+    public boolean isShowMonthlyDepartment() {
+        return showMonthlyDepartment;
+    }
 
     private void createWeeklyAnalysisPie(int backstepWeek) {
         weeklyAnalysisPie = new PieChartModel();
@@ -343,7 +385,6 @@ public class StatisticsController implements Serializable {
 
         ChartData dataBar = new ChartData();
         BarChartDataSet barDataSet = new BarChartDataSet();
-        barDataSet.setLabel("My First Dataset");
         List<Number> values = new ArrayList<>();
         List<String> labelsBar = new ArrayList<>();
         Map<BookingCategory,Double> map = productivityAnalysisService.getStatisticForCurrentUserByWeek(backstepWeek);
@@ -362,6 +403,8 @@ public class StatisticsController implements Serializable {
         }
         dataSet.setData(hours);
 
+        showWeekly = hours.size() > 0;
+
         dataSet.setBackgroundColor(mycolors);
         data.addChartDataSet(dataSet);
         data.setLabels(labels);
@@ -373,7 +416,7 @@ public class StatisticsController implements Serializable {
         dataBar.addChartDataSet(barDataSet);
         dataBar.setLabels(labelsBar);
         weeklyAnalysisBar.setData(dataBar);
-        barDataSet.setLabel("Categories");
+        weeklyAnalysisBar.setOptions(barChartOptions);
     }
 
     private void createDailyAnalysisPie(int backstepDay) {
@@ -383,7 +426,6 @@ public class StatisticsController implements Serializable {
 
         ChartData dataBar = new ChartData();
         BarChartDataSet barDataSet = new BarChartDataSet();
-        barDataSet.setLabel("My First Dataset");
         List<Number> values = new ArrayList<>();
         List<String> labelsBar = new ArrayList<>();
 
@@ -410,13 +452,15 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         dailyAnalysisPie.setData(data);
 
+        showDaily = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
         dataBar.addChartDataSet(barDataSet);
         dataBar.setLabels(labelsBar);
         dailyAnalysisBar.setData(dataBar);
-        barDataSet.setLabel("Categories");
+        dailyAnalysisBar.setOptions(barChartOptions);
     }
 
     private void createMonthlyAnalysisPie(int backstepMonth) {
@@ -424,7 +468,6 @@ public class StatisticsController implements Serializable {
         monthlyAnalysisBar = new BarChartModel();
         ChartData dataBar = new ChartData();
         BarChartDataSet barDataSet = new BarChartDataSet();
-        barDataSet.setLabel("My First Dataset");
         List<Number> values = new ArrayList<>();
         List<String> labelsBar = new ArrayList<>();
 
@@ -453,13 +496,15 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         monthlyAnalysisPie.setData(data);
 
+        showMonthly = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
         dataBar.addChartDataSet(barDataSet);
         dataBar.setLabels(labelsBar);
         monthlyAnalysisBar.setData(dataBar);
-        barDataSet.setLabel("Categories");
+        monthlyAnalysisBar.setOptions(barChartOptions);
     }
 
     private void createWeeklyTeamAnalysisPie(int backstepWeek) {
@@ -495,14 +540,15 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         weeklyTeamAnalysisPie.setData(data);
 
+        showWeeklyTeam = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
         dataBar.addChartDataSet(barDataSet);
         dataBar.setLabels(labelsBar);
         weeklyTeamAnalysisBar.setData(dataBar);
-        barDataSet.setLabel("Categories");
-        barDataSet.setLabel("Categories");
+        weeklyTeamAnalysisBar.setOptions(barChartOptions);
     }
 
     private void createMonthlyTeamAnalysisPie(int backstepMonth) {
@@ -539,13 +585,15 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         monthlyTeamAnalysisPie.setData(data);
 
+        showMonthlyTeam = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
         dataBar.addChartDataSet(barDataSet);
         dataBar.setLabels(labelsBar);
         monthlyTeamAnalysisBar.setData(dataBar);
-        barDataSet.setLabel("Categories");
+        monthlyAnalysisBar.setOptions(barChartOptions);
     }
 
     private void createMonthlyDepartmentAnalysisPie(int backstepMonth) {
@@ -581,13 +629,15 @@ public class StatisticsController implements Serializable {
         data.setLabels(labels);
         monthlyDepartmentAnalysisPie.setData(data);
 
+        showMonthlyDepartment = hours.size() > 0;
+
         barDataSet.setData(values);
         barDataSet.setBackgroundColor(mycolors);
         barDataSet.setBorderColor(mycolors);
         dataBar.addChartDataSet(barDataSet);
         dataBar.setLabels(labelsBar);
         monthlyDepartmentAnalysisBar.setData(dataBar);
-        barDataSet.setLabel("Categories");
+        monthlyDepartmentAnalysisBar.setOptions(barChartOptions);
     }
 
 

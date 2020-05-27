@@ -36,6 +36,11 @@
                                 <h:outputText value="#{raspberry_pi.assignedRoom.name}"/>
                             </p:column>
 
+                            <p:column headerText="Download Config" style="text-align: center;width:100px;">
+                                <p:commandButton value="Download" icon="fa fa-fw fa-download" oncomplete="PF('downloadDialog').show()">
+                                    <f:setPropertyActionListener value="#{raspberry_pi}" target="#{raspberryPiController.raspberryPiToDownload}" />
+                                </p:commandButton>
+                            </p:column>
 
                             <p:column style="text-align: center;width:100px;">
                                 <p:linkButton icon="fa fa-fw fa-edit"
@@ -48,12 +53,24 @@
                                     <p:confirm header="Confirmation" message="Are you sure that you want to delete this Raspberry Pi? You cannot undo this operation." icon="ui-icon-alert" />
                                 </p:commandButton>
                             </p:column>
-
                         </p:dataTable>
                         <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" width="300">
                             <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
                             <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
                         </p:confirmDialog>
+
+                        <p:dialog id="downloadDialog" widgetVar="downloadDialog" header="Download Config">
+                            <p:outputLabel value="Raspberry Pi Password: " style="margin-right: 5px;" />
+                            <p:password id="Password" value="#{raspberryPiController.passwordForDownload}" />
+                            <br />
+                            <p:commandButton style="margin-top: 10px;"
+                                             value="Download"
+                                             icon="fa fa-fw fa-download"
+                                             ajax="false"
+                                             oncomplete="PF('downloadDialog').hide()">
+                                <p:fileDownload value="#{raspberryPiController.config}" />
+                            </p:commandButton>
+                        </p:dialog>
                     </h:form>
 
                 </div>

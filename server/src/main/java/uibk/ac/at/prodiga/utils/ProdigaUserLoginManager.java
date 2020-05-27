@@ -49,25 +49,6 @@ public class ProdigaUserLoginManager {
     }
 
     /**
-     * Returns the roles of the user for this session as space-separated list,
-     * empty string if no user has been authenticated for this session-
-     *
-     * @return
-     */
-    public String getCurrentUserRoles() {
-        if (!isLoggedIn()) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        for (GrantedAuthority role : auth.getAuthorities()) {
-            sb.append(role.getAuthority());
-            sb.append(' ');
-        }
-        return sb.toString().trim();
-    }
-
-    /**
      * Checks if a user is authenticated for this session.
      *
      * @return true if a non-anonymous user has been authenticated, false

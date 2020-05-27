@@ -91,8 +91,7 @@ public class BookingController implements Serializable
             this.booking.setDept(user.getAssignedDepartment());
 
         this.booking = bookingService.saveBooking(this.booking);
-        if(SnackbarHelper.getInstance().facesContextExists())
-            SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
+        SnackbarHelper.getInstance().showSnackBar("Booking saved successfully!", MessageType.INFO);
     }
 
     /**

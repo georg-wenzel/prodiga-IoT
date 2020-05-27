@@ -32,8 +32,9 @@ public class UserService {
     private final DiceService diceService;
     private final BookingService bookingService;
     private final BadgeDBService badgeDBService;
+    private final VacationService vacationService;
 
-    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, @Lazy DiceService diceService, @Lazy BookingService bookingService, @Lazy BadgeDBService badgeDBService) {
+    public UserService(UserRepository userRepository, LogInformationService logInformationService, TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, @Lazy DiceService diceService, @Lazy BookingService bookingService, @Lazy BadgeDBService badgeDBService, @Lazy VacationService vacationService) {
         this.userRepository = userRepository;
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
@@ -41,6 +42,7 @@ public class UserService {
         this.diceService = diceService;
         this.bookingService = bookingService;
         this.badgeDBService = badgeDBService;
+        this.vacationService = vacationService;
     }
 
     /**
@@ -87,6 +89,18 @@ public class UserService {
         if(user.getUsername() == null || user.getUsername().isEmpty())
         {
             throw new ProdigaGeneralExpectedException("Username cannot be empty.", MessageType.ERROR);
+        }
+
+        if(user.getUsername().length() < 2 || user.getUsername().length() > 37) {
+            throw new ProdigaGeneralExpectedException("Username must be between 2 and 20 characters.", MessageType.ERROR);
+        }
+
+        if(user.getFirstName() != null && (user.getFirstName().length() < 2 || user.getFirstName().length() > 20)) {
+            throw new ProdigaGeneralExpectedException("First name must be between 2 and 20 characters.", MessageType.ERROR);
+        }
+
+        if(user.getLastName() != null && (user.getLastName().length() < 2 || user.getLastName().length() > 20)) {
+            throw new ProdigaGeneralExpectedException("Last name must be between 2 and 20 characters.", MessageType.ERROR);
         }
 
         //Check team and department consistency
@@ -170,6 +184,7 @@ public class UserService {
 
         bookingService.deleteBookingsForUser(user);
         badgeDBService.deleteBadgesForUser(user);
+        vacationService.deleteVacationsForUser(user);
 
         userRepository.delete(user);
         logInformationService.logForCurrentUser("User " + user.getUsername() + " was deleted!");
