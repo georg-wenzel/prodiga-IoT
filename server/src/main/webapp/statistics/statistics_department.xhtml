@@ -23,6 +23,7 @@
                     <h1>#{prodigaUserLoginManager.getCurrentUser().getAssignedDepartment().getName()} Statistics</h1>
 
                     <h:form id="dateSelectForm">
+                        <p:messages id="msgs" autoUpdate="true" showDetail="true"/>
                         <div class="ui-g">
                             <div class="ui-g-5">
                                 Select a date below to update the statistics charts with data from that period. (Month). When you press the "Save and Reload" button, the statistics will be updated to reflect the given time period. For your department's statistics, you have to pick a date that lies at least in the previous month.
@@ -40,7 +41,7 @@
                                                  ajax="true"
                                                  validateClient="true"
                                                  icon="fa fa-fw fa-refresh"
-                                                 update="growl statistics">
+                                                 update="growl statistics msgs">
                                 </p:commandButton>
                             </div>
                         </div>
