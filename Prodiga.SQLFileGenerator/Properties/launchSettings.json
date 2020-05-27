@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Prodiga.SQLFileGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "X:\\Projects\\test.txt"
+    }
+  }
+}

@@ -45,7 +45,10 @@ namespace Prodiga.SQLFileGenerator
 
         private static void genateDataTable(string tableName, Dictionary<string, Dictionary<int, Dictionary<string, object>>> entries, StringBuilder builder)
         {
-            generateTable(tableName, entries[tableName].Values, builder);
+            if(entries.TryGetValue(tableName, out Dictionary<int, Dictionary<string, object>>? data))
+            {
+                generateTable(tableName, data.Values, builder);
+            }
         }
 
         private static void generateTable(string tableName, IEnumerable<Dictionary<string, object>> entries, StringBuilder builder)

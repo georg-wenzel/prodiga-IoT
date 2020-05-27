@@ -14,7 +14,7 @@ namespace Prodiga.SQLFileGenerator
         private readonly int _teamAmount;
         private readonly int _bookingCategoriesAmount = 12;
         private readonly int _raspiAmount;
-        private int _badgeIndex = 1;
+        private int _badgeIndex = 1072;
 
         #endregion
 
@@ -158,9 +158,19 @@ namespace Prodiga.SQLFileGenerator
 
             foreach (var username in usernames)
             {
-                string[] splitted = username.Split("_");
-                string firstName = splitted[0];
-                string lastName = splitted[1];
+                string firstName = string.Empty;
+                string lastName = string.Empty;
+                if (username.Contains("_"))
+                {
+                    string[] splitted = username.Split("_");
+                    firstName = splitted[0];
+                    lastName = splitted[1];
+                }
+                else
+                {
+                    firstName = username;
+                    lastName = username;
+                }
 
                 int currentTeam = rnd.Next(1, _teamAmount + 1);
 
@@ -186,11 +196,11 @@ namespace Prodiga.SQLFileGenerator
         public void GenerateBookingData(int userAmount)
         {
             AllData["booking"] = new Dictionary<int, Dictionary<string, object>>();
-            DateTime endDate = DateTime.Today.AddDays(-1);
-            DateTime startDate = endDate.AddMonths(-3);
+            DateTime endDate = DateTime.Today;
+            DateTime startDate = DateTime.Parse("2020-05-23");
             int days = (endDate - startDate).Days;
 
-            int index = 1;
+            int index = 4801;
             int holidayIndex = 1;
 
             Random rnd = new Random();
@@ -212,19 +222,19 @@ namespace Prodiga.SQLFileGenerator
                     switch (start.DayOfWeek)
                     {
                         case DayOfWeek.Sunday:
-                            GenerateBadgeDBData(badgeData, start);
+                            GenerateBadgeDBData(badgeData, start, start.AddDays(-6));
                             badgeData = new Dictionary<int, Dictionary<string, int>>();
                             continue;
                         case DayOfWeek.Saturday:
                             continue;
                     }
 
-                    if (rnd.Next(1, 13) == 1)
-                    {
-                        GenerateVacationData(holidayIndex, username, start);
-                        holidayIndex++;
-                        continue;
-                    }
+                    //if (rnd.Next(1, 13) == 1)
+                    //{
+                    //    GenerateVacationData(holidayIndex, username, start);
+                    //    holidayIndex++;
+                    //    continue;
+                    //}
 
                     start = start.AddHours(8);
 
@@ -272,6 +282,7 @@ namespace Prodiga.SQLFileGenerator
                     index++;
                 }
             }
+            GenerateBadgeDBData(badgeData, DateTime.Today, DateTime.Today.AddDays(-3));
         }
 
         public void GenerateVacationData(int index, string username, DateTime date)
@@ -298,7 +309,7 @@ namespace Prodiga.SQLFileGenerator
             };
         }
 
-        public void GenerateBadgeDBData(Dictionary<int, Dictionary<string, int>> data, DateTime date)
+        public void GenerateBadgeDBData(Dictionary<int, Dictionary<string, int>> data, DateTime date, DateTime start)
         {
             Dictionary<int, Dictionary<string, object>> values = new Dictionary<int, Dictionary<string, object>>();
 
@@ -347,15 +358,13 @@ namespace Prodiga.SQLFileGenerator
 
                 if (!string.IsNullOrEmpty(badgeName))
                 {
-                    DateTime startDate = date.AddDays(-6);
-
                     values[_badgeIndex] = new Dictionary<string, object>()
                     {
                         {"id", _badgeIndex},
                         {"badge_name", badgeName},
                         {"explanation", desciption},
                         {"user_username", username},
-                        {"from_date", startDate},
+                        {"from_date", start},
                         {"to_date", date},
                     };
                     _badgeIndex++;
