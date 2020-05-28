@@ -15,6 +15,7 @@ import uibk.ac.at.prodiga.model.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.Set;
@@ -29,7 +30,7 @@ public class DataHelper {
      * @return The newly created username
      */
     public static User createRandomUser(UserRepository userRepository) {
-        String username = createRandomString(30);
+        String username = createRandomString(15);
 
         return createUserWithRoles(username, Sets.newSet(UserRole.EMPLOYEE), userRepository);
     }
@@ -68,6 +69,7 @@ public class DataHelper {
         return userRepository.save(u);
     }
 
+
     /**
      * Creates a user with a random user name and roles, as well as a certain department and team
      * @param roles The roles to use
@@ -79,7 +81,7 @@ public class DataHelper {
      */
     public static User createUserWithRoles(Set<UserRole> roles, User createUser, Department dept, Team team, UserRepository userRepository)
     {
-        return createUserWithRoles(createRandomString(30), roles, createUser, dept, team, userRepository);
+        return createUserWithRoles(createRandomString(15), roles, createUser, dept, team, userRepository);
     }
 
     /**
@@ -120,7 +122,7 @@ public class DataHelper {
      */
     public static Department createRandomDepartment(User createUser, DepartmentRepository departmentRepository)
     {
-        String name = createRandomString(30);
+        String name = createRandomString(15);
 
         Department dept = new Department();
         dept.setName(name);
@@ -137,13 +139,32 @@ public class DataHelper {
      */
     public static BadgeDB createRandomBadge(User user, BadgeDBRepository badgeDBRepository)
     {
-        String name = createRandomString(30);
+        String name = createRandomString(15);
 
         BadgeDB badgeDB = new BadgeDB();
         badgeDB.setBadgeName(name);
         badgeDB.setUser(user);
         badgeDB.setToDate(new Date());
         badgeDB.setFromDate(new Date());
+        badgeDB.setExplanation("Test");
+        return badgeDBRepository.save(badgeDB);
+    }
+
+    /**
+     * Creates a random badge for last week
+     * @param user The user who receives the batch
+     * @param badgeDBRepository The repository to save the badge.
+     * @return The randomly generated badge.
+     */
+    public static BadgeDB createRandomBadgeLastWeek(User user, BadgeDBRepository badgeDBRepository)
+    {
+        String name = createRandomString(15);
+
+        BadgeDB badgeDB = new BadgeDB();
+        badgeDB.setBadgeName(name);
+        badgeDB.setUser(user);
+        badgeDB.setToDate(lastWeekEnd());
+        badgeDB.setFromDate(lastWeekBeginning());
         badgeDB.setExplanation("Test");
         return badgeDBRepository.save(badgeDB);
     }
@@ -156,7 +177,7 @@ public class DataHelper {
      * @return The ranomly generated team.
      */
     public static Team createRandomTeam(Department dept,  User createUser, TeamRepository teamRepository) {
-        String name = createRandomString(30);
+        String name = createRandomString(15);
 
         Team team = new Team();
         team.setName(name);
@@ -445,6 +466,7 @@ public class DataHelper {
         DiceSide ds = new DiceSide();
         ds.setBookingCategory(category);
         ds.setSide(side);
+        ds.setSideFriendlyName(side);
         ds.setDice(d);
         ds.setObjectCreatedUser(u);
         ds.setObjectCreatedDateTime(new Date());
@@ -467,5 +489,27 @@ public class DataHelper {
         }
 
         return sb.toString();
+    }
+
+    public static Date lastWeekBeginning(){
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 1);
+        cal.set(Calendar.SECOND, 0);
+        cal.add(Calendar.DATE, -7);
+
+        return cal.getTime();
+    }
+
+    public static Date lastWeekEnd(){
+        Calendar cal2 = Calendar.getInstance();
+        cal2.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        cal2.set(Calendar.HOUR_OF_DAY, 23);
+        cal2.set(Calendar.MINUTE, 58);
+        cal2.set(Calendar.SECOND, 0);
+        cal2.add(Calendar.DATE, 6);
+        cal2.add(Calendar.DATE, -7);
+        return cal2.getTime();
     }
 }

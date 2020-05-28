@@ -63,9 +63,8 @@ public class DepartmentController implements Serializable {
      */
     public void doSaveDepartment() throws Exception {
         department = departmentService.saveDepartment(department);
-        if(saveDepartmentLeader()) {
-            departmentService.setDepartmentLeader(department, departmentLeader);
-        }
+        departmentService.setDepartmentLeader(department, departmentLeader);
+
         SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
     }
 
@@ -187,11 +186,6 @@ public class DepartmentController implements Serializable {
      */
     public void setDepartmentLeader(User departmentLeader) {
         this.departmentLeader = departmentLeader;
-    }
-
-    private boolean saveDepartmentLeader() {
-        return departmentLeader != null
-                && !departmentLeader.getRoles().contains(UserRole.DEPARTMENTLEADER);
     }
 
     public Collection<Team> showTeamsofDepartment(Department department){

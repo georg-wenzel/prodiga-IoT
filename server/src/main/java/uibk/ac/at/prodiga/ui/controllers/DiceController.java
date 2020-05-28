@@ -42,7 +42,7 @@ public class DiceController implements Serializable {
 
     public String getDiceUser()
     {
-        if(this.dice.getUser() == null) return "";
+        if(this.dice == null || this.dice.getUser() == null) return "";
         return this.dice.getUser().getUsername();
     }
 
@@ -65,50 +65,6 @@ public class DiceController implements Serializable {
             dices = this.diceService.getAllDice();
         }
         return dices;
-    }
-
-    /**
-     * Gets the dice by the given id
-     * @param diceId The dice id
-     * @return The found dive
-     * @throws ProdigaGeneralExpectedException If no dice could be found
-     */
-    public Dice loadDice(long diceId) throws ProdigaGeneralExpectedException {
-        return this.diceService.loadDice(diceId);
-    }
-
-    /**
-     * Returns the dice with the given internal id
-     * @param internalId the internal id
-     * @return The found dice
-     */
-    public Dice getDiceByInternalId(String internalId) {
-        return this.diceService.getDiceByInternalIdWithAuth(internalId);
-    }
-
-    /**
-     * Gets the dice assigned to the given user
-     * @param u The user
-     * @return The assigned dice
-     */
-    public Dice getDiceByUser(User u) {
-        return this.getDiceByUser(u);
-    }
-    /**
-     * Returns all dice which are a signed to teh given raspi
-     * @param raspi The raspi
-     * @return A list with dices
-     */
-    public List<Dice> getAllByRaspberryPi(RaspberryPi raspi) {
-       return this.diceService.getAllByRaspberryPi(raspi);
-    }
-
-    /**
-     * Returns all dices which are active and assigned to a user
-     * @return A list of dices
-     */
-    public List<Dice> getAllAvailableDices() {
-        return this.diceService.getAllAvailableDices();
     }
 
     /**

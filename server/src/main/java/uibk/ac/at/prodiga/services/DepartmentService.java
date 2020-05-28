@@ -4,9 +4,11 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
@@ -30,8 +32,9 @@ public class DepartmentService
     private final ProdigaUserLoginManager userLoginManager;
     private final LogInformationService logInformationService;
     private final TeamService teamService;
+    private final BookingRepository bookingRepository;
 
-    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager, LogInformationService logInformationService, TeamService teamService)
+    public DepartmentService(DepartmentRepository departmentRepository, UserService userService, UserRepository userRepository, ProdigaUserLoginManager userLoginManager, LogInformationService logInformationService, TeamService teamService, BookingRepository bookingRepository)
     {
         this.departmentRepository = departmentRepository;
         this.userService = userService;
@@ -39,6 +42,7 @@ public class DepartmentService
         this.userLoginManager = userLoginManager;
         this.logInformationService = logInformationService;
         this.teamService = teamService;
+        this.bookingRepository = bookingRepository;
     }
 
     /**
@@ -116,7 +120,7 @@ public class DepartmentService
     public void setDepartmentLeader(Department department, User newLeader) throws ProdigaGeneralExpectedException
     {
         //check that user is a valid, unchanged database user
-        if(!userService.isUserUnchanged(newLeader))
+        if(newLeader != null && !userService.isUserUnchanged(newLeader))
             throw new RuntimeException("Department leader is not a valid unchanged database user.");
 
         //check that Department is a valid, unchanged database entry
@@ -124,10 +128,10 @@ public class DepartmentService
             throw new RuntimeException("Department is not a valid unchanged database entry.");
 
         //User has to be a simple employee within this department.
-        if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
+        if(newLeader != null && !EmployeeManagementUtil.isSimpleEmployee(newLeader))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to department leader because he already has a department- or teamleader role.", MessageType.ERROR);
 
-        if(newLeader.getAssignedDepartment() == null || !newLeader.getAssignedDepartment().equals(department))
+        if(newLeader != null && (newLeader.getAssignedDepartment() == null || !newLeader.getAssignedDepartment().equals(department)))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to department leader for this department, because he is not assigned to this department..", MessageType.ERROR);
 
         //Check if this department already has a department leader
@@ -142,13 +146,16 @@ public class DepartmentService
 
             logInformationService.logForCurrentUser("User " + oldLeader.getUsername() + " demoted from Department Leader Role");
         }
-        //Set new leader role to departmentleader
-        Set<UserRole> roles = newLeader.getRoles();
-        roles.add(UserRole.DEPARTMENTLEADER);
-        newLeader.setRoles(roles);
-        userRepository.save(newLeader);
+        if(newLeader != null) {
+            //Set new leader role to departmentleader
+            Set<UserRole> roles = newLeader.getRoles();
+            roles.add(UserRole.DEPARTMENTLEADER);
+            newLeader.setRoles(roles);
+            userRepository.save(newLeader);
+        }
 
-        logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Department Leader Role");
+        if(newLeader != null) logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Department Leader Role");
+        else logInformationService.logForCurrentUser("Removed Department Leader from Department " + department.getName());
     }
 
 
@@ -187,6 +194,14 @@ public class DepartmentService
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
     public void deleteDepartment(Department department) throws Exception {
         checkForDepartmentDeletionOrDeactivation(department);
+
+        //set team value in all bookings to null
+        Collection<Booking> bookings = bookingRepository.findAllByDept(department);
+        for(Booking book : bookings)
+        {
+            book.setDept(null);
+            bookingRepository.save(book);
+        }
         departmentRepository.delete(department);
 
         logInformationService.logForCurrentUser("Department " + department.getName() + " was deleted");
@@ -194,14 +209,13 @@ public class DepartmentService
 
     public void checkForDepartmentDeletionOrDeactivation(Department department) throws ProdigaGeneralExpectedException {
         if(userService.getDepartmentLeaderOf(department) != null){
-            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with an aktive leader!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with an active leader!", MessageType.WARNING);
         }
         if(userService.getUsersByDepartment(department) != null && !userService.getUsersByDepartment(department).isEmpty()){
-            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with aktive members!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with active members!", MessageType.WARNING);
         }
         if(teamService.findTeamsOfDepartment(department) !=null && !teamService.findTeamsOfDepartment(department).isEmpty()){
-
-            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with aktive teams!", MessageType.WARNING);
+            throw new ProdigaGeneralExpectedException("You can't delete/deactivate a department with active teams!", MessageType.WARNING);
         }
     }
 

@@ -3,6 +3,7 @@ package uibk.ac.at.prodiga.ui.controllers;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.BadgeDB;
+import uibk.ac.at.prodiga.model.Department;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.repositories.BadgeDBRepository;
 import uibk.ac.at.prodiga.services.BadgeDBService;
@@ -23,20 +24,26 @@ public class BadgeDBController implements Serializable
     private final BadgeDBService badgeDBService;
     private final ProdigaUserLoginManager prodigaUserLoginManager;
 
-    private Collection<BadgeDB> badges;
 
     public BadgeDBController(BadgeDBService badgeDBService, ProdigaUserLoginManager prodigaUserLoginManager) {
         this.badgeDBService = badgeDBService;
         this.prodigaUserLoginManager = prodigaUserLoginManager;
     }
 
+    public Collection<BadgeDB> getBadgesByUser(User user){
+        return this.badgeDBService.getAllBadgesByUser(user);
+    }
+
     public Collection<BadgeDB> getBadgesByUser(){
-        if(badges == null) badges = this.badgeDBService.getAllBadgesByUser(prodigaUserLoginManager.getCurrentUser());
-        return badges;
+        return this.badgeDBService.getAllBadgesByUser(prodigaUserLoginManager.getCurrentUser());
     }
 
     public int getBadgesByUserNum(){
         return getBadgesByUser().size();
+    }
+
+    public int getBadgesByUserNum(User user){
+        return getBadgesByUser(user).size();
     }
 
     public Collection<BadgeDB> getLastWeeksBadges(){
@@ -44,12 +51,19 @@ public class BadgeDBController implements Serializable
     }
 
     public Collection<BadgeDB> getBadgesByDepartment() {
-        if(badges == null) badges = this.badgeDBService.getAllBadgesByDepartment(prodigaUserLoginManager.getCurrentUser().getAssignedDepartment());
-        return badges;
+        return this.badgeDBService.getAllBadgesByDepartment(prodigaUserLoginManager.getCurrentUser().getAssignedDepartment());
+    }
+
+    public Collection<BadgeDB> getBadgesByDepartment(Department department) {
+        return this.badgeDBService.getAllBadgesByDepartment(department);
     }
 
     public int getBadgesByDepartmentNum(){
         return getBadgesByDepartment().size();
+    }
+
+    public int getBadgesByDepartmentNum(Department department){
+        return getBadgesByDepartment(department).size();
     }
 
     public Collection<BadgeDB> getLastWeeksBadgesByUser(){

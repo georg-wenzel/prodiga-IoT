@@ -1,5 +1,9 @@
 package uibk.ac.at.prodiga.tests;
 
+import de.jollyday.Holiday;
+import de.jollyday.HolidayCalendar;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,6 +11,7 @@ import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.server.header.ClearSiteDataServerHttpHeadersWriter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -596,7 +601,7 @@ public class VacationServiceTest
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Vacation v1 = DataHelper.createVacation(5,10, u1, vacationRepository);
 
-        vacationService.deleteVacation(v1);
+        vacationService.deleteVacation(v1, false);
 
         Assertions.assertNull(vacationService.getVacationById(v1.getId()), "Vacation was not properly deleted.");
     }
@@ -614,7 +619,7 @@ public class VacationServiceTest
         Vacation v1 = DataHelper.createVacation(5,10, u2, vacationRepository);
 
         Assertions.assertThrows(RuntimeException.class, () -> {
-            vacationService.deleteVacation(v1);;
+            vacationService.deleteVacation(v1, false);
         }, "Vacation deleted despite being from another user.");
     }
 
@@ -630,7 +635,7 @@ public class VacationServiceTest
         Vacation v1 = DataHelper.createVacation(-6,5, u1, vacationRepository);
 
         Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            vacationService.deleteVacation(v1);
+            vacationService.deleteVacation(v1, false);
         }, "Vacation deleted despite having started already.");
     }
 
@@ -642,7 +647,7 @@ public class VacationServiceTest
     public void delete_vacation_unauthorized()
     {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            vacationService.deleteVacation(new Vacation());
+            vacationService.deleteVacation(new Vacation(), false);
         }, "Vacation deleted despite lacking authorization of EMPLOYEE");
     }
 
@@ -684,4 +689,64 @@ public class VacationServiceTest
             vacationService.getUsersRemainingVacationDays(2020);
         }, "Vacation days returned despite lacking authorization of EMPLOYEE");
     }
+
+    /**
+     * Tests deleting all of a users vacations as admin
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void delete_user_vacations() throws ProdigaGeneralExpectedException
+    {
+        DataHelper.createAdminUser("admin",userRepository);
+
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User u2 = DataHelper.createUserWithRoles("vacation_test_user_02", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        DataHelper.createVacation(5,10, u1, vacationRepository);
+        DataHelper.createVacation(8,17, u1, vacationRepository);
+        Vacation v3 = DataHelper.createVacation(5,10, u2, vacationRepository);
+
+        //make sure vacations exist
+        Assertions.assertEquals(2, vacationService.getAllVacationsByUser(u1).size(), "Vacation test was not set up properly.");
+
+        vacationService.deleteVacationsForUser(u1);
+
+        //make sure vacations are deleted
+        Assertions.assertEquals(0, vacationService.getAllVacationsByUser(u1).size(), "Users vacations were not properly deleted.");
+        Assertions.assertTrue(vacationService.getAllVacationsByUser(u2).contains(v3), "Vacation from other user was deleted.");
+    }
+
+    /**
+     * Tests deleting all of a users vacations as an unauthorized user
+     */
+    @Test
+    @WithMockUser(username = "vacation_test_user_02", authorities = {"EMPLOYEE"})
+    public void delete_user_vacations_unauthorized()
+    {
+        DataHelper.createAdminUser("admin",userRepository);
+
+        User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+        User u2 = DataHelper.createUserWithRoles("vacation_test_user_02", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+
+
+        Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            vacationService.deleteVacationsForUser(u1);
+        }, "Vacation deletion method could be called despite lacking authorization.");
+    }
+
+    /**
+     * Tests holiday return matches
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "vacation_test_user_01", authorities = {"EMPLOYEE"})
+    public void get_holidays()
+    {
+        HolidayManager m = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
+        Collection<Holiday> holidays = m.getHolidays(LocalDate.now().getYear());
+        holidays.addAll(m.getHolidays(LocalDate.now().getYear() + 1));
+
+        Assertions.assertEquals(holidays, vacationService.getHolidays(), "Holiday lists do not match up.");
+    }
+
 }

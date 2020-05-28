@@ -4,10 +4,9 @@ import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import uibk.ac.at.prodiga.model.Department;
-import uibk.ac.at.prodiga.model.Team;
-import uibk.ac.at.prodiga.model.User;
-import uibk.ac.at.prodiga.model.UserRole;
+import uibk.ac.at.prodiga.model.*;
+import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
+import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
@@ -31,14 +30,18 @@ public class TeamService
     private final UserService userService;
     private final ProdigaUserLoginManager userLoginManager;
     private final LogInformationService logInformationService;
+    private final BookingCategoryRepository bookingCategoryRepository;
+    private final BookingRepository bookingRepository;
 
-    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository, LogInformationService logInformationService)
+    public TeamService(TeamRepository teamRepository, ProdigaUserLoginManager userLoginManager, UserService userService, UserRepository userRepository, LogInformationService logInformationService, BookingCategoryRepository bookingCategoryRepository, BookingRepository bookingRepository)
     {
         this.teamRepository = teamRepository;
         this.userLoginManager = userLoginManager;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.bookingRepository = bookingRepository;
         this.logInformationService = logInformationService;
+        this.bookingCategoryRepository = bookingCategoryRepository;
     }
 
     /**
@@ -171,6 +174,24 @@ public class TeamService
             throw new RuntimeException("Dept. leader attempted to access team outside of own department.");
         }
 
+        //delete all the teams used categories
+        Collection<BookingCategory> cats = bookingCategoryRepository.findAllByTeamsContaining(dbTeam);
+        for(BookingCategory cat : cats)
+        {
+            Set<Team> teams = cat.getTeams();
+            teams.remove(dbTeam);
+            cat.setTeams(teams);
+            bookingCategoryRepository.save(cat);
+        }
+
+        //set team value in all bookings to null
+        Collection<Booking> bookings = bookingRepository.findAllByTeam(dbTeam);
+        for(Booking book : bookings)
+        {
+            book.setTeam(null);
+            bookingRepository.save(book);
+        }
+
         //delete team
         teamRepository.delete(team);
 
@@ -187,7 +208,7 @@ public class TeamService
     public void setTeamLeader(Team team, User newLeader) throws ProdigaGeneralExpectedException
     {
         //check that user is a valid, unchanged database user
-        if(!userService.isUserUnchanged(newLeader))
+        if(newLeader != null && !userService.isUserUnchanged(newLeader))
             throw new RuntimeException("Team leader is not a valid unchanged database user.");
 
         //check that Department is a valid, unchanged database entry
@@ -195,10 +216,10 @@ public class TeamService
             throw new RuntimeException("Team is not a valid unchanged database entry.");
 
         //User has to be a simple employee within this team.
-        if(!EmployeeManagementUtil.isSimpleEmployee(newLeader))
+        if(newLeader != null && !EmployeeManagementUtil.isSimpleEmployee(newLeader))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to team leader because he already has a department- or teamleader role.", MessageType.ERROR);
 
-        if(newLeader.getAssignedTeam() == null || !newLeader.getAssignedTeam().equals(team))
+        if(newLeader != null && (newLeader.getAssignedTeam() == null || !newLeader.getAssignedTeam().equals(team)))
             throw new ProdigaGeneralExpectedException("This user cannot be promoted to team leader for this team, because he is not assigned to this team..", MessageType.ERROR);
 
         //Check if this team already has a team leader
@@ -214,12 +235,15 @@ public class TeamService
             logInformationService.logForCurrentUser("User " + oldLeader.getUsername() + " demoted from Team Leader Role");
         }
         //Set new leader role to teamleader
-        Set<UserRole> roles = newLeader.getRoles();
-        roles.add(UserRole.TEAMLEADER);
-        newLeader.setRoles(roles);
-        userRepository.save(newLeader);
-
-        logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Team Leader Role");
+        if(newLeader != null) {
+            Set<UserRole> roles = newLeader.getRoles();
+            roles.add(UserRole.TEAMLEADER);
+            newLeader.setRoles(roles);
+            userRepository.save(newLeader);
+            logInformationService.logForCurrentUser("User " + newLeader.getUsername() + " promoted to Team Leader Role");
+        }
+        else
+            logInformationService.logForCurrentUser("Removed Team Leader from Team " + team.getName());
     }
 
 

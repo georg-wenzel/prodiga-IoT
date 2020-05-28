@@ -2,13 +2,9 @@ package uibk.ac.at.prodiga.ui.controllers;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import uibk.ac.at.prodiga.exceptions.DeletionNotAllowedException;
-import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.model.Room;
 import uibk.ac.at.prodiga.services.RoomService;
 import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
 import java.io.Serializable;
@@ -49,36 +45,8 @@ public class RoomDetailController implements Serializable {
         if (roomname != null && !roomname.trim().isEmpty()) {
             this.room = roomService.loadRoom(roomname);
         } else {
-            this.room = roomService.createRoom();
+            this.room = roomService.createNewRoom();
         }
-    }
-
-
-
-    public Room getManagedInstance(){
-        return roomService.getManagedInstance(room);
-    }
-
-    /**
-     * Returns the first room with a matching name (unique identifier)
-     * @param name The name of the room
-     * @return The first(and only) room with a matching name, or null if none was found
-     */
-    public Room getFirstByName(String name){
-        return roomService.getFirstByName(name);
-    }
-
-    /**
-     * Returns the first room with a matching id (unique identifier)
-     * @param id The id of the room
-     * @return The first(and only) room with a matching id, or null if none was found
-     */
-    public Room getFirstById(long id){
-        return roomService.getFirstById(id);
-    }
-
-    public long getRoomCount(){
-        return roomService.getRoomCount();
     }
 
     public Room getRoom() {
@@ -125,7 +93,7 @@ public class RoomDetailController implements Serializable {
         if(roomId == null){
             this.room = roomService.createNewRoom();
         } else {
-            this.room = roomService.loadRoom(roomId);
+            this.room = roomService.getFirstById(roomId);
         }
     }
 
@@ -140,7 +108,7 @@ public class RoomDetailController implements Serializable {
 
     public void loadRoomByName(String roomname){
         if(roomname == null){
-            this.room = roomService.createRoom();
+            this.room = roomService.createNewRoom();
         } else {
             this.room = roomService.loadRoom(roomname);
         }

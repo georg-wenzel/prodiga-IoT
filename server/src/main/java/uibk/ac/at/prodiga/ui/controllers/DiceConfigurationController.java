@@ -226,14 +226,6 @@ public class DiceConfigurationController implements Serializable
         }
     }
 
-    public Map<Integer, BookingCategory> getSides() {
-        return sides;
-    }
-
-    public void setSides(Map<Integer, BookingCategory> sides) {
-        this.sides = sides;
-    }
-
     public Collection<BookingCategory> getAvailableCategories()
     {
         if(userLoginManager.getCurrentUser().getAssignedTeam() == null)

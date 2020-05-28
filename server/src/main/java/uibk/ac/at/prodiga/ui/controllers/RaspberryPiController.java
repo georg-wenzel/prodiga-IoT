@@ -1,16 +1,19 @@
 package uibk.ac.at.prodiga.ui.controllers;
 
 
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.RaspberryPi;
 import uibk.ac.at.prodiga.services.RaspberryPiService;
+import uibk.ac.at.prodiga.utils.ConfigDownloader;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.SnackbarHelper;
 
+import java.io.FileInputStream;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,48 +31,12 @@ public class RaspberryPiController implements Serializable {
 
     private String pendingRasPiInternalId;
 
+    private String passwordForDownload;
+    private RaspberryPi raspberryPiToDownload;
+    private StreamedContent config;
+
     public RaspberryPiController(RaspberryPiService raspberryPiService) {
         this.raspberryPiService = raspberryPiService;
-    }
-
-
-    /**
-     * Finds the raspberry pi by the given internal id
-     * @param internalId The internal id
-     * @return An Optional with the found raspberry
-     */
-    public Optional<RaspberryPi> findByInternalIdWithAuth(String internalId){
-        return this.raspberryPiService.findByInternalIdWithAuth(internalId);
-    }
-
-    /**
-     * Finds the given raspberry and throws a exception when it could not be found
-     * @param internalId The given internal id
-     * @return The raspberry
-     * @throws Exception Exception which is thrown when the raspberry could not be found
-     */
-
-    public RaspberryPi findByInternalIdWithAuthAndThrow(String internalId) throws Exception {
-        return this.raspberryPiService.findByInternalIdWithAuthAndThrow(internalId);
-    }
-
-    /**
-     * Finds the raspberry pi by the given internal id
-     * @param internalId The internal id
-     * @return An Optional with the found raspberry
-     */
-    public Optional<RaspberryPi> findByInternalId(String internalId) {
-        return this.raspberryPiService.findByInternalId(internalId);
-    }
-
-    /**
-     * Finds the given raspberry and throws a exception when it could not be found
-     * @param internalId The given internal id
-     * @return The raspberry
-     * @throws Exception Exception which is thrown when the raspberry could not be found
-     */
-    public RaspberryPi findByInternalIdAndThrow(String internalId) throws Exception {
-        return this.raspberryPiService.findByInternalIdAndThrow(internalId);
     }
 
     /**
@@ -77,7 +44,7 @@ public class RaspberryPiController implements Serializable {
      * @return A list of raspberry pis
      */
     public Collection<RaspberryPi> getAllPendingRaspberryPis() {
-        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();;
+        if(pendingRaspis == null) pendingRaspis = this.raspberryPiService.getAllPendingRaspberryPis();
         return pendingRaspis;
     }
 
@@ -100,17 +67,6 @@ public class RaspberryPiController implements Serializable {
         }
         raspberryPiService.tryDeletePendingRaspberry(raspi);
         pendingRaspis = null;
-    }
-
-    /**
-     * Adds a new raspberry to the pending list
-     *
-     */
-    public void addPendingRaspberry() {
-        this.raspberryPiService.tryAddPendingRaspberry(this.pendingRasPiInternalId);
-        //refresh data
-        this.pendingRaspis = null;
-        getAllPendingRaspberryPis();
     }
 
     /**
@@ -166,13 +122,20 @@ public class RaspberryPiController implements Serializable {
         }
     }
 
-
-    public String getPendingRasPiInternalId() {
-        return pendingRasPiInternalId;
+    public String getPasswordForDownload() {
+        return passwordForDownload;
     }
 
-    public void setPendingRasPiInternalId(String pendingRasPiInternalId) {
-        this.pendingRasPiInternalId = pendingRasPiInternalId;
+    public void setPasswordForDownload(String passwordForDownload) {
+        this.passwordForDownload = passwordForDownload;
+    }
+
+    public RaspberryPi getRaspberryPiToDownload() {
+        return raspberryPiToDownload;
+    }
+
+    public void setRaspberryPiToDownload(RaspberryPi raspberryPiToDownload) {
+        this.raspberryPiToDownload = raspberryPiToDownload;
     }
 
     public RaspberryPi getRaspberryPi() {
@@ -181,5 +144,20 @@ public class RaspberryPiController implements Serializable {
 
     public void setRaspberryPi(RaspberryPi raspberryPi) {
         this.raspberryPi = raspberryPi;
+    }
+
+    public StreamedContent getConfig() throws Exception {
+        if(raspberryPiToDownload != null) {
+            DefaultStreamedContent content = new DefaultStreamedContent();
+            content.setName(raspberryPiToDownload.getInternalId() + ".zip");
+            content.setContentType("application/zip");
+            content.setStream(new FileInputStream(ConfigDownloader.downloadConfig(passwordForDownload, raspberryPiToDownload.getInternalId()).getAbsolutePath()));
+            return content;
+        }
+        return null;
+    }
+
+    public void setConfig(StreamedContent config) {
+        this.config = config;
     }
 }

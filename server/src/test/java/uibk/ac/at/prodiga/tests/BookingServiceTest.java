@@ -321,35 +321,6 @@ public class BookingServiceTest
     }
 
     /**
-     * Tests adding a new booking where start date is before end date
-     */
-    @DirtiesContext
-    @Test
-    @WithMockUser(username = "booking_test_user1", authorities = {"EMPLOYEE"})
-    public void save_booking_too_long()
-    {
-        User admin = DataHelper.createAdminUser("admin", userRepository);
-        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
-        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
-        User u1 = DataHelper.createUserWithRoles("booking_test_user1", Sets.newSet(UserRole.EMPLOYEE),admin, dept, team, userRepository);
-        BookingCategory cat = DataHelper.createBookingCategory("test_category_01", admin, bookingCategoryRepository);
-
-        Booking b1 = new Booking();
-        b1.setUser(u1);
-        b1.setBookingCategory(cat);
-        //set activity end time to 5 minutes before current time.
-        Date endingTime = new Date(new Date().getTime() - 60*1000*5);
-        b1.setActivityEndDate(endingTime);
-        //set activity start time to 9 hours before current time
-        Date startingTime = new Date(new Date().getTime() - 60*1000*60*9);
-        b1.setActivityStartDate(startingTime);
-
-        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
-            bookingService.saveBooking(b1);
-        }, "Booking was saved despite activity being longer than 8 hours.");
-    }
-
-    /**
      * Tests adding a booking for another user
      */
     @DirtiesContext

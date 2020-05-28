@@ -135,7 +135,7 @@ public class VacationController implements Serializable
      */
     public void doDeleteVacation() throws Exception
     {
-        this.vacationService.deleteVacation(vacation);
+        this.vacationService.deleteVacation(vacation, false);
         this.currentVacations.remove(vacation);
         SnackbarHelper.getInstance()
                 .showSnackBar("Vacation \"" + vacation.getId() + "\" deleted!", MessageType.ERROR);
@@ -177,16 +177,6 @@ public class VacationController implements Serializable
     public boolean hasStarted(Vacation vacation)
     {
         return vacation.getBeginDate().after(new Date());
-    }
-
-    /**
-     * Returns whether or not the vacation has already ended
-     * @param vacation The vacation to check
-     * @return true if the vacation has already ended
-     */
-    public boolean hasEnded(Vacation vacation)
-    {
-        return vacation.getEndDate().after(new Date());
     }
 
     /**
