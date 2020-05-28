@@ -12,10 +12,10 @@ Contains the java code for the Raspberry Pi clients.
 
 ### docs
 Contains all project documentation, such as timesheets, the concept description and the test script
-- `Konzeptbeschreibung - Final.pdf`: Final version of the projects concept
+- `Konzeptbeschreibung.pdf`: Final version of the projects concept
  document.
 - Timesheets: Contains the students' timesheets.
-- `Testdrehbuch - Final.pdf`: Final version of the test script
+- `Testdrehbuch.pdf`: Final version of the test script
 
 
 ### scripts
