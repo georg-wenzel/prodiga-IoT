@@ -58,44 +58,15 @@ public class DepartmentController implements Serializable {
 
 
     /**
-     * Saves currently selected department
-     * @throws Exception when save fails
+     * Saves a department in the database. If an object with this ID already exists, overwrites the object's data at this ID
+     * @return The new state of the object in the database.
+     * @throws Exception Is thrown when name is not between 2 and 20 characters, department leader is not a valid database user or department leader user is already a teamleader or departmentleader elsewhere.
      */
     public void doSaveDepartment() throws Exception {
         department = departmentService.saveDepartment(department);
         departmentService.setDepartmentLeader(department, departmentLeader);
 
         SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
-    }
-
-    /**
-     * Saves a department in the database. If an object with this ID already exists, overwrites the object's data at this ID
-     * @param department The department to save
-     * @return The new state of the object in the database.
-     * @throws ProdigaGeneralExpectedException Is thrown when name is not between 2 and 20 characters, department leader is not a valid database user or department leader user is already a teamleader or departmentleader elsewhere.
-     */
-    public void doSaveDepartment(Department department) {
-        SnackbarHelper.getInstance().showSnackBar("Department " + department.getName() + " saved!", MessageType.INFO);
-    }
-
-
-    /**
-     * Returns true if the department is the same as the database state
-     * @param department The department to check
-     * @return True if the department is the same as in the database, false otherwise.
-     */
-    public boolean isDepartmentUnchanged(Department department) {
-        return departmentService.isDepartmentUnchanged(department);
-    }
-
-    /**
-     * Sets the department leader to a certain user
-     * @param department The department to set the leader for
-     * @param user The user to make leader
-     * @throws ProdigaGeneralExpectedException If department/user are not valid, or the user cannot be made leader of this department, an exception is thrown.
-     */
-    public void setDepartmentLeader(Department department, User user) throws ProdigaGeneralExpectedException {
-        this.departmentService.setDepartmentLeader(department, user);
     }
 
     /**
@@ -152,9 +123,9 @@ public class DepartmentController implements Serializable {
     }
 
     /**
-     * Sets deparment.
+     * Sets department.
      *
-     * @param department
+     * @param department department to set
      */
     public void setDepartment(Department department) {
         this.department = department;
