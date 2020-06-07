@@ -182,7 +182,7 @@ public class UserService {
             diceService.save(d);
         }
 
-        bookingService.deleteBookingsForUser(user);
+        bookingService.deleteUserForBookings(user);
         badgeDBService.deleteBadgesForUser(user);
         vacationService.deleteVacationsForUser(user);
 
