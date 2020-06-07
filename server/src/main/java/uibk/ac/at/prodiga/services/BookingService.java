@@ -277,6 +277,27 @@ public class BookingService
     }
 
     /**
+     * Sets the user of the bookings of the deleted user to null.
+     * Bookings are still available but user is null.
+     *
+     * @param u The user
+     */
+    public void deleteUserForBookings(User u) throws ProdigaGeneralExpectedException {
+        Collection<Booking> bookings = getAllBookingsByUser(u);
+
+        bookings.forEach(b -> {
+            b.setUser(null);
+            if (Optional.ofNullable(b.getObjectChangedUser()).isPresent()){
+                b.setObjectChangedUser(null);
+            }
+            if (b.getObjectCreatedUser().equals(u)){
+                b.setObjectCreatedUser(null);
+            }
+        });
+        bookingRepository.saveAll(bookings);
+    }
+
+    /**
      * For a given date, returns if this date is in the same week or previous week as the current date.
      * @param date The date to check
      * @return True if date is in current or last week, false otherwise.
