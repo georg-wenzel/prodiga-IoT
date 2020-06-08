@@ -94,19 +94,24 @@ public class BookingCategoryServiceTest {
         int amount = 5;
         Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
+
+
+        int addMandatory = 0;
         for(int i = 0; i < amount; i++) {
             BookingCategory cat = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
 
             if(i % 2 == 0) {
+                if(cat.getId().equals(Constants.VACATION_BOOKING_ID)) addMandatory--;
                 cat.setTeams(Sets.newSet(t));
                 bookingCategoryRepository.save(cat);
             }
+            else if(cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) addMandatory++;
         }
 
         int includeMandatoryCategory = (bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).isPresent() ? 1 : 0);
 
         Assertions.assertNotNull(bookingCategoryService.findAllCategoriesByTeam(null), "Service returns null when accessing with null");
-        Assertions.assertEquals(3 + includeMandatoryCategory, bookingCategoryService.findAllCategoriesByTeam(t).size(), "Could not find correct amount of booking categories.");
+        Assertions.assertEquals(3 + addMandatory, bookingCategoryService.findAllCategoriesByTeam(t).size(), "Could not find correct amount of booking categories.");
     }
 
     @Test
@@ -138,18 +143,20 @@ public class BookingCategoryServiceTest {
         Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
         DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
+        int addMandatory = 0;
+
         for(int i = 0; i < amount; i++) {
             BookingCategory cat = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
 
             if(i % 2 == 0) {
+                if(cat.getId().equals(Constants.VACATION_BOOKING_ID)) addMandatory--;
                 cat.setTeams(Sets.newSet(t));
                 bookingCategoryRepository.save(cat);
             }
+            else if(cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID)) addMandatory++;
         }
 
-        int includeMandatoryCategory = (bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).isPresent() ? 1 : 0);
-
-        Assertions.assertEquals(3 + includeMandatoryCategory, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
+        Assertions.assertEquals(3 + addMandatory, bookingCategoryService.findAllCategoriesByTeam().size(), "Could not find correct amount of booking categories.");
     }
 
     @Test
@@ -160,7 +167,8 @@ public class BookingCategoryServiceTest {
         Department d = DataHelper.createRandomDepartment(admin, departmentRepository);
         Team t = DataHelper.createRandomTeam(d, admin, teamRepository);
         DataHelper.createUserWithRoles("test_teamleader", Sets.newSet(UserRole.TEAMLEADER), admin, d, t, userRepository);
-        for(int i = 0; i < amount; i++) {
+        for(int i = 0; i < amount; i++)
+        {
             BookingCategory cat = DataHelper.createBookingCategory("test" + i, admin, bookingCategoryRepository);
 
             if(i % 2 == 0) {
@@ -168,7 +176,7 @@ public class BookingCategoryServiceTest {
                 bookingCategoryRepository.save(cat);
             }
         }
-        Assertions.assertEquals(2, bookingCategoryService.findAllCategoriesNotUsedByTeam().size(), "Could not find correct amount of booking categories.");
+        Assertions.assertEquals(3, bookingCategoryService.findAllCategoriesNotUsedByTeam().size(), "Could not find correct amount of booking categories.");
     }
 
     @Test

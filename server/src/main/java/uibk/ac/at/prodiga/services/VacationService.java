@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.model.Vacation;
 import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
@@ -49,10 +50,10 @@ public class VacationService
         this.bookingCategoryRepository = bookingCategoryRepository;
     }
 
-    /**
-     * Returns a collection of all the users
-     * @return A collection of all vacations of the user calling the method
-     */
+        /**
+         * Returns a collection of all the users
+         * @return A collection of all vacations of the user calling the method
+         */
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Vacation> getAllVacations()
     {
