@@ -64,7 +64,9 @@ public class BookingCategoryService
             return new ArrayList<>();
         }
         List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamExcept(t, Constants.VACATION_BOOKING_ID));
-        bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).ifPresent(teamCategories::add);
+        BookingCategory mand = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).orElse(null);
+        if(mand != null && !teamCategories.contains(mand))
+            teamCategories.add(mand);
         return teamCategories;
     }
 
@@ -76,7 +78,9 @@ public class BookingCategoryService
     public Collection<BookingCategory> findAllCategoriesByTeam()
     {
         List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamExcept(prodigaUserLoginManager.getCurrentUser().getAssignedTeam(), Constants.VACATION_BOOKING_ID));
-        bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).ifPresent(teamCategories::add);
+        BookingCategory mand = bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).orElse(null);
+        if(mand != null && !teamCategories.contains(mand))
+            teamCategories.add(mand);
         return teamCategories;
     }
 
