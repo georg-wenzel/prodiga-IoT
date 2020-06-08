@@ -21,6 +21,7 @@
                         Here your can see a logged information. There might be a bunch of them, so try out the great filters we've got :)
                         <div class="ui-g">
                             <div class="ui-g-12">
+                                <h:panelGrid columns="4" cellpadding="5">
                                 <div class="ui-g-1 input-form">
                                     <p:outputLabel for="startDate" value="After Date: "/>
                                 </div>
@@ -47,6 +48,7 @@
                                                  value="#{logInformationController.user}"
                                                  label="Username"/>
                                 </div>
+                                </h:panelGrid>
                                 <div class="ui-g-1 input-form">
                                     <p:commandButton id="reset"
                                                      value="Reset"
@@ -54,6 +56,7 @@
                                                      update="resultTable"
                                                      action="#{logInformationController.reset}"/>
                                 </div>
+
                             </div>
                         </div>
                         <p:commandButton id="startSearch"
