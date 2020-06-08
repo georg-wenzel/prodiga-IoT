@@ -49,7 +49,7 @@ public class BookingCategoryService
     @PreAuthorize("hasAuthority('ADMIN') || hasAuthority('DEPARTMENTLEADER') || hasAuthority('TEAMLEADER') || hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<BookingCategory> findAllCategories()
     {
-        return Lists.newArrayList(bookingCategoryRepository.findAll());
+        return Lists.newArrayList(bookingCategoryRepository.findAllExcept(Constants.VACATION_BOOKING_ID));
     }
 
     /**
@@ -63,7 +63,7 @@ public class BookingCategoryService
         if(t == null) {
             return new ArrayList<>();
         }
-        List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(t));
+        List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamExcept(t, Constants.VACATION_BOOKING_ID));
         bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).ifPresent(teamCategories::add);
         return teamCategories;
     }
@@ -75,7 +75,7 @@ public class BookingCategoryService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesByTeam()
     {
-        List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamsContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
+        List<BookingCategory> teamCategories = Lists.newArrayList(bookingCategoryRepository.findAllByTeamExcept(prodigaUserLoginManager.getCurrentUser().getAssignedTeam(), Constants.VACATION_BOOKING_ID));
         bookingCategoryRepository.findById(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID).ifPresent(teamCategories::add);
         return teamCategories;
     }
@@ -92,7 +92,7 @@ public class BookingCategoryService
             return new ArrayList<>();
         }
 
-        return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsNotContaining(t));
+        return Lists.newArrayList(bookingCategoryRepository.findAllWithoutTeamExcept(t, Constants.VACATION_BOOKING_ID));
     }
 
     /**
@@ -102,7 +102,7 @@ public class BookingCategoryService
     @PreAuthorize("hasAuthority('TEAMLEADER')") //NOSONAR
     public Collection<BookingCategory> findAllCategoriesNotUsedByTeam()
     {
-        return Lists.newArrayList(bookingCategoryRepository.findAllByTeamsNotContaining(prodigaUserLoginManager.getCurrentUser().getAssignedTeam()));
+        return Lists.newArrayList(bookingCategoryRepository.findAllByTeamExcept(prodigaUserLoginManager.getCurrentUser().getAssignedTeam(), Constants.VACATION_BOOKING_ID));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')") //NOSONAR
@@ -153,9 +153,18 @@ public class BookingCategoryService
             throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at least one team", MessageType.ERROR);
         }
 
-
         if(bookingRepository.findAllByBookingCategory(cat).size() > 0) {
             throw new ProdigaGeneralExpectedException("Cannot delete category because it is used by at least one booking", MessageType.ERROR);
+        }
+
+        if(cat.getId() != null && cat.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID))
+        {
+            throw new ProdigaGeneralExpectedException("Cannot delete mandatory category.", MessageType.ERROR);
+        }
+
+        if(cat.getId() != null & cat.getId().equals(Constants.VACATION_BOOKING_ID))
+        {
+            throw new RuntimeException("Cannot delete vacation category.");
         }
 
         bookingCategoryRepository.delete(cat);
