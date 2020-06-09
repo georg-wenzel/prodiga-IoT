@@ -10,18 +10,23 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import uibk.ac.at.prodiga.model.Booking;
 import uibk.ac.at.prodiga.model.User;
+import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.model.Vacation;
+import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.VacationRepository;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * Service for accessing and manipulating vacations.
@@ -33,20 +38,22 @@ public class VacationService
     private final VacationRepository vacationRepository;
     private final ProdigaUserLoginManager userLoginManager;
     private final BookingRepository bookingRepository;
+    private final BookingCategoryRepository bookingCategoryRepository;
     private final LogInformationService logInformationService;
 
-    public VacationService(VacationRepository vacationRepository, ProdigaUserLoginManager userLoginManager, BookingRepository bookingRepository, LogInformationService logInformationService)
+    public VacationService(VacationRepository vacationRepository, ProdigaUserLoginManager userLoginManager, BookingRepository bookingRepository, BookingCategoryRepository bookingCategoryRepository, LogInformationService logInformationService)
     {
         this.vacationRepository = vacationRepository;
         this.userLoginManager = userLoginManager;
         this.bookingRepository = bookingRepository;
         this.logInformationService = logInformationService;
+        this.bookingCategoryRepository = bookingCategoryRepository;
     }
 
-    /**
-     * Returns a collection of all the users
-     * @return A collection of all vacations of the user calling the method
-     */
+        /**
+         * Returns a collection of all the users
+         * @return A collection of all vacations of the user calling the method
+         */
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public Collection<Vacation> getAllVacations()
     {
@@ -123,10 +130,27 @@ public class VacationService
 
             vacation.setObjectChangedDateTime(new Date());
             vacation.setObjectChangedUser(userLoginManager.getCurrentUser());
+
+            //delete old vacation booking if exists, create new one after
+            bookingRepository.findUsersBookingWithCategoryInRange(u, bookingCategoryRepository.findById(Constants.VACATION_BOOKING_ID).orElse(null),
+                    Date.from(Instant.ofEpochMilli(db_vacation.getBeginDate().toInstant().toEpochMilli() - 1000 * 60 * 30)),
+                    Date.from(Instant.ofEpochMilli(db_vacation.getEndDate().toInstant().toEpochMilli() + 1000 * 60 * 60 * 24 + 1000 * 60 * 30))).stream().findFirst().ifPresent(bookingRepository::delete);
         }
 
         //Save method if no exception has been thrown so far
         Vacation result = vacationRepository.save(vacation);
+
+        //Create vacation booking covering these days
+        Booking vacationBooking = new Booking();
+        vacationBooking.setDept(u.getAssignedDepartment());
+        vacationBooking.setTeam(u.getAssignedTeam());
+        vacationBooking.setActivityStartDate(vacation.getBeginDate());
+        vacationBooking.setActivityEndDate(Date.from(Instant.ofEpochMilli(vacation.getEndDate().toInstant().toEpochMilli() + 1000 * 60 * 60 * 24)));
+        vacationBooking.setBookingCategory(bookingCategoryRepository.findById(Constants.VACATION_BOOKING_ID).orElse(null));
+        vacationBooking.setUser(u);
+        vacationBooking.setObjectCreatedUser(u);
+        vacationBooking.setObjectCreatedDateTime(new Date());
+        bookingRepository.save(vacationBooking);
 
         logInformationService.logForCurrentUser("Vacation " + result.getId() + " was saved");
 
@@ -160,10 +184,11 @@ public class VacationService
     @PreAuthorize("hasAuthority('EMPLOYEE')") //NOSONAR
     public void deleteVacation(Vacation vacation, boolean hardDelete) throws ProdigaGeneralExpectedException
     {
+        User u = userLoginManager.getCurrentUser();
         Vacation v = vacation;
         if(!hardDelete) {
             v = vacationRepository.findFirstById(vacation.getId());
-            if(!v.getUser().equals(userLoginManager.getCurrentUser()))
+            if(!v.getUser().equals(u))
             {
                 throw new RuntimeException("Attempted to delete vacation from different user.");
             }
@@ -173,6 +198,10 @@ public class VacationService
             }
         }
         vacationRepository.delete(v);
+
+        bookingRepository.findUsersBookingWithCategoryInRange(u, bookingCategoryRepository.findById(Constants.VACATION_BOOKING_ID).orElse(null),
+                Date.from(Instant.ofEpochMilli(v.getBeginDate().toInstant().toEpochMilli() - 1000 * 60 * 30)),
+                Date.from(Instant.ofEpochMilli(v.getEndDate().toInstant().toEpochMilli() + 1000 * 60 * 60 * 24 + 1000 * 60 * 30))).stream().findFirst().ifPresent(bookingRepository::delete);
 
         logInformationService.logForCurrentUser("Vacation " + v.getId() + " was deleted");
     }
@@ -268,7 +297,7 @@ public class VacationService
         }
 
         //check that there is no booking for any vacation days
-        if(!bookingRepository.findUsersBookingInRange(vacation.getUser(), vacation.getBeginDate(), vacation.getEndDate()).isEmpty())
+        if(!bookingRepository.findUsersBookingInRange(vacation.getUser(), vacation.getBeginDate(), vacation.getEndDate()).stream().filter(x -> !x.getBookingCategory().getId().equals(Constants.VACATION_BOOKING_ID)).collect(Collectors.toList()).isEmpty())
         {
             throw new ProdigaGeneralExpectedException("Vacation covers existing bookings.", MessageType.ERROR);
         }

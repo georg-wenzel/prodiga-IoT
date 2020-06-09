@@ -192,8 +192,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u1,bookingRepository);
 
@@ -262,8 +262,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,bookingRepository);
 
@@ -274,8 +274,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime3 = Date.from(LocalDate.now().plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime3 = Date.from(LocalDate.now().plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime3 = Date.from(LocalDate.now().minusMonths(1).plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().minusMonths(1).plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking3 = DataHelper.createBooking(cat1,startTime3,endTime3,u3,bookingRepository);
 
@@ -312,8 +312,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,bookingRepository);
 
@@ -324,8 +324,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime3 = Date.from(LocalDate.now().plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime3 = Date.from(LocalDate.now().plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime3 = Date.from(LocalDate.now().minusMonths(1).plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().minusMonths(1).plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,bookingRepository);
 
@@ -361,8 +361,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime2 = Date.from(LocalDate.now().plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime2 = Date.from(LocalDate.now().plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime2 = Date.from(LocalDate.now().minusMonths(1).plusDays(10).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking2 = DataHelper.createBooking(cat2,startTime2,endTime2,u2,bookingRepository);
 
@@ -373,8 +373,8 @@ public class ProductivityAnalysisServiceTest {
         }
         else
         {
-            endTime3 = Date.from(LocalDate.now().plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
-            startTime3 = Date.from(LocalDate.now().plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            endTime3 = Date.from(LocalDate.now().minusMonths(1).plusDays(5).atTime(11, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
+            startTime3 = Date.from(LocalDate.now().minusMonths(1).plusDays(5).atTime(10, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         }
         Booking booking3 = DataHelper.createBooking(cat2,startTime3,endTime3,u3,bookingRepository);
 

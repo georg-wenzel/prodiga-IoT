@@ -9,10 +9,7 @@ import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
-import uibk.ac.at.prodiga.utils.EmployeeManagementUtil;
-import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
+import uibk.ac.at.prodiga.utils.*;
 
 import java.util.Collection;
 import java.util.Date;
@@ -175,7 +172,7 @@ public class TeamService
         }
 
         //delete all the teams used categories
-        Collection<BookingCategory> cats = bookingCategoryRepository.findAllByTeamsContaining(dbTeam);
+        Collection<BookingCategory> cats = bookingCategoryRepository.findAllByTeamExcept(dbTeam, Constants.VACATION_BOOKING_ID);
         for(BookingCategory cat : cats)
         {
             Set<Team> teams = cat.getTeams();

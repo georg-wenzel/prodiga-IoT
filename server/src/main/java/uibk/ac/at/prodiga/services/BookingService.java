@@ -9,6 +9,7 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.BookingRepository;
 import uibk.ac.at.prodiga.repositories.DiceRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.MessageType;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
@@ -163,6 +164,11 @@ public class BookingService
             throw new RuntimeException("User may only modify his own activities.");
         }
 
+        if(booking.getBookingCategory() != null && booking.getBookingCategory().getId().equals(Constants.VACATION_BOOKING_ID))
+        {
+            throw new ProdigaGeneralExpectedException("Cannot create activity of type vacation. They are created automatically with any vacation", MessageType.ERROR);
+        }
+
         Vacation vacationCoveringBooking = useAuth ? vacationService.vacationCoversBooking(booking)
                 : vacationService.vacationCoversBooking(booking, u);
         if(vacationCoveringBooking != null)
@@ -202,6 +208,11 @@ public class BookingService
             if(!db_booking.getUser().equals(booking.getUser()))
             {
                 throw new RuntimeException("The user of an activity may not be changed, as it is tied to the user.");
+            }
+
+            if(db_booking.getBookingCategory() != null && db_booking.getBookingCategory().getId().equals(Constants.VACATION_BOOKING_ID))
+            {
+                throw new ProdigaGeneralExpectedException("Cannot edit activity of type vacation. They are edited automatically with any vacation", MessageType.ERROR);
             }
 
             booking.setObjectChangedDateTime(new Date());
@@ -250,6 +261,11 @@ public class BookingService
             if(isEarlierThanLastWeek(booking.getActivityStartDate()) && !u.getMayEditHistoricData())
             {
                 throw new ProdigaGeneralExpectedException("User cannot delete bookings from earlier than 2 weeks ago.", MessageType.ERROR);
+            }
+
+            if(booking.getBookingCategory() != null && booking.getBookingCategory().getId().equals(Constants.VACATION_BOOKING_ID))
+            {
+                throw new ProdigaGeneralExpectedException("User cannot delete bookings of type vacation. They are deleted automatically when the vacation is deleted.", MessageType.ERROR);
             }
         }
 

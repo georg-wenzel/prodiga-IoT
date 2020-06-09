@@ -11,14 +11,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import uibk.ac.at.prodiga.model.BookingCategory;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.model.Vacation;
+import uibk.ac.at.prodiga.repositories.BookingCategoryRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.repositories.VacationRepository;
 import uibk.ac.at.prodiga.services.VacationService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
 import uibk.ac.at.prodiga.ui.controllers.VacationController;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
 
@@ -49,13 +52,21 @@ public class VacationControllerTest
     UserRepository userRepository;
 
     @Autowired
+    BookingCategoryRepository bookingCategoryRepository;
+
+    @Autowired
     VacationRepository vacationRepository;
 
     @BeforeEach
     public void init_each()
     {
+
         admin = DataHelper.createAdminUser("admin", userRepository);
         employee = DataHelper.createUserWithRoles("vacation_test_user_1", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+
+        //Make sure the category exists to store bookings for vacations to avoid nullpointers
+        for(int i=0;i<=Constants.VACATION_BOOKING_ID;i++)
+            DataHelper.createBookingCategory("testcateg" + i,admin,bookingCategoryRepository);
 
         userVacations = new ArrayList<>();
         //Create 3 vacations in the current year, totalling 15 vacation days
