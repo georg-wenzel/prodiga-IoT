@@ -1,5 +1,9 @@
 version: '3'
 
+networks: 
+    app-tier:
+        driver: bridge
+
 services:
     db:
         image: mysql
@@ -11,21 +15,16 @@ services:
             - MYSQL_ROOT_PASSWORD=root
         ports:
             - 3306:3306
+        networks: 
+            - app-tier
 
     server:
         build: .
         image: prodiga_server:1.0
         ports:
-            - 8080:8080
+            - 8081:8081
         depends_on:
             - db
-        environment:
-            - MYSQL_HOST=db
         restart: always
-        volumes:
-            - m2data:${HOME}/.m2/repository
-            - ${PWD}/server:/home/prodiga_user/app
-
-volumes:
-    m2data:
-        external: false
+        networks: 
+            - app-tier
