@@ -16,4 +16,4 @@ CMD ["spring-boot:run"]
 
 RUN mvn dependency:go-offline
 
-EXPOSE 8081/tcp
+EXPOSE 8080/tcp
