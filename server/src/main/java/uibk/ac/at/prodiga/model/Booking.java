@@ -19,7 +19,7 @@ public class Booking implements Persistable<Long>, Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
     private User user;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = BookingCategory.class)
@@ -37,7 +37,7 @@ public class Booking implements Persistable<Long>, Serializable
     @Column(nullable = false)
     private Date activityEndDate;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER, targetEntity = User.class)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER, targetEntity = User.class)
     private User objectCreatedUser;
 
     @Column(nullable = false)

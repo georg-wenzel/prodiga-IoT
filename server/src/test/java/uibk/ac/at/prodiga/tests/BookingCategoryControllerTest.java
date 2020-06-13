@@ -94,6 +94,7 @@ public class BookingCategoryControllerTest
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void delete_categories() throws ProdigaGeneralExpectedException
     {
+        while(cat1.getId().equals(Constants.DO_NOT_BOOK_BOOKING_CATEGORY_ID) || cat1.getId().equals(Constants.VACATION_BOOKING_ID)) cat1 = DataHelper.createBookingCategory("testcat_alt", admin, bookingCategoryRepository);
         controller.setDeleteCategory(cat1);
         controller.doDeleteCategory();
 

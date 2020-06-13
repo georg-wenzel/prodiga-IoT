@@ -7,14 +7,17 @@ import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import uibk.ac.at.prodiga.model.Department;
+import uibk.ac.at.prodiga.model.Team;
 import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.model.UserRole;
 import uibk.ac.at.prodiga.repositories.DepartmentRepository;
+import uibk.ac.at.prodiga.repositories.TeamRepository;
 import uibk.ac.at.prodiga.repositories.UserRepository;
 import uibk.ac.at.prodiga.services.DepartmentService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
@@ -41,6 +44,9 @@ public class DepartmentServiceTest
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    TeamRepository teamRepository;
+
     /**
      * Tests loading of department data
      */
@@ -52,6 +58,25 @@ public class DepartmentServiceTest
         Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
 
         Department dept_db = departmentService.getFirstByName(dept.getName());
+        Assertions.assertNotNull(dept_db, "Could not load test department.");
+        Assertions.assertEquals(dept_db, dept, "Service returned object does not match DB state.");
+        Assertions.assertEquals(admin, dept_db.getObjectCreatedUser(), "Creation user of test department does not match admin.");
+        Assertions.assertEquals(dept.getObjectCreatedDateTime(), dept_db.getObjectCreatedDateTime(), "Creation date not loaded properly from test department.");
+        Assertions.assertNull(dept_db.getObjectChangedDateTime(), "Test department changed date time should be null, but is not");
+        Assertions.assertNull(dept_db.getObjectChangedUser(), "Test department changed user should be null, but is not");
+    }
+
+    /**
+     * Tests loading of department data by id
+     */
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void load_department_data_id()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+
+        Department dept_db = departmentService.loadDepartment(dept.getId());
         Assertions.assertNotNull(dept_db, "Could not load test department.");
         Assertions.assertEquals(dept_db, dept, "Service returned object does not match DB state.");
         Assertions.assertEquals(admin, dept_db.getObjectCreatedUser(), "Creation user of test department does not match admin.");
@@ -231,6 +256,28 @@ public class DepartmentServiceTest
     }
 
     /**
+     * Tests setting the department leader to null
+     */
+    @DirtiesContext
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void remove_department_leader() throws ProdigaGeneralExpectedException
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        User user1 = DataHelper.createUserWithRoles(Sets.newSet(UserRole.EMPLOYEE, UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+
+        departmentService.setDepartmentLeader(dept, null);
+
+        //reload user and department
+        user1 = userRepository.findFirstByUsername(user1.getUsername());
+        dept = departmentRepository.findFirstById(dept.getId());
+
+        Assertions.assertTrue(user1.getRoles().contains(UserRole.EMPLOYEE) && !user1.getRoles().contains(UserRole.DEPARTMENTLEADER), "user1 was not made employee.");
+        Assertions.assertNull(userRepository.findDepartmentLeaderOf(dept), "Department still has a department leader..");
+    }
+
+    /**
      * Tests setting the department leader with lacking authorization
      */
     @Test
@@ -292,5 +339,82 @@ public class DepartmentServiceTest
         Assertions.assertThrows(RuntimeException.class, () -> {
             departmentService.setDepartmentLeader(dept, new User());
         }, "Department was updated despite User not existing in the database.");
+    }
+
+    /**
+     * Tests deleting a department with departmentleader
+     */
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void delete_department_with_deptleader()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        DataHelper.createUserWithRoles("deptleader", Sets.newSet(UserRole.EMPLOYEE, UserRole.DEPARTMENTLEADER), admin, dept, null, userRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.deleteDepartment(dept);
+        }, "Department was deleted despite having an active department leader.");
+    }
+
+    /**
+     * Tests deleting a department with members
+     */
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void delete_department_with_member()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        DataHelper.createUserWithRoles("deptmember", Sets.newSet(UserRole.EMPLOYEE), admin, dept, null, userRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.deleteDepartment(dept);
+        }, "Department was deleted despite having an active member.");
+    }
+
+    /**
+     * Tests deleting a department with remaining teams
+     */
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void delete_department_with_team()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        Team team = DataHelper.createRandomTeam(dept, admin, teamRepository);
+
+        Assertions.assertThrows(ProdigaGeneralExpectedException.class, () -> {
+            departmentService.deleteDepartment(dept);
+        }, "Department was deleted despite having remaining teams.");
+    }
+
+    /**
+     * Tests deleting a department with lacking authorization
+     */
+    @Test
+    @WithMockUser(username = "notadmin", authorities = {"DEPARTMENTLEADER", "TEAMLEADER", "EMPLOYEE"})
+    public void delete_department_unauthorized()
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+
+        Assertions.assertThrows(AccessDeniedException.class, () -> {
+            departmentService.deleteDepartment(dept);
+        }, "Department was deleted despite lacking authorization of ADMIN.");
+    }
+
+    /**
+     * Tests deleting an empty department
+     */
+    @Test
+    @WithMockUser(username = "admin", authorities = {"ADMIN"})
+    public void delete_department() throws Exception
+    {
+        User admin = DataHelper.createAdminUser("admin", userRepository);
+        Department dept = DataHelper.createRandomDepartment(admin, departmentRepository);
+        departmentService.deleteDepartment(dept);
+
+        Assertions.assertNull(departmentRepository.findFirstById(dept.getId()));
     }
 }
