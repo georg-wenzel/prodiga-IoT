@@ -5,7 +5,7 @@
     <groupId>uibk.ac.at</groupId>
     <artifactId>prodiga</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>prodiga</name>
     <description>
