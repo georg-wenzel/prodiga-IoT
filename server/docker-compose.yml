@@ -1,5 +1,9 @@
 version: '3'
 
+networks: 
+    app-tier:
+        driver: bridge
+
 services:
     db:
         image: mysql
@@ -11,6 +15,11 @@ services:
             - MYSQL_ROOT_PASSWORD=root
         ports:
             - 3306:3306
+        restart: always
+        networks: 
+            - app-tier
+        volumes:
+            - ./dockersql:/docker-entrypoint-initdb.d
 
     server:
         build: .
@@ -19,13 +28,10 @@ services:
             - 8080:8080
         depends_on:
             - db
-        environment:
-            - MYSQL_HOST=db
         restart: always
-        volumes:
-            - m2data:${HOME}/.m2/repository
-            - ${PWD}/server:/home/prodiga_user/app
-
-volumes:
-    m2data:
-        external: false
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/prodiga?useLegacyDatetimeCode=false&serverTimezone=UTC
+            SPRING_DATASOURCE_USERNAME: prodiga
+            SPRING_DATASOURCE_PASSWORD: SuperGeheimesPassword123NacktNiemand!!
+        networks: 
+            - app-tier
