@@ -9,10 +9,7 @@ import uibk.ac.at.prodiga.model.User;
 import uibk.ac.at.prodiga.services.BookingCategoryService;
 import uibk.ac.at.prodiga.services.BookingService;
 import uibk.ac.at.prodiga.services.DiceService;
-import uibk.ac.at.prodiga.utils.MessageType;
-import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
-import uibk.ac.at.prodiga.utils.ProdigaUserLoginManager;
-import uibk.ac.at.prodiga.utils.SnackbarHelper;
+import uibk.ac.at.prodiga.utils.*;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -53,7 +50,7 @@ public class BookingController implements Serializable
      */
     public boolean isBookingEditable(Booking booking)
     {
-        return user.getMayEditHistoricData() || !bookingService.isEarlierThanLastWeek(booking.getActivityStartDate());
+        return (user.getMayEditHistoricData() || !bookingService.isEarlierThanLastWeek(booking.getActivityStartDate())) && !booking.getBookingCategory().getId().equals(Constants.VACATION_BOOKING_ID);
     }
 
     /**

@@ -150,6 +150,12 @@ public class UserService {
             } else {
                 user.setPassword(dbUser.getPassword());
             }
+
+            if(user.getMayEditHistoricData() != dbUser.getMayEditHistoricData()) {
+                logInformationService.logForCurrentUser("User " + user.getUsername() + (user.getMayEditHistoricData()
+                    ? " may edit booking his entries"
+                    : " may not edit booking his entries"));
+            }
         }
 
         if(user.getRoles() != null) {
@@ -182,7 +188,7 @@ public class UserService {
             diceService.save(d);
         }
 
-        bookingService.deleteBookingsForUser(user);
+        bookingService.deleteUserForBookings(user);
         badgeDBService.deleteBadgesForUser(user);
         vacationService.deleteVacationsForUser(user);
 

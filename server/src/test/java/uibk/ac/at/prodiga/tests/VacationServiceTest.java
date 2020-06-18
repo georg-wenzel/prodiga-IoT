@@ -19,6 +19,7 @@ import uibk.ac.at.prodiga.model.*;
 import uibk.ac.at.prodiga.repositories.*;
 import uibk.ac.at.prodiga.services.VacationService;
 import uibk.ac.at.prodiga.tests.helper.DataHelper;
+import uibk.ac.at.prodiga.utils.Constants;
 import uibk.ac.at.prodiga.utils.ProdigaGeneralExpectedException;
 
 import java.time.*;
@@ -141,6 +142,9 @@ public class VacationServiceTest
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
 
+        for(int i = 0; i<= Constants.VACATION_BOOKING_ID; i++)
+            DataHelper.createBookingCategory("testcateg" + i,u1,bookingCategoryRepository);
+
         Date fromDate = Date.from(LocalDate.now().plusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date toDate = Date.from(LocalDate.now().plusDays(10).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
@@ -156,6 +160,15 @@ public class VacationServiceTest
         Assertions.assertEquals(u1, v1.getUser(), "User not correctly stored for vacation.");
         Assertions.assertEquals(u1, v1.getObjectCreatedUser(), "User u1 did not become creation user of the vacation");
         Assertions.assertTrue((new Date()).getTime() -  v1.getObjectCreatedDateTime().getTime() < 1000 * 60, "Creation date has not been properly set.");
+
+        //check if vacation booking was also created
+        Booking vb = bookingRepository.findUsersBookingWithCategoryInRange(u1, bookingCategoryRepository.findById(Constants.VACATION_BOOKING_ID).orElse(null),
+                Date.from(Instant.ofEpochMilli(v1.getBeginDate().toInstant().toEpochMilli() - 1000 * 60 * 30)),
+                Date.from(Instant.ofEpochMilli(v1.getEndDate().toInstant().toEpochMilli() + 1000 * 60 * 60 * 24 + 1000 * 60 * 30))).stream().findFirst().get();
+
+        Assertions.assertNotNull(vb, "Vacation booking was not created");
+        Assertions.assertEquals(fromDate.toInstant().toEpochMilli(), vb.getActivityStartDate().toInstant().toEpochMilli(), "Booking starts at the wrong time.");
+        Assertions.assertEquals(toDate.toInstant().toEpochMilli(), vb.getActivityEndDate().toInstant().toEpochMilli() - 1000 * 60 * 60 * 24, "Booking ends at the wrong time.");
     }
 
     /**
@@ -283,6 +296,9 @@ public class VacationServiceTest
     public void create_vacation_new_year() throws ProdigaGeneralExpectedException
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
+
+        for(int i = 0; i<= Constants.VACATION_BOOKING_ID; i++)
+            DataHelper.createBookingCategory("testcateg" + i,u1,bookingCategoryRepository);
 
         //create 25 true vacation days earlier
         DataHelper.createTrueVacation(LocalDate.of(LocalDate.now().getYear(), 1,1), 25, u1, vacationRepository);
@@ -514,6 +530,9 @@ public class VacationServiceTest
     {
         User u1 = DataHelper.createUserWithRoles("vacation_test_user_01", Sets.newSet(UserRole.EMPLOYEE), userRepository);
         Vacation v1 = DataHelper.createVacation(LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), u1, vacationRepository);
+
+        for(int i = 0; i<= Constants.VACATION_BOOKING_ID; i++)
+            DataHelper.createBookingCategory("testcateg" + i,u1,bookingCategoryRepository);
 
         Date newStartDate = Date.from(LocalDate.now().plusDays(3).atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date newEndDate = Date.from(LocalDate.now().plusDays(14).atStartOfDay(ZoneId.systemDefault()).toInstant());

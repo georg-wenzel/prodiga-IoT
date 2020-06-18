@@ -431,7 +431,6 @@ public class UserServiceTest {
         Assertions.assertEquals(1, Lists.newArrayList(bookingRepository.findAll()).size());
         Assertions.assertEquals(1, Lists.newArrayList(diceRepository.findAll()).size());
         Assertions.assertEquals(1, Lists.newArrayList(badgeDBRepository.findAll()).size());
-
         userService.deleteUser(notAdmin);
 
         d = diceRepository.findFirstByInternalId("123");
@@ -439,7 +438,6 @@ public class UserServiceTest {
         Assertions.assertNull(d.getUser());
         Assertions.assertFalse(d.isActive());
 
-        Assertions.assertEquals(0, Lists.newArrayList(bookingRepository.findAll()).size());
         Assertions.assertEquals(0, Lists.newArrayList(badgeDBRepository.findAll()).size());
     }
 }

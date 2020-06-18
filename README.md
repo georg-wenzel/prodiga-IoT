@@ -31,38 +31,7 @@ There are two ways to start the server. Either by using `Docker` or `Maven` and 
 **We recommend using Docker, as it is simpler, and falling back on manual setup if Docker should not function on your system properly.**
 
 ### Setup with Docker
-#### Docker-Compose
-A docker-compose file is provided for you. Run `docker-compose up` in the root directory of the webapp to start the mysql client and webapp server. Alternatively, you can follow the steps below to start individiual pieces of the web application.
-
-#### Alternative: Manual Docker Setup
-##### Setting up a network
-Create a network to connect MySQL Database and Server App by using the docker network command, like so:
-`docker network create prodiga`
-##### MySQL Dockerfile
-You can pull the MySQL dockerfile using `docker pull mysql:latest`
-
-Here is an example command of how to run the MySQL Dockerfile:
-```
-docker run -p 3306:3306 --env MYSQL_USER=prodiga --env 'MYSQL_PASSWORD=SuperGeheimesPassword123NacktNiemand!!' --env MYSQL_DATABASE=prodiga --env MYSQL_ROOT_PASSWORD=root --network prodiga --name db mysql:latest
-```
-This will create the correct user and database for the server to run. Make sure all needed environment variables are present and the password is properly escaped.
-
-##### Prodiga Server Dockerfile
-To start only the server, build the Dockerfile provided, e.g. with
- `docker image build --tag prodiga_server:1.0 .`
- while in the root directory.
-
-You can then start the image. Make sure the database is running before starting the server container.
-
-Here is an example command of how to run the server Dockerfile:
-```
-docker run -p 8080:8080 -v [Your M2 Directory]:/home/prodiga_user/.m2 -v [Prodiga Server Directory]:/home/prodiga_user/app --name server --network prodiga --env MYSQL_HOST=db prodiga_server:1.0
-```
-Of course, you have to adapt the mounted volumes accordingly. The first mount is optional, as to not redownload the maven dependencies at every execution. The secound mount, which should point to the maven application of the root directory, must be mounted to the docker directory /home/prodiga_user/app.
-
-The MYSQL_HOST environment variable is used by spring and must point to the name of your database container.
-
-**The database must be running before running the server.**
+`Dockerfile` and `docker-compose.yml` are located inside the `server` directory. First you need the webapp using `docker build .`. Next you can start everything using `docker-compose up`. It usually takes the server a few tries to start because the DB creates a lot of testdata, which takes a minute or two. However eventually you should see `uibk.ac.at.prodiga.Main : Started Main in xyz seconds` printed to stdout. Now the everything can be accessed from `localhost:8080`.
 
 ### Dockerless Server Setup
 
@@ -84,29 +53,6 @@ Make sure you have the following prerequisites installed locally:
 3. After a while you should see following output on your terminal `uibk.ac.at.prodiga.Main : Started Main in xyz seconds`. The website can now be access on `localhost:8080`.
 
 #### Potential Problems
-##### Potential Problems with Docker
-On Windows Home, directories can not be simply mounted using Docker Toolbox.  The following [StackOverflow question](https://stackoverflow.com/questions/57756835/docker-toolbox-volume-mounting-not-working-on-windows-10) explains in detail how to add a directory to the VirtualBox shared directories, in order to properly mount the directory.
-> 1.  In Virtual Box under 'Settings' -> 'Shared Folders' added 'projects' and pointed it to the location I want to mount. In my case
-> this is 'D:\projects' (Auto-mount and Make Permanent enabled)
-> 2.  Start Docker Quickstart Terminal
-> 3.  Type 'docker-machine ssh default' (the VirtualBox VM that Docker uses is called 'default')
-> 4.  Go to the root of the VM filesystem, command 'cd /'
-> 5.  Switch to the user root by typing 'sudo su'
-> 6.  Create the directory you want to use as a mount point. Which in my case is the same as the name of the shared folder in VirtualBox:
-> 'mkdir projects'
-> 7.  Mount the VirtualBox shared folder by typing 'mount -t vboxsf -o uid=1000,gid=50 projects /projects' (the first 'projects' is the
-> VirtualBox shared folder name, the second '/projects' is the directory
-> I just created and want to use as the mount point).
-> 8.  Now I can add a volume to my Docker file like this: '- /projects/test/www/build/:/var/www/html/' (left side is the /projects
-> mount in my VM, the right side is the directory to mount in my docker
-> container)
-> 9.  Run the command 'docker-compose up' to start using the mount (to be clear: run this command via the Docker Quickstart Terminal outside
-> of your SSH session on your local file system where your
-> docker-compose.yml file is located).
-
-
-On Windows Home, there can also be problems using named volumes, so when using docker-compose, make sure your VM user has permission to access the directory of the created named volume.
-
 ##### Potential Problems with Dockerless Install
 - Database cannot be accessed. This usually menas your connection string is not correct. Check if the MySQL instance is running on port 3306 (which should be default). Also try connect to the DB using the login information inside the `application.properties` file.
 - Error while dropping FKxyz. Whenever you restart the website all data will be lost. If there are any changes to the data model the database will be recreated. Hibernate usually tries to drop all tables before recreating them.
